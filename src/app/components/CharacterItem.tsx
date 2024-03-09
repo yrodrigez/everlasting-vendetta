@@ -1,206 +1,215 @@
-export default function () {
+import axios from "axios";
+import Link from "next/link";
+
+interface APIReference {
+    href: string;
+}
+
+interface Item {
+    key: APIReference;
+    id: number;
+}
+
+interface Slot {
+    type: string;
+    name: string;
+}
+
+interface Quality {
+    type: string;
+    name: string;
+}
+
+interface Media {
+    key: APIReference;
+    id: number;
+}
+
+interface ItemClass {
+    key: APIReference;
+    name: string;
+    id: number;
+}
+
+interface ItemSubclass {
+    key: APIReference;
+    name: string;
+    id: number;
+}
+
+interface InventoryType {
+    type: string;
+    name: string;
+}
+
+interface Binding {
+    type: string;
+    name: string;
+}
+
+interface Color {
+    r: number;
+    g: number;
+    b: number;
+    a: number;
+}
+
+interface Display {
+    display_string: string;
+    color: Color;
+}
+
+interface Armor {
+    value: number;
+    display: Display;
+}
+
+interface Stat {
+    type: {
+        type: string;
+        name: string;
+    };
+    value: number;
+    display: Display;
+}
+
+interface Spell {
+    spell: Item;
+    description: string;
+}
+
+interface SellPrice {
+    value: number;
+    display_strings: {
+        header: string;
+        gold: string;
+        silver: string;
+        copper: string;
+    };
+}
+
+interface Requirements {
+    level?: {
+        value: number;
+        display_string: string;
+    };
+    skill?: {
+        profession: Item;
+        level: number;
+        display_string: string;
+    };
+}
+
+export interface ItemDetails {
+    item: Item;
+    slot: Slot;
+    quantity: number;
+    quality: Quality;
+    name: string;
+    media: Media;
+    item_class: ItemClass;
+    item_subclass: ItemSubclass;
+    inventory_type: InventoryType;
+    binding: Binding;
+    armor: Armor;
+    stats: Stat[];
+    spells: Spell[];
+    sell_price: SellPrice;
+    requirements: Requirements;
+    description: string;
+    durability: {
+        value: number;
+        display_string: string;
+    };
+}
+
+function getKnownItemImage(itemId: number) {
+    const knownImages = {
+        215161: 'https://wow.zamimg.com/images/wow/icons/large/inv_helmet_49.jpg',
+        210781: 'https://wow.zamimg.com/images/wow/icons/large/inv_bracer_25a.jpg',
+        211450: 'https://wow.zamimg.com/images/wow/icons/large/inv_misc_gem_pearl_07.jpg',
+        215111: 'https://wow.zamimg.com/images/wow/icons/large/inv_misc_enggizmos_27.jpg',
+        999999: 'https://wow.zamimg.com/images/wow/icons/medium/inventoryslot_empty.jpg',
+        0: 'https://wow.zamimg.com/images/wow/icons/large/inv_misc_questionmark.jpg',
+
+    } as any
+    return knownImages[itemId] || ''
+}
+
+async function fetchItemMedia(token: string, itemId: number, locale: string = 'en_US') {
+    let imageUrl = getKnownItemImage(itemId);
+    if (imageUrl) {
+        return imageUrl;
+    }
+    try {
+        const url = `https://eu.api.blizzard.com/data/wow/media/item/${itemId}?namespace=static-classic1x-eu&locale=${locale}`;
+        const {data} = await axios.get(`${url}`, {
+            headers: {'Authorization': 'Bearer ' + token}
+        })
+        imageUrl = data.assets.find((asset: any) => {
+            return asset.key === 'icon'
+        })?.value || getKnownItemImage(0)
+        return imageUrl;
+    } catch (e) {
+        //console.error('Error fetching item media:', e)
+        return getKnownItemImage(0)
+    }
+}
+
+async function fetchItemDetails(token: string, itemId: number, locale: string = 'en_US') {
+    const url = `https://eu.api.blizzard.com/data/wow/item/${itemId}?namespace=static-classic1x-eu&locale=${locale}`;
+    let itemDetails = {quality: {}, level: 0} as any;
+    try {
+        const {data} = await axios.get(`${url}`, {
+            headers: {'Authorization': 'Bearer ' + token}
+        })
+        itemDetails = data;
+    } catch (e) {
+        //console.error('Error fetching item details:', e)
+
+    }
+    return itemDetails;
+}
+
+function getItemRarityHexColor(quality: string) {
+    const rarityColors = {
+        'POOR': '#9d9d9d',
+        'COMMON': '#ffffff',
+        'UNCOMMON': '#1eff00',
+        'RARE': '#0070dd',
+        'EPIC': '#a335ee',
+        'LEGENDARY': '#ff8000',
+        'ARTIFACT': '#e6cc80',
+        'HEIRLOOM': '#00ccff',
+    } as any
+    return rarityColors[quality] || '#ffffff';
+}
+
+export default async function ({item, token, reverse, }: { item: ItemDetails, token: string , reverse?: boolean}) {
+    if(!item) return null;
+    const {id,} = item?.item || {} as any
+    const {name, quality} = item || {};
+    const itemIconUrl = await fetchItemMedia(token, id);
+    const itemDetails = await fetchItemDetails(token, id);
     return (
-            <div className="mx-auto max-w-6xl px-4">
-                <div className="flex items-center gap-4 mb-4">
-                    <h1 className="font-bold text-3xl">Character Items</h1>
-                </div>
-                <div className="flex items-center gap-4 mb-4">
-                    <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-200 dark:border-gray-800">
-                        <img
-                            alt="Character thumbnail"
-                            className="aspect-square object-cover"
-                            height={80}
-                            src="/placeholder.svg"
-                            width={80}
-                        />
-                    </div>
-                    <div className="grid gap-1.5">
-                        <h2 className="font-semibold text-lg">Aethelwulf</h2>
-                        <p className="text-sm text-muted">Level 60 Human Paladin</p>
-                    </div>
-                </div>
-                <div className="grid gap-4">
-                    <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800">
-                            <img
-                                alt="Item thumbnail"
-                                className="aspect-square object-cover"
-                                height={56}
-                                src="/placeholder.svg"
-                                width={56}
-                            />
-                        </div>
-                        <div className="grid gap-0.5">
-                            <h3 className="font-semibold text-sm">Helm of Infinite Visions</h3>
-                            <p className="text-xs text-muted">Item Level 226</p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800">
-                            <img
-                                alt="Item thumbnail"
-                                className="aspect-square object-cover"
-                                height={56}
-                                src="/placeholder.svg"
-                                width={56}
-                            />
-                        </div>
-                        <div className="grid gap-0.5">
-                            <h3 className="font-semibold text-sm">Pauldrons of the Eternal Light</h3>
-                            <p className="text-xs text-muted">Item Level 226</p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800">
-                            <img
-                                alt="Item thumbnail"
-                                className="aspect-square object-cover"
-                                height={56}
-                                src="/placeholder.svg"
-                                width={56}
-                            />
-                        </div>
-                        <div className="grid gap-0.5">
-                            <h3 className="font-semibold text-sm">Cloak of Enveloping Despair</h3>
-                            <p className="text-xs text-muted">Item Level 213</p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800">
-                            <img
-                                alt="Item thumbnail"
-                                className="aspect-square object-cover"
-                                height={56}
-                                src="/placeholder.svg"
-                                width={56}
-                            />
-                        </div>
-                        <div className="grid gap-0.5">
-                            <h3 className="font-semibold text-sm">Robes of the Cursed Command</h3>
-                            <p className="text-xs text-muted">Item Level 226</p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800">
-                            <img
-                                alt="Item thumbnail"
-                                className="aspect-square object-cover"
-                                height={56}
-                                src="/placeholder.svg"
-                                width={56}
-                            />
-                        </div>
-                        <div className="grid gap-0.5">
-                            <h3 className="font-semibold text-sm">Bracers of the Sacred Nexus</h3>
-                            <p className="text-xs text-muted">Item Level 213</p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800">
-                            <img
-                                alt="Item thumbnail"
-                                className="aspect-square object-cover"
-                                height={56}
-                                src="/placeholder.svg"
-                                width={56}
-                            />
-                        </div>
-                        <div className="grid gap-0.5">
-                            <h3 className="font-semibold text-sm">Gloves of Haunting Fixation</h3>
-                            <p className="text-xs text-muted">Item Level 213</p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800">
-                            <img
-                                alt="Item thumbnail"
-                                className="aspect-square object-cover"
-                                height={56}
-                                src="/placeholder.svg"
-                                width={56}
-                            />
-                        </div>
-                        <div className="grid gap-0.5">
-                            <h3 className="font-semibold text-sm">Belt of the Hidden Path</h3>
-                            <p className="text-xs text-muted">Item Level 213</p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800">
-                            <img
-                                alt="Item thumbnail"
-                                className="aspect-square object-cover"
-                                height={56}
-                                src="/placeholder.svg"
-                                width={56}
-                            />
-                        </div>
-                        <div className="grid gap-0.5">
-                            <h3 className="font-semibold text-sm">Leggings of the Screaming Flames</h3>
-                            <p className="text-xs text-muted">Item Level 213</p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800">
-                            <img
-                                alt="Item thumbnail"
-                                className="aspect-square object-cover"
-                                height={56}
-                                src="/placeholder.svg"
-                                width={56}
-                            />
-                        </div>
-                        <div className="grid gap-0.5">
-                            <h3 className="font-semibold text-sm">Boots of the Shattered Sky</h3>
-                            <p className="text-xs text-muted">Item Level 213</p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800">
-                            <img
-                                alt="Item thumbnail"
-                                className="aspect-square object-cover"
-                                height={56}
-                                src="/placeholder.svg"
-                                width={56}
-                            />
-                        </div>
-                        <div className="grid gap-0.5">
-                            <h3 className="font-semibold text-sm">Blade of the Lifetaker</h3>
-                            <p className="text-xs text-muted">Item Level 200</p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800">
-                            <img
-                                alt="Item thumbnail"
-                                className="aspect-square object-cover"
-                                height={56}
-                                src="/placeholder.svg"
-                                width={56}
-                            />
-                        </div>
-                        <div className="grid gap-0.5">
-                            <h3 className="font-semibold text-sm">Mace of the Silent</h3>
-                            <p className="text-xs text-muted">Item Level 200</p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800">
-                            <img
-                                alt="Item thumbnail"
-                                className="aspect-square object-cover"
-                                height={56}
-                                src="/placeholder.svg"
-                                width={56}
-                            />
-                        </div>
-                        <div className="grid gap-0.5">
-                            <h3 className="font-semibold text-sm">Crossbow of the Silver Hand</h3>
-                            <p className="text-xs text-muted">Item Level 200</p>
-                        </div>
-                    </div>
-                </div>
+        <Link
+            href={`https://www.wowhead.com/classic/item=${id}`}
+            className={`flex items-center gap-4 ${reverse ? 'flex-row-reverse' : ''}`}>
+            <div className={`w-12 h-12 rounded-lg overflow-hidden border`} style={{
+                borderColor: getItemRarityHexColor(quality.name.toUpperCase()),
+            }}>
+                <img
+                    alt="Item thumbnail"
+                    className="aspect-square object-cover"
+                    height={56}
+                    src={itemIconUrl}
+                    width={56}
+                />
             </div>
-        )
+            <div className={`grid gap-0.5 ${reverse ? 'text-right' : 'text-left'}`}>
+                <h3 className="font-semibold text-sm">{name}</h3>
+                <p className="text-xs text-muted">Item Level {itemDetails.level}</p>
+            </div>
+        </Link>
+    )
 }

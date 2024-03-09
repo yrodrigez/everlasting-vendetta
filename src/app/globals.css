@@ -23,3 +23,31 @@ body {
     text-wrap: balance;
   }
 }
+
+.scrollbar-pill {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 253, 231, 1) transparent;
+}
+
+.scrollbar-pill::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+
+.scrollbar-pill::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 9999px;
+}
+
+.scrollbar-pill::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 253, 231, 1);
+  border-radius: 9999px;
+  border: 4px solid transparent;
+  background-clip: padding-box;
+}
+
+.scrollbar-pill::-webkit-scrollbar-button {
+  display: none;
+}
+
+

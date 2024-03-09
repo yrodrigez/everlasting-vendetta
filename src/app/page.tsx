@@ -1,87 +1,57 @@
-import axios from "axios";
-import Image from "next/image";
-
-async function fetchGuildInfo(token: string, guildId: string = '5826-2239011', locale: string = 'en_US') {
-    const url = `https://eu.api.blizzard.com/data/wow/guild/${guildId}/roster`;
-    const headers = new Headers();
-    headers.append('Authorization', 'Bearer ' + token);
-
-    const response = await axios.get(`${url}?locale=${locale}&namespace=profile-classic1x-eu`, {
-        headers: {
-            'Authorization': 'Bearer ' + token
-        }
-    })
-
-    if (!response || response.status !== 200) {
-        console.error('Error fetching guild info:', response);
-        return null;
+const intro = [
+    {
+        header: "Welcome to Everlasting Vendetta",
+        paragraphs: [
+            "Embark on an epic journey with Everlasting Vendetta, a distinguished World of Warcraft guild where legends are forged and camaraderie reigns.",
+            "Our guild stands as a beacon for adventurers seeking the thrill of conquest and the warmth of fellowship."
+        ]
+    },
+    {
+        header: "United by Legacy, Bound by Adventure",
+        paragraphs: [
+            "Our guild is more than just a group of gamers; we're a family bound by a shared love for the extraordinary worlds Blizzard has created.",
+            "Inspired by the mystic allure of the lore and the enduring spirit of the people, Everlasting Vendetta is a sanctuary for those who cherish history, fantasy, and the relentless pursuit of greatness."
+        ]
+    },
+    {
+        header: "Join Our Quest",
+        paragraphs: [
+            "Whether you're a seasoned raider, a strategic battleground commander, or a spirited newcomer eager to make your mark, you'll find a home here.",
+            "We celebrate the victories, weather the storms, and embrace the endless possibilities that lie ahead. With us, every member contributes to our shared story, crafting unforgettable memories and achieving new heights of glory."
+        ]
+    },
+    {
+        header: "Celebrate Our Triumphs",
+        paragraphs: [
+            "In Everlasting Vendetta, every battle is an opportunity for glory, and every achievement is a testament to our collective strength.",
+            "Our Raid Calendar is bustling with plans, our Roster is brimming with heroes, and our News section is your source for all the latest guild triumphs and updates."
+        ]
+    },
+    {
+        header: "Discover Your Legend",
+        paragraphs: [
+            "Join us, and together, let's carve out our place in the annals of Azeroth. Forge your path, rise to the challenge, and embrace the spirit of the people.",
+            "Everlasting Vendetta is a sanctuary for those who cherish history, fantasy, and the relentless pursuit of greatness."
+        ]
     }
+]
 
-    return response.data;
-}
-
-function getGuildRosterFromGuildInfo(guildInfo: any) {
-    return guildInfo?.members || [];
-}
-
-function fetchMemberInfo(token: string, realm: string, characterName: string, locale: string = 'en_US') {
-    const url = `https://eu.api.blizzard.com/profile/wow/character/${realm}/${characterName}`;
-    const headers = new Headers();
-    headers.append('Authorization', 'Bearer ' + token);
-
-    return axios.get(`${url}?locale=${locale}&namespace=profile-classic1x-eu`, {
-        headers: {
-            'Authorization': 'Bearer ' + token
-        }
-    })
-}
-
-const getBlizzardToken = async () => {
-    const url: string = `https://ijzwizzfjawlixolcuia.supabase.co/functions/v1/everlasting-vendetta`
-    const jwt: string = `Bearer ` + process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-    const response = await axios.get(url, {
-        headers: {
-            'Authorization': jwt
-        }
-    })
-
-    return response.data
-}
-
-const getPlayerClassById = (classId: number) => {
-    const classes = {
-        1: {name: 'Warrior', icon: 'https://render.worldofwarcraft.com/classic1x-eu/icons/56/classicon_warrior.jpg'},
-        2: {name: 'Paladin', icon: 'https://render.worldofwarcraft.com/classic1x-eu/icons/56/classicon_paladin.jpg'},
-        3: {name: 'Hunter', icon: 'https://render.worldofwarcraft.com/classic1x-eu/icons/56/classicon_hunter.jpg'},
-        4: {name: 'Rogue', icon: 'https://render.worldofwarcraft.com/classic1x-eu/icons/56/classicon_rogue.jpg'},
-        5: {name: 'Priest', icon: 'https://render.worldofwarcraft.com/classic1x-eu/icons/56/classicon_priest.jpg'},
-        7: {name: 'Shaman', icon: 'https://render.worldofwarcraft.com/classic1x-eu/icons/56/classicon_shaman.jpg'},
-        8: {name: 'Mage', icon: 'https://render.worldofwarcraft.com/classic1x-eu/icons/56/classicon_mage.jpg'},
-        9: {name: 'Warlock', icon: 'https://render.worldofwarcraft.com/classic1x-eu/icons/56/classicon_warlock.jpg'},
-        11: {name: 'Druid', icon: 'https://render.worldofwarcraft.com/classic1x-eu/icons/56/classicon_druid.jpg'},
-    } as any
-
-    return classes[classId] || {name: 'Unknown', icon: 'unknown'}
+const CustomSection = ({header, paragraphs}: {header: string, paragraphs: string[]}) => {
+    return (
+        <section
+            className="flex flex-col items-center justify-center gap-2 p-3 bg-[rgb(19,19,19,.6)] border-[1px]  border-[rgb(20,20,20,.9)] rounded-xl backdrop-filter backdrop-blur-md md:w-80">
+            <h1 className="font-bold text-xl">{header}</h1>
+            {paragraphs.map(paragraph => <p>{paragraph}</p>)}
+        </section>
+    )
 }
 
 export default async function Home() {
-
-    const {token} = await getBlizzardToken()
-    const guildInfo = await fetchGuildInfo(token)
-    const guildRoster = getGuildRosterFromGuildInfo(guildInfo)
-
     return (
-        <main className="flex min-h-screen flex-col items-center">
-            <div className="w-full h-16 flex items-center gap-3 justify-center">
-                <span>Home</span>
-                <span>News</span>
-                <span>Apply</span>
-                <span>Roster</span>
-                <span>About us</span>
-                <span>Raid Calendar</span>
+        <main className="flex w-full h-full">
+            <div className="flex flex-col items-center p-2 gap-3 md:flex-row md:flex-wrap md:items-start justify-center">
+            {intro.map((section, index) => <CustomSection key={index} {...section}/>)}
             </div>
-            <img src="/banner.png" alt="Guild banner" className="w-[70%]"/>
         </main>
     );
 }
