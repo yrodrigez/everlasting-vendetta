@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# README for the Everlasting Vendetta Guild Website
 
-## Getting Started
+## Introduction
 
-First, run the development server:
+Welcome to the official website of the "Everlasting Vendetta" guild, a dedicated community of World of Warcraft players. This site serves as the central hub for guild members and enthusiasts, offering the latest news, upcoming event details, and a platform for member interaction.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **News Section**: Stay updated with the latest guild news, game updates, and announcements.
+- **Events Calendar**: Check out upcoming guild events, raids, and community gatherings.
+- **Forums**: Engage with the guild community, share strategies, and participate in discussions.
+- **Gallery**: Browse through a collection of screenshots, fan art, and memorable moments.
+- **Membership Information**: Learn how to join the guild, understand the rules, and meet the team.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## How to Use the Site
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+- **Navigation**: Use the top menu to navigate through the different sections of the website.
+- **Interaction**: Participate in forums, comment on posts, and connect with other members.
+- **Updates**: Regularly check the website for new content, event updates, and community news.
 
-## Learn More
+## Contributing
 
-To learn more about Next.js, take a look at the following resources:
+We welcome contributions from our community. If you have suggestions for the website, would like to contribute content, or want to report issues:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Contact Us**: Use the contact form on the website to get in touch with our web team.
+- **Feedback**: Submit your feedback through the dedicated feedback section or the forums.
+- **Report Issues**: Encounter a bug or a problem? Let us know through the website's report section.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+## Support
 
-## Deploy on Vercel
+For assistance, questions, or support related to the website or the guild:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **FAQ**: Refer to our Frequently Asked Questions section for quick help.
+- **Support Forum**: Visit our support forum for detailed discussions and solutions.
+- **Direct Contact**: Reach out to us directly via the contact information provided on the site.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## Acknowledgments
+
+A special thank you to all the guild members and supporters who contribute to the success of our community. Your dedication, creativity, and passion are what make Everlasting Vendetta truly unique.
