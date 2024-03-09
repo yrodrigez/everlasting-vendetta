@@ -196,18 +196,12 @@ export default async function ({item, token, reverse, }: { item: ItemDetails, to
         <Link
             href={`https://www.wowhead.com/classic/item=${id}`}
             className={`flex items-center gap-4 ${reverse ? 'flex-row-reverse' : ''}`}>
-            <div className={`w-12 h-12 rounded-lg overflow-hidden border`} style={{
+            <div className={`w-12 h-12 min-w-12 rounded-lg overflow-hidden border block bg-cover`} style={{
                 borderColor: getItemRarityHexColor(quality.name.toUpperCase()),
+                backgroundImage: `url(${itemIconUrl})`,
             }}>
-                <img
-                    alt="Item thumbnail"
-                    className="aspect-square object-cover"
-                    height={56}
-                    src={itemIconUrl}
-                    width={56}
-                />
             </div>
-            <div className={`grid gap-0.5 ${reverse ? 'text-right' : 'text-left'}`}>
+            <div className={`flex flex-col gap-0.5 ${reverse ? 'text-right' : 'text-left'} break-all`}>
                 <h3 className="font-semibold text-sm">{name}</h3>
                 <p className="text-xs text-muted">Item Level {itemDetails.level}</p>
             </div>
