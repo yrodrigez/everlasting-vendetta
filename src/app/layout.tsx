@@ -18,7 +18,7 @@ const HeaderMenuButton = ({text}: { text: string }) => {
         <Link
             className="px-2 py-1 flex flex-col items-center rounded hover:cursor-pointer hover:bg-white hover:bg-opacity-20 backdrop-filter backdrop-blur-md"
             href={`/${key !== 'roster' ? '' : key}`}>
-            <img alt={text} src={`btn-${key}.png`} className="rounded-full w-9 h-9"/>
+            <img alt={text} src={`/btn-${key}.png`} className="rounded-full w-9 h-9"/>
             <span>{text}</span>
         </Link>
     )
@@ -43,7 +43,7 @@ export default function RootLayout({
                         {/*<HeaderMenuButton text="News"/>
                         <HeaderMenuButton text="Apply"/>*/}
                     </div>
-                    <img alt={'center-img'} src={`center-img.png`} className="flex-1 rounded-full max-w-20"/>
+                    <img alt={'center-img'} src={`/center-img.png`} className="flex-1 rounded-full max-w-20"/>
                     <div className="flex items-center md:w-[240px] flex-1 gap-3 justify-center">
                         <HeaderMenuButton text="Roster"/>
                         {/*<HeaderMenuButton text="Forum"/>
