@@ -6,7 +6,7 @@ export default function Page() {
 
 
     return (
-        <section className="w-full py-6 md:py-12">
+        <div className="w-full py-6 md:py-12">
             <div className="container grid gap-6 px-4 md:px-6">
                 <div className="space-y-2 text-center">
                     <h2 className="text-3xl font-bold text-gold tracking-tighter sm:text-4xl">Apply to Everlasting
@@ -21,6 +21,6 @@ export default function Page() {
                     <ApplyForm/>
                 </div>
             </div>
-        </section>
+        </div>
     )
 }

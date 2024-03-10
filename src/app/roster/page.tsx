@@ -141,7 +141,7 @@ export default async function Page() {
     const {token} = await getBlizzardToken()
     const guildInfo = await fetchGuildInfo(token)
     const guildRoster = getGuildRosterFromGuildInfo(guildInfo)
-    return <main className="flex w-full h-full flex-col overflow-auto">
+    return <main className="flex w-full h-full flex-col">
         {guildRoster.map((member: any) => {
             const {name, realm, id, level, playable_class} = member.character
             const {name: className, icon} = getPlayerClassById(playable_class.id)
