@@ -1,12 +1,8 @@
 import ApplyForm from "@/app/components/ApplyForm";
 
-export const dynamic = 'force-dynamic'
-
 export default function Page() {
-
-
     return (
-        <div className="w-full py-6 md:py-12">
+        <main className="w-full py-6 md:py-12">
             <div className="container grid gap-6 px-4 md:px-6">
                 <div className="space-y-2 text-center">
                     <h2 className="text-3xl font-bold text-gold tracking-tighter sm:text-4xl">Apply to Everlasting
@@ -21,6 +17,6 @@ export default function Page() {
                     <ApplyForm/>
                 </div>
             </div>
-        </div>
+        </main>
     )
 }

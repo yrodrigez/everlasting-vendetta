@@ -13,7 +13,7 @@ function getRoleIcon(role: string) {
 
 }
 
-export default function RolePicker({onChange}: { onChange: (value: string) => void}){
+export default function RolePicker({setForm}: { setForm: any }) {
     const [selectedKeys, setSelectedKeys] = React.useState(new Set(["Role"]));
 
     const selectedValue = React.useMemo(
@@ -22,7 +22,7 @@ export default function RolePicker({onChange}: { onChange: (value: string) => vo
     );
 
     React.useEffect(() => {
-        if(selectedValue !== "Role") onChange(selectedValue);
+        if (selectedValue !== "Role") setForm((form: any) => ({...form, role: selectedValue}));
     }, [selectedValue]);
 
     return (
@@ -31,7 +31,8 @@ export default function RolePicker({onChange}: { onChange: (value: string) => vo
                 <Button
                     className="capitalize bg-moss w-full justify-evenly text-gold font-bold"
                 >
-                    {selectedValue} {selectedValue !== "Role" && <img src={getRoleIcon(selectedValue)} alt={selectedValue} className="w-6 h-6 rounded-full" />}
+                    {selectedValue} {selectedValue !== "Role" &&
+                  <img src={getRoleIcon(selectedValue)} alt={selectedValue} className="w-6 h-6 rounded-full"/>}
                 </Button>
             </DropdownTrigger>
             <DropdownMenu

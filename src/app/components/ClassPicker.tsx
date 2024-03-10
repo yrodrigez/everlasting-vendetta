@@ -6,7 +6,7 @@ function getClassIcon(classname: string) {
     return `/classicon/classicon_${classname.toLowerCase()}.jpg`;
 }
 
-export default function ClassPicker({onChange}: { onChange: (value: string) => void }) {
+export default function ClassPicker({setForm}: any) {
     const [selectedKeys, setSelectedKeys] = React.useState(new Set(["Class"]));
 
 
@@ -16,7 +16,7 @@ export default function ClassPicker({onChange}: { onChange: (value: string) => v
     );
 
     useEffect(() => {
-        onChange(selectedValue);
+        if (selectedValue !== "Class") setForm((form: any) => ({...form, class: selectedValue}));
     }, [selectedValue]);
 
     return (

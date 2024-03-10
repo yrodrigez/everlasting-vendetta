@@ -24,7 +24,6 @@ function validateCharactersName(name: string) {
 }
 
 function onsubmit(state: any, setForm: any) {
-    console.log('submitting', state)
     if (!state) return
     const healingClasses = ['priest', 'paladin', 'shaman', 'druid', 'mage']
     const tankClasses = ['warrior', 'paladin', 'druid', 'rogue', 'warlock']
@@ -68,10 +67,10 @@ function onsubmit(state: any, setForm: any) {
                 role: '',
                 message: '',
             })
+            window?.location?.reload()
         } else {
             alert('Error submitting application please try again with other character\'s name or email.')
         }
-        window.location.reload()
     })
 }
 
@@ -94,10 +93,7 @@ export default function ApplyForm() {
     }, [form]);
 
     return (
-        <form onSubmit={(e) => {
-            e.preventDefault()
-            onsubmit(form, setForm)
-        }} className="space-y-4">
+        <div className="space-y-4">
             <div className="grid gap-2">
                 <Input
                     onChange={(e) => setForm({...form, characterName: e.target.value})}
@@ -110,12 +106,12 @@ export default function ApplyForm() {
             </div>
             <div className="grid gap-2">
                 <ClassPicker
-                    onChange={(value) => setForm({...form, class: value})}
+                    setForm={setForm}
                 />
             </div>
             <div className="grid gap-2">
                 <RolePicker
-                    onChange={(value) => setForm({...form, role: value})}
+                    setForm={setForm}
                 />
             </div>
             <div className="grid gap-2">
@@ -124,11 +120,13 @@ export default function ApplyForm() {
                     id="message" placeholder="Enter your message"/>
             </div>
             <div className="flex items-center">
-                <Button disabled={isFormDisabled} className="bg-moss text-gold w-full font-bold"
+                <Button onClick={()=>{
+                    onsubmit(form, setForm)
+                }} disabled={isFormDisabled} className="bg-moss text-gold w-full font-bold"
                         type="submit">
                     Submit Application
                 </Button>
             </div>
-        </form>
+        </div>
     )
 }
