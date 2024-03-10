@@ -189,7 +189,7 @@ function getItemRarityHexColor(quality: string) {
 export default async function ({item, token, reverse, }: { item: ItemDetails, token: string , reverse?: boolean}) {
     if(!item) return null;
     const {id,} = item?.item || {} as any
-    const {name, quality} = item || {};
+    const {name, quality, slot} = item || {};
     const itemIconUrl = await fetchItemMedia(token, id);
     const itemDetails = await fetchItemDetails(token, id);
     return (
@@ -201,8 +201,9 @@ export default async function ({item, token, reverse, }: { item: ItemDetails, to
                 backgroundImage: `url(${itemIconUrl})`,
             }}>
             </div>
-            <div className={`flex flex-col gap-0.5 ${reverse ? 'text-right' : 'text-left'} break-all`}>
-                <h3 className="font-semibold text-sm">{name}</h3>
+            <div className={`flex-col gap-0.5 ${reverse ? 'text-right' : 'text-left'} break-all`}>
+                <h3 className="font-semibold text-sm md:hidden">{slot.name}</h3>
+                <h3 className="font-semibold text-sm hidden md:flex">{name}</h3>
                 <p className="text-xs text-muted">Item Level {itemDetails.level}</p>
             </div>
         </Link>
