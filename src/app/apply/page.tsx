@@ -4,11 +4,10 @@ import {Input, Textarea, Button} from "@nextui-org/react";
 import ClassPicker from "@/app/components/ClassPicker";
 import RolePicker from "@/app/components/RolePicker";
 import {createClient} from '@supabase/supabase-js'
-import {createRouter} from "next-connect";
 
 const supabaseUrl = 'https://ijzwizzfjawlixolcuia.supabase.co'
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
-
+export const dynamic = 'force-dynamic'
 function validateCharactersName(name: string) {
     // Check if the name meets the required length
     if (name.length < 2 || name.length > 12) {
