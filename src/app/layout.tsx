@@ -32,7 +32,7 @@ export default function RootLayout({
 }>) {
 
     return (
-        <html lang="en" className="dark">
+        <html lang="en" className="light">
         <body className={inter.className} style={{width: '100%', height: '100%'}}>
         <Providers>
             <div className="pt-1 flex flex-col w-full h-full max-h-full min-h-screen items-center">
