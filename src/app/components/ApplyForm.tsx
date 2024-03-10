@@ -1,9 +1,20 @@
 "use client"
 import {useEffect, useState} from "react";
-import {Input, Textarea, Button} from "@nextui-org/react";
+import {
+    Input,
+    Textarea,
+    Button,
+    ModalContent,
+    ModalHeader,
+    ModalBody,
+    ModalFooter,
+    Modal,
+    useDisclosure
+} from "@nextui-org/react";
 import ClassPicker from "@/app/components/ClassPicker";
 import RolePicker from "@/app/components/RolePicker";
 import {createClient} from '@supabase/supabase-js'
+import Link from "next/link";
 
 const supabaseUrl = 'https://ijzwizzfjawlixolcuia.supabase.co'
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
@@ -23,7 +34,7 @@ function validateCharactersName(name: string) {
     return !/[^aeiouAEIOU]{5,}|[aeiouAEIOU]{4,}/.test(name);
 }
 
-function onsubmit(state: any, setForm: any) {
+async function onsubmit(state: any) {
     if (!state) return
     const healingClasses = ['priest', 'paladin', 'shaman', 'druid', 'mage']
     const tankClasses = ['warrior', 'paladin', 'druid', 'rogue', 'warlock']
@@ -32,55 +43,35 @@ function onsubmit(state: any, setForm: any) {
     const role = state['role']
     const characterClass = state['class']
     if (role === 'healer' && !healingClasses.includes(characterClass)) {
-        alert('Invalid class for healer role')
-        return
+        return {error: 'Invalid class for healer role'}
+
     }
     if (role === 'tank' && !tankClasses.includes(characterClass)) {
-        alert('Invalid class for tank role')
-        return
+        return {error: 'Invalid class for tank role'}
     }
     if (role === 'dps' && !dpsClasses.includes(characterClass)) {
-        alert('Invalid class for dps role')
-        return
+        return {error: 'Invalid class for dps role'}
     }
 
     if (!validateCharactersName(state.characterName)) {
-        alert('Invalid character name')
-        return
+        return {error: 'Invalid character name'}
     }
 
 
     const supabase = createClient(supabaseUrl, supabaseKey)
-    supabase.from('ev_application').insert({
+    const response = await supabase.from('ev_application').insert({
         name: state.characterName,
         ...(state.email ? {email: state.email} : {}),
         class: state.class,
         role: state.role,
         message: state.message || ''
-    }).then(({error}) => {
-        if (!error) {
-            const audio = new Audio('/sounds/levelup2.ogg');
-            audio.play().then(
-                () => {
-                    setTimeout(() => {
-                        alert('Application submitted')
-                        setForm({
-                            characterName: '',
-                            email: '',
-                            class: '',
-                            role: '',
-                            message: '',
-                        })
-
-                        window?.location?.reload()
-                    }, 500)
-                }
-            ).catch(console.error);
-        } else {
-            console.error(error)
-            alert('Error submitting application please try again with other character\'s name or email.')
-        }
     })
+
+    if (response.error) {
+        return {error: 'Error submitting application please try again with other character\'s name or email.'}
+    }
+
+    return {error: null}
 }
 
 
@@ -93,7 +84,12 @@ export default function ApplyForm() {
         message: '',
     });
     const [isFormDisabled, setIsFormDisabled] = useState(true);
-
+    const {isOpen, onOpen, onOpenChange} = useDisclosure();
+    const [modalContent, setModalContent] = useState({
+        title: '',
+        body: '',
+        footer: ''
+    } as any);
     useEffect(() => {
         if (form.characterName && form.class && form.role) {
             setIsFormDisabled(false)
@@ -131,12 +127,62 @@ export default function ApplyForm() {
             </div>
             <div className="flex items-center">
                 <Button onClick={() => {
-                    onsubmit(form, setForm)
+                    onsubmit(form).then((response) => {
+                        if (response?.error) {
+                            setModalContent({
+                                title: (
+                                    <p className="text-red-700 font-bold text-2xl">Error</p>
+                                ),
+                                body: response.error,
+                                footer: ''
+                            })
+                            onOpen()
+                        } else {
+                            const audio = new Audio('/sounds/levelup2.ogg');
+                            audio.play().then().catch(console.error)
+                            setModalContent({
+                                title: (
+                                    <p className="text-gold font-bold text-2xl">Application Submitted</p>
+                                ),
+                                body: (<>
+                                    <p>Your application has been submitted successfully.</p>
+                                    <p>Thank you for applying to our guild.</p>
+                                    <p>In the meantime, you can contact us in game to speed up the process.</p>
+                                    <p>You can reach out to any of our officers: <Link
+                                        href={'/roster/alveric'}>Alveric</Link> or <Link
+                                        href={'/roster/nivlor'}>Nivlor</Link></p>
+                                    <p>Good luck!</p>
+                                </>),
+                                footer: ''
+                            })
+                            onOpen()
+                        }
+                    })
+
                 }} disabled={isFormDisabled} className="bg-moss text-gold w-full font-bold"
                         type="submit">
                     Submit Application
                 </Button>
             </div>
+            <Modal isOpen={isOpen} size="xs" onOpenChange={onOpenChange} backdrop="blur" onClose={()=>{
+                window?.location?.reload()
+            }}>
+                <ModalContent className={
+                    `bg-wood ${!modalContent.title ? 'pt-4' : ''} ${!modalContent.footer ? 'pb-4' : ''}`
+
+                }>
+                    {() => (
+                        <>
+                            {modalContent.title &&
+                              <ModalHeader className="flex flex-col gap-1">{modalContent.title}</ModalHeader>}
+                            <ModalBody>
+                                {modalContent.body}
+                            </ModalBody>
+                            {modalContent.footer && <ModalFooter> {modalContent.footer}</ModalFooter>}
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
         </div>
     )
 }
