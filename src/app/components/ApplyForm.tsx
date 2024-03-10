@@ -53,26 +53,36 @@ function onsubmit(state: any, setForm: any) {
     const supabase = createClient(supabaseUrl, supabaseKey)
     supabase.from('ev_application').insert({
         name: state.characterName,
-        email: state.email || '',
+        ...(state.email ? {email: state.email} : {}),
         class: state.class,
         role: state.role,
         message: state.message || ''
     }).then(({error}) => {
         if (!error) {
-            alert('Application submitted')
-            setForm({
-                characterName: '',
-                email: '',
-                class: '',
-                role: '',
-                message: '',
-            })
-            window?.location?.reload()
+            const audio = new Audio('/sounds/levelup2.ogg');
+            audio.play().then(
+                () => {
+                    setTimeout(() => {
+                        alert('Application submitted')
+                        setForm({
+                            characterName: '',
+                            email: '',
+                            class: '',
+                            role: '',
+                            message: '',
+                        })
+
+                        window?.location?.reload()
+                    }, 500)
+                }
+            ).catch(console.error);
         } else {
+            console.error(error)
             alert('Error submitting application please try again with other character\'s name or email.')
         }
     })
 }
+
 
 export default function ApplyForm() {
     const [form, setForm] = useState({
@@ -120,7 +130,7 @@ export default function ApplyForm() {
                     id="message" placeholder="Enter your message"/>
             </div>
             <div className="flex items-center">
-                <Button onClick={()=>{
+                <Button onClick={() => {
                     onsubmit(form, setForm)
                 }} disabled={isFormDisabled} className="bg-moss text-gold w-full font-bold"
                         type="submit">
