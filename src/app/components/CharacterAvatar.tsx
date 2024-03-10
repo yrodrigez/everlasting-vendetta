@@ -22,7 +22,7 @@ const fetchCharacterAvatar = async (token: string, realm: string, characterName:
     })?.value || 'unknown'
 }
 
-const CharacterAvatar = ({token, realm, characterName, className = `rounded-full md:w-24 w-16 border-2 border-[rgb(219,210,195)]`}: { token: string, realm: string, characterName: string, className?: string }) => {
+const CharacterAvatar = ({token, realm, characterName, className = `rounded-full md:w-24 w-16 border-2 border-gold`}: { token: string, realm: string, characterName: string, className?: string }) => {
     const [avatar, setAvatar] = useState('/avatar-anon.png')
 
     useEffect(() => {

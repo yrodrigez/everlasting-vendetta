@@ -39,7 +39,7 @@ const intro = [
 const CustomSection = ({header, paragraphs}: {header: string, paragraphs: string[]}) => {
     return (
         <section
-            className="flex flex-col items-center justify-center gap-2 p-3 bg-[rgb(19,19,19,.6)] border-[1px]  border-[rgb(20,20,20,.9)] rounded-xl backdrop-filter backdrop-blur-md md:w-80">
+            className="flex flex-col items-center justify-center gap-2 p-3 bg-moss border border-gold rounded-xl backdrop-filter backdrop-blur-md md:w-80 opacity-90">
             <h1 className="font-bold text-xl">{header}</h1>
             {paragraphs.map(paragraph => <p>{paragraph}</p>)}
         </section>
@@ -48,8 +48,8 @@ const CustomSection = ({header, paragraphs}: {header: string, paragraphs: string
 
 export default async function Home() {
     return (
-        <main className="flex w-full h-full">
-            <div className="flex flex-col items-center p-2 gap-3 md:flex-row md:flex-wrap md:items-start justify-center">
+        <main className="flex w-full h-full justify-center">
+            <div className="flex flex-col items-center p-2 gap-3 md:flex-row md:flex-wrap md:items-start justify-center md:max-w-[1000px]">
             {intro.map((section, index) => <CustomSection key={index} {...section}/>)}
             </div>
         </main>

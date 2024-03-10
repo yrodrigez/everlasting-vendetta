@@ -63,9 +63,20 @@ async function fetchGuildInfo(token: string, guildId: string = '5826-2239011', l
 }
 
 function getGuildRosterFromGuildInfo(guildInfo: any) {
-    return (guildInfo?.members || []).sort((a: any, b: any) => {
+    const maxLevel = 40;
+    const maxLevelMembers = (guildInfo?.members || []).filter((member: any) => {
+        return member.character.level >= maxLevel
+    }).sort((a: any, b: any) => {
+        return a.rank - b.rank
+
+    });
+    const minLevelMembers = (guildInfo?.members || []).filter((member: any) => {
+        return member.character.level < maxLevel && member.character.level > 15
+    }).sort((a: any, b: any) => {
         return a.rank - b.rank
     });
+
+    return [...maxLevelMembers, ...minLevelMembers]
 }
 
 function fetchMemberInfo(token: string, realm: string, characterName: string, locale: string = 'en_US') {
@@ -139,13 +150,13 @@ export default async function Page() {
             return <Link
                 href={`/roster/${name.toLowerCase()}`}
                 key={id}
-                className="flex flex-1 flex-col md:flex-row items-center gap-2 mb-2 p-3 hover:cursor-pointer hover:bg-white hover:bg-opacity-20 backdrop-filter backdrop-blur-md rounded-xl border-[1px] border-[rgba(19,19,19,08)]">
+                className="flex flex-1 flex-col md:flex-row items-center gap-2 mb-2 p-3 hover:cursor-pointer hover:bg-white hover:bg-opacity-20 backdrop-filter backdrop-blur-md rounded border-[1px] border-gold">
                 <h1 className="md:hidden font-bold text-2xl">{name}</h1>
-                <div className="flex gap-3 justify-center items-center">
+                <div className="flex gap-3 justify-center items-center md:w-[186px]">
                     <CharacterAvatar token={token} realm={realm.slug}
                                      characterName={name}/>
                     <div
-                        className={`w-0.5 h-16 bg-[rgb(219,210,195)] rounded-full backdrop-filter backdrop-blur-md`}>{/*separator*/}</div>
+                        className={`w-[2px] h-20 bg-gold rounded-full backdrop-filter backdrop-blur-md`}>{/*separator*/}</div>
                     <div className="flex justify-center flex-col items-center">
                         <img src={icon}
                              alt={className}

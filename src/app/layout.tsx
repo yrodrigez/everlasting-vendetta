@@ -12,18 +12,17 @@ export const metadata: Metadata = {
     description: "Everlasting Vendetta Guild Website",
 };
 const HeaderMenuButton = ({text}: { text: string }) => {
-    let key = text.toLowerCase();
-
+    const key = text.toLowerCase();
+    const allowed = ['apply', 'roster'];
     return (
         <Link
             className="px-2 py-1 flex flex-col items-center rounded hover:cursor-pointer hover:bg-white hover:bg-opacity-20 backdrop-filter backdrop-blur-md"
-            href={`/${key !== 'roster' ? '' : key}`}>
+            href={`/${allowed.indexOf(key) === -1 ? '' : key}`}>
             <img alt={text} src={`/btn-${key}.png`} className="rounded-full w-9 h-9"/>
             <span>{text}</span>
         </Link>
     )
 }
-
 
 
 export default function RootLayout({
@@ -37,23 +36,28 @@ export default function RootLayout({
         <body className={inter.className} style={{width: '100%', height: '100%'}}>
         <Providers>
             <div className="pt-1 flex flex-col w-full h-full max-h-full min-h-screen items-center">
-                <div className="h-20 md:max-w-[900px] flex items-center justify-between">
-                    <div className="flex items-center md:w-[240px] flex-1 gap-3 justify-center">
-                        <HeaderMenuButton text="Home"/>
-                        {/*<HeaderMenuButton text="News"/>
-                        <HeaderMenuButton text="Apply"/>*/}
-                    </div>
-                    <img alt={'center-img'} src={`/center-img.png`} className="flex-1 rounded-full max-w-20"/>
-                    <div className="flex items-center md:w-[240px] flex-1 gap-3 justify-center">
-                        <HeaderMenuButton text="Roster"/>
-                        {/*<HeaderMenuButton text="Forum"/>
-                        <HeaderMenuButton text="Calendar"/>*/}
+                <div className="h-20 w-full flex items-center justify-center border-b border-gold">
+                    <div className="md:max-w-[900px] flex items-center justify-between h-full">
+                        <div className="flex items-center md:w-[240px] flex-1 gap-3 justify-center">
+                            <HeaderMenuButton text="Home"/>
+                            {/*<HeaderMenuButton text="News"/>*/}
+                            <HeaderMenuButton text="Apply"/>
+                        </div>
+                        <img alt={'center-img'} src={`/center-img.png`} className="flex-1 rounded-full max-w-20"/>
+                        <div className="flex items-center md:w-[240px] flex-1 gap-3 justify-center">
+                            <HeaderMenuButton text="Roster"/>
+                            {/*<HeaderMenuButton text="Forum"/>*/}
+                            <HeaderMenuButton text="Calendar"/>
+                        </div>
                     </div>
                 </div>
-                <div className="flex justify-center bg-[url('/banner.png')] min-h-screen md:min-h-[700px] h-full w-full bg-no-repeat bg-center md:bg-contain bg-cover" style={{backgroundColor: 'rgb(19,19,19)'}}>
-                    <div
-                        className={`p-3 md:w-[1200px] w-full h-[850px] md:h-[800px] overflow-auto scrollbar-pill bg-[rgba(19,19,19,.78)] backdrop-filter backdrop-blur-sm rounded-xl`}>
+                <div
+                    className="flex justify-center bg-[url('/banner.png')] min-h-screen md:min-h-[700px] h-full w-full bg-no-repeat bg-center md:bg-contain bg-cover"
+                    style={{backgroundColor: 'rgb(19,19,19)'}}>
+                    <div className={`p-3 w-full h-[850px] md:h-[800px] overflow-auto scrollbar-pill bg-[rgba(19,19,19,.78)] backdrop-filter backdrop-blur-sm justify-center items-center flex`}>
+                        <div className="flex flex-col md:max-w-[1000px] w-full h-full">
                         {children}
+                        </div>
                     </div>
                 </div>
             </div>
