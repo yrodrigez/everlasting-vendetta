@@ -131,7 +131,8 @@ function getKnownItemImage(itemId: number) {
         215111: 'https://wow.zamimg.com/images/wow/icons/large/inv_misc_enggizmos_27.jpg',
         999999: 'https://wow.zamimg.com/images/wow/icons/medium/inventoryslot_empty.jpg',
         0: 'https://wow.zamimg.com/images/wow/icons/large/inv_misc_questionmark.jpg',
-        216494: 'https://wow.zamimg.com/images/wow/icons/large/spell_shadow_demoniccircleteleport.jpg'
+        216494: 'https://wow.zamimg.com/images/wow/icons/large/spell_shadow_demoniccircleteleport.jpg',
+        213409: 'https://wow.zamimg.com/images/wow/icons/large/inv_weapon_hand_08.jpg'
 
     } as any
     return knownImages[itemId] || ''
