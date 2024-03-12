@@ -4,6 +4,9 @@ import "./globals.css";
 import Link from "next/link";
 import ResizeManager from "@/app/components/ResizeManager";
 import Providers from "@/app/providers";
+import BattleNetAuthManagerWindow from "@/app/components/BattleNetAuthManagerWindow";
+import {cookies} from "next/headers";
+import ProfileManager from "@/app/components/ProfileManager";
 
 const inter = Inter({subsets: ["latin"]});
 
@@ -11,13 +14,13 @@ export const metadata: Metadata = {
     title: "Everlasting Vendetta Guild",
     description: "Everlasting Vendetta Guild Website",
 };
-const HeaderMenuButton = ({text}: { text: string }) => {
+const HeaderMenuButton = ({text, url}: { text: string, url?: string }) => {
     const key = text.toLowerCase();
     const allowed = ['apply', 'roster'];
     return (
         <Link
             className="px-2 py-1 flex flex-col items-center rounded hover:cursor-pointer hover:bg-white hover:bg-opacity-20 backdrop-filter backdrop-blur-md"
-            href={`/${allowed.indexOf(key) === -1 ? '' : key}`}>
+            href={url || `/${allowed.indexOf(key) === -1 ? '' : key}`}>
             <img alt={text} src={`/btn-${key}.png`} className="rounded-full w-9 h-9"/>
             <span>{text}</span>
         </Link>
@@ -30,6 +33,8 @@ export default function RootLayout({
                                    }: Readonly<{
     children: React.ReactNode;
 }>) {
+    const battleNetRedirectUrl = `${process.env.BNET_LOGIN_URI}`;
+    const battleNetToken = cookies().get('bnetToken');
 
     return (
         <html lang="en" className="light">
@@ -46,21 +51,25 @@ export default function RootLayout({
                         <img alt={'center-img'} src={`/center-img.png`} className="flex-1 rounded-full max-w-20"/>
                         <div className="flex items-center md:w-[240px] flex-1 gap-3 justify-center">
                             <HeaderMenuButton text="Roster"/>
-                            {/*<HeaderMenuButton text="Forum"/>*/}
-                            <HeaderMenuButton text="Calendar"/>
+                            {/*<HeaderMenuButton text="Forum"/>
+                            <HeaderMenuButton text="Calendar"/>*/}
+                            {!battleNetToken && <HeaderMenuButton text="Login" url={battleNetRedirectUrl}/>}
+                            {battleNetToken && <ProfileManager />}
                         </div>
                     </div>
                 </div>
                 <div
                     className="flex justify-center bg-[url('/banner.png')] min-h-screen md:min-h-[700px] h-full w-full bg-no-repeat bg-center md:bg-contain bg-cover"
                     style={{backgroundColor: 'rgb(19,19,19)'}}>
-                    <div className={`p-3 w-full h-[850px] md:h-[800px] overflow-auto scrollbar-pill bg-[rgba(19,19,19,.78)] backdrop-filter backdrop-blur-sm justify-center items-center flex`}>
+                    <div
+                        className={`p-3 w-full h-[850px] md:h-[800px] overflow-auto scrollbar-pill bg-[rgba(19,19,19,.78)] backdrop-filter backdrop-blur-sm justify-center items-center flex`}>
                         <div className="flex flex-col md:max-w-[1000px] w-full h-full">
-                        {children}
+                            {children}
                         </div>
                     </div>
                 </div>
             </div>
+            {battleNetToken && <BattleNetAuthManagerWindow token={battleNetToken}/>}
             <ResizeManager/>
         </Providers>
         </body>
