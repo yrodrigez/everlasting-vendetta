@@ -124,7 +124,7 @@ function getRankName(rank: number) {
     const ranks = {
         0: 'Glorious Leader',
         1: 'Respected Comrade',
-        2: 'People',
+        2: 'Respected Comrade',
         3: 'People',
         4: 'People',
         5: 'People',
