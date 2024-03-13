@@ -1,15 +1,11 @@
 import {NextRequest, NextResponse} from "next/server";
 
-const supabaseUrl = process.env.SUPABASE_URL as string
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
-import {createClient} from '@supabase/supabase-js'
-
-
-
+import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
+import {cookies} from "next/headers";
 
 export async function POST(request: NextRequest) {
     const state = await request.json()
-    const supabase = createClient(supabaseUrl, supabaseKey)
+    const supabase = createServerComponentClient({cookies})
     try {
         const response = await supabase.from('ev_application').insert({
             name: state.name,
@@ -18,11 +14,11 @@ export async function POST(request: NextRequest) {
             role: state.characterRole,
             message: state.message || ''
         })
-
         if (response.error) {
             return NextResponse.json({error: 'Error submitting application please try again with other character\'s name or email.'})
         }
     } catch (e) {
+        console.error('Error submitting application:', e)
         return NextResponse.json({error: 'Error submitting application please try again with other character\'s name or email.'})
     }
 
