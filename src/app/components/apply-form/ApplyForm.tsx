@@ -11,123 +11,98 @@ import {
     Modal,
     useDisclosure
 } from "@nextui-org/react";
-import ClassPicker from "@/app/components/ClassPicker";
-import RolePicker from "@/app/components/RolePicker";
-import {createClient} from '@supabase/supabase-js'
+import LookupField from "@/app/components/LookupField";
 import Link from "next/link";
-
-const supabaseUrl = 'https://ijzwizzfjawlixolcuia.supabase.co'
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
-
-function validateCharactersName(name: string) {
-    // Check if the name meets the required length
-    if (name.length < 2 || name.length > 12) {
-        return false;
-    }
-
-    // Check if the name starts with a letter and contains only letters
-    if (!/^[A-Za-z]+$/.test(name)) {
-        return false;
-    }
-
-    // Verify that it doesn't have more than 4 consecutive consonants or 3 consecutive vowels
-    return !/[^aeiouAEIOU]{5,}|[aeiouAEIOU]{4,}/.test(name);
-}
-
-async function onsubmit(state: any) {
-    if (!state) return
-    const healingClasses = ['priest', 'paladin', 'shaman', 'druid', 'mage']
-    const tankClasses = ['warrior', 'paladin', 'druid', 'rogue', 'warlock']
-    const dpsClasses = ['warrior', 'paladin', 'hunter', 'rogue', 'priest', 'shaman', 'mage', 'warlock']
-
-    const role = state['role']
-    const characterClass = state['class']
-    if (role === 'healer' && !healingClasses.includes(characterClass)) {
-        return {error: 'Invalid class for healer role'}
-
-    }
-    if (role === 'tank' && !tankClasses.includes(characterClass)) {
-        return {error: 'Invalid class for tank role'}
-    }
-    if (role === 'dps' && !dpsClasses.includes(characterClass)) {
-        return {error: 'Invalid class for dps role'}
-    }
-
-    if (!validateCharactersName(state.characterName)) {
-        return {error: 'Invalid character name'}
-    }
-
-
-    const supabase = createClient(supabaseUrl, supabaseKey)
-    const response = await supabase.from('ev_application').insert({
-        name: state.characterName,
-        ...(state.email ? {email: state.email} : {}),
-        class: state.class,
-        role: state.role,
-        message: state.message || ''
-    })
-
-    if (response.error) {
-        return {error: 'Error submitting application please try again with other character\'s name or email.'}
-    }
-
-    return {error: null}
-}
+import {onForm, getClassIcon, getRoleIcon} from "@/app/components/apply-form/utils";
+import {useApplyFormStore} from "@/app/components/apply-form/store";
 
 
 export default function ApplyForm() {
-    const [form, setForm] = useState({
-        characterName: '',
-        email: '',
-        class: '',
-        role: '',
-        message: '',
-    });
-    const [isFormDisabled, setIsFormDisabled] = useState(true);
+
     const {isOpen, onOpen, onOpenChange} = useDisclosure();
     const [modalContent, setModalContent] = useState({
         title: '',
         body: '',
         footer: ''
     } as any);
+
+
+    const name = useApplyFormStore(state => state.name)
+    const email = useApplyFormStore(state => state.email)
+    const message = useApplyFormStore(state => state.message)
+    const characterClass = useApplyFormStore(state => state.characterClass)
+    const characterRole = useApplyFormStore(state => state.characterRole)
+    const isFormDisabled = useApplyFormStore(state => state.isFormDisabled)
+    //get functions in one line
+    const {
+        setIsFormDisabled,
+        setName,
+        setEmail,
+        setMessage,
+        setClass,
+        setRole,
+        reset: resetForm,
+    } = useApplyFormStore()
+
+
     useEffect(() => {
-        if (form.characterName && form.class && form.role) {
-            setIsFormDisabled(false)
-        } else {
-            setIsFormDisabled(true)
-        }
-    }, [form]);
+        setIsFormDisabled(!(name && characterClass && characterRole))
+    }, [name, characterClass, characterRole])
 
     return (
         <div className="space-y-4">
             <div className="grid gap-2">
                 <Input
-                    onChange={(e) => setForm({...form, characterName: e.target.value})}
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                     label="Character's name *" id="character-name" required/>
             </div>
             <div className="grid gap-2">
                 <Input
-                    onChange={(e) => setForm({...form, email: e.target.value})}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     label="Email" id="email" type="email"/>
             </div>
             <div className="grid gap-2">
-                <ClassPicker
-                    setForm={setForm}
+                <LookupField
+                    title="Class"
+                    value={characterClass}
+                    onChange={(selectedValue: string) => selectedValue !== 'Class' && setClass(selectedValue)}
+                    values={new Set([
+                        'Warrior',
+                        'Paladin',
+                        'Hunter',
+                        'Rogue',
+                        'Priest',
+                        'Mage',
+                        'Warlock',
+                        'Druid'
+                    ])}
+                    icon={(characterClass && characterClass !== 'Class') ? getClassIcon(characterClass) : ''}
                 />
             </div>
             <div className="grid gap-2">
-                <RolePicker
-                    setForm={setForm}
+                <LookupField
+                    title="Role"
+                    value={characterRole}
+                    onChange={(selectedValue: string) => selectedValue !== 'Role' && setRole(selectedValue)}
+                    values={new Set([
+                        'Healer',
+                        'Tank',
+                        'DPS'
+                    ])}
+                    icon={(characterRole && characterRole !== 'Role') ? getRoleIcon(characterRole) : ''}
                 />
             </div>
             <div className="grid gap-2">
                 <Textarea
-                    onChange={(e) => setForm({...form, message: e.target.value})}
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
                     id="message" placeholder="Enter your message"/>
             </div>
             <div className="flex items-center">
-                <Button onClick={() => {
-                    onsubmit(form).then((response) => {
+                <Button isDisabled={isFormDisabled} onClick={() => {
+                    onForm({name, email, characterRole, characterClass, message}).then((response) => {
                         if (response?.error) {
                             setModalContent({
                                 title: (
@@ -148,28 +123,27 @@ export default function ApplyForm() {
                                     <p>Your application has been submitted successfully.</p>
                                     <p>Thank you for applying to our guild.</p>
                                     <p>In the meantime, you can contact us in game to speed up the process.</p>
-                                    <p>You can reach out to any of our officers: <Link
-                                        href={'/roster/alveric'}>Alveric</Link> or <Link
+                                    <p>You can reach out to any of our officers: <Link className={'text-gold'}
+                                                                                       href={'/roster/alveric'}>Alveric</Link> or <Link
+                                        className={'text-gold'}
                                         href={'/roster/nivlor'}>Nivlor</Link></p>
                                     <p>Good luck!</p>
                                 </>),
                                 footer: ''
                             })
+                            resetForm()
                             onOpen()
                         }
                     })
 
-                }} disabled={isFormDisabled} className="bg-moss text-gold w-full font-bold"
+                }} className="bg-moss text-gold w-full font-bold"
                         type="submit">
                     Submit Application
                 </Button>
             </div>
-            <Modal isOpen={isOpen} size="xs" onOpenChange={onOpenChange} backdrop="blur" onClose={()=>{
-                window?.location?.reload()
-            }}>
+            <Modal placement="center" isOpen={isOpen} size="xs" onOpenChange={onOpenChange} backdrop="blur">
                 <ModalContent className={
                     `bg-wood ${!modalContent.title ? 'pt-4' : ''} ${!modalContent.footer ? 'pb-4' : ''}`
-
                 }>
                     {() => (
                         <>

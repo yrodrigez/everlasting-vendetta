@@ -1,4 +1,4 @@
-import ApplyForm from "@/app/components/ApplyForm";
+import ApplyForm from "@/app/components/apply-form/ApplyForm";
 
 export default function Page() {
     return (
