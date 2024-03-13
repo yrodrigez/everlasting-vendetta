@@ -7,7 +7,11 @@
   --background-start-rgb: 19, 19, 19;
   --background-end-rgb: 19, 19, 19;
 }
-
+.border-bottom-image {
+  border-bottom: 16px;
+  border-style: solid;
+  border-image: url('/custom-border.png') 30 round;
+}
 body {
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(

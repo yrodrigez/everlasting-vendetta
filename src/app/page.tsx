@@ -20,26 +20,12 @@ const intro = [
             "We celebrate the victories, weather the storms, and embrace the endless possibilities that lie ahead. With us, every member contributes to our shared story, crafting unforgettable memories and achieving new heights of glory."
         ]
     },
-    {
-        header: "Celebrate Our Triumphs",
-        paragraphs: [
-            "In Everlasting Vendetta, every battle is an opportunity for glory, and every achievement is a testament to our collective strength.",
-            "Our Raid Calendar is bustling with plans, our Roster is brimming with heroes, and our News section is your source for all the latest guild triumphs and updates."
-        ]
-    },
-    {
-        header: "Discover Your Legend",
-        paragraphs: [
-            "Join us, and together, let's carve out our place in the annals of Azeroth. Forge your path, rise to the challenge, and embrace the spirit of the people.",
-            "Everlasting Vendetta is a sanctuary for those who cherish history, fantasy, and the relentless pursuit of greatness."
-        ]
-    }
 ]
 
-const CustomSection = ({header, paragraphs}: {header: string, paragraphs: string[]}) => {
+const CustomSection = ({header, paragraphs}: { header: string, paragraphs: string[] }) => {
     return (
         <section
-            className="flex flex-col items-center justify-center gap-2 p-3 bg-moss border border-gold rounded-xl backdrop-filter backdrop-blur-md md:w-80 opacity-90">
+            className="flex flex-col justify-around gap-2 p-3 bg-moss border border-gold rounded min-h-[340px] backdrop-filter backdrop-blur-md md:w-80 opacity-90 ">
             <h1 className="font-bold text-xl">{header}</h1>
             {paragraphs.map(paragraph => <p>{paragraph}</p>)}
         </section>
@@ -48,9 +34,25 @@ const CustomSection = ({header, paragraphs}: {header: string, paragraphs: string
 
 export default async function Home() {
     return (
-        <main className="flex w-full h-full justify-center">
-            <div className="flex flex-col items-center p-2 gap-3 md:flex-row md:flex-wrap md:items-start justify-center md:max-w-[1000px]">
-            {intro.map((section, index) => <CustomSection key={index} {...section}/>)}
+        <main className="flex w-full h-full justify-evenly flex-col">
+            <div className="hidden md:block h-full w-full">
+                <div className={
+                    "absolute bottom-[51%] left-0 w-full h-[400px] bg-cover bg-center bg-no-repeat backdrop-filter backdrop-blur-md border-bottom-image"
+                } style={{backgroundImage: "url('/banner.png')"}}>
+                    <div
+                        className="flex flex-col items-center justify-center h-full w-full bg-black bg-opacity-50">
+                        <div
+                            className="flex flex-col items-center justify-center gap-2 text-center p-2 rounded-xl bg-black bg-opacity-50 backdrop-filter backdrop-blur-md shadow-2xl shadow-wood"
+                        >
+                            <h1 className="text-gold font-bold text-4xl">Everlasting Vendetta</h1>
+                            <p className="text-stone font-bold text-2xl">United by Legacy, Bound by Adventure</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div
+                className="flex flex-col h-full p-2 gap-3 md:flex-row md:flex-wrap md:items-start md:justify-center md:max-w-[1000px]">
+                {intro.map((section, index) => <CustomSection key={index} {...section}/>)}
             </div>
         </main>
     );
