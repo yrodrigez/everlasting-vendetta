@@ -12,16 +12,17 @@ export default function LookupField({value, onChange, values, icon, title}: {
 }) {
     const [selectedKeys, setSelectedKeys] = React.useState(new Set([value || title || ""]));
 
-    const selectedValue = React.useMemo(
-        () => Array.from(selectedKeys).join(", ").replaceAll("_", " "),
-        [selectedKeys]
-    );
+    const [selectedValue, setSelectedValue] = React.useState(value || title || "");
+
+    useEffect(() => {
+        setSelectedValue(Array.from(selectedKeys)[0]);
+    }, [selectedKeys]);
 
     useEffect(() => {
         if (selectedValue !== title && onChange) {
             onChange(selectedValue);
         }
-    }, [selectedKeys, selectedValue] );
+    }, [selectedKeys, selectedValue]);
 
     return (
         <Dropdown className="bg-moss">
