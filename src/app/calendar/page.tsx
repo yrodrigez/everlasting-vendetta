@@ -1,7 +1,8 @@
 import moment from "moment";
-import {createClient} from "@supabase/supabase-js";
+
 import {RaidResetCard} from "@/app/calendar/components/RaidResetCard";
 import {cookies} from "next/headers";
+import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
 
 const START_DATE = '2024-03-14'
 const RAID_RESET_DAYS = 3
@@ -19,31 +20,18 @@ function createNextMaxRaidResets(startDate: string, maxResets: number) {
     return raidResets
 }
 
-async function fetchNextSevenRaidResets() {
+async function fetchNextRaidResets() {
+    const supabase = createServerComponentClient({cookies})
 
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-        console.error('Error fetching raid resets: Supabase URL not found')
-        return []
-    }
-    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-        console.error('Error fetching raid resets: Supabase Service Role Key not found')
-        return []
-    }
-
-    const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL,
-        process.env.SUPABASE_SERVICE_ROLE_KEY,
-    )
-
-    const raidResets = await supabase.from('raid_resets')
+    const raidResets = await supabase.from('public.raid_resets')
         .select('raid_date,id')
-        //.gte('raid_date', moment().format('YYYY-MM-DD'))
-        .order('raid_date', {ascending: false})
+        .gte('raid_date', moment().format('YYYY-MM-DD'))
+        .order('raid_date', {ascending: true})
         .limit(MAX_RAID_RESETS)
 
 
     if (raidResets.error) {
-        console.error(moment().format('YYYY-MM-DD') + ' - Error fetching raid resets: ' + JSON.stringify(raidResets) + ', on date: ' + new Date().toLocaleString())
+        console.error(moment().format('YYYY-MM-DD')+ ' - Error fetching raid resets: ' + JSON.stringify(raidResets) + ', on date: ' + new Date().toLocaleString())
         return []
     }
 
@@ -59,7 +47,7 @@ async function fetchNextSevenRaidResets() {
             throw new Error('Error inserting new raid resets: ' + error)
         }
 
-        return fetchNextSevenRaidResets()
+        return fetchNextRaidResets()
     }
 
     return raidResets.data
@@ -75,7 +63,7 @@ export default async function Page() {
             </main>
         )
     }
-    const raidResets = await fetchNextSevenRaidResets()
+    const raidResets = await fetchNextRaidResets()
     return <main className="flex gap-3 flex-col justify-center items-center md:flex-wrap md:flex-row">
         {raidResets.map((raidReset: any, index: number) => (
             <RaidResetCard
