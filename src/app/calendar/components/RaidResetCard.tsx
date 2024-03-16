@@ -138,7 +138,7 @@ export function RaidResetCard({raidDate, raidName, raidImage, raidTime = '20:30'
                                     raidRegistrations?.map((registration: any) => {
                                         const {name, avatar} = registration.member?.character
                                         return (
-                                            <div key={registration.raid_id + registration.member.id}
+                                            <div key={registration.raid_id + registration.member?.id}
                                                  className="flex flex-row justify-between items-center">
                                                 <div className="flex flex-row items-center gap-2">
                                                     <Image
