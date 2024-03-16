@@ -1,9 +1,8 @@
 import {cookies} from "next/headers";
 import {NextResponse, type NextRequest} from "next/server";
-
-import {createClient} from "@supabase/supabase-js";
 import {fetchCharacterAvatar} from "@/app/lib/fetchCharacterAvatar";
 import {fetchGuildInfo} from "@/app/lib/fetchGuildInfo";
+import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
 
 
 async function fetchBattleNetWoWAccounts(token: string) {
@@ -19,10 +18,7 @@ async function fetchBattleNetWoWAccounts(token: string) {
 }
 
 async function registerOnRaid(characterId: string, raidId: string, isConfirmed: boolean = false) {
-    const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    )
+    const supabase = createServerComponentClient({cookies})
     const {data, error} = await supabase.from('ev_raid_participant').upsert({
         raid_id: raidId,
         member_id: characterId,
@@ -35,12 +31,9 @@ async function registerOnRaid(characterId: string, raidId: string, isConfirmed: 
 
 
 async function insertOrUpdateRaidParticipant(token: string, character: any) {
-    const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    )
     const avatar = await fetchCharacterAvatar(token, character.realm.slug, character.name)
 
+    const supabase = createServerComponentClient({cookies})
     const {data, error} = await supabase.from('ev_member').upsert({
         id: character.id,
         character: {

@@ -23,7 +23,7 @@ function createNextMaxRaidResets(startDate: string, maxResets: number) {
 async function fetchNextRaidResets() {
     const supabase = createServerComponentClient({cookies})
 
-    const raidResets = await supabase.from('public.raid_resets')
+    const raidResets = await supabase.from('raid_resets')
         .select('raid_date,id')
         .gte('raid_date', moment().format('YYYY-MM-DD'))
         .order('raid_date', {ascending: true})
@@ -44,7 +44,7 @@ async function fetchNextRaidResets() {
 
         if (error) {
             console.error('Error inserting new raid resets:', JSON.stringify(error, undefined, 2))
-            throw new Error('Error inserting new raid resets: ' + error)
+            //throw new Error('Error inserting new raid resets: ' + error)
         }
 
         return fetchNextRaidResets()
