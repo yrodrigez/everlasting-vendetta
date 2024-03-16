@@ -37,7 +37,7 @@ export default async function Home() {
         <main className="flex w-full h-full justify-evenly flex-col">
             <div className="hidden md:block h-full w-full">
                 <div className={
-                    "absolute bottom-[51%] left-0 w-full h-[400px] bg-cover bg-center bg-no-repeat backdrop-filter backdrop-blur-md border-bottom-image"
+                    "absolute bottom-[51%] left-0 w-full top-0 bg-cover bg-center bg-no-repeat backdrop-filter backdrop-blur-md border-bottom-image"
                 } style={{backgroundImage: "url('/banner.png')"}}>
                     <div
                         className="flex flex-col items-center justify-center h-full w-full bg-black bg-opacity-50">
