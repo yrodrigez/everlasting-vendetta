@@ -43,7 +43,7 @@ async function fetchNextSevenRaidResets() {
         .limit(MAX_RAID_RESETS)
 
     if (raidResets.error) {
-        console.error('Error fetching raid resets: ' + JSON.stringify(raidResets.error))
+        console.error('Error fetching raid resets: ' + JSON.stringify(raidResets))
         return []
     }
 
