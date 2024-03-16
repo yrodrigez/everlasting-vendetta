@@ -37,13 +37,13 @@ async function fetchNextSevenRaidResets() {
 
     const raidResets = await supabase.from('raid_resets')
         .select('raid_date,id')
-        .gte('raid_date', moment().format('YYYY-MM-DD'))
-        .order('raid_date', {ascending: true})
+        //.gte('raid_date', moment().format('YYYY-MM-DD'))
+        .order('raid_date', {ascending: false})
         .limit(MAX_RAID_RESETS)
 
 
     if (raidResets.error) {
-        console.error(new Date().toLocaleString() + ' - Error fetching raid resets: ' + JSON.stringify(raidResets) + ', on date: ' + new Date().toLocaleString())
+        console.error(moment().format('YYYY-MM-DD') + ' - Error fetching raid resets: ' + JSON.stringify(raidResets) + ', on date: ' + new Date().toLocaleString())
         return []
     }
 
