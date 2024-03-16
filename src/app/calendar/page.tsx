@@ -7,7 +7,6 @@ const START_DATE = '2024-03-14'
 const RAID_RESET_DAYS = 3
 const MAX_RAID_RESETS = 9
 
-
 function createNextMaxRaidResets(startDate: string, maxResets: number) {
     const raidResets = []
     let nextRaidDate = moment(startDate)
@@ -35,17 +34,19 @@ async function fetchNextSevenRaidResets() {
         process.env.NEXT_PUBLIC_SUPABASE_URL,
         process.env.SUPABASE_SERVICE_ROLE_KEY,
     )
-
-    const raidResets = await supabase.from('raid_resets')
-        .select('raid_date,id')
-        .gte('raid_date', moment().format('YYYY-MM-DD'))
-        .order('raid_date', {ascending: true})
-        .limit(MAX_RAID_RESETS)
-
-    if (raidResets.error) {
-        console.error('Error fetching raid resets: ' + JSON.stringify(raidResets))
+    let raidResets = [] as any
+    try {
+        raidResets = await supabase.from('raid_resets')
+            .select('raid_date,id')
+            .gte('raid_date', moment().format('YYYY-MM-DD'))
+            .order('raid_date', {ascending: true})
+            .limit(MAX_RAID_RESETS)
+        console.log('raidResets:', raidResets, 'success')
+    } catch (error) {
+        console.error('Error fetching raid resets: ' + JSON.stringify(error, undefined, 2))
         return []
     }
+
 
     if (raidResets.data.length === 0 || raidResets.data.length < MAX_RAID_RESETS) {
         const lastRaidDate = raidResets.data[raidResets.data.length - 1]?.raid_date
@@ -60,13 +61,14 @@ async function fetchNextSevenRaidResets() {
 
         return fetchNextSevenRaidResets()
     }
+
     return raidResets.data
 }
 
 
 export default async function Page() {
     const token = cookies().get(process.env.BNET_COOKIE_NAME!)
-    if(!token) {
+    if (!token) {
         return (
             <main className="flex gap-3 flex-col justify-center items-center md:flex-wrap md:flex-row h-full">
                 <h1 className="text-2xl font-bold text-center">You must be logged in to see this page</h1>
