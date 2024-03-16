@@ -4,11 +4,11 @@ import {cookies} from "next/headers";
 
 async function fetchRaidStatus(raidId: any) {
     const supabase = createServerComponentClient({cookies})
-
     const {
         data,
         error
     } = await supabase.from('ev_raid_participant').select('member:ev_member(*), is_confirmed, raid_id').eq('raid_id', raidId)
+
     return {data, error}
 }
 
