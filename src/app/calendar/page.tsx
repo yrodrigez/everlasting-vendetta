@@ -7,10 +7,6 @@ const START_DATE = '2024-03-14'
 const RAID_RESET_DAYS = 3
 const MAX_RAID_RESETS = 9
 
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-)
 
 function createNextMaxRaidResets(startDate: string, maxResets: number) {
     const raidResets = []
@@ -25,6 +21,21 @@ function createNextMaxRaidResets(startDate: string, maxResets: number) {
 }
 
 async function fetchNextSevenRaidResets() {
+
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+        console.error('Error fetching raid resets: Supabase URL not found')
+        return []
+    }
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+        console.error('Error fetching raid resets: Supabase Service Role Key not found')
+        return []
+    }
+
+    const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL,
+        process.env.SUPABASE_SERVICE_ROLE_KEY,
+    )
+
     const raidResets = await supabase.from('raid_resets')
         .select('raid_date,id')
         .gte('raid_date', moment().format('YYYY-MM-DD'))
