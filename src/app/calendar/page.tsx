@@ -65,8 +65,15 @@ async function fetchNextSevenRaidResets() {
 
 
 export default async function Page() {
-    const raidResets = await fetchNextSevenRaidResets()
     const token = cookies().get(process.env.BNET_COOKIE_NAME!)
+    if(!token) {
+        return (
+            <main className="flex gap-3 flex-col justify-center items-center md:flex-wrap md:flex-row">
+                <h1 className="text-2xl font-bold text-center">You must be logged in to see this page</h1>
+            </main>
+        )
+    }
+    const raidResets = await fetchNextSevenRaidResets()
     return <main className="flex gap-3 flex-col justify-center items-center md:flex-wrap md:flex-row">
         {raidResets.map((raidReset: any, index: number) => (
             <RaidResetCard
