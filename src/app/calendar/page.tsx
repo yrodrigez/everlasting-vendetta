@@ -34,18 +34,19 @@ async function fetchNextSevenRaidResets() {
         process.env.NEXT_PUBLIC_SUPABASE_URL,
         process.env.SUPABASE_SERVICE_ROLE_KEY,
     )
-    let raidResets = {data: []} as any
-    try {
-        raidResets = await supabase.from('raid_resets')
-            .select('raid_date,id')
-            .gte('raid_date', moment().format('YYYY-MM-DD'))
-            .order('raid_date', {ascending: true})
-            .limit(MAX_RAID_RESETS)
-        console.log('raidResets:', raidResets, 'success')
-    } catch (error) {
-        console.error(new Date().toLocaleString() + ' - Error fetching raid resets: ' + JSON.stringify(error) + ', on date: ' + new Date().toLocaleString())
+
+    const raidResets = await supabase.from('raid_resets')
+        .select('raid_date,id')
+        .gte('raid_date', moment().format('YYYY-MM-DD'))
+        .order('raid_date', {ascending: true})
+        .limit(MAX_RAID_RESETS)
+
+
+    if (raidResets.error) {
+        console.error(new Date().toLocaleString() + ' - Error fetching raid resets: ' + JSON.stringify(raidResets) + ', on date: ' + new Date().toLocaleString())
         return []
     }
+
 
     if (raidResets.data.length === 0 || raidResets.data.length < MAX_RAID_RESETS) {
         const lastRaidDate = raidResets.data[raidResets.data.length - 1]?.raid_date
