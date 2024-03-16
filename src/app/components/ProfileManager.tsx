@@ -2,17 +2,18 @@
 import {useEffect, useState} from "react";
 import CharacterAvatar from "@/app/components/CharacterAvatar";
 import BattleNetAuthManagerWindow from "@/app/components/BattleNetAuthManagerWindow";
+import {useCharacterStore} from "@/app/components/characterStore";
 
 export default function ProfileManager() {
-    const [bnetProfile, setBnetProfile] = useState({name: 'Unknown', realm: {slug: 'unknown'}} as any)
     const [token, setToken] = useState({name: 'bnetToken', value: ''} as any)
     const [open, setOpen] = useState(false)
+    const bnetProfile = useCharacterStore(state => state.selectedCharacter)
+
     useEffect(() => {
         setToken({name: 'bnetToken', value: sessionStorage.getItem('bnetToken') || ''})
-        const profile = JSON.parse(localStorage.getItem('bnetProfile') || 'null')
-        if (profile) setBnetProfile(profile)
-    }, []);
+    }, [])
 
+    if (!bnetProfile) return null
     return bnetProfile.name !== 'Unknown' && (<>
         <div
             className="px-2 py-1 flex flex-col items-center rounded hover:cursor-pointer hover:bg-white hover:bg-opacity-20 backdrop-filter backdrop-blur-md"
@@ -27,10 +28,7 @@ export default function ProfileManager() {
         <BattleNetAuthManagerWindow
             token={token}
             open={open}
-            onCharacterSelect={(character: any) => {
-                setBnetProfile(character)
-                setOpen(false)
-            }}
+            setExternalOpen={setOpen}
         />
     </>)
 }

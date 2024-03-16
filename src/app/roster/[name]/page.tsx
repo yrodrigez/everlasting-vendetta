@@ -1,7 +1,7 @@
 import axios from "axios";
-import WoWHeadTooltip from "@/app/components/WoWHeadTooltip";
 import CharacterAvatar from "@/app/components/CharacterAvatar";
-import CharacterItem from "@/app/components/CharacterItem";
+import CharacterItem, {fetchItemDetails} from "@/app/components/CharacterItem";
+import {calculateTotalGearScore, getColorForGearScoreText} from "@/app/roster/[name]/ilvl";
 
 function fetchMemberInfo(token: string, realm: string, characterName: string, locale: string = 'en_US') {
     const url = `https://eu.api.blizzard.com/profile/wow/character/${realm}/${characterName}`;
@@ -62,46 +62,64 @@ const getPlayerClassById = (classId: number) => {
     return classes[classId] || {name: 'Unknown', icon: 'unknown'}
 }
 
+const findItemBySlotType = (equipment: any, slotType: string) => {
+    return equipment.find((item: any) => item.slot.type === slotType) || {
+        slot: {type: slotType},
+        item: {id: 999999},
+        quality: {type: 'POOR', name: 'poor'},
+        level: 0,
+        name: 'Unknown'
+    }
+}
+
+const findEquipmentBySlotTypes = (equipment: any, slots: string[]) => {
+    const result = [] as any
+    slots.forEach((slot) => {
+        result.push(findItemBySlotType(equipment, slot))
+    })
+
+    return result
+}
+
+function getQualityTypeNumber(quality: string) {
+    const qualityTypes = {
+        'POOR': 0,
+        'COMMON': 1,
+        'UNCOMMON': 2,
+        'RARE': 3,
+        'EPIC': 4,
+        'LEGENDARY': 5,
+    } as any
+
+    return qualityTypes[quality] || 0
+}
+
 export default async function Page({params}: { params: { name: string } }) {
     const {token} = await getBlizzardToken()
     const {data: characterInfo} = await fetchMemberInfo(token, 'lone-wolf', params.name)
     const {data: equipment} = await fetchEquipment(token, 'lone-wolf', params.name)
-    const equipmentData = equipment.equipped_items
-    const headItem = equipmentData.find((item: any) => item.slot.type === 'HEAD')
-    const neckItem = equipmentData.find((item: any) => item.slot.type === 'NECK')
-    const shoulderItem = equipmentData.find((item: any) => item.slot.type === 'SHOULDER')
-    const backItem = equipmentData.find((item: any) => item.slot.type === 'BACK')
-    const chestItem = equipmentData.find((item: any) => item.slot.type === 'CHEST')
-    const shirtItem = equipmentData.find((item: any) => item.slot.type === 'SHIRT') || {
-        slot: {type: 'SHIRT'},
-        item: {id: 999999},
-        quality: {type: 'POOR', name: 'poor'},
-        level: 0,
-        name: 'Shirt'
-    }
-    const tabardItem = equipmentData.find((item: any) => item.slot.type === 'TABARD') || {
-        slot: {type: 'TABARD'},
-        item: {id: 999999},
-        quality: {type: 'POOR', name: 'poor'},
-        level: 0,
-        name: 'Tabard'
-    }
-    const wristItem = equipmentData.find((item: any) => item.slot.type === 'WRIST')
-    const group1 = [headItem, neckItem, shoulderItem, backItem, chestItem, shirtItem, tabardItem, wristItem]
-    const handsItem = equipmentData.find((item: any) => item.slot.type === 'HANDS')
-    const waistItem = equipmentData.find((item: any) => item.slot.type === 'WAIST')
-    const legsItem = equipmentData.find((item: any) => item.slot.type === 'LEGS')
-    const feetItem = equipmentData.find((item: any) => item.slot.type === 'FEET')
-    const finger1Item = equipmentData.find((item: any) => item.slot.type === 'FINGER_1')
-    const finger2Item = equipmentData.find((item: any) => item.slot.type === 'FINGER_2')
-    const trinket1Item = equipmentData.find((item: any) => item.slot.type === 'TRINKET_1')
-    const trinket2Item = equipmentData.find((item: any) => item.slot.type === 'TRINKET_2')
-    const group2 = [handsItem, waistItem, legsItem, feetItem, finger1Item, finger2Item, trinket1Item, trinket2Item]
-    const mainHandItem = equipmentData.find((item: any) => item.slot.type === 'MAIN_HAND')
-    const offHandItem = equipmentData.find((item: any) => item.slot.type === 'OFF_HAND')
-    const rangedItem = equipmentData.find((item: any) => item.slot.type === 'RANGED')
-    const group3 = [mainHandItem, offHandItem, rangedItem]
+    const equipmentData = await Promise.all(equipment.equipped_items.map(async (item: any) => {
+        const response = await fetchItemDetails(token, item.item.id)
+        return {
+            ...item,
+            details: response
+        }
+    }))
 
+
+    const group1 = findEquipmentBySlotTypes(equipmentData, ['HEAD', 'NECK', 'SHOULDER', 'BACK', 'CHEST', 'SHIRT', 'TABARD', 'WRIST'])
+    const group2 = findEquipmentBySlotTypes(equipmentData, ['HANDS', 'WAIST', 'LEGS', 'FEET', 'FINGER_1', 'FINGER_2', 'TRINKET_1', 'TRINKET_2'])
+    const group3 = findEquipmentBySlotTypes(equipmentData, ['MAIN_HAND', 'OFF_HAND', 'RANGED'])
+    const toCalcIlvl = equipmentData.map((item: any) => {
+        return {
+            ilvl: item.details?.level || 0,
+            type: `INVTYPE_${item.inventory_type.type}`,
+            rarity: getQualityTypeNumber(item.quality.type),
+            isEnchanted: !!(item.enchantments?.length)
+        }
+    })
+    const ilvl = Math.ceil(calculateTotalGearScore(toCalcIlvl))
+    const getColorName = `text-${getColorForGearScoreText(ilvl)}`
     return (
         <div>
             <div className="mx-auto max-w-6xl px-4 flex justify-evenly items-center">
@@ -117,17 +135,18 @@ export default async function Page({params}: { params: { name: string } }) {
                             online {new Date(characterInfo.last_login_timestamp).toLocaleString()}</p>
                     </div>
                 </div>
-
                 <img className={'rounded-full'} alt={characterInfo.character_class?.name}
                      src={getPlayerClassById(characterInfo.character_class?.id).icon}/>
-
             </div>
             <div className="w-full h-full flex flex-col items-center">
                 <div className="w-full flex justify-between items-center">
                     <div className="flex flex-1 gap-4 flex-col">
-                        {group1.map((item: any, index) => {
+                        {group1.map((item: any, index: number) => {
                             return <CharacterItem key={'item-' + index} item={item} token={token}/>
                         })}
+                    </div>
+                    <div>
+                        Item level: <span className={`${getColorName} font-bold`}>{ilvl}</span>
                     </div>
                     <div className="flex flex-1 flex-col gap-4 self-baseline">
                         {group2.map((item: any, index: number) => {

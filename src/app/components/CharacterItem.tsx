@@ -117,6 +117,7 @@ export interface ItemDetails {
     sell_price: SellPrice;
     requirements: Requirements;
     description: string;
+    details: any;
     durability: {
         value: number;
         display_string: string;
@@ -159,9 +160,27 @@ async function fetchItemMedia(token: string, itemId: number, locale: string = 'e
     }
 }
 
-async function fetchItemDetails(token: string, itemId: number, locale: string = 'en_US') {
+function knownItemLevelQuality(itemId: number) {
+    const knownItemLevels = {
+        215161: 45,
+        210781: 30,
+        211450: 33,
+        215111: 45,
+        999999: 0,
+        0: 0,
+        216494: 45,
+        213409: 45,
+        213350: 45,
+
+    } as any
+    return knownItemLevels[itemId] || 0;
+
+}
+
+export async function fetchItemDetails(token: string, itemId: number, locale: string = 'en_US') {
     const url = `https://eu.api.blizzard.com/data/wow/item/${itemId}?namespace=static-classic1x-eu&locale=${locale}`;
-    let itemDetails = {quality: {}, level: 0} as any;
+    let itemDetails = {quality: {}, level: knownItemLevelQuality(itemId)} as any;
+
     try {
         const {data} = await axios.get(`${url}`, {
             headers: {'Authorization': 'Bearer ' + token}
@@ -170,6 +189,9 @@ async function fetchItemDetails(token: string, itemId: number, locale: string = 
     } catch (e) {
         //console.error('Error fetching item details:', e)
 
+    }
+    if (itemDetails.quality.level === 0) {
+        console.error('Item quality not found for item:', itemId)
     }
     return itemDetails;
 }
@@ -185,15 +207,16 @@ function getItemRarityHexColor(quality: string) {
         'ARTIFACT': '#e6cc80',
         'HEIRLOOM': '#00ccff',
     } as any
+
     return rarityColors[quality] || '#ffffff';
 }
 
-export default async function ({item, token, reverse, }: { item: ItemDetails, token: string , reverse?: boolean}) {
-    if(!item) return null;
+export default async function ({item, token, reverse,}: { item: ItemDetails, token: string, reverse?: boolean }) {
+    if (!item) return null;
     const {id,} = item?.item || {} as any
     const {name, quality, slot} = item || {};
     const itemIconUrl = await fetchItemMedia(token, id);
-    const itemDetails = await fetchItemDetails(token, id);
+
     return (
         <Link
             href={`https://www.wowhead.com/classic/item=${id}`}
@@ -206,7 +229,7 @@ export default async function ({item, token, reverse, }: { item: ItemDetails, to
             <div className={`flex-col gap-0.5 ${reverse ? 'text-right' : 'text-left'} break-all`}>
                 <h3 className="font-semibold text-sm md:hidden">{slot.name}</h3>
                 <h3 className="font-semibold text-sm hidden md:flex">{name}</h3>
-                <p className="text-xs text-muted">Item Level {itemDetails.level}</p>
+                <p className="text-xs text-muted">Item Level {item.details?.level}</p>
             </div>
         </Link>
     )

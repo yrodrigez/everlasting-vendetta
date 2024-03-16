@@ -29,6 +29,8 @@ const config: Config = {
                 rare: "#0070f3",
                 uncommon: "#00FF00",
                 common: "#FFFFFF",
+                relic: "#e5cc80",
+                pink: "#e268a8",
                 battlenet: "#00AEFF",
             },
         },

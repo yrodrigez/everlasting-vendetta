@@ -1,31 +1,6 @@
 'use client'
-import axios from "axios";
 import {useEffect, useState} from "react";
 
-const fetchCharacterAvatar = async (token: string, realm: string, characterName: string, locale: string = 'en_US', namespace: string = 'profile-classic1x-eu') => {
-    const url = `https://eu.api.blizzard.com/profile/wow/character/${realm}/${characterName.toLowerCase()}/character-media`
-    const headers = new Headers()
-    headers.append('Authorization', 'Bearer ' + token)
-    const queryParams = new URLSearchParams({
-        locale,
-        namespace
-    })
-
-    try {
-        const {data} = await axios.get(`${url}?${queryParams.toString()}`, {
-            headers: {
-                'Authorization': 'Bearer ' + token
-            }
-        })
-
-        return data?.assets?.find((asset: any) => {
-            return asset.key === 'avatar'
-        })?.value || 'unknown'
-    } catch (e) {
-        //console.error('Error fetching character avatar:', e)
-        return '/avatar-anon.png'
-    }
-}
 
 function characterImageUrlLocalStorageCache(realm: string, characterName: string) {
     return {
@@ -66,21 +41,16 @@ const CharacterAvatar = ({token, realm, characterName, className = `rounded-full
         if (!currentToken) return setAvatar('/avatar-anon.png')
         const cachedUrl = characterImageUrlLocalStorageCache(realm, characterName).get()
         if (cachedUrl) return setAvatar(cachedUrl)
-        try {
-            fetchCharacterAvatar(currentToken?.value, realm, characterName)
-                .then((url) => {
-                    setAvatar(url)
-                    characterImageUrlLocalStorageCache(realm, characterName).set(url)
-                })
-                .catch(() => {
-                    setAvatar('/avatar-anon.png')
-                })
-        } catch (e) {
-            //console.error('Error fetching character avatar:', e)
-        }
+        const response = fetch(`/api/v1/services/member/avatar/get?realm=${realm}&characterName=${characterName}&token=${currentToken?.value}`)
+        response.then((res) => res.json()).then((data) => {
+            setAvatar(data.avatar === 'unknown' ? '/avatar-anon.png' : data.avatar)
+            characterImageUrlLocalStorageCache(realm, characterName).set(data.avatar)
+        }).catch(() => {
+            setAvatar('/avatar-anon.png')
+        })
     }, [token, realm, characterName, currentToken?.value])
 
-    return <img src={avatar} alt={characterName} className={className}/>
+    return <img src={avatar === 'unknown' ? '/avatar-anon.png' : avatar} alt={characterName} className={className}/>
 
 }
 
