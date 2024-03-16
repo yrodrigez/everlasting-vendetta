@@ -43,7 +43,7 @@ async function fetchNextSevenRaidResets() {
             .limit(MAX_RAID_RESETS)
         console.log('raidResets:', raidResets, 'success')
     } catch (error) {
-        console.error('Error fetching raid resets: ' + JSON.stringify(error, undefined, 2))
+        console.error(new Date().toLocaleString() +' - Error fetching raid resets: ' + JSON.stringify(error) + ', on date: ' + new Date().toLocaleString())
         return []
     }
 
