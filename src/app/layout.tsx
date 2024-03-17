@@ -8,6 +8,7 @@ import BattleNetAuthManagerWindow from "@/app/components/BattleNetAuthManagerWin
 import {cookies} from "next/headers";
 import ProfileManager from "@/app/components/ProfileManager";
 
+
 const inter = Inter({subsets: ["latin"]});
 
 export const metadata: Metadata = {
@@ -19,9 +20,9 @@ const HeaderMenuButton = ({text, url}: { text: string, url?: string }) => {
     const allowed = ['apply', 'roster', 'calendar',];
     return (
         <Link
-            className="px-2 py-1 flex flex-col items-center rounded hover:cursor-pointer hover:bg-white hover:bg-opacity-20 backdrop-filter backdrop-blur-md"
+            className="px-2 py-1 flex flex-col items-center rounded hover:cursor-pointer hover:bg-white hover:bg-opacity-20 backdrop-filter backdrop-blur-md min-w-16 max-w-16"
             href={url || `/${allowed.indexOf(key) === -1 ? '' : key}`}>
-            <img alt={text} src={`/btn-${key}.png`} className="rounded-full w-9 h-9"/>
+            <img alt={text} src={`/btn-${key}.png`} className="rounded-full w-9 h-9 min-h-9 max-h-9 min-w-9 max-w-9"/>
             <span>{text}</span>
         </Link>
     )
@@ -35,29 +36,29 @@ export default function RootLayout({
 }>) {
     const battleNetRedirectUrl = `${process.env.BNET_LOGIN_URI}`;
     const battleNetToken = cookies().get('bnetToken');
-
     return (
         <html lang="en" className="light">
         <body className={inter.className} style={{width: '100%', height: '100%'}}>
         <Providers>
             <div className="pt-1 flex flex-col w-full h-full max-h-full min-h-screen items-center">
                 <div className="h-[80px] w-full flex items-center justify-center border-b border-gold relative">
-                    <div className="md:max-w-[900px] flex items-center justify-between h-full">
+                    <div className="md:max-w-[900px] flex items-center justify-between h-full ">
                         <div className="flex items-center md:w-[240px] flex-1 gap-3 justify-center">
                             <HeaderMenuButton text="Home"/>
                             {/*<HeaderMenuButton text="News"/>*/}
                             <HeaderMenuButton text="Apply"/>
                         </div>
-                        <img alt={'center-img'} src={`/center-img.png`} className="flex-1 rounded-full max-w-20"/>
+                        <img alt={'center-img'} src={`/center-img.png`}
+                             className="flex-1 rounded-full max-w-20 hidden md:flex"/>
                         <div className="flex items-center md:w-[240px] flex-1 gap-3 justify-center">
                             <HeaderMenuButton text="Roster"/>
                             {/*<HeaderMenuButton text="Forum"/>*/}
                             <HeaderMenuButton text="Calendar"/>
-                            <div className="absolute right-2">
-                                {!battleNetToken && <HeaderMenuButton text="Login" url={battleNetRedirectUrl}/>}
-                                {battleNetToken && <ProfileManager/>}
-                            </div>
                         </div>
+                    </div>
+                    <div className="absolute right-2">
+                        {!battleNetToken && <HeaderMenuButton text="Login" url={battleNetRedirectUrl}/>}
+                        {battleNetToken && <ProfileManager/>}
                     </div>
                 </div>
                 <div

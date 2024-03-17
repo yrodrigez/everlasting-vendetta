@@ -3,77 +3,160 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 219, 210, 195;
-  --background-start-rgb: 19, 19, 19;
-  --background-end-rgb: 19, 19, 19;
+    --foreground-rgb: 219, 210, 195;
+    --background-start-rgb: 19, 19, 19;
+    --background-end-rgb: 19, 19, 19;
+    --gold-rgb: 201, 168, 102;
+    --legendary-rgb: 255, 215, 0;
+    --rare-rgb: 0, 112, 255;
+    --epic-rgb: 163, 53, 238;
+    --common-rgb: 255, 255, 255;
+    --uncommon-rgb: 0, 255, 0;
+    --relic-rgb: 255, 0, 0;
+    --pink-rgb: 226, 104, 168;
 }
+
 .border-bottom-image {
-  border-bottom: 16px;
-  border-style: solid;
-  border-image: url('/custom-border.png') 30 round;
+    border-bottom: 16px;
+    border-style: solid;
+    border-image: url('/custom-border.png') 30 round;
 }
+
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+    color: rgb(var(--foreground-rgb));
+    background: linear-gradient(
+            to bottom,
+            transparent,
+            rgb(var(--background-end-rgb))
+    ) rgb(var(--background-start-rgb));
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+    .text-balance {
+        text-wrap: balance;
+    }
 }
 
 .scrollbar-pill {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 253, 231, 1) transparent;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 253, 231, 1) transparent;
 }
 
 .scrollbar-pill::-webkit-scrollbar {
-  width: 16px;
-  height: 16px;
+    width: 16px;
+    height: 16px;
 }
 
 .scrollbar-pill::-webkit-scrollbar-track {
-  background: transparent;
-  border-radius: 9999px;
+    background: transparent;
+    border-radius: 9999px;
 }
 
 .scrollbar-pill::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 253, 231, 1);
-  border-radius: 9999px;
-  border: 4px solid transparent;
-  background-clip: padding-box;
+    background-color: rgba(255, 253, 231, 1);
+    border-radius: 9999px;
+    border: 4px solid transparent;
+    background-clip: padding-box;
 }
 
 .scrollbar-pill::-webkit-scrollbar-button {
-  display: none;
+    display: none;
 }
+
 .card {
-  transition: transform 0.8s;
-  transform-style: preserve-3d;
-  position: relative;
-  perspective: 1000px;
+    transition: transform 0.8s;
+    transform-style: preserve-3d;
+    position: relative;
+    perspective: 1000px;
 }
 
 .card.flipped {
-  transform: rotateY(180deg);
+    transform: rotateY(180deg);
 }
 
 .card-front, .card-back {
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  position: absolute;
-  top: 0;
-  left: 0;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
 .card-back {
-  transform: rotateY(180deg);
+    transform: rotateY(180deg);
 }
+
+.text-gold {
+    color: rgb(var(--gold-rgb));
+}
+
+.text-legendary {
+    color: rgb(var(--legendary-rgb));
+}
+
+.text-rare {
+    color: rgb(var(--rare-rgb));
+}
+
+.text-epic {
+    color: rgb(var(--epic-rgb));
+}
+
+.text-common {
+    color: rgb(var(--common-rgb));
+}
+
+.text-uncommon {
+    color: rgb(var(--uncommon-rgb));
+}
+
+.text-relic {
+    color: rgb(var(--relic-rgb));
+}
+
+.text-pink {
+    color: rgb(var(--pink-rgb));
+}
+
+.border-gold {
+    border-color: rgb(var(--gold-rgb));
+}
+
+.border-legendary {
+    border-color: rgb(var(--legendary-rgb));
+}
+
+.border-rare {
+    border-color: rgb(var(--rare-rgb));
+}
+
+.border-epic {
+    border-color: rgb(var(--epic-rgb));
+}
+
+.border-common {
+    border-color: rgb(var(--common-rgb));
+}
+
+.border-uncommon {
+    border-color: rgb(var(--uncommon-rgb));
+}
+
+.border-relic {
+    border-color: rgb(var(--relic-rgb));
+}
+
+.border-pink {
+    border-color: rgb(var(--pink-rgb));
+}
+
+.border-gold {
+    border-color: rgb(var(--gold-rgb));
+}
+
+
+
+
+
 

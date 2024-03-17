@@ -106,7 +106,6 @@ export default async function Page({params}: { params: { name: string } }) {
         }
     }))
 
-
     const group1 = findEquipmentBySlotTypes(equipmentData, ['HEAD', 'NECK', 'SHOULDER', 'BACK', 'CHEST', 'SHIRT', 'TABARD', 'WRIST'])
     const group2 = findEquipmentBySlotTypes(equipmentData, ['HANDS', 'WAIST', 'LEGS', 'FEET', 'FINGER_1', 'FINGER_2', 'TRINKET_1', 'TRINKET_2'])
     const group3 = findEquipmentBySlotTypes(equipmentData, ['MAIN_HAND', 'OFF_HAND', 'RANGED'])
@@ -120,13 +119,24 @@ export default async function Page({params}: { params: { name: string } }) {
     })
     const ilvl = Math.ceil(calculateTotalGearScore(toCalcIlvl))
     const getColorName = `text-${getColorForGearScoreText(ilvl)}`
+    /*const _item = group2[1]
+
+    return (
+        <div>
+            <CharacterItem  item={_item} token={token}/>
+            <div className={'whitespace-pre bg-black'}>
+                {JSON.stringify(_item, null, 2)}
+            </div>
+        </div>
+    )*/
+
     return (
         <div>
             <div className="mx-auto max-w-6xl px-4 flex justify-evenly items-center">
                 <div className="flex items-center gap-4 mb-4">
                     <div className="w-20 h-20 rounded-full overflow-hidden">
                         <CharacterAvatar token={token} realm={'lone-wolf'} characterName={characterInfo.name}
-                                         className="rounded-full border-3 border-epic"/>
+                                         className="rounded-full border-3 border-gold"/>
                     </div>
                     <div className="grid gap-1.5">
                         <h2 className="font-semibold text-lg">{characterInfo.name}</h2>
@@ -156,7 +166,7 @@ export default async function Page({params}: { params: { name: string } }) {
                 </div>
                 <div className="flex flex-1 gap-4">
                     {group3.map((item: any, index: number) => {
-                        return <CharacterItem key={'item-' + index} reverse={index === 0} item={item} token={token}/>
+                        return <CharacterItem key={'item-' + index} reverse={index === 0} bottom item={item} token={token}/>
                     })}
                 </div>
             </div>

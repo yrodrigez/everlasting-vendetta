@@ -1,5 +1,5 @@
 import axios from "axios";
-import Link from "next/link";
+import {ItemImageWithRune} from "@/app/roster/[name]/components/ItemImageWithRune";
 
 interface APIReference {
     href: string;
@@ -100,6 +100,15 @@ interface Requirements {
     };
 }
 
+export type Enchantment = {
+    "display_string": string,
+    "enchantment_id": number,
+    "enchantment_slot": {
+        "id": number,
+        "type": "PERMANENT" | "TEMPORARY"
+    }
+}
+
 export interface ItemDetails {
     item: Item;
     slot: Slot;
@@ -111,6 +120,8 @@ export interface ItemDetails {
     item_subclass: ItemSubclass;
     inventory_type: InventoryType;
     binding: Binding;
+    limit_category?: string;
+    enchantments?: Enchantment[];
     armor: Armor;
     stats: Stat[];
     spells: Spell[];
@@ -211,26 +222,33 @@ function getItemRarityHexColor(quality: string) {
     return rarityColors[quality] || '#ffffff';
 }
 
-export default async function ({item, token, reverse,}: { item: ItemDetails, token: string, reverse?: boolean }) {
+export default async function ({item, token, reverse, bottom}: {
+    item: ItemDetails,
+    token: string,
+    reverse?: boolean,
+    bottom?: boolean
+}) {
     if (!item) return null;
     const {id,} = item?.item || {} as any
     const {name, quality, slot} = item || {};
     const itemIconUrl = await fetchItemMedia(token, id);
 
     return (
-        <Link
-            href={`https://www.wowhead.com/classic/item=${id}`}
+        <div
+
             className={`flex items-center gap-4 ${reverse ? 'flex-row-reverse' : ''}`}>
-            <div className={`w-12 h-12 min-w-12 rounded-lg overflow-hidden border block bg-cover`} style={{
-                borderColor: getItemRarityHexColor(quality.name.toUpperCase()),
-                backgroundImage: `url(${itemIconUrl})`,
-            }}>
-            </div>
+            <ItemImageWithRune
+                item={item}
+                itemIconUrl={itemIconUrl}
+                reverse={reverse}
+                bottom={bottom}
+                borderColor={getItemRarityHexColor(quality.name.toUpperCase())}
+            />
             <div className={`flex-col gap-0.5 ${reverse ? 'text-right' : 'text-left'} break-all`}>
                 <h3 className="font-semibold text-sm md:hidden">{slot.name}</h3>
                 <h3 className="font-semibold text-sm hidden md:flex">{name}</h3>
                 <p className="text-xs text-muted">Item Level {item.details?.level}</p>
             </div>
-        </Link>
+        </div>
     )
 }

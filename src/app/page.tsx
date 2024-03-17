@@ -35,23 +35,23 @@ const CustomSection = ({header, paragraphs}: { header: string, paragraphs: strin
 export default async function Home() {
     return (
         <main className="flex w-full h-full justify-evenly flex-col">
-            <div className="hidden md:block h-full w-full">
+            <div className="hidden lg:block h-full w-full">
                 <div className={
                     "absolute bottom-[51%] left-0 w-full top-0 bg-cover bg-center bg-no-repeat backdrop-filter backdrop-blur-md border-bottom-image"
                 } style={{backgroundImage: "url('/banner.png')"}}>
                     <div
                         className="flex flex-col items-center justify-center h-full w-full bg-black bg-opacity-50">
                         <div
-                            className="flex flex-col items-center justify-center gap-2 text-center p-2 rounded-xl bg-black bg-opacity-50 backdrop-filter backdrop-blur-md shadow-2xl shadow-wood"
+                            className="flex flex-col items-center justify-center"
                         >
-                            <h1 className="text-gold font-bold text-4xl">Everlasting Vendetta</h1>
-                            <p className="text-stone font-bold text-2xl">United by Legacy, Bound by Adventure</p>
+                            <img alt={'center-img'} src={`/center-img.png`}
+                                 className="flex-1 rounded-full w-60"/>
                         </div>
                     </div>
                 </div>
             </div>
             <div
-                className="flex flex-col h-full p-2 gap-3 md:flex-row md:flex-wrap md:items-start md:justify-center md:max-w-[1000px]">
+                className="flex flex-col h-full p-2 gap-3 items-center lg:flex-row lg:flex-wrap lg:items-start lg:justify-center lg:max-w-[1000px]">
                 {intro.map((section, index) => <CustomSection key={index} {...section}/>)}
             </div>
         </main>
