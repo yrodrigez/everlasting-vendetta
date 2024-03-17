@@ -110,15 +110,14 @@ export default async function Page({params}: { params: { name: string } }) {
     const group2 = findEquipmentBySlotTypes(equipmentData, ['HANDS', 'WAIST', 'LEGS', 'FEET', 'FINGER_1', 'FINGER_2', 'TRINKET_1', 'TRINKET_2'])
     const group3 = findEquipmentBySlotTypes(equipmentData, ['MAIN_HAND', 'OFF_HAND', 'RANGED'])
     const toCalcIlvl = [...group1, ...group2, ...group3].filter((item: any) => item?.slot?.type !== 'SHIRT' && item?.slot?.type !== 'TABARD').map((item: any) => {
-
         return {
             ilvl: item.details?.level || 0,
-            type: `INVTYPE_${item.inventory_type.type}`,
-            rarity: getQualityTypeNumber(item.quality.type),
+            type: `INVTYPE_${item.inventory_type?.type}`,
+            rarity: getQualityTypeNumber(item.quality?.type),
             isEnchanted: !!(item.enchantments?.length)
         }
-    })
-    const ilvl = calculateTotalGearScore(toCalcIlvl)
+    }).filter(item => item.ilvl !== 0 || item.type !== 'INVTYPE_')
+    const ilvl = toCalcIlvl !== null ? calculateTotalGearScore(toCalcIlvl) : 0
     const getColorName = `text-${getColorForGearScoreText(ilvl)}`
 
     return (
