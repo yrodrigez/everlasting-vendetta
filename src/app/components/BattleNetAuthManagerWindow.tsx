@@ -56,6 +56,7 @@ export default function BattleNetAuthManagerWindow({token, open, setExternalOpen
             onOpenChange={onOpenChange}
             backdrop="blur"
             hideCloseButton
+            placement="center"
             isDismissable={!!selectedCharacter}>
             <ModalContent className={
                 `bg-wood max-h-96`
