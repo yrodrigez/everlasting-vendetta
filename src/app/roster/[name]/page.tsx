@@ -109,7 +109,8 @@ export default async function Page({params}: { params: { name: string } }) {
     const group1 = findEquipmentBySlotTypes(equipmentData, ['HEAD', 'NECK', 'SHOULDER', 'BACK', 'CHEST', 'SHIRT', 'TABARD', 'WRIST'])
     const group2 = findEquipmentBySlotTypes(equipmentData, ['HANDS', 'WAIST', 'LEGS', 'FEET', 'FINGER_1', 'FINGER_2', 'TRINKET_1', 'TRINKET_2'])
     const group3 = findEquipmentBySlotTypes(equipmentData, ['MAIN_HAND', 'OFF_HAND', 'RANGED'])
-    const toCalcIlvl = equipmentData.map((item: any) => {
+    const toCalcIlvl = [...group1, ...group2, ...group3].filter((item: any) => item?.slot?.type !== 'SHIRT' && item?.slot?.type !== 'TABARD').map((item: any) => {
+
         return {
             ilvl: item.details?.level || 0,
             type: `INVTYPE_${item.inventory_type.type}`,
@@ -117,18 +118,8 @@ export default async function Page({params}: { params: { name: string } }) {
             isEnchanted: !!(item.enchantments?.length)
         }
     })
-    const ilvl = Math.ceil(calculateTotalGearScore(toCalcIlvl))
+    const ilvl = calculateTotalGearScore(toCalcIlvl)
     const getColorName = `text-${getColorForGearScoreText(ilvl)}`
-    /*const _item = group2[1]
-
-    return (
-        <div>
-            <CharacterItem  item={_item} token={token}/>
-            <div className={'whitespace-pre bg-black'}>
-                {JSON.stringify(_item, null, 2)}
-            </div>
-        </div>
-    )*/
 
     return (
         <div>
@@ -166,7 +157,8 @@ export default async function Page({params}: { params: { name: string } }) {
                 </div>
                 <div className="flex flex-1 gap-4">
                     {group3.map((item: any, index: number) => {
-                        return <CharacterItem key={'item-' + index} reverse={index === 0} bottom item={item} token={token}/>
+                        return <CharacterItem key={'item-' + index} reverse={index === 0} bottom item={item}
+                                              token={token}/>
                     })}
                 </div>
             </div>
