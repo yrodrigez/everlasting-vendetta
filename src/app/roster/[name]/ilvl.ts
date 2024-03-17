@@ -57,7 +57,6 @@ function calculateItemScore(item: Item): number {
 }
 
 export function getColorForGearScoreText(gearScore: number): string {
-    const MAX_GEAR_SCORE: number = 530;
     let percentile: number = gearScore / MAX_GEAR_SCORE * 100;
 
     if (percentile >= 100) {
