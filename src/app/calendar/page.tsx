@@ -3,6 +3,7 @@ import moment from "moment";
 import {RaidResetCard} from "@/app/calendar/components/RaidResetCard";
 import {cookies} from "next/headers";
 import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
+import {isUserInGuild} from "@/app/lib/isUserInGuild";
 
 const START_DATE = '2024-03-14'
 const RAID_RESET_DAYS = 3
@@ -31,7 +32,7 @@ async function fetchNextRaidResets() {
 
 
     if (raidResets.error) {
-        console.error(moment().format('YYYY-MM-DD')+ ' - Error fetching raid resets: ' + JSON.stringify(raidResets) + ', on date: ' + new Date().toLocaleString())
+        console.error(moment().format('YYYY-MM-DD') + ' - Error fetching raid resets: ' + JSON.stringify(raidResets) + ', on date: ' + new Date().toLocaleString())
         return []
     }
 
@@ -63,6 +64,16 @@ export default async function Page() {
             </main>
         )
     }
+
+    const belongsToGuild = await isUserInGuild(token)
+    if (!belongsToGuild) {
+        return (
+            <main className="flex gap-3 flex-col justify-center items-center md:flex-wrap md:flex-row h-full">
+                <h1 className="text-2xl font-bold text-center">You must be in the guild to see this page</h1>
+            </main>
+        )
+    }
+
     const raidResets = await fetchNextRaidResets()
     return <main className="flex gap-3 flex-col justify-center items-center md:flex-wrap md:flex-row">
         {raidResets.map((raidReset: any, index: number) => (

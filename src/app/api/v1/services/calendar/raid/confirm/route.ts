@@ -3,19 +3,9 @@ import {NextResponse, type NextRequest} from "next/server";
 import {fetchCharacterAvatar} from "@/app/lib/fetchCharacterAvatar";
 import {fetchGuildInfo} from "@/app/lib/fetchGuildInfo";
 import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
+import {fetchBattleNetWoWAccounts} from "@/app/lib/fetchBattleNetWoWaccounts";
 
 
-async function fetchBattleNetWoWAccounts(token: string) {
-    const url = 'https://eu.api.blizzard.com/profile/user/wow?namespace=profile-classic1x-eu&locale=en_US'
-    const headers = new Headers()
-    headers.append('Authorization', 'Bearer ' + token)
-
-    const response = await fetch(url, {
-        headers: headers
-    });
-    const data = await response.json();
-    return data?.wow_accounts[0]?.characters || []
-}
 
 async function registerOnRaid(characterId: string, raidId: string, isConfirmed: boolean = false) {
     const supabase = createServerComponentClient({cookies})
