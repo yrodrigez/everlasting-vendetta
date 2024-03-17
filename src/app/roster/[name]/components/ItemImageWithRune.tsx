@@ -1,12 +1,14 @@
+'use client'
 import {ItemDetails} from "@/app/components/CharacterItem";
 import {Tooltip} from "@nextui-org/react";
-import {getRuneDescription} from "@/app/roster/[name]/getRuneDescription";
-import Link from "next/link";
+
 import {ItemDetailedView} from "@/app/roster/[name]/components/ItemDetailedView";
+import {useState} from "react";
+import {useSharedTooltipStore} from "@/app/roster/[name]/components/sharedTooltipstore";
 
 export function ItemImageWithRune({
-                                    item, itemIconUrl, borderColor, reverse = false, bottom = false
-                                }: {
+                                      item, itemIconUrl, borderColor, reverse = false, bottom = false
+                                  }: {
     item: ItemDetails
     itemIconUrl: string
     borderColor: string
@@ -20,14 +22,44 @@ export function ItemImageWithRune({
         .replace(/[-']/g, '_')
         .toLowerCase() || ''
 
+    const itemId = item?.item?.id
+
+    const {
+        setIsClicked,
+        setIsHovered,
+        setItemId
+    } = useSharedTooltipStore(state => ({
+        setIsClicked: state.setIsClicked,
+        setIsHovered: state.setIsHovered,
+        setItemId: state.setItemId
+    }))
+
+    const isHovered = useSharedTooltipStore(state => state.isHovered)
+    const isClicked = useSharedTooltipStore(state => state.isClicked)
+    const sharedItemId = useSharedTooltipStore(state => state.itemId)
+
     return (
         <Tooltip
+            isOpen={(isHovered || isClicked) && sharedItemId === itemId}
             placement={bottom ? 'top' : reverse ? 'left' : 'right'}
             className={`rounded block bg-cover bg-black bg-opacity-95 p-3 border border-${item.quality.name.toLowerCase()}`}
             content={
                 <ItemDetailedView item={item}/>
             }>
-            <div className={`w-12 h-12 min-w-12 rounded-lg overflow-hidden border block bg-cover relative`} style={{
+            <div
+                onMouseEnter={() => {
+                    setIsHovered(true);
+                    setItemId(itemId);
+                }}
+                onMouseLeave={() => {
+                    setIsHovered(false);
+                    setItemId(itemId);
+                }}
+                onClick={() => {
+                    setIsClicked(!isClicked);
+                    setItemId(itemId);
+                }}
+                className={`w-12 h-12 min-w-12 rounded-lg overflow-hidden border block bg-cover relative`} style={{
                 borderColor,
                 backgroundImage: `url(${itemIconUrl})`,
             }}>
