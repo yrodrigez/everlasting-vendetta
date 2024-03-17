@@ -159,7 +159,7 @@ export function RaidResetCard({raidDate, raidName, raidImage, raidTime = '20:30'
                                     })
                                 }
                             </ModalBody>
-                            <ModalFooter className={'w-full'}>
+                            <ModalFooter className={'w-full relative'}>
                                 <ConfirmDecline
                                     id={id}
                                     isConfirming={isConfirming}
