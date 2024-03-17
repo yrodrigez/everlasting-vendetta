@@ -34,7 +34,7 @@ export function ItemDetailedView({item}: { item: any }) {
             <p>{binding}</p>
             <div className="flex justify-between">
                 <p>{slotName}</p>
-                <p>{armorType}</p>
+                <p>{armorType !== 'Miscellaneous' ? armorType : ''}</p>
             </div>
             {limitCategory &&
               <p>{limitCategory}</p>
