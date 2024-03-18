@@ -130,10 +130,12 @@ export default async function Page({params}: { params: { name: string } }) {
                     </div>
                     <div className="grid gap-1.5">
                         <h2 className="font-semibold text-lg">{characterInfo.name}</h2>
-                        <p className="text-sm text-muted">Level {characterInfo.level} {characterInfo.race.name} {characterInfo.character_class?.name}</p>
+                        <p className="text-sm text-muted">
+                            Level {characterInfo.level} {characterInfo.race.name} {characterInfo.character_class?.name}
+                        </p>
                         {/*<p className="text-sm text-muted">Last
                             online {new Date(characterInfo.last_login_timestamp).toLocaleString()}</p>*/}
-                        <p>Gear score: <span className={`${gearScoreColorName} font-bold`}>{gearScore}</span></p>
+                        <p className="text-sm text-muted">Gear score: <span className={`${gearScoreColorName} font-bold`}>{gearScore}</span></p>
                     </div>
                 </div>
                 <img className={'rounded-full'} alt={characterInfo.character_class?.name}
