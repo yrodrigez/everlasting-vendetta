@@ -109,7 +109,7 @@ export default async function Page({params}: { params: { name: string } }) {
     const group1 = findEquipmentBySlotTypes(equipmentData, ['HEAD', 'NECK', 'SHOULDER', 'BACK', 'CHEST', 'SHIRT', 'TABARD', 'WRIST'])
     const group2 = findEquipmentBySlotTypes(equipmentData, ['HANDS', 'WAIST', 'LEGS', 'FEET', 'FINGER_1', 'FINGER_2', 'TRINKET_1', 'TRINKET_2'])
     const group3 = findEquipmentBySlotTypes(equipmentData, ['MAIN_HAND', 'OFF_HAND', 'RANGED'])
-    const toCalcIlvl = [...group1, ...group2, ...group3].filter((item: any) => item?.slot?.type !== 'SHIRT' && item?.slot?.type !== 'TABARD').map((item: any) => {
+    const gearForGearScore = [...group1, ...group2, ...group3].filter((item: any) => item?.slot?.type !== 'SHIRT' && item?.slot?.type !== 'TABARD').map((item: any) => {
         return {
             ilvl: item.details?.level || 0,
             type: `INVTYPE_${item.inventory_type?.type}`,
@@ -117,8 +117,8 @@ export default async function Page({params}: { params: { name: string } }) {
             isEnchanted: !!(item.enchantments?.length)
         }
     }).filter(item => item.ilvl !== 0 || item.type !== 'INVTYPE_')
-    const ilvl = toCalcIlvl !== null ? calculateTotalGearScore(toCalcIlvl) : 0
-    const getColorName = `text-${getColorForGearScoreText(ilvl)}`
+    const gearScore = gearForGearScore !== null ? calculateTotalGearScore(gearForGearScore) : 0
+    const gearScoreColorName = `text-${getColorForGearScoreText(gearScore)}`
 
     return (
         <div>
@@ -131,8 +131,9 @@ export default async function Page({params}: { params: { name: string } }) {
                     <div className="grid gap-1.5">
                         <h2 className="font-semibold text-lg">{characterInfo.name}</h2>
                         <p className="text-sm text-muted">Level {characterInfo.level} {characterInfo.race.name} {characterInfo.character_class?.name}</p>
-                        <p className="text-sm text-muted">Last
-                            online {new Date(characterInfo.last_login_timestamp).toLocaleString()}</p>
+                        {/*<p className="text-sm text-muted">Last
+                            online {new Date(characterInfo.last_login_timestamp).toLocaleString()}</p>*/}
+                        <p>Gear score: <span className={`${gearScoreColorName} font-bold`}>{gearScore}</span></p>
                     </div>
                 </div>
                 <img className={'rounded-full'} alt={characterInfo.character_class?.name}
@@ -145,9 +146,7 @@ export default async function Page({params}: { params: { name: string } }) {
                             return <CharacterItem key={'item-' + index} item={item} token={token}/>
                         })}
                     </div>
-                    <div>
-                        Item level: <span className={`${getColorName} font-bold`}>{ilvl}</span>
-                    </div>
+
                     <div className="flex flex-1 flex-col gap-4 self-baseline">
                         {group2.map((item: any, index: number) => {
                             return <CharacterItem key={'item-' + index} reverse item={item} token={token}/>
