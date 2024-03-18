@@ -43,6 +43,14 @@ export function ItemImageWithRune({
             isOpen={(isHovered || isClicked) && sharedItemId === itemId}
             placement={bottom ? 'top' : reverse ? 'left' : 'right'}
             className={`rounded block bg-cover bg-black bg-opacity-95 p-3 border border-${item.quality.name.toLowerCase()}`}
+            onMouseLeave={() => {
+                setIsHovered(false);
+                setItemId(itemId);
+            }}
+            onMouseEnter={() => {
+                setIsHovered(true);
+                setItemId(itemId);
+            }}
             content={
                 <ItemDetailedView item={item}/>
             }>
