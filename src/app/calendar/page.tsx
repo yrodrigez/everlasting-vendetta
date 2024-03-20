@@ -46,6 +46,7 @@ async function fetchNextRaidResets() {
         if (error) {
             console.error('Error inserting new raid resets:', JSON.stringify(error, undefined, 2))
             //throw new Error('Error inserting new raid resets: ' + error)
+            return newRaidResets
         }
 
         return fetchNextRaidResets()

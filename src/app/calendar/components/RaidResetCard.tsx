@@ -1,4 +1,5 @@
 'use client'
+import moment from "moment";
 import {
     Card,
     CardBody,
@@ -61,6 +62,7 @@ export function RaidResetCard({raidDate, raidName, raidImage, raidTime = '20:30'
     const currentCharacter = useCharacterStore(state => state.selectedCharacter)
     const [isConfirmed, setIsConfirmed] = useState(false)
     const [isDeclined, setIsDeclined] = useState(false)
+    const [daysToGo, setDaysToGo] = useState(0)
 
     useEffect(() => {
         fetchRaidMembers(id).then((data) => {
@@ -78,6 +80,11 @@ export function RaidResetCard({raidDate, raidName, raidImage, raidTime = '20:30'
         setIsCharMaxLevel(currentCharacter?.level === CURRENT_MAX_LEVEL)
     }, [currentCharacter])
 
+    useEffect(() => {
+        setDaysToGo(moment(raidDate).diff(moment(), 'days'))
+    }, [raidDate]);
+
+
     return (
         <>
             <Card className="bg-wood border-none w-[300px] h-[225px]" radius="lg">
@@ -92,6 +99,9 @@ export function RaidResetCard({raidDate, raidName, raidImage, raidTime = '20:30'
                     className="border-white/20 border-1 overflow-hidden py-1 absolute before:rounded-xl rounded-large top-0 w-full h-full z-10 bg-[rgba(19,19,19,.78)] backdrop-filter backdrop-blur-xs items-start flex flex-col gap-2 p-3">
                     <h4 className="font-bold text-large text-gold">{raidName}</h4>
                     <small className="text-primary">{raidDate} - {raidTime}</small>
+                    <small className={`text-primary ${daysToGo > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                        {daysToGo > 0 ? `In ${daysToGo} days` : 'Today'}
+                    </small>
                     <small className="text-primary">Confirmed: {raidRegistrations?.filter((member: any) => {
                         return member.is_confirmed
                     }).length}</small>
@@ -180,5 +190,6 @@ export function RaidResetCard({raidDate, raidName, raidImage, raidTime = '20:30'
                 </ModalContent>
             </Modal>
         </>
-    );
+    )
+        ;
 }
