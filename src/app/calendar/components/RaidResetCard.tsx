@@ -1,5 +1,5 @@
 'use client'
-import moment from "moment";
+import moment, {Moment} from "moment";
 import {
     Card,
     CardBody,
@@ -46,6 +46,38 @@ async function confirmRaid(id: string, isConfirmed: boolean, currentCharacter: a
     return data
 }
 
+const Timer = ({timeToGo}: {
+    timeToGo: Moment
+}) => {
+
+    const calculateAndSetTimeLeft = () => {
+        const raidTime = timeToGo
+        const currentTime = moment()
+
+        return ({
+            hours: raidTime.diff(currentTime, 'hours'),
+            minutes: raidTime.diff(currentTime, 'minutes') % 60,
+        })
+    }
+    const [timeLeft, setTimeLeft] = useState(calculateAndSetTimeLeft())
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setTimeLeft(calculateAndSetTimeLeft())
+        }, 3000)
+
+        return () => clearInterval(interval)
+    }, [])
+
+    return (
+        <>
+            {timeLeft.hours > 0 ? `${timeLeft.hours} hours and ${timeLeft.minutes} minutes` : `${timeLeft.minutes} minutes`} to
+            go
+        </>
+    )
+
+}
+
 export function RaidResetCard({raidDate, raidName, raidImage, raidTime = '20:30', id, loggedInUser}: {
     id: string,
     raidDate: string,
@@ -62,7 +94,18 @@ export function RaidResetCard({raidDate, raidName, raidImage, raidTime = '20:30'
     const currentCharacter = useCharacterStore(state => state.selectedCharacter)
     const [isConfirmed, setIsConfirmed] = useState(false)
     const [isDeclined, setIsDeclined] = useState(false)
-    const [daysToGo, setDaysToGo] = useState(0)
+
+    const raidDateTime = moment(`${raidDate} ${raidTime}`, 'YYYY-MM-DD HH:mm')
+    const currentTime = moment()
+    const diff = raidDateTime.diff(currentTime)
+    const duration = moment.duration(diff)
+    const dayOfRaid = moment(raidDate).format('YYYY-MM-DD')
+    const [timeToGo, setTimeToGo] = useState({
+        days: duration.days(),
+        hours: duration.hours(),
+        minutes: duration.minutes(),
+        isToday: moment().format('YYYY-MM-DD') === dayOfRaid,
+    })
 
     useEffect(() => {
         fetchRaidMembers(id).then((data) => {
@@ -80,10 +123,6 @@ export function RaidResetCard({raidDate, raidName, raidImage, raidTime = '20:30'
         setIsCharMaxLevel(currentCharacter?.level === CURRENT_MAX_LEVEL)
     }, [currentCharacter])
 
-    useEffect(() => {
-        setDaysToGo(moment(raidDate).diff(moment(), 'days'))
-    }, [raidDate]);
-
 
     return (
         <>
@@ -98,9 +137,14 @@ export function RaidResetCard({raidDate, raidName, raidImage, raidTime = '20:30'
                 <div
                     className="border-white/20 border-1 overflow-hidden py-1 absolute before:rounded-xl rounded-large top-0 w-full h-full z-10 bg-[rgba(19,19,19,.78)] backdrop-filter backdrop-blur-xs items-start flex flex-col gap-2 p-3">
                     <h4 className="font-bold text-large text-gold">{raidName}</h4>
-                    <small className="text-primary">{raidDate} - {raidTime}</small>
-                    <small className={`text-primary ${daysToGo > 0 ? 'text-green-500' : 'text-red-500'}`}>
-                        {daysToGo > 0 ? `In ${daysToGo} days` : 'Today'}
+                    <small className="text-primary">{moment(raidDate).format('dddd, MMMM D')} - {raidTime}</small>
+                    <small className={`${!timeToGo.isToday ? 'text-green-500' : 'text-red-500'}`}>
+                        {timeToGo.isToday ? 'Today' :
+                            timeToGo.days > 0 ? `${timeToGo.days} days to go` :
+                                <Timer timeToGo={
+                                    moment(`${raidDate} ${raidTime}`, 'YYYY-MM-DD HH:mm')
+                                }/>
+                        }
                     </small>
                     <small className="text-primary">Confirmed: {raidRegistrations?.filter((member: any) => {
                         return member.is_confirmed
@@ -190,6 +234,5 @@ export function RaidResetCard({raidDate, raidName, raidImage, raidTime = '20:30'
                 </ModalContent>
             </Modal>
         </>
-    )
-        ;
+    );
 }
