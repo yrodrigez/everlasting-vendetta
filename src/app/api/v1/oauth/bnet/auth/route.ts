@@ -18,5 +18,5 @@ export async function GET() {
     });
     const authUrl = `https://oauth.battle.net/authorize?${requestParams.toString()}`;
 
-    return NextResponse.redirect(authUrl)
+    return NextResponse.redirect(authUrl) // Redirect to the Battle.net OAuth page
 }
