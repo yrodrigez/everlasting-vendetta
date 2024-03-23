@@ -21,6 +21,7 @@ export function ItemDetailedView({item}: { item: any }) {
     const spells = (item?.spells || [])
     const binding = item?.binding?.name
     const limitCategory = item?.limit_category || null
+    const set = item?.set
 
     return (
         <div className={
@@ -58,6 +59,27 @@ export function ItemDetailedView({item}: { item: any }) {
                 if (!spell.description) return null
                 return <p key={spell.spell?.id || index} className="text-uncommon">{spell.description}</p>
             })}
+            {set &&
+              <div className="mt-unit-lg">
+                <p
+                  className="text-md font-bold text-yellow-400">{set.item_set?.name} ({set.items.filter((x: any) => x.is_equipped).length}/{set.items.length})</p>
+                <div className="ml-unit-lg">
+                    {set.items.map((x: any, i: number) => {
+                        const {item, is_equipped} = x
+                        return (
+                            <p key={i} className={is_equipped ? 'text-yellow-200' : 'text-gray-500'}>{item.name}</p>
+                        )
+                    })}
+                </div>
+                  <div className="mt-unit-lg">
+                  {set.effects.sort((x: any, y: any)=> {
+                      return x?.required_count - y?.required_count
+                  }).map((x: any, i: number) => (
+                      <p key={i} className={`${x.is_active? 'text-uncommon': 'text-gray-300'}`}>{x.display_string}</p>
+                  ))}
+                  </div>
+              </div>
+            }
         </div>
     )
 }
