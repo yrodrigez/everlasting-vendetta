@@ -1,6 +1,6 @@
 type DruidTalents = {
     Balance: TalentsPlaceholder,
-    Feral: TalentsPlaceholder,
+    FeralCombat: TalentsPlaceholder,
     Restoration: TalentsPlaceholder,
 }
 type HunterTalents = {
@@ -116,7 +116,7 @@ export const talentsPlaceholders: TalentsPlaceholders = {
                 ],
             ]
         },
-        Feral: {
+        FeralCombat: {
             background: '/talents-backgrounds/2.jpg',
             talents: [
                 [
