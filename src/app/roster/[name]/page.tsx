@@ -2,6 +2,10 @@ import axios from "axios";
 import CharacterAvatar from "@/app/components/CharacterAvatar";
 import CharacterItem, {fetchItemDetails} from "@/app/components/CharacterItem";
 import {calculateTotalGearScore, getColorForGearScoreText} from "@/app/roster/[name]/ilvl";
+import {CharacterGear} from "@/app/roster/[name]/components/CharacterGear";
+import {CharacterViewOptions} from "@/app/roster/[name]/components/CharacterViewOptions";
+import {CharacterTalents} from "@/app/roster/[name]/components/CharacterTalents";
+import getCharacterTalents from "@/app/lib/getTalents";
 
 function fetchMemberInfo(token: string, realm: string, characterName: string, locale: string = 'en_US') {
     const url = `https://eu.api.blizzard.com/profile/wow/character/${realm}/${characterName}`;
@@ -119,6 +123,11 @@ export default async function Page({params}: { params: { name: string } }) {
     }).filter(item => item.ilvl !== 0 || item.type !== 'INVTYPE_')
     const gearScore = gearForGearScore !== null ? calculateTotalGearScore(gearForGearScore) : 0
     const gearScoreColorName = `text-${getColorForGearScoreText(gearScore)}`
+    const talents = await getCharacterTalents({
+        token,
+        realm: characterInfo.realm.slug,
+        characterName: characterInfo.name
+    })
 
     return (
         <div>
@@ -133,35 +142,25 @@ export default async function Page({params}: { params: { name: string } }) {
                         <p className="text-sm text-muted">
                             Level {characterInfo.level} {characterInfo.race.name} {characterInfo.character_class?.name}
                         </p>
-                        {/*<p className="text-sm text-muted">Last
-                            online {new Date(characterInfo.last_login_timestamp).toLocaleString()}</p>*/}
                         <p className="text-sm text-muted">Gear score: <span className={`${gearScoreColorName} font-bold`}>{gearScore}</span></p>
                     </div>
                 </div>
                 <img className={'rounded-full'} alt={characterInfo.character_class?.name}
                      src={getPlayerClassById(characterInfo.character_class?.id).icon}/>
             </div>
-            <div className="w-full h-full flex flex-col items-center">
-                <div className="w-full flex justify-between items-center">
-                    <div className="flex flex-1 gap-4 flex-col">
-                        {group1.map((item: any, index: number) => {
-                            return <CharacterItem key={'item-' + index} item={item} token={token}/>
-                        })}
-                    </div>
-
-                    <div className="flex flex-1 flex-col gap-4 self-baseline">
-                        {group2.map((item: any, index: number) => {
-                            return <CharacterItem key={'item-' + index} reverse item={item} token={token}/>
-                        })}
-                    </div>
-                </div>
-                <div className="flex flex-1 gap-4">
-                    {group3.map((item: any, index: number) => {
-                        return <CharacterItem key={'item-' + index} reverse={index === 0} bottom item={item}
-                                              token={token}/>
-                    })}
-                </div>
-            </div>
+            <CharacterViewOptions
+                items={[
+                    {label: 'Gear', name: 'gear', children: <CharacterGear gear={{
+                            group1,
+                            group2,
+                            group3
+                        }} token={token}/>},
+                    {label: 'Talents', name: 'talents', children: <CharacterTalents
+                            characterInfo={characterInfo}
+                            talents={talents}
+                        />},
+                ]}
+            />
         </div>
     )
 }
