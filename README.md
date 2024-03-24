@@ -1,4 +1,6 @@
-# README for the Everlasting Vendetta Guild Website
+<p align="center">
+  <img src="/public/favicon.png" alt="README for the Everlasting Vendetta Guild Website">
+</p>
 
 ## Introduction
 
