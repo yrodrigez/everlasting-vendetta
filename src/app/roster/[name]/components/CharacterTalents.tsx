@@ -40,7 +40,7 @@ export function CharacterTalents({talents, characterInfo}: {
     return (
         <div className="w-full h-full">
             <div className="lg:hidden flex w-full h-full justify-center items-center">
-                <CharacterViewOptions items={
+                <CharacterViewOptions bottom items={
                     talentsKeys.map((specName, index) => {
                         // @ts-ignore
                         const specializationPlaceHolder = specializationsPlaceholder[specName] as TalentsPlaceholder

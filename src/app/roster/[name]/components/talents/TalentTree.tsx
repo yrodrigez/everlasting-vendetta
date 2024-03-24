@@ -13,7 +13,7 @@ export function TalentTree({specializationPlaceholder, specialization, name}: {
         <div>
             <div className="text-xl text-gold">{name} ({specialization ? specialization.spent_points : 0})</div>
             <div
-                className="p-2 bg-cover bg-center bg-no-repeat flex flex-col rounded border border-gold/30"
+                className="p-2 bg-cover bg-center bg-no-repeat flex flex-col rounded border border-gold/30 shadow-2xl shadow-gold"
                 style={{backgroundImage: `url(${specializationPlaceholder.background})`}}>
                 {specializationPlaceholder.talents.map((row: any, rowIndex: number) => (
                     <div key={rowIndex} className="flex gap-2">
@@ -24,7 +24,7 @@ export function TalentTree({specializationPlaceholder, specialization, name}: {
                             return (<div key={columnIndex}
                                          className="p-2 relative">
                                     <div
-                                        className={`w-11 h-11 bg-cover rounded-lg ${foundTalent && foundTalent.talent_rank ? '' : 'grayscale'}`}
+                                        className={`w-11 h-11 bg-cover max-w-11 min-w-11 rounded-lg ${foundTalent && foundTalent.talent_rank ? '' : 'grayscale'}`}
                                         style={item.skip ? {} : {backgroundImage: `url('${item.src}')`}}
                                     >
                                         {foundTalent && (
