@@ -914,7 +914,7 @@ export const talentsPlaceholders: TalentsPlaceholders = {
                 [
                     {skip: true},
                     {skip: false, src: '/talents-icons/268.jpg', name: 'Master of Deception', maxPoints: 5},
-                    {skip: false, src: '/talents-icons/269.jpg', name: 'Opportunity', maxPoints: 3},
+                    {skip: false, src: '/talents-icons/269.jpg', name: 'Opportunity', maxPoints: 5},
                     {skip: true},
                 ],
                 [
