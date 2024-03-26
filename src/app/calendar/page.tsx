@@ -86,6 +86,7 @@ export default async function Page() {
                 raidName={isOldRaid ? 'Gnomeregan' : 'Sunken Temple'}
                 raidImage={isOldRaid ? '/gnomeregan-raid.webp' : '/sunken_temple-raid.webp'}
                 raidDate={raidReset.raid_date}
+                isNewRaid={!isOldRaid}
                 loggedInUser={token}
             />
         })}

@@ -17,7 +17,7 @@ import {UsersIcon} from "@/app/calendar/components/UsersIcon";
 import {useCharacterStore} from "@/app/components/characterStore";
 import {ConfirmDecline} from "@/app/calendar/components/ConfirmDecline";
 
-const CURRENT_MAX_LEVEL = 40
+
 
 async function fetchRaidMembers(id: string) {
     const res = await fetch(`/api/v1/services/calendar/raid/status?id=${id}`)
@@ -78,14 +78,16 @@ const Timer = ({timeToGo}: {
 
 }
 
-export function RaidResetCard({raidDate, raidName, raidImage, raidTime = '20:30', id, loggedInUser}: {
+export function RaidResetCard({raidDate, raidName, raidImage, raidTime = '20:30', id, loggedInUser, isNewRaid}: {
     id: string,
     raidDate: string,
     raidName: string,
     raidImage: string,
     raidTime?: string,
-    loggedInUser: any
+    loggedInUser: any,
+    isNewRaid?: boolean
 }) {
+    const CURRENT_MAX_LEVEL = isNewRaid ? 50 : 40
     const [isConfirming, setIsConfirming] = useState(false)
     const [isDeclining, setIsDeclining] = useState(false)
     const [raidRegistrations, setRaidRegistrations] = useState([])
