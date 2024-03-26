@@ -6,7 +6,7 @@ import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
 import {isUserInGuild} from "@/app/lib/isUserInGuild";
 
 const START_DATE = '2024-03-14'
-const RAID_RESET_DAYS = 3
+const RAID_RESET_DAYS = 7
 const MAX_RAID_RESETS = 9
 
 function createNextMaxRaidResets(startDate: string, maxResets: number) {
@@ -77,15 +77,17 @@ export default async function Page() {
 
     const raidResets = await fetchNextRaidResets()
     return <main className="flex gap-3 flex-col justify-center items-center md:flex-wrap md:flex-row">
-        {raidResets.map((raidReset: any, index: number) => (
-            <RaidResetCard
+        {raidResets.map((raidReset: any, index: number) => {
+            const newRaidDate = '2024-04-17'
+            const isOldRaid = moment(newRaidDate).isSameOrAfter(raidReset.raid_date)
+            return <RaidResetCard
                 id={raidReset.id}
                 key={index}
-                raidName="Gnomeregan"
-                raidImage="/gnomeregan-raid.webp"
+                raidName={isOldRaid ? 'Gnomeregan' : 'Sunken Temple'}
+                raidImage={isOldRaid ? '/gnomeregan-raid.webp' : '/sunken_temple-raid.webp'}
                 raidDate={raidReset.raid_date}
                 loggedInUser={token}
             />
-        ))}
+        })}
     </main>
 }
