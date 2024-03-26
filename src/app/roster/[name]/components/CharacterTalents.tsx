@@ -40,25 +40,29 @@ export function CharacterTalents({talents, characterInfo}: {
     return (
         <div className="w-full h-full">
             <div className="lg:hidden flex w-full h-full justify-center items-center">
-                <CharacterViewOptions bottom items={
-                    talentsKeys.map((specName, index) => {
-                        // @ts-ignore
-                        const specializationPlaceHolder = specializationsPlaceholder[specName] as TalentsPlaceholder
-                        const specialization = specializations.find((spec: any) => spec.specialization_name.replaceAll(' ', '') === specName)
-                        return {
-                            label: specName,
-                            name: specName,
-                            children: (
-                                <TalentTree
-                                    key={index}
-                                    specializationPlaceholder={specializationPlaceHolder}
-                                    specialization={specialization}
-                                    name={specName}
-                                />
-                            )
-                        }
-                    })
-                }/>
+                <CharacterViewOptions
+                    bottom
+                    items={
+                        talentsKeys.map((specName, index) => {
+                            // @ts-ignore
+                            const specializationPlaceHolder = specializationsPlaceholder[specName] as TalentsPlaceholder
+                            const specialization = specializations.find((spec: any) => spec.specialization_name.replaceAll(' ', '') === specName)
+                            return {
+                                label: specName,
+                                name: specName,
+                                children: (
+                                    <div className="flex justify-center">
+                                        <TalentTree
+                                            key={index}
+                                            specializationPlaceholder={specializationPlaceHolder}
+                                            specialization={specialization}
+                                            name={specName}
+                                        />
+                                    </div>
+                                )
+                            }
+                        })
+                    }/>
             </div>
             <div className="items-center justify-evenly hidden lg:flex">
                 {
