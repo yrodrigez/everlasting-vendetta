@@ -42,7 +42,6 @@ const rarityModifiers: { [key: number]: number } = {
 
 const ENCHANTMENT_MODIFIER = 1.05;
 const MAX_GEAR_SCORE = 530;
-const TOTAL_EQUIPPABLE_SLOTS = 17;
 
 function calculateItemScore(item: Item): number {
     let [slotModifier, isEnchantable] = itemTypeInfo[item.type] || [1, false];
@@ -53,7 +52,8 @@ function calculateItemScore(item: Item): number {
     if (item.type === "INVTYPE_2HWEAPON") {
         adjustedItemLevel = item.ilvl * 2;
     }
-    return (adjustedItemLevel / rarityModifier) * slotModifier * enchantModifier * 1.676;
+
+    return (adjustedItemLevel / rarityModifier) * slotModifier * enchantModifier * 1.7;
 }
 
 export function getColorForGearScoreText(gearScore: number): string {
@@ -77,6 +77,6 @@ export function getColorForGearScoreText(gearScore: number): string {
 }
 
 export function calculateTotalGearScore(items: Item[]): number {
-    return Math.floor(items.reduce((total, item) => total + calculateItemScore(item), 0));
+    return Math.floor(items.reduce((total, item) => total + calculateItemScore(item), 0) + 0.5);
 }
 
