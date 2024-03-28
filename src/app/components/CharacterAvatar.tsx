@@ -1,5 +1,6 @@
 'use client'
 import {useEffect, useState} from "react";
+import Image from "next/image";
 
 
 function characterImageUrlLocalStorageCache(realm: string, characterName: string) {
@@ -24,10 +25,19 @@ function characterImageUrlLocalStorageCache(realm: string, characterName: string
     }
 }
 
-const CharacterAvatar = ({token, realm, characterName, className = `rounded-full md:w-24 w-16 border-2 border-gold`}: {
+const CharacterAvatar = ({
+                             token,
+                             realm,
+                             characterName,
+                             className = `rounded-full md:w-24 w-16 border-2 border-gold`,
+                             width = 80,
+                             height = 80
+                         }: {
     token?: { name: string, value: string } | string,
     realm: string,
     characterName: string,
+    width?: number,
+    height?: number,
     className?: string
 }) => {
     const [currentToken, setCurrentToken] = useState(typeof token === 'string' ? {
@@ -50,7 +60,13 @@ const CharacterAvatar = ({token, realm, characterName, className = `rounded-full
         })
     }, [token, realm, characterName, currentToken?.value])
 
-    return <img src={avatar === 'unknown' ? '/avatar-anon.png' : avatar} alt={characterName} className={className}/>
+    return <Image
+        width={width}
+        height={height}
+        src={avatar === 'unknown' ? '/avatar-anon.png' : avatar}
+        alt={characterName}
+        className={className}
+    />
 
 }
 

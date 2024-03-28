@@ -1,4 +1,3 @@
-import axios from "axios";
 import {cookies} from "next/headers";
 import {NextResponse} from "next/server";
 import {getBlizzardToken} from "@/app/lib/getBlizzardToken";

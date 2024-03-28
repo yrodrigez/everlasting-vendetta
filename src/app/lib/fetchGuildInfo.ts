@@ -63,19 +63,36 @@ export async function fetchGuildInfo(token: string, guildId: string = '5826-2239
 
 export function getGuildRosterFromGuildInfo(guildInfo: any) {
     const maxLevel = 40;
+    const vipMembersNames = [
+        'Alveric',
+        'Kornyous',
+        'Nivlor',
+        'Aythan',
+        'Aoriad',
+        'Porco',
+        'Tacy',
+        'Muddalun'
+    ]
+    const vipMembers = guildInfo?.members.filter((member: any) => {
+        return member.rank === 0 || member.rank === 1 || vipMembersNames.includes(member.character.name)
+    }).sort((a: any, b: any) => {
+        return a.rank - b.rank
+    });
+
     const maxLevelMembers = (guildInfo?.members || []).filter((member: any) => {
-        return member.character.level >= maxLevel
+        return member.character.level >= maxLevel && !vipMembersNames.includes(member.character.name)
     }).sort((a: any, b: any) => {
         return a.rank - b.rank
 
     });
+
     const minLevelMembers = (guildInfo?.members || []).filter((member: any) => {
-        return member.character.level < maxLevel && member.character.level > 15
+        return member.character.level < maxLevel && member.character.level > 15 && !vipMembersNames.includes(member.character.name)
     }).sort((a: any, b: any) => {
         return a.rank - b.rank
     });
 
-    return [...maxLevelMembers, ...minLevelMembers].map(rosterMapper)
+    return [...vipMembers, ...maxLevelMembers, ...minLevelMembers].map(rosterMapper)
 }
 
 
@@ -100,12 +117,9 @@ function getRankName(rank: number) {
         0: 'Glorious Leader',
         1: 'Respected Comrade',
         2: 'Respected Comrade',
-        3: 'People',
+        3: 'Respected Raider',
         4: 'People',
-        5: 'People',
-        6: 'People',
-        7: 'People',
-        8: 'People',
+        5: 'Alter'
     } as any
 
     return ranks[rank] || 'Unknown'

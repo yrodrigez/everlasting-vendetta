@@ -1,11 +1,17 @@
 import axios from "axios";
 import CharacterAvatar from "@/app/components/CharacterAvatar";
-import CharacterItem, {fetchItemDetails} from "@/app/components/CharacterItem";
+import {fetchItemDetails} from "@/app/components/CharacterItem";
 import {calculateTotalGearScore, getColorForGearScoreText} from "@/app/roster/[name]/ilvl";
 import {CharacterGear} from "@/app/roster/[name]/components/CharacterGear";
 import {CharacterViewOptions} from "@/app/roster/[name]/components/CharacterViewOptions";
 import {CharacterTalents} from "@/app/roster/[name]/components/CharacterTalents";
 import getCharacterTalents from "@/app/lib/getTalents";
+import Image from 'next/image'
+import moment from "moment";
+import {cookies} from "next/headers";
+import {fetchBattleNetWoWAccounts} from "@/app/lib/fetchBattleNetWoWaccounts";
+import {fetchGuildInfo} from "@/app/lib/fetchGuildInfo";
+import {Tooltip} from "@nextui-org/react";
 
 function fetchMemberInfo(token: string, realm: string, characterName: string, locale: string = 'en_US') {
     const url = `https://eu.api.blizzard.com/profile/wow/character/${realm}/${characterName}`;
@@ -99,7 +105,20 @@ function getQualityTypeNumber(quality: string) {
 }
 
 export default async function Page({params}: { params: { name: string } }) {
-    const {token} = await getBlizzardToken()
+    const isLogged = cookies().get(process.env.BNET_COOKIE_NAME!)?.value
+    const {token} = (isLogged ? {token: isLogged} : (await getBlizzardToken()))
+    let isGuildMember = false
+    if (isLogged) {
+        const availableCharacters = await fetchBattleNetWoWAccounts(token)
+        const guild = await fetchGuildInfo(token)
+        const currentRoster = guild.members
+        isGuildMember = availableCharacters.some((character: any) => {
+            if (currentRoster.some((member: any) => member.character.id === character.id)) {
+                return true
+            }
+        })
+    }
+
     const {data: characterInfo} = await fetchMemberInfo(token, 'lone-wolf', params.name)
     const {data: equipment} = await fetchEquipment(token, 'lone-wolf', params.name)
     const equipmentData = await Promise.all(equipment.equipped_items.map(async (item: any) => {
@@ -142,23 +161,46 @@ export default async function Page({params}: { params: { name: string } }) {
                         <p className="text-sm text-muted">
                             Level {characterInfo.level} {characterInfo.race.name} {characterInfo.character_class?.name}
                         </p>
-                        <p className="text-sm text-muted">Gear score: <span className={`${gearScoreColorName} font-bold`}>{gearScore}</span></p>
+                        <p className="text-sm text-muted">Last online: <span
+                            className={`font-bold relative`}>
+                            {isGuildMember ? moment(characterInfo?.last_login_timestamp).format('MMMM D HH:MM') : 'no seas porco'}
+                            {!isGuildMember ? <Tooltip
+                                    placement="right"
+                                    showArrow
+                                    className="bg-wood text-white p-2 rounded"
+                                    content={'You must be a guild member to see this information'}
+                            >
+                                <span className={
+                                `absolute left-0 right-0 -top-1 -bottom-1 rounded backdrop-filter backdrop-blur backdrop-saturate-150 backdrop-contrast-50 bg-gold blur-sm`}/>
+                            </Tooltip> : null}
+                        </span>
+                        </p>
+                        <p className="text-sm text-muted">Gear score: <span
+                            className={`${gearScoreColorName} font-bold`}>{gearScore}</span></p>
                     </div>
                 </div>
-                <img className={'rounded-full'} alt={characterInfo.character_class?.name}
-                     src={getPlayerClassById(characterInfo.character_class?.id).icon}/>
+                <Image
+                    width={56}
+                    height={56}
+                    className={'rounded-full'}
+                    alt={characterInfo.character_class?.name}
+                    src={getPlayerClassById(characterInfo.character_class?.id).icon}/>
             </div>
             <CharacterViewOptions
                 items={[
-                    {label: 'Gear', name: 'gear', children: <CharacterGear gear={{
+                    {
+                        label: 'Gear', name: 'gear', children: <CharacterGear gear={{
                             group1,
                             group2,
                             group3
-                        }} token={token}/>},
-                    {label: 'Talents', name: 'talents', children: <CharacterTalents
+                        }} token={token}/>
+                    },
+                    {
+                        label: 'Talents', name: 'talents', children: <CharacterTalents
                             characterInfo={characterInfo}
                             talents={talents}
-                        />},
+                        />
+                    },
                 ]}
             />
         </div>
