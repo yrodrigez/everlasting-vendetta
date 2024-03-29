@@ -267,7 +267,7 @@ export default function ({item: _item, token, reverse, bottom, characterName}: {
 
     return (
         <div className={`flex items-center gap-4 ${reverse ? 'flex-row-reverse' : ''}`}>
-            <Skeleton isLoaded={!loading} className="w-12 h-12 rounded-lg bg-wood">
+            <Skeleton isLoaded={!loading} className={`w-12 h-12  bg-wood ${loading ? 'rounded-lg': ''}`}>
                 <ItemImageWithRune
                     item={item}
                     itemIconUrl={itemIconUrl}
@@ -276,12 +276,12 @@ export default function ({item: _item, token, reverse, bottom, characterName}: {
                     borderColor={getItemRarityHexColor(quality.name.toUpperCase())}
                 />
             </Skeleton>
-            <div className={`flex-col gap ${reverse ? 'text-right' : 'text-left'} break-all`}>
-                <Skeleton isLoaded={!loading} className="min-w-20 h-4 rounded-full bg-wood">
+            <div className={`flex-col gap-10 ${reverse ? 'text-right' : 'text-left'} break-all`}>
+                <Skeleton isLoaded={!loading} className={`h-4 bg-wood ${loading ? 'rounded-full': ''}`}>
                     <h3 className="font-semibold text-sm hidden md:flex">{name}</h3>
                     <h3 className="font-semibold text-sm md:hidden">{slot.name}</h3>
                 </Skeleton>
-                <Skeleton isLoaded={!loading} className="min-w-10 h-4 rounded-full bg-wood">
+                <Skeleton isLoaded={!loading} className={`h-4 bg-wood mt-1 ${loading ? 'rounded-full': ''}`}>
                     <p className="text-xs text-muted">Item Level {itemDetails.level}</p>
                 </Skeleton>
             </div>

@@ -35,17 +35,20 @@ export default function GearScore({character}: { character: string }) {
                 isEnchanted: !!(item.enchantments?.length)
             }
         }).filter(item => item.ilvl !== 0 || item.type !== 'INVTYPE_')
-        const gearScore = gearForGearScore !== null ? calculateTotalGearScore(gearForGearScore) : 0
+        const gearScore = calculateTotalGearScore(gearForGearScore)
         const gearScoreColorName = `text-${getColorForGearScoreText(gearScore)}`
         setGearScore(gearScore)
         setGearScoreColorName(gearScoreColorName)
+        console.log('gearScore', gearScore)
     }, [items, character])
 
     return (
-        <Skeleton isLoaded={!isLoading} className="w-3/5 h-4 rounded bg-[#404040]">
-            <p className="text-sm text-muted">Gear score: <span
-                className={`${gearScoreColorName} font-bold`}>{gearScore}</span></p>
-        </Skeleton>
+        <div className="flex gap-1 items-center">
+            <p className="text-sm text-muted">Gear score: </p>
+            <Skeleton isLoaded={!isLoading} className="rounded bg-wood h-6 w-8">
+                <span className={`${gearScoreColorName} font-bold text-sm text-muted`}>{gearScore}</span>
+            </Skeleton>
+        </div>
     )
 
 
