@@ -3,7 +3,6 @@ import {ItemDetails} from "@/app/components/CharacterItem";
 import {Tooltip} from "@nextui-org/react";
 
 import {ItemDetailedView} from "@/app/roster/[name]/components/ItemDetailedView";
-import {useState} from "react";
 import {useSharedTooltipStore} from "@/app/roster/[name]/components/sharedTooltipstore";
 
 export function ItemImageWithRune({
@@ -40,6 +39,7 @@ export function ItemImageWithRune({
 
     return (
         <Tooltip
+            isDisabled={item.name === 'Unknown'}
             isOpen={(isHovered || isClicked) && sharedItemId === itemId}
             placement={bottom ? 'top' : reverse ? 'left' : 'right'}
             className={`rounded block bg-cover bg-black bg-opacity-95 p-3 border border-${item.quality.name.toLowerCase()}`}

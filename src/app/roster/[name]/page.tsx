@@ -11,6 +11,7 @@ import {Tooltip} from "@nextui-org/react";
 
 import {getBlizzardToken} from "@/app/lib/getBlizzardToken";
 import WoWService from "@/app/services/wow-service";
+import GearScore from "@/app/roster/[name]/components/GearScore";
 
 const getPlayerClassById = (classId: number) => {
     const classes = {
@@ -47,18 +48,6 @@ const findEquipmentBySlotTypes = (equipment: any, slots: string[]) => {
     return result
 }
 
-function getQualityTypeNumber(quality: string) {
-    const qualityTypes = {
-        'POOR': 0,
-        'COMMON': 1,
-        'UNCOMMON': 2,
-        'RARE': 3,
-        'EPIC': 4,
-        'LEGENDARY': 5,
-    } as any
-
-    return qualityTypes[quality] || 0
-}
 
 export default async function Page({params}: { params: { name: string } }) {
     const cookieToken = cookies().get(process.env.BNET_COOKIE_NAME!)?.value
@@ -72,29 +61,10 @@ export default async function Page({params}: { params: { name: string } }) {
         getCharacterTalents(params.name)
     ])
 
-
-    const equipmentData = await Promise.all(equipment.equipped_items.map(async (item: any) => {
-        const response = await fetchItemDetails(token, item.item.id)
-        return {
-            ...item,
-            details: response
-        }
-    }))
-
+    const equipmentData = equipment.equipped_items
     const group1 = findEquipmentBySlotTypes(equipmentData, ['HEAD', 'NECK', 'SHOULDER', 'BACK', 'CHEST', 'SHIRT', 'TABARD', 'WRIST'])
     const group2 = findEquipmentBySlotTypes(equipmentData, ['HANDS', 'WAIST', 'LEGS', 'FEET', 'FINGER_1', 'FINGER_2', 'TRINKET_1', 'TRINKET_2'])
     const group3 = findEquipmentBySlotTypes(equipmentData, ['MAIN_HAND', 'OFF_HAND', 'RANGED'])
-    const gearForGearScore = [...group1, ...group2, ...group3].filter((item: any) => item?.slot?.type !== 'SHIRT' && item?.slot?.type !== 'TABARD').map((item: any) => {
-        return {
-            ilvl: item.details?.level || 0,
-            type: `INVTYPE_${item.inventory_type?.type}`,
-            rarity: getQualityTypeNumber(item.quality?.type),
-            isEnchanted: !!(item.enchantments?.length)
-        }
-    }).filter(item => item.ilvl !== 0 || item.type !== 'INVTYPE_')
-    const gearScore = gearForGearScore !== null ? calculateTotalGearScore(gearForGearScore) : 0
-    const gearScoreColorName = `text-${getColorForGearScoreText(gearScore)}`
-
 
     return (
         <div>
@@ -123,8 +93,7 @@ export default async function Page({params}: { params: { name: string } }) {
                             </Tooltip> : null}
                         </span>
                         </p>
-                        <p className="text-sm text-muted">Gear score: <span
-                            className={`${gearScoreColorName} font-bold`}>{gearScore}</span></p>
+                        <GearScore character={params.name}/>
                     </div>
                 </div>
                 <Image
@@ -137,7 +106,9 @@ export default async function Page({params}: { params: { name: string } }) {
             <CharacterViewOptions
                 items={[
                     {
-                        label: 'Gear', name: 'gear', children: <CharacterGear gear={{
+                        label: 'Gear', name: 'gear', children: <CharacterGear
+                            characterName={params.name}
+                            gear={{
                             group1,
                             group2,
                             group3

@@ -1,5 +1,9 @@
+'use client'
 import axios from "axios";
 import {ItemImageWithRune} from "@/app/roster/[name]/components/ItemImageWithRune";
+import {useEffect, useState} from "react";
+import {useCharacterItemsStore} from "@/app/roster/[name]/characterItemsStore";
+
 
 interface APIReference {
     href: string;
@@ -222,16 +226,32 @@ function getItemRarityHexColor(quality: string) {
     return rarityColors[quality] || '#ffffff';
 }
 
-export default async function ({item, token, reverse, bottom}: {
+export default function ({item, token, reverse, bottom, characterName}: {
     item: ItemDetails,
     token: string,
     reverse?: boolean,
-    bottom?: boolean
+    bottom?: boolean,
+    characterName: string
 }) {
     if (!item) return null;
     const {id,} = item?.item || {} as any
     const {name, quality, slot} = item || {};
-    const itemIconUrl = await fetchItemMedia(token, id);
+    const [itemIconUrl, setItemIconUrl] = useState<string>(getKnownItemImage(999999));
+    const [itemDetails, setItemDetails] = useState<any>({level: '??'});
+    const updateItem = useCharacterItemsStore(state => state.updateItem)
+    useEffect(() => {
+        updateItem({...item, loading: true});
+        ((async () => {
+            const itemIconUrl = await fetchItemMedia(token, id);
+            setItemIconUrl(itemIconUrl);
+            const itemDetails = await fetchItemDetails(token, id);
+            setItemDetails(itemDetails);
+            updateItem({
+                ...item,
+                details: itemDetails
+            })
+        })())
+    }, [id])
 
     return (
         <div
@@ -247,7 +267,7 @@ export default async function ({item, token, reverse, bottom}: {
             <div className={`flex-col gap-0.5 ${reverse ? 'text-right' : 'text-left'} break-all`}>
                 <h3 className="font-semibold text-sm md:hidden">{slot.name}</h3>
                 <h3 className="font-semibold text-sm hidden md:flex">{name}</h3>
-                <p className="text-xs text-muted">Item Level {item.details?.level}</p>
+                <p className="text-xs text-muted">Item Level {itemDetails.level}</p>
             </div>
         </div>
     )
