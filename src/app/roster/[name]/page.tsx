@@ -1,6 +1,4 @@
 import CharacterAvatar from "@/app/components/CharacterAvatar";
-import {fetchItemDetails} from "@/app/components/CharacterItem";
-import {calculateTotalGearScore, getColorForGearScoreText} from "@/app/roster/[name]/ilvl";
 import {CharacterGear} from "@/app/roster/[name]/components/CharacterGear";
 import {CharacterViewOptions} from "@/app/roster/[name]/components/CharacterViewOptions";
 import {CharacterTalents} from "@/app/roster/[name]/components/CharacterTalents";
@@ -52,13 +50,13 @@ const findEquipmentBySlotTypes = (equipment: any, slots: string[]) => {
 export default async function Page({params}: { params: { name: string } }) {
     const cookieToken = cookies().get(process.env.BNET_COOKIE_NAME!)?.value
     const {token} = (cookieToken ? {token: cookieToken} : (await getBlizzardToken()))
-
+    const characterName = params.name.toLowerCase()
     const {fetchMemberInfo, fetchEquipment, isLoggedUserInGuild, getCharacterTalents} = new WoWService()
     const [isGuildMember, characterInfo, equipment, talents] = await Promise.all([
         isLoggedUserInGuild(),
-        fetchMemberInfo(params.name),
-        fetchEquipment(params.name),
-        getCharacterTalents(params.name)
+        fetchMemberInfo(characterName),
+        fetchEquipment(characterName),
+        getCharacterTalents(characterName)
     ])
 
     const equipmentData = equipment.equipped_items
@@ -93,7 +91,7 @@ export default async function Page({params}: { params: { name: string } }) {
                             </Tooltip> : null}
                         </span>
                         </p>
-                        <GearScore character={params.name}/>
+                        <GearScore character={characterName}/>
                     </div>
                 </div>
                 <Image
@@ -107,7 +105,7 @@ export default async function Page({params}: { params: { name: string } }) {
                 items={[
                     {
                         label: 'Gear', name: 'gear', children: <CharacterGear
-                            characterName={params.name}
+                            characterName={characterName}
                             gear={{
                             group1,
                             group2,
