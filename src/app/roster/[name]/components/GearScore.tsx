@@ -2,6 +2,7 @@
 import {calculateTotalGearScore, getColorForGearScoreText} from "@/app/roster/[name]/ilvl";
 import {useCharacterItemsStore} from "@/app/roster/[name]/characterItemsStore";
 import {useEffect, useState} from "react";
+import {Skeleton} from "@nextui-org/react";
 
 function getQualityTypeNumber(quality: string) {
     const qualityTypes = {
@@ -19,15 +20,12 @@ function getQualityTypeNumber(quality: string) {
 export default function GearScore({character}: { character: string }) {
     const [gearScore, setGearScore] = useState<string | number>('loading...')
     const [gearScoreColorName, setGearScoreColorName] = useState('text-common')
+    const [isLoading, setIsLoading] = useState(true)
     const items = useCharacterItemsStore(state => state.items)
     useEffect(() => {
         const effectiveItems = items.filter((item: any) => item?.slot?.type !== 'SHIRT' && item?.slot?.type !== 'TABARD')
         const isLoading = !effectiveItems.length || effectiveItems.some((item: any) => item.loading)
-        if (isLoading) {
-            setGearScore('loading...')
-            setGearScoreColorName('text-common')
-            return
-        }
+        setIsLoading(isLoading)
 
         const gearForGearScore = effectiveItems.map((item: any) => {
             return {
@@ -44,7 +42,11 @@ export default function GearScore({character}: { character: string }) {
     }, [items, character])
 
     return (
-        items && <p className="text-sm text-muted">Gear score: <span
-          className={`${gearScoreColorName} font-bold`}>{gearScore}</span></p>
+        <Skeleton isLoaded={!isLoading} className="w-3/5 h-4 rounded bg-[#404040]">
+            <p className="text-sm text-muted">Gear score: <span
+                className={`${gearScoreColorName} font-bold`}>{gearScore}</span></p>
+        </Skeleton>
     )
+
+
 }

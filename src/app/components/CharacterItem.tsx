@@ -3,6 +3,7 @@ import axios from "axios";
 import {ItemImageWithRune} from "@/app/roster/[name]/components/ItemImageWithRune";
 import {useEffect, useState} from "react";
 import {useCharacterItemsStore} from "@/app/roster/[name]/characterItemsStore";
+import {Skeleton} from "@nextui-org/react";
 
 
 interface APIReference {
@@ -226,20 +227,29 @@ function getItemRarityHexColor(quality: string) {
     return rarityColors[quality] || '#ffffff';
 }
 
-export default function ({item, token, reverse, bottom, characterName}: {
+export default function ({item: _item, token, reverse, bottom, characterName}: {
     item: ItemDetails,
     token: string,
     reverse?: boolean,
     bottom?: boolean,
     characterName: string
 }) {
-    if (!item) return null;
+    if (!_item) return null;
+    const items = useCharacterItemsStore(state => state.items)
+    const [item, setItem] = useState<any>(items.find((i: any) => i.item?.id === _item.item.id) || _item)
+    const [loading, setLoading] = useState<boolean>(true)
     const {id,} = item?.item || {} as any
     const {name, quality, slot} = item || {};
     const [itemIconUrl, setItemIconUrl] = useState<string>(getKnownItemImage(999999));
     const [itemDetails, setItemDetails] = useState<any>({level: '??'});
     const updateItem = useCharacterItemsStore(state => state.updateItem)
     useEffect(() => {
+        if (item.details) {
+            setItemDetails(item.details)
+            setItemIconUrl(item.itemIconUrl)
+            setLoading(false)
+            return;
+        }
         updateItem({...item, loading: true});
         ((async () => {
             const itemIconUrl = await fetchItemMedia(token, id);
@@ -248,26 +258,32 @@ export default function ({item, token, reverse, bottom, characterName}: {
             setItemDetails(itemDetails);
             updateItem({
                 ...item,
+                itemIconUrl,
                 details: itemDetails
             })
+            setLoading(false)
         })())
     }, [id])
 
     return (
-        <div
-
-            className={`flex items-center gap-4 ${reverse ? 'flex-row-reverse' : ''}`}>
-            <ItemImageWithRune
-                item={item}
-                itemIconUrl={itemIconUrl}
-                reverse={reverse}
-                bottom={bottom}
-                borderColor={getItemRarityHexColor(quality.name.toUpperCase())}
-            />
-            <div className={`flex-col gap-0.5 ${reverse ? 'text-right' : 'text-left'} break-all`}>
-                <h3 className="font-semibold text-sm md:hidden">{slot.name}</h3>
-                <h3 className="font-semibold text-sm hidden md:flex">{name}</h3>
-                <p className="text-xs text-muted">Item Level {itemDetails.level}</p>
+        <div className={`flex items-center gap-4 ${reverse ? 'flex-row-reverse' : ''}`}>
+            <Skeleton isLoaded={!loading} className="w-12 h-12 rounded-lg bg-wood">
+                <ItemImageWithRune
+                    item={item}
+                    itemIconUrl={itemIconUrl}
+                    reverse={reverse}
+                    bottom={bottom}
+                    borderColor={getItemRarityHexColor(quality.name.toUpperCase())}
+                />
+            </Skeleton>
+            <div className={`flex-col gap ${reverse ? 'text-right' : 'text-left'} break-all`}>
+                <Skeleton isLoaded={!loading} className="min-w-20 h-4 rounded-full bg-wood">
+                    <h3 className="font-semibold text-sm hidden md:flex">{name}</h3>
+                    <h3 className="font-semibold text-sm md:hidden">{slot.name}</h3>
+                </Skeleton>
+                <Skeleton isLoaded={!loading} className="min-w-10 h-4 rounded-full bg-wood">
+                    <p className="text-xs text-muted">Item Level {itemDetails.level}</p>
+                </Skeleton>
             </div>
         </div>
     )
