@@ -1,60 +1,16 @@
-import axios from "axios";
 import CharacterAvatar from "@/app/components/CharacterAvatar";
 import {fetchItemDetails} from "@/app/components/CharacterItem";
 import {calculateTotalGearScore, getColorForGearScoreText} from "@/app/roster/[name]/ilvl";
 import {CharacterGear} from "@/app/roster/[name]/components/CharacterGear";
 import {CharacterViewOptions} from "@/app/roster/[name]/components/CharacterViewOptions";
 import {CharacterTalents} from "@/app/roster/[name]/components/CharacterTalents";
-import getCharacterTalents from "@/app/lib/getTalents";
 import Image from 'next/image'
 import moment from "moment";
 import {cookies} from "next/headers";
-import {fetchBattleNetWoWAccounts} from "@/app/lib/fetchBattleNetWoWaccounts";
-import {fetchGuildInfo} from "@/app/lib/fetchGuildInfo";
 import {Tooltip} from "@nextui-org/react";
 
-function fetchMemberInfo(token: string, realm: string, characterName: string, locale: string = 'en_US') {
-    const url = `https://eu.api.blizzard.com/profile/wow/character/${realm}/${characterName}`;
-    const headers = new Headers();
-    headers.append('Authorization', 'Bearer ' + token);
-
-    return axios.get(`${url}?locale=${locale}&namespace=profile-classic1x-eu`, {
-        headers: {
-            'Authorization': 'Bearer ' + token
-        }
-    })
-}
-
-const getBlizzardToken = async () => {
-    const url: string = `https://ijzwizzfjawlixolcuia.supabase.co/functions/v1/everlasting-vendetta`
-    const jwt: string = `Bearer ` + process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-    const response = await axios.get(url, {
-        headers: {
-            'Authorization': jwt
-        }
-    })
-
-    return response.data
-}
-
-async function fetchEquipment(token: string, realm: string, characterName: string, locale: string = 'en_US') {
-    const url = `https://eu.api.blizzard.com/profile/wow/character/${realm}/${characterName}/equipment?namespace=profile-classic1x-eu&locale=${locale}`
-    return axios.get(`${url}`, {
-        headers: {
-            'Authorization': 'Bearer ' + token
-        }
-    })
-}
-
-async function fetchSpecialization(token: string, realm: string, characterName: string, locale: string = 'en_US') {
-    const url = `https://eu.api.blizzard.com/profile/wow/character/${realm}/${characterName}/specializations?namespace=profile-classic1x-eu&locale=${locale}`
-    return axios.get(`${url}`, {
-        headers: {
-            'Authorization': 'Bearer ' + token
-        }
-    })
-}
+import {getBlizzardToken} from "@/app/lib/getBlizzardToken";
+import WoWService from "@/app/services/wow-service";
 
 const getPlayerClassById = (classId: number) => {
     const classes = {
@@ -105,22 +61,18 @@ function getQualityTypeNumber(quality: string) {
 }
 
 export default async function Page({params}: { params: { name: string } }) {
-    const isLogged = cookies().get(process.env.BNET_COOKIE_NAME!)?.value
-    const {token} = (isLogged ? {token: isLogged} : (await getBlizzardToken()))
-    let isGuildMember = false
-    if (isLogged) {
-        const availableCharacters = await fetchBattleNetWoWAccounts(token)
-        const guild = await fetchGuildInfo(token)
-        const currentRoster = guild.members
-        isGuildMember = availableCharacters.some((character: any) => {
-            if (currentRoster.some((member: any) => member.character.id === character.id)) {
-                return true
-            }
-        })
-    }
+    const cookieToken = cookies().get(process.env.BNET_COOKIE_NAME!)?.value
+    const {token} = (cookieToken ? {token: cookieToken} : (await getBlizzardToken()))
 
-    const {data: characterInfo} = await fetchMemberInfo(token, 'lone-wolf', params.name)
-    const {data: equipment} = await fetchEquipment(token, 'lone-wolf', params.name)
+    const {fetchMemberInfo, fetchEquipment, isLoggedUserInGuild, getCharacterTalents} = new WoWService()
+    const [isGuildMember, characterInfo, equipment, talents] = await Promise.all([
+        isLoggedUserInGuild(),
+        fetchMemberInfo(params.name),
+        fetchEquipment(params.name),
+        getCharacterTalents(params.name)
+    ])
+
+
     const equipmentData = await Promise.all(equipment.equipped_items.map(async (item: any) => {
         const response = await fetchItemDetails(token, item.item.id)
         return {
@@ -142,11 +94,7 @@ export default async function Page({params}: { params: { name: string } }) {
     }).filter(item => item.ilvl !== 0 || item.type !== 'INVTYPE_')
     const gearScore = gearForGearScore !== null ? calculateTotalGearScore(gearForGearScore) : 0
     const gearScoreColorName = `text-${getColorForGearScoreText(gearScore)}`
-    const talents = await getCharacterTalents({
-        token,
-        realm: characterInfo.realm.slug,
-        characterName: characterInfo.name
-    })
+
 
     return (
         <div>
@@ -165,13 +113,13 @@ export default async function Page({params}: { params: { name: string } }) {
                             className={`font-bold relative`}>
                             {isGuildMember ? moment(characterInfo?.last_login_timestamp).format('MMMM D HH:MM') : 'no seas porco'}
                             {!isGuildMember ? <Tooltip
-                                    placement="right"
-                                    showArrow
-                                    className="bg-wood text-white p-2 rounded"
-                                    content={'You must be a guild member to see this information'}
+                                placement="right"
+                                showArrow
+                                className="bg-wood text-white p-2 rounded"
+                                content={'You must be a guild member to see this information'}
                             >
                                 <span className={
-                                `absolute left-0 right-0 -top-1 -bottom-1 rounded backdrop-filter backdrop-blur backdrop-saturate-150 backdrop-contrast-50 bg-gold blur-sm`}/>
+                                    `absolute left-0 right-0 -top-1 -bottom-1 rounded backdrop-filter backdrop-blur backdrop-saturate-150 backdrop-contrast-50 bg-gold blur-sm`}/>
                             </Tooltip> : null}
                         </span>
                         </p>

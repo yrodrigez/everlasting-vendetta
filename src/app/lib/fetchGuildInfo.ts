@@ -74,7 +74,7 @@ export function getGuildRosterFromGuildInfo(guildInfo: any) {
         'Muddalun'
     ]
     const vipMembers = guildInfo?.members.filter((member: any) => {
-        return member.rank === 0 || member.rank === 1 || vipMembersNames.includes(member.character.name)
+        return vipMembersNames.includes(member.character.name)
     }).sort((a: any, b: any) => {
         return a.rank - b.rank
     });
