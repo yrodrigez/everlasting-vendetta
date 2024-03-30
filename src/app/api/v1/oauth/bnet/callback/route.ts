@@ -39,6 +39,26 @@ export async function GET(request: NextRequest) {
         })
     }
 
+    const evToken = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/ev_token_generate`, {
+        method: 'POST',
+        body: JSON.stringify({blizzardToken: tokenData.access_token}),
+        headers: {
+            'Authorization': 'Bearer ' + process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+        },
+    });
+
+    const evTokenData = await evToken.json()
+    if (evTokenData.error) {
+        return NextResponse.json({error: 'Error fetching EV token: ' + evTokenData.error})
+    }
+
+    cookies().set('evToken', evTokenData.access_token, {
+        maxAge: evTokenData.expires_in,
+        path: '/',
+        sameSite: 'lax',
+        secure: IS_PRODUCTION,
+        httpOnly: true
+    })
 
     if (IS_PRODUCTION) {
         return NextResponse.redirect(PRODUCTION_ORIGIN + redirect)
