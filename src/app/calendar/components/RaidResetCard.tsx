@@ -16,7 +16,7 @@ import {useEffect, useState} from "react";
 import {UsersIcon} from "@/app/calendar/components/UsersIcon";
 import {useCharacterStore} from "@/app/components/characterStore";
 import {ConfirmDecline} from "@/app/calendar/components/ConfirmDecline";
-
+import {createClientComponentClient} from "@supabase/auth-helpers-nextjs";
 
 
 async function fetchRaidMembers(id: string) {
@@ -78,19 +78,19 @@ const Timer = ({timeToGo}: {
 
 }
 
-export function RaidResetCard({raidDate, raidName, raidImage, raidTime = '20:30', id, loggedInUser, isNewRaid}: {
+export function RaidResetCard({raidDate, raidName, raidImage, raidTime = '20:30', id, loggedInUser, minLevel}: {
     id: string,
     raidDate: string,
     raidName: string,
     raidImage: string,
     raidTime?: string,
     loggedInUser: any,
-    isNewRaid?: boolean
+    minLevel: number
 }) {
-    const CURRENT_MAX_LEVEL = isNewRaid ? 50 : 40
+    const CURRENT_MAX_LEVEL = minLevel
     const [isConfirming, setIsConfirming] = useState(false)
     const [isDeclining, setIsDeclining] = useState(false)
-    const [raidRegistrations, setRaidRegistrations] = useState([])
+    const [raidRegistrations, setRaidRegistrations] = useState<any[]>([])
     const [isCharMaxLevel, setIsCharMaxLevel] = useState(false)
     const {isOpen, onOpen, onOpenChange} = useDisclosure();
     const currentCharacter = useCharacterStore(state => state.selectedCharacter)
@@ -125,6 +125,28 @@ export function RaidResetCard({raidDate, raidName, raidImage, raidTime = '20:30'
         setIsCharMaxLevel(currentCharacter?.level === CURRENT_MAX_LEVEL)
     }, [currentCharacter])
 
+    const database = createClientComponentClient()
+    useEffect(() => {
+        const raidParticipantChannel = database.channel(`raid_participants${id}`)
+            .on('postgres_changes', {
+                event: '*',
+                schema: 'public',
+                table: 'ev_raid_participant',
+                filter: `raid_id=eq.${id}`
+            }, async ({new: newRecord}) => {
+                const data = await fetchRaidMembers(id)
+                const {member_id, is_confirmed} = newRecord as any
+                setRaidRegistrations(data)
+                if (member_id === currentCharacter?.id) {
+                    setIsConfirmed(is_confirmed)
+                    setIsDeclined(!is_confirmed)
+                }
+            }).subscribe()
+        return () => {
+            database.removeChannel(raidParticipantChannel)
+        }
+    }, [id, currentCharacter, database]);
+
 
     return (
         <>
@@ -141,11 +163,11 @@ export function RaidResetCard({raidDate, raidName, raidImage, raidTime = '20:30'
                     <h4 className="font-bold text-large text-gold">{raidName}</h4>
                     <small className="text-primary">{moment(raidDate).format('dddd, MMMM D')} - {raidTime}</small>
                     <small className={`${!timeToGo.isToday ? 'text-green-500' : 'text-red-500'}`}>
-                        {timeToGo.isToday ? 'Today' :
-                            timeToGo.days > 0 ? `${timeToGo.days} days to go` :
+                        {timeToGo.days <= 0 ? moment(`${raidDate} ${raidTime}`, 'YYYY-MM-DD HH:mm').isBefore(moment()) ? 'In progress' :
                                 <Timer timeToGo={
                                     moment(`${raidDate} ${raidTime}`, 'YYYY-MM-DD HH:mm')
-                                }/>
+                                }/> :
+                            `${timeToGo.days} days to go`
                         }
                     </small>
                     <small className="text-primary">Confirmed: {raidRegistrations?.filter((member: any) => {
