@@ -1,5 +1,7 @@
 import {Button} from "@nextui-org/react";
 import {LoadingIcon} from "@/app/components/LoadingIcon";
+import {useRouter} from "next/navigation";
+
 
 export function ConfirmDecline({
                                    id,
@@ -28,6 +30,7 @@ export function ConfirmDecline({
     isConfirmed: boolean,
     isDeclined: boolean
 }) {
+    const router = useRouter()
     return (
         <div className="flex flex-row justify-between w-full">
             {(!loggedInUser || !currentCharacter) && <div
@@ -46,7 +49,7 @@ export function ConfirmDecline({
                     setIsDeclining(true)
                     confirmRaid(id, false, currentCharacter).then(() => {
                         setIsDeclining(false)
-                        window.location.reload()
+                        router.refresh()
                     })
                 }}
                 isDisabled={!currentCharacter || isDeclining || isDeclined || !isCharMaxLevel}
@@ -62,7 +65,7 @@ export function ConfirmDecline({
                     setIsConfirming(true)
                     confirmRaid(id, true, currentCharacter).then(() => {
                         setIsConfirming(false)
-                        window.location.reload()
+                        router.refresh()
                     })
                 }}
                 isDisabled={!currentCharacter || isConfirming || isConfirmed || !isCharMaxLevel}
