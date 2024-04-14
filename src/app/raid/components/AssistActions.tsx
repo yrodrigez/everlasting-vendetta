@@ -29,7 +29,7 @@ export default function AssistActions({raidId, minLvl, endDate, participants}: {
     const {addDay, removeDay} = useAssistanceStore(state => state)
 
     useEffect(() => {
-        const currentParticipant = participants.find((p: any) => p.member.character.name === selectedCharacter?.name)
+        const currentParticipant = (participants ?? []).find((p: any) => p?.member?.character?.name === selectedCharacter?.name)
         if (currentParticipant && currentParticipant.details?.days) {
             (selectedDays ?? []).forEach((day: string) => removeDay(day));
             (currentParticipant?.details?.days ?? []).forEach((day: string) => addDay(day));
