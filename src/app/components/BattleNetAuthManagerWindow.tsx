@@ -16,11 +16,19 @@ async function fetchBattleNetProfile(token: string) {
     return await response.json();
 }
 
+function filterAccountWithValidCharacters(profile: any) {
+    return profile?.wow_accounts.filter((account: any) => {
+        return account.characters.some((character: any) => character.realm.slug === 'lone-wolf' && character.level >= 10)
+    }).reduce((acc: any, account: any) => {
+        acc.characters.push(...account.characters.filter((character: any) => character.realm.slug === 'lone-wolf' && character.level >= 10))
+        return acc
+    }, {characters: []})
+}
+
 async function setBnetCharacters(token: string, setCharacters: (profile: any) => void) {
     const profile = await fetchBattleNetProfile(token)
 
-    let {characters} = profile?.wow_accounts[0]
-    characters = characters.filter((character: any) => character.realm.slug === 'lone-wolf').sort((a: any, b: any) => b.level - a.level)
+    const characters = filterAccountWithValidCharacters(profile)?.characters.sort((a: any, b: any) => b.level - a.level)
 
     setCharacters(characters)
 }
@@ -35,6 +43,18 @@ export default function BattleNetAuthManagerWindow({token, open, setExternalOpen
     const selectedCharacter = useCharacterStore(state => state.selectedCharacter)
     const setSelectedCharacter = useCharacterStore(state => state.setSelectedCharacter)
     const setCharacters = useCharacterStore(state => state.setCharacters)
+    const lastUpdated = useCharacterStore(state => state.lastUpdated)
+    const setLastUpdated = useCharacterStore(state => state.setLastUpdated)
+
+    useEffect(() => {
+        if (lastUpdated < (Date.now() - 60000)) {
+            if (token?.value) {
+                setBnetCharacters(token.value, setCharacters).then(() => {
+                    setLastUpdated(Date.now())
+                })
+            }
+        }
+    }, [token?.value, setCharacters, lastUpdated, setLastUpdated]);
 
     useEffect(() => {
         sessionStorage.setItem('bnetToken', token.value)
@@ -46,7 +66,7 @@ export default function BattleNetAuthManagerWindow({token, open, setExternalOpen
             })
         }
 
-    }, [selectedCharacter]);
+    }, [selectedCharacter, token?.value, setCharacters, onOpen]);
 
 
     return (
@@ -71,9 +91,10 @@ export default function BattleNetAuthManagerWindow({token, open, setExternalOpen
                                 <AvailableCharactersList
                                     characters={characters}
                                     onCharacterSelect={(character) => {
-                                        setSelectedCharacter(character)
+                                        setSelectedCharacter({...character})
                                         setExternalOpen && setExternalOpen(false)
                                         onClose()
+                                        window.location.reload()
                                     }}/>
                             </div>
                         </ModalBody>

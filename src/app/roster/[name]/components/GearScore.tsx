@@ -39,7 +39,6 @@ export default function GearScore({character}: { character: string }) {
         const gearScoreColorName = `text-${getColorForGearScoreText(gearScore)}`
         setGearScore(gearScore)
         setGearScoreColorName(gearScoreColorName)
-        console.log('gearScore', gearScore)
     }, [items, character])
 
     return (

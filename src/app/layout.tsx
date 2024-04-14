@@ -1,3 +1,4 @@
+
 import type {Metadata} from "next";
 import {Inter} from "next/font/google";
 import "./globals.css";
@@ -7,13 +8,18 @@ import Providers from "@/app/providers";
 import BattleNetAuthManagerWindow from "@/app/components/BattleNetAuthManagerWindow";
 import {cookies} from "next/headers";
 import ProfileManager from "@/app/components/ProfileManager";
+import {config} from '@fortawesome/fontawesome-svg-core'
+import '@fortawesome/fontawesome-svg-core/styles.css'
 
+config.autoAddCss = false
+import {Toaster, toast} from "sonner";
 
 const inter = Inter({subsets: ["latin"]});
 
 export const metadata: Metadata = {
-    title: "Everlasting Vendetta Guild",
-    description: "Everlasting Vendetta Guild Website",
+    title: "Everlasting Vendetta - Raids on Lone Wolf",
+    description: "Everlasting Vendetta is an active guild seeking raiders to join on the Lone Wolf server. Join us to conquer the greatest WoW challenges!",
+    keywords: "wow, world of warcraft, guild recruitment, raiding, pve, pvp, classic, tbc, burning crusade, shadowlands, lone wolf, everlasting vendetta, guild events, guild forum, season of discovery, sod",
 };
 const HeaderMenuButton = ({text, url}: { text: string, url?: string }) => {
     const key = text.toLowerCase();
@@ -38,7 +44,7 @@ export default function RootLayout({
     const battleNetToken = cookies().get('bnetToken');
     return (
         <html lang="en" className="light">
-        <body className={inter.className} style={{width: '100%', height: '100%'}}>
+        <body className={inter.className} style={{width: '100%', height: '100%', position: 'relative'}}>
         <Providers>
             <div className="pt-1 flex flex-col w-full h-full max-h-full min-h-screen items-center">
                 <div className="h-[80px] w-full flex items-center justify-center border-b border-gold relative">
@@ -56,10 +62,7 @@ export default function RootLayout({
                             <HeaderMenuButton text="Calendar"/>
                         </div>
                     </div>
-                    <div className="absolute right-2">
-                        {!battleNetToken && <HeaderMenuButton text="Login" url={battleNetRedirectUrl}/>}
-                        {battleNetToken && <ProfileManager/>}
-                    </div>
+
                 </div>
                 <div
                     id="content-container"
@@ -75,6 +78,11 @@ export default function RootLayout({
             </div>
             {battleNetToken && <BattleNetAuthManagerWindow token={battleNetToken}/>}
             <ResizeManager/>
+            <div className="absolute right-2 bottom-6 md:top-2.5">
+                {!battleNetToken && <HeaderMenuButton text="Login" url={battleNetRedirectUrl}/>}
+                {battleNetToken && <ProfileManager/>}
+            </div>
+            <Toaster/>
         </Providers>
         </body>
         </html>

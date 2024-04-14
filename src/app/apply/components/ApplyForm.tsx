@@ -13,8 +13,9 @@ import {
 } from "@nextui-org/react";
 import LookupField from "@/app/components/LookupField";
 import Link from "next/link";
-import {onForm, getClassIcon, getRoleIcon} from "@/app/components/apply-form/utils";
-import {useApplyFormStore} from "@/app/components/apply-form/store";
+import {onForm, getClassIcon, getRoleIcon} from "@/app/apply/components/utils";
+import {useApplyFormStore} from "@/app/apply/components/store";
+import {CharacterNameInput} from "@/app/apply/components/CharacterNameInput";
 
 
 export default function ApplyForm() {
@@ -33,10 +34,10 @@ export default function ApplyForm() {
     const characterClass = useApplyFormStore(state => state.characterClass)
     const characterRole = useApplyFormStore(state => state.characterRole)
     const isFormDisabled = useApplyFormStore(state => state.isFormDisabled)
+    const characterExists = useApplyFormStore(state => state.characterExists)
     //get functions in one line
     const {
         setIsFormDisabled,
-        setName,
         setEmail,
         setMessage,
         setClass,
@@ -46,16 +47,13 @@ export default function ApplyForm() {
 
 
     useEffect(() => {
-        setIsFormDisabled(!(name && characterClass && characterRole))
-    }, [name, characterClass, characterRole])
+        setIsFormDisabled(!(name && characterClass && characterRole && characterExists))
+    }, [name, characterClass, characterRole, characterExists])
 
     return (
         <div className="space-y-4">
             <div className="grid gap-2">
-                <Input
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    label="Character's name *" id="character-name" required/>
+                <CharacterNameInput/>
             </div>
             <div className="grid gap-2">
                 <Input

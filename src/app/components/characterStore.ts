@@ -10,7 +10,12 @@ interface Character {
     avatar: string,
     realm: {
         slug: string
-    }
+    },
+    selectedRole: 'tank' | 'healer' | 'dps' | null,
+    playable_class?: {
+        name?: string
+    },
+
 }
 
 interface CharacterStore {
@@ -18,16 +23,21 @@ interface CharacterStore {
     selectedCharacter: Character | null
     setSelectedCharacter: (character: Character) => void
     setCharacters: (characters: Character[]) => void
+    lastUpdated: number
+    setLastUpdated: (lastUpdated: number) => void,
+    clear: () => void
 }
 
 const initialState = {
     characters: [],
-    selectedCharacter: null
+    selectedCharacter: null,
+    lastUpdated: 0,
 }
 
 export const useCharacterStore = createStore<CharacterStore>()(persist((set) => ({
-    characters: [],
-    selectedCharacter: null,
+    ...initialState,
+    setLastUpdated: (lastUpdated: number) => set({lastUpdated}),
     setSelectedCharacter: (character) => set({selectedCharacter: character}),
-    setCharacters: (characters) => set({characters})
+    setCharacters: (characters) => set({characters}),
+    clear: () => set(initialState)
 }), {name: storeKey}))

@@ -1,4 +1,4 @@
-import {ApplyFormStore} from "@/app/components/apply-form/store";
+import {ApplyFormStore} from "@/app/apply/components/store";
 
 export const healingClasses = ['priest', 'paladin', 'shaman', 'druid', 'mage']
 export const tankClasses = ['warrior', 'paladin', 'druid', 'rogue', 'warlock']

@@ -51,9 +51,8 @@ export default class WoWService_Impl implements WoWService {
         if (!characterName) {
             throw new Error('WoWService::fetchMemberInfo - characterName parameter is required')
         }
-        const token = this.token || (await getBlizzardToken()).token
-
-        const url = `https://eu.api.blizzard.com/profile/wow/character/${this.realmSlug}/${characterName}`;
+        const token = this.token ?? (await getBlizzardToken()).token
+        const url = `https://eu.api.blizzard.com/profile/wow/character/${this.realmSlug}/${characterName.toLowerCase()}`;
         const query = new URLSearchParams({
             locale: this.locale,
             namespace: this.namespace
@@ -64,8 +63,9 @@ export default class WoWService_Impl implements WoWService {
                 'Authorization': 'Bearer ' + token
             }
         })
+        const data = await response.json()
 
-        return response.json()
+        return data
     }
 
 

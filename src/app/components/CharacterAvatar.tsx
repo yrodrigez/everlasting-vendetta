@@ -1,6 +1,7 @@
 'use client'
 import {useEffect, useState} from "react";
 import Image from "next/image";
+import {getRoleIcon} from "@/app/apply/components/utils";
 
 
 function characterImageUrlLocalStorageCache(realm: string, characterName: string) {
@@ -31,14 +32,16 @@ const CharacterAvatar = ({
                              characterName,
                              className = `rounded-full md:w-24 w-16 border-2 border-gold`,
                              width = 80,
-                             height = 80
+                             height = 80,
+                             role
                          }: {
     token?: { name: string, value: string } | string,
     realm: string,
     characterName: string,
     width?: number,
     height?: number,
-    className?: string
+    className?: string,
+    role?: 'tank' | 'dps' | 'healer' | null
 }) => {
     const [currentToken, setCurrentToken] = useState(typeof token === 'string' ? {
         name: 'bnetToken',
@@ -60,13 +63,16 @@ const CharacterAvatar = ({
         })
     }, [token, realm, characterName, currentToken?.value])
 
-    return <Image
-        width={width}
-        height={height}
-        src={avatar === 'unknown' ? '/avatar-anon.png' : avatar}
-        alt={characterName}
-        className={className}
-    />
+    return <div className="relative">
+        <Image
+            width={width}
+            height={height}
+            src={avatar === 'unknown' ? '/avatar-anon.png' : avatar}
+            alt={characterName}
+            className={className}
+        />
+        {role && <Image src={getRoleIcon(role)} alt={role} width={16} height={16} className="absolute top-0 -right-3 rounded-full border border-gold"/>}
+    </div>
 
 }
 

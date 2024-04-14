@@ -2,7 +2,7 @@
 import {type ReactNode, useState} from "react";
 
 
-export function CharacterViewOptions({items, top, bottom}: {
+export function CharacterViewOptions({items, top, bottom, containerClassName}: {
     items: {
         label: string
         name: string,
@@ -10,6 +10,7 @@ export function CharacterViewOptions({items, top, bottom}: {
     }[]
     top?: boolean
     bottom?: boolean
+    containerClassName?: string
 }) {
     const [selectedOption, setSelectedOption] = useState(items[0].label)
     const availableOptions = items.map(item => item.label)
@@ -18,8 +19,8 @@ export function CharacterViewOptions({items, top, bottom}: {
     bottom = bottom || !top
 
     return (
-        <div>
-            {top && <div className="flex p-4 gap-3">
+        <div className={containerClassName}>
+            {top && <div className="flex p-4 gap-3 lg:w-full">
                 {availableOptions.map((option, index) => (
                     <button key={index}
                             className={`flex flex-col flex-1 items-center ${selectedOption === option ? 'text-[#404040]' : 'text-gold'} text-xl font-bold py-2 px-3 transition-all
@@ -32,9 +33,11 @@ export function CharacterViewOptions({items, top, bottom}: {
                 ))}
             </div>}
             {
-                (items.find(item => item.label === selectedOption)?.children)
+                <div key={selectedOption} className="overflow-auto">
+                    {(items.find(item => item.label === selectedOption)?.children)}
+                </div>
             }
-            {bottom && <div className="flex p-4 gap-3">
+            {bottom && <div className="flex p-4 gap-3 lg:w-full">
                 {availableOptions.map((option, index) => (
                     <button key={index}
                             className={`flex flex-col flex-1 items-center ${selectedOption === option ? 'text-[#404040]' : 'text-gold'} text-xl font-bold py-2 px-3 transition-all

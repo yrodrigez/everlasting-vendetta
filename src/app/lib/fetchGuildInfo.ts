@@ -1,44 +1,14 @@
 import axios from "axios";
 
-
-interface APIReference {
-    href: string;
-}
-
 interface Character {
-    key: APIReference;
-    name: string;
-    id: number;
-    realm: Realm;
-    level: number;
-    playable_class: PlayableClass;
-    playable_race: PlayableRace;
-}
-
-interface Realm {
-    key: APIReference;
-    name: string;
-    id: number;
-    slug: string;
-}
-
-interface PlayableClass {
-    key: APIReference;
-    id: number;
-}
-
-interface PlayableRace {
-    key: APIReference;
-    id: number;
-}
-
-interface GuildMember {
-    character: Character;
-    rank: number;
-}
-
-interface GuildRoster {
-    guildRoster: GuildMember[];
+    playable_class: any;
+    level: any;
+    rankName: any;
+    name: any;
+    icon: any;
+    realm: any;
+    className: any;
+    id: any
 }
 
 
@@ -47,21 +17,31 @@ export async function fetchGuildInfo(token: string, guildId: string = '5826-2239
     const headers = new Headers();
     headers.append('Authorization', 'Bearer ' + token);
 
-    const response = await axios.get(`${url}?locale=${locale}&namespace=profile-classic1x-eu`, {
+
+    const response = await fetch(`${url}?locale=${locale}&namespace=profile-classic1x-eu`, {
         headers: {
             'Authorization': 'Bearer ' + token
         }
     })
 
-    if (!response || response.status !== 200) {
-        //console.error('Error fetching guild info:', response);
+    if (!response.ok) {
+        console.error('Error fetching guild info:', response.status, response.statusText, await response.text());
         return null;
     }
 
-    return response.data;
+    return await response.json();
 }
 
-export function getGuildRosterFromGuildInfo(guildInfo: any) {
+const rankComparator = (a: any, b: any) => {
+    const rankComparison = a.rank - b.rank
+    if (rankComparison !== 0) {
+        return rankComparison
+    }
+    return a.character.level - b.character.level
+
+}
+
+export function getGuildRosterFromGuildInfo(guildInfo: any): Character[] {
     const maxLevel = 40;
     const vipMembersNames = [
         'Alveric',
@@ -75,22 +55,15 @@ export function getGuildRosterFromGuildInfo(guildInfo: any) {
     ]
     const vipMembers = guildInfo?.members.filter((member: any) => {
         return vipMembersNames.includes(member.character.name)
-    }).sort((a: any, b: any) => {
-        return a.rank - b.rank
-    });
+    }).sort(rankComparator);
 
     const maxLevelMembers = (guildInfo?.members || []).filter((member: any) => {
         return member.character.level >= maxLevel && !vipMembersNames.includes(member.character.name)
-    }).sort((a: any, b: any) => {
-        return a.rank - b.rank
-
-    });
+    }).sort(rankComparator);
 
     const minLevelMembers = (guildInfo?.members || []).filter((member: any) => {
         return member.character.level < maxLevel && member.character.level > 15 && !vipMembersNames.includes(member.character.name)
-    }).sort((a: any, b: any) => {
-        return a.rank - b.rank
-    });
+    }).sort(rankComparator);
 
     return [...vipMembers, ...maxLevelMembers, ...minLevelMembers].map(rosterMapper)
 }

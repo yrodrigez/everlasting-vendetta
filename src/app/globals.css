@@ -14,6 +14,31 @@
     --uncommon-rgb: 0, 255, 0;
     --relic-rgb: 229, 204, 128;
     --pink-rgb: 226, 104, 168;
+    --moss-rgb: 62, 92, 79;
+    --wood-rgb: 66, 59, 53;
+}
+
+body > div[data-overlay-container="true"]:first-of-type {
+    height: 100%;
+}
+
+@keyframes blink {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.bg-content1 {
+    --tw-bg-opacity: 1;
+    background-color: rgb(var(--wood-rgb));
+}
+
+
+.blink {
+    animation: blink 2s linear infinite;
 }
 
 .border-bottom-image {
@@ -155,7 +180,14 @@ body {
     border-color: rgb(var(--gold-rgb));
 }
 
+th.bg-default-100 {
+    --tw-bg-opacity: 1;
+    background-color: rgb(var(--moss-rgb));
+}
 
+th.text-foreground-500 {
+    color: rgb(var(--gold-rgb));
+}
 
 
 

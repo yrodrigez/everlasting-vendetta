@@ -26,8 +26,8 @@ function createNextMaxRaidResetsDates(startDate: string, maxResets: number) {
 
 async function fetchMaxRaidResets(supabase: SupabaseClient) {
     const raidResets = await supabase.from('raid_resets')
-        .select('raid_date, id, name, min_lvl, image_url, time')
-        .gte('raid_date', moment().format('YYYY-MM-DD'))
+        .select('raid_date, id, name, min_lvl, image_url, time, end_date')
+        .gte('end_date', moment().format('YYYY-MM-DD'))
         .order('raid_date', {ascending: true})
         .limit(MAX_RAID_RESETS)
 

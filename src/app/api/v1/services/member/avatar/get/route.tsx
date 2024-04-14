@@ -7,9 +7,8 @@ import {getBlizzardToken} from "@/app/lib/getBlizzardToken";
 export async function GET(request: NextRequest) {
     const url = new URL(request.url)
     let tokenString = url.searchParams.get('tokenString')
-    const realm = url.searchParams.get('realm')
+    const realm = url.searchParams.get('realm') ?? process.env.GUILD_REALM_SLUG!
     const characterName = url.searchParams.get('characterName')
-
     if (!realm || !characterName) {
         return NextResponse.json({error: 'Error - realm and characterName are mandatory!'})
     }

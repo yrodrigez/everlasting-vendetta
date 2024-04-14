@@ -11,8 +11,14 @@ const ResizeManager = () => {
 
         }
         window.addEventListener('resize', resize);
+        const interval = setInterval(() => {
+            resize();
+        }, 1000);
         resize();
-        return () => window.removeEventListener('resize', resize);
+        return () => {
+            window.removeEventListener('resize', resize);
+            clearInterval(interval);
+        }
     })
     return null;
 }

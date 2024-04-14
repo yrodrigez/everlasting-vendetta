@@ -15,6 +15,8 @@ export interface ApplyFormStore {
     isFormDisabled: boolean;
     setIsFormDisabled: (isDisabled: boolean) => void;
     reset: () => void;
+    characterExists: boolean;
+    setCharacterExists: (exists: boolean) => void;
 }
 
 const logger = (config: any) => (set: any, get: any, api: any) => {
@@ -40,6 +42,7 @@ const initialState = {
     characterClass: '',
     characterRole: '',
     isFormDisabled: true,
+    characterExists: false,
 }
 const persistKey = 'apply-form'
 export const useApplyFormStore = createStore<ApplyFormStore>()(logger(persist((set) => ({
@@ -50,6 +53,7 @@ export const useApplyFormStore = createStore<ApplyFormStore>()(logger(persist((s
     setClass: ((classType: string) => set({characterClass: classType})),
     setRole: ((role: string) => set({characterRole: role})),
     setIsFormDisabled: (isDisabled: string) => set({isFormDisabled: isDisabled}),
+    setCharacterExists: (exists: boolean) => set({characterExists: exists}),
     reset: () => {
         localStorage.removeItem(persistKey)
         return set(initialState)

@@ -4,8 +4,7 @@ import {fetchCharacterAvatar} from "@/app/lib/fetchCharacterAvatar";
 import {fetchGuildInfo} from "@/app/lib/fetchGuildInfo";
 import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
 import {fetchBattleNetWoWAccounts} from "@/app/lib/fetchBattleNetWoWaccounts";
-
-
+import {redirect} from "next/navigation";
 
 async function registerOnRaid(characterId: string, raidId: string, isConfirmed: boolean = false) {
     const supabase = createServerComponentClient({cookies})
@@ -45,7 +44,7 @@ export async function POST(request: NextRequest) {
     const token = cookies().get(process.env.BNET_COOKIE_NAME!)
     if (!token) {
         const origin = new URL(request.url).origin
-        return NextResponse.redirect(origin + '/api/v1/oauth/bnet/auth')
+        return redirect(origin + '/api/v1/oauth/bnet/auth')
     }
 
     const currentUserCharacters = await fetchBattleNetWoWAccounts(token.value)
