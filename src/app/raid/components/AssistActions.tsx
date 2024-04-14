@@ -9,6 +9,7 @@ import {ConfirmAssistance} from "@/app/raid/components/ConfirmAssistance";
 import {LateAssistance} from "@/app/raid/components/LateAssistance";
 import {TentativeAssistance} from "@/app/raid/components/TentativeAssistance";
 import DeclineAssistance from "@/app/raid/components/DeclineAssistance";
+import {useEffect} from "react";
 
 const days = ['Wed', 'Thur', 'Fri', 'Sat', 'Sun', 'Mon', 'Tues']
 
@@ -16,12 +17,24 @@ export const CheckIcon = ({className}: { className?: string }) => {
     return <FontAwesomeIcon icon={faCheck} className={className}/>
 }
 
-export default function AssistActions({raidId, minLvl, endDate}: { raidId: string, minLvl: number, endDate: string }) {
-    const {selectedCharacter, session, loading: isSessionLoading, bnetToken} = useSession()
+export default function AssistActions({raidId, minLvl, endDate, participants}: {
+    raidId: string,
+    minLvl: number,
+    endDate: string,
+    participants: any[]
+}) {
+    const {selectedCharacter, session, loading: isSessionLoading} = useSession()
     const selectedRole = selectedCharacter?.selectedRole
     const selectedDays = useAssistanceStore(state => state.selectedDays)
     const {addDay, removeDay} = useAssistanceStore(state => state)
 
+    useEffect(() => {
+        const currentParticipant = participants.find((p: any) => p.member.character.name === selectedCharacter?.name)
+        if (currentParticipant && currentParticipant.details?.days) {
+            (selectedDays ?? []).forEach((day: string) => removeDay(day));
+            (currentParticipant?.details?.days ?? []).forEach((day: string) => addDay(day));
+        }
+    }, [selectedCharacter]);
     if (moment().isAfter(moment(endDate))) {
         return <div className="text-red-500">Raid has ended</div>
     }

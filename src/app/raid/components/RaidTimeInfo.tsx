@@ -2,7 +2,7 @@ import moment from "moment/moment";
 import {RaidTimer} from "@/app/raid/components/RaidTimer";
 
 
-export default function RaidTimeInfo({raidDate, raidTime}: { raidDate: string, raidTime: string }) {
+export default function RaidTimeInfo({raidDate, raidTime, }: { raidDate: string, raidTime: string }) {
     const raidDateTime = moment(`${raidDate} ${raidTime}`, 'YYYY-MM-DD HH:mm')
     const currentTime = moment()
     const diff = raidDateTime.diff(currentTime)

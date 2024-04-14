@@ -26,7 +26,7 @@ export function ConfirmAssistance({raidId}: { raidId: string }) {
             endContent={loading ? <Spinner size='sm' color='success'/> : selectedRole &&
               <img className="w-6 h-6 rounded-full border border-gold"
                    src={getRoleIcon(selectedRole)} alt={selectedRole}/>}
-        >Assist as {selectedRole}
+        >Confirm as {selectedRole}
         </Button>
     )
 }

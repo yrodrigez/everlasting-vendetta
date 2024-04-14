@@ -9,6 +9,30 @@ import RaidTimeInfo from "@/app/raid/components/RaidTimeInfo";
 
 const raidResetAttr = 'raid_date, id, name, min_lvl, image_url, time, end_date'
 
+function findNextWednesday() {
+    if (moment().day() === 3) {
+        return moment().format('YYYY-MM-DD')
+    }
+    const currentDay = moment()
+    while (currentDay.day() !== 3) {
+        currentDay.add(1, 'day')
+    }
+
+    return currentDay.format('YYYY-MM-DD')
+}
+
+async function fetchNextReset(supabase: any) {
+    const nextWednesday = findNextWednesday()
+
+    return supabase.from('raid_resets')
+        .select(raidResetAttr)
+        .gte('end_date', moment().format('YYYY-MM-DD'))
+        .gte('raid_date', nextWednesday)
+        .order('raid_date', {ascending: true})
+        .limit(1)
+        .single()
+}
+
 async function fetchCurrentReset(supabase: any) {
     return supabase.from('raid_resets')
         .select(raidResetAttr)
@@ -17,6 +41,7 @@ async function fetchCurrentReset(supabase: any) {
         .limit(1)
         .single()
 }
+
 
 async function fetchResetFromId(supabase: any, id: string) {
     return supabase.from('raid_resets')
@@ -47,7 +72,7 @@ export default async function ({params}: { params: { id: string } }) {
     const {
         data,
         error
-    } = params.id === 'next' ? (await fetchCurrentReset(supabase)) : (await fetchResetFromId(supabase, params.id))
+    } = params.id === 'next' ? (await fetchNextReset(supabase)) : params.id === 'current' ? (await fetchCurrentReset(supabase)) : (await fetchResetFromId(supabase, params.id))
 
 
     if (error) {
@@ -77,7 +102,7 @@ export default async function ({params}: { params: { id: string } }) {
                 raidTime={raidTime}
                 raidDate={raidDate}
             />
-            <AssistActions raidId={id} minLvl={min_lvl} endDate={end_date}/>
+            <AssistActions raidId={id} minLvl={min_lvl} endDate={end_date} participants={participants}/>
             <h1 className="text-primary">Participants:</h1>
             <RaidParticipants participants={participants} raidId={id}/>
         </div>
