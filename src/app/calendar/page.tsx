@@ -72,15 +72,6 @@ export default async function Page() {
         )
     }
 
-    const belongsToGuild = await isUserInGuild(token)
-    if (!belongsToGuild) {
-        return (
-            <main className="flex gap-3 flex-col justify-center items-center md:flex-wrap md:flex-row h-full">
-                <h1 className="text-2xl font-bold text-center">You must be in the guild to see this page</h1>
-            </main>
-        )
-    }
-
     const raidResets = await fetchNextRaidResets()
     return <main className="flex gap-3 flex-col justify-center items-center md:flex-wrap md:flex-row">
         {raidResets.map((raidReset: any, index: number) => {

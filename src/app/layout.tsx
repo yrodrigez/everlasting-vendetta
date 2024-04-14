@@ -1,4 +1,3 @@
-
 import type {Metadata} from "next";
 import {Inter} from "next/font/google";
 import "./globals.css";
@@ -6,7 +5,7 @@ import Link from "next/link";
 import ResizeManager from "@/app/components/ResizeManager";
 import Providers from "@/app/providers";
 import BattleNetAuthManagerWindow from "@/app/components/BattleNetAuthManagerWindow";
-import {cookies} from "next/headers";
+import {cookies, headers} from "next/headers";
 import ProfileManager from "@/app/components/ProfileManager";
 import {config} from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
@@ -42,6 +41,7 @@ export default function RootLayout({
 }>) {
     const battleNetRedirectUrl = `${process.env.BNET_LOGIN_URI}`;
     const battleNetToken = cookies().get('bnetToken');
+
     return (
         <html lang="en" className="light">
         <body className={inter.className} style={{width: '100%', height: '100%', position: 'relative'}}>
@@ -79,7 +79,8 @@ export default function RootLayout({
             {battleNetToken && <BattleNetAuthManagerWindow token={battleNetToken}/>}
             <ResizeManager/>
             <div className="absolute right-2 bottom-6 md:top-2.5">
-                {!battleNetToken && <HeaderMenuButton text="Login" url={battleNetRedirectUrl}/>}
+                {!battleNetToken && <HeaderMenuButton text="Login"
+                                                      url={`${battleNetRedirectUrl}`}/>}
                 {battleNetToken && <ProfileManager/>}
             </div>
             <Toaster/>
