@@ -22,6 +22,7 @@ const columns = [
     {name: "STATUS", uid: "status"},
     {name: "DAYS", uid: "days"},
 ];
+const days = ['Wed', 'Thur', 'Fri', 'Sat', 'Sun', 'Mon', 'Tues'];
 
 
 export default function RaidParticipants({participants, raidId}: { participants: any[], raidId: string }) {
@@ -117,20 +118,29 @@ export default function RaidParticipants({participants, raidId}: { participants:
                 );
 
             case "days":
-                if (registrationDetails) {
-                    return (
-                        <div className="flex gap">
-                            {registrationDetails.days.sort((a: string, b: string) => {
-                                //sorts the dates starting on Wednesday
-                                const days = ['Wed', 'Thur', 'Fri', 'Sat', 'Sun', 'Mon', 'Tues'];
-                                return days.indexOf(a) - days.indexOf(b);
-                            }).map((day: string) => (
-                                <Chip key={day} color={'success'} size="sm" variant="flat">{day.substring(0, 2)}</Chip>
-                            ))}
-                        </div>
-                    );
-                }
-                return <></>;
+
+                return (
+                    <div className="flex gap">
+                        {(days).sort((a: string, b: string) => {
+                            //sorts the dates starting on Wednesday
+                            const days = ['Wed', 'Thur', 'Fri', 'Sat', 'Sun', 'Mon', 'Tues'];
+                            return days.indexOf(a) - days.indexOf(b);
+                        }).map((day: string) => {
+                            const isToday = day === new Date().toString().substring(0, 3);
+                            const isRegistered = (registrationDetails?.days ?? []).indexOf(day) !== -1;
+                            return (
+                                <Chip
+                                    key={day}
+                                      className={isToday ? 'border-2 border-gold' : ''}
+                                      color={isRegistered ? 'success' : 'danger'}
+                                      size="sm"
+                                      variant="flat">
+                                    {day.substring(0, 2)}
+                                </Chip>
+                            )
+                        })}
+                    </div>
+                );
 
             default:
                 return <></>;
