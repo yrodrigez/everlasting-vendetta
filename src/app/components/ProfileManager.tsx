@@ -20,7 +20,7 @@ function isRoleAssignable(role: 'tank' | 'healer' | 'dps', characterClass?: stri
     if (!characterClass) return false
     const healingClasses = ['priest', 'paladin', 'shaman', 'druid', 'mage']
     const tankClasses = ['warrior', 'paladin', 'druid', 'rogue', 'warlock']
-    const dpsClasses = ['warrior', 'paladin', 'hunter', 'rogue', 'priest', 'shaman', 'mage', 'warlock']
+    const dpsClasses = ['warrior', 'paladin', 'hunter', 'rogue', 'priest', 'shaman', 'mage', 'warlock', 'druid']
 
     if (role === 'tank') {
         return tankClasses.includes(characterClass)
