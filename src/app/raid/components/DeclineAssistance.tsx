@@ -8,10 +8,8 @@ import {assistRaid} from "@/app/raid/components/utils";
 
 export default function DeclineAssistance({raidId}: { raidId: string }) {
     const [loading, setLoading] = useState(false)
-    const selectedDays = useAssistanceStore(state => state.selectedDays)
     const {selectedCharacter} = useSession()
     const selectedRole = selectedCharacter?.selectedRole
-
 
     return (
         <Button
@@ -20,7 +18,7 @@ export default function DeclineAssistance({raidId}: { raidId: string }) {
             onClick={() =>
                 (async () => {
                     setLoading(true)
-                    await assistRaid(raidId, selectedDays, selectedCharacter, selectedRole, 'declined')
+                    await assistRaid(raidId, [], selectedCharacter, selectedRole, 'declined')
                     setLoading(false)
                 })()
             }
