@@ -3,7 +3,16 @@ import {useEffect, useState} from "react";
 import CharacterAvatar from "@/app/components/CharacterAvatar";
 import BattleNetAuthManagerWindow from "@/app/components/BattleNetAuthManagerWindow";
 import {useCharacterStore} from "@/app/components/characterStore";
-import {Modal, ModalBody, ModalContent, ModalHeader, Popover, PopoverContent, PopoverTrigger} from "@nextui-org/react";
+import {
+    Modal,
+    ModalBody,
+    ModalContent,
+    ModalHeader,
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+    Spinner
+} from "@nextui-org/react";
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {useRouter} from 'next/navigation';
 
@@ -65,7 +74,7 @@ export default function ProfileManager() {
     const setSelectedCharacter = useCharacterStore(state => state.setSelectedCharacter)
     const [popoverOpen, setPopoverOpen] = useState(false)
     const {supabase, loading: isSessionLoading, session} = useSession()
-    const router = useRouter()
+
 
     useEffect(() => {
         setToken({name: 'bnetToken', value: sessionStorage.getItem('bnetToken') || ''})
@@ -77,6 +86,10 @@ export default function ProfileManager() {
         if (!selectedCharacter.selectedRole && session?.id === selectedCharacter.id) return setIsRoleSelectWindowOpen(true)
         setIsRoleSelectWindowOpen(false)
     }, [selectedCharacter, session])
+
+    if(isSessionLoading) {
+        return <Spinner color={'success'}/>
+    }
 
     if (!selectedCharacter || !supabase) return null
 
@@ -129,6 +142,7 @@ export default function ProfileManager() {
         />
         <Modal
             placement={'center'}
+            hideCloseButton
             isOpen={
                 isRoleSelectWindowOpen
             }>
