@@ -57,7 +57,7 @@ export default async function ({params}: { params: { id: string } }) {
     }
     const {data: participants, error: participantsError} = await supabase
         .from('ev_raid_participant')
-        .select('member:ev_member(character), is_confirmed, details, raid_id')
+        .select('member:ev_member(character), is_confirmed, details, raid_id, created_at')
         .eq('raid_id', data.id)
 
     if (participantsError) {

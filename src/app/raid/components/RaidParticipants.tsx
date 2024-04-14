@@ -15,6 +15,7 @@ import {getClassIcon, getRoleIcon} from "@/app/apply/components/utils";
 import {useSession} from "@/app/hooks/useSession";
 import Image from "next/image";
 import useScreenSize from "@/app/hooks/useScreenSize";
+import moment from "moment";
 
 const columns = [
     {name: "NAME", uid: "name"},
@@ -41,6 +42,10 @@ export default function RaidParticipants({participants, raidId}: { participants:
                         target={'_blank'}
                     >
                         <div className="flex flex-row items-center gap-2">
+                            <Tooltip
+                                content={`Confirmed at: ${moment(registration.created_at).format('MMM Do, h:mm:ss a')}`}>
+                                <span>{registration.position}</span>
+                            </Tooltip>
                             <Image
                                 alt="User avatar"
                                 width={24}
@@ -127,14 +132,14 @@ export default function RaidParticipants({participants, raidId}: { participants:
                             return days.indexOf(a) - days.indexOf(b);
                         }).map((day: string) => {
                             const isToday = day === new Date().toString().substring(0, 3);
-                            const isRegistered = (registrationDetails?.days ?? []).indexOf(day) !== -1;
+                            const isDayRegistered = (registrationDetails?.days ?? []).indexOf(day) !== -1;
                             return (
                                 <Chip
                                     key={day}
-                                      className={isToday ? 'border-2 border-gold' : ''}
-                                      color={isRegistered ? 'success' : 'danger'}
-                                      size="sm"
-                                      variant="flat">
+                                    className={isToday ? 'border-2 border-gold' : ''}
+                                    color={isDayRegistered ? 'success' : 'danger'}
+                                    size="sm"
+                                    variant="flat">
                                     {day.substring(0, 2)}
                                 </Chip>
                             )
@@ -158,7 +163,7 @@ export default function RaidParticipants({participants, raidId}: { participants:
             }, async ({}) => {
                 const {error, data} = await supabase
                     .from('ev_raid_participant')
-                    .select('member:ev_member(character), is_confirmed, details, raid_id')
+                    .select('member:ev_member(character), is_confirmed, details, raid_id, created_at')
                     .eq('raid_id', raidId)
                 if (error) {
                     console.error(error)
@@ -202,14 +207,22 @@ export default function RaidParticipants({participants, raidId}: { participants:
                 <TableBody
                     className="scrollbar-pill"
                     emptyContent={"No one like us."}
-                    items={stateParticipants.reduce((acc, curr) => {
+                    items={stateParticipants.sort((a: any, b: any) => {
+                        const aCreated = new Date(a.created_at)
+                        const bCreated = new Date(b.created_at)
+                        return aCreated.getTime() - bCreated.getTime()
+                    }).map((x: any, index) => {
+                        return {
+                            ...x,
+                            position: index + 1
+                        }
+                    }).reduce((acc, curr) => {
                         if (selectedCharacter?.id === curr.member.character.id) {
                             return [curr, ...acc]
                         }
                         return [...acc, curr]
                     }, [])}>
                     {(item: any) => {
-
                         return (
                             <TableRow
                                 key={item.member.character.id}>
