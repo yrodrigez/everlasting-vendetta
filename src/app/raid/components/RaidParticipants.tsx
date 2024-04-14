@@ -120,7 +120,11 @@ export default function RaidParticipants({participants, raidId}: { participants:
                 if (registrationDetails) {
                     return (
                         <div className="flex gap">
-                            {registrationDetails.days.map((day: string) => (
+                            {registrationDetails.days.sort((a: string, b: string) => {
+                                //sorts the dates starting on Wednesday
+                                const days = ['Wed', 'Thur', 'Fri', 'Sat', 'Sun', 'Mon', 'Tues'];
+                                return days.indexOf(a) - days.indexOf(b);
+                            }).map((day: string) => (
                                 <Chip key={day} color={'success'} size="sm" variant="flat">{day.substring(0, 2)}</Chip>
                             ))}
                         </div>

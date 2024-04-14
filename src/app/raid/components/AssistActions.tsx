@@ -10,7 +10,7 @@ import {LateAssistance} from "@/app/raid/components/LateAssistance";
 import {TentativeAssistance} from "@/app/raid/components/TentativeAssistance";
 import DeclineAssistance from "@/app/raid/components/DeclineAssistance";
 
-const days = ['Sun', 'Mon', 'Tues', 'Wed', 'Thur', 'Fri', 'Sat']
+const days = ['Wed', 'Thur', 'Fri', 'Sat', 'Sun', 'Mon', 'Tues']
 
 export const CheckIcon = ({className}: { className?: string }) => {
     return <FontAwesomeIcon icon={faCheck} className={className}/>
