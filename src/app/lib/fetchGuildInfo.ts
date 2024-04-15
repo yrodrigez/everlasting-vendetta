@@ -51,7 +51,7 @@ export function getGuildRosterFromGuildInfo(guildInfo: any): Character[] {
         'Aoriad',
         'Porco',
         'Tacy',
-        'Muddalun'
+        'Felsargon'
     ]
     const vipMembers = guildInfo?.members.filter((member: any) => {
         return vipMembersNames.includes(member.character.name)
