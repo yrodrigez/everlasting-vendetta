@@ -7,7 +7,7 @@ async function fetchRaidStatus(raidId: any) {
     const {
         data,
         error
-    } = await supabase.from('ev_raid_participant').select('member:ev_member(*), is_confirmed, raid_id').eq('raid_id', raidId)
+    } = await supabase.from('ev_raid_participant').select('member:ev_member(*), is_confirmed, raid_id, details').eq('raid_id', raidId)
 
     return {data, error}
 }

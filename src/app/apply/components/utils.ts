@@ -70,6 +70,7 @@ export async function onForm(state: ApplyFormValues) {
 }
 
 export function getClassIcon(classname: string) {
+
     return `/classicon/classicon_${classname.toLowerCase()}.jpg`;
 }
 

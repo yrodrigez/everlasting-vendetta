@@ -35,6 +35,12 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({error: 'Error fetching EV token: ' + evTokenData.error})
     }
 
+    if (cookies().get(process.env.EV_COOKIE_NAME!)) {
+        cookies().delete(process.env.EV_COOKIE_NAME!)
+
+
+    }
+
     cookies().set(process.env.EV_COOKIE_NAME!, evTokenData.access_token, {
         maxAge: evTokenData.expires_in,
         path: '/',

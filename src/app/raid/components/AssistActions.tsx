@@ -11,7 +11,7 @@ import {TentativeAssistance} from "@/app/raid/components/TentativeAssistance";
 import DeclineAssistance from "@/app/raid/components/DeclineAssistance";
 import {useEffect} from "react";
 
-const days = ['Wed', 'Thur', 'Fri', 'Sat', 'Sun', 'Mon', 'Tues']
+const days= ['Wed', 'Thur', 'Fri', 'Sat', 'Sun', 'Mon', 'Tues']
 
 export const CheckIcon = ({className}: { className?: string }) => {
     return <FontAwesomeIcon icon={faCheck} className={className}/>

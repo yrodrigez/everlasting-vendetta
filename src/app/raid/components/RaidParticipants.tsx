@@ -16,6 +16,7 @@ import {useSession} from "@/app/hooks/useSession";
 import Image from "next/image";
 import useScreenSize from "@/app/hooks/useScreenSize";
 import moment from "moment";
+import {useParticipants} from "@/app/raid/components/useParticipants";
 
 const columns = [
     {name: "NAME", uid: "name"},
@@ -28,8 +29,7 @@ const days = ['Wed', 'Thur', 'Fri', 'Sat', 'Sun', 'Mon', 'Tues'];
 
 export default function RaidParticipants({participants, raidId}: { participants: any[], raidId: string }) {
     const {supabase, selectedCharacter} = useSession()
-    const [stateParticipants, setStateParticipants] = React.useState(participants)
-
+    const stateParticipants = useParticipants(raidId, participants)
     const renderCell = useCallback((registration: any, columnKey: React.Key) => {
         const {name, avatar, playable_class} = registration.member?.character
         const registrationDetails = registration.details
@@ -152,51 +152,9 @@ export default function RaidParticipants({participants, raidId}: { participants:
         }
     }, [selectedCharacter, supabase]);
 
-    useEffect(() => {
-        if (!supabase) return
-        const raidParticipantChannel = supabase.channel(`raid_participants${raidId}`)
-            .on('postgres_changes', {
-                event: '*',
-                schema: 'public',
-                table: 'ev_raid_participant',
-                filter: `raid_id=eq.${raidId}`
-            }, async ({}) => {
-                const {error, data} = await supabase
-                    .from('ev_raid_participant')
-                    .select('member:ev_member(character), is_confirmed, details, raid_id, created_at')
-                    .eq('raid_id', raidId)
-                if (error) {
-                    console.error(error)
-                }
-                setStateParticipants(data)
-            }).subscribe()
-        return () => {
-            supabase.removeChannel(raidParticipantChannel)
-        }
-    }, [raidId, supabase]);
-
-    const ref = useRef<HTMLDivElement>()
-    const {screenHeight} = useScreenSize()
-
-    useEffect(() => {
-        if (ref.current) {
-            ref.current.style.height = `${screenHeight - 300}px`
-        }
-    }, [screenHeight]);
-
-
     return (
-        <div
-            className={`w-full`}
-            // @ts-ignore
-            ref={ref}
-        >
-            <Table
-                className={'w-full h-full scrollbar-pill'}
-                radius={'sm'}
-                isHeaderSticky
-
-            >
+        <div className={'flex flex-1 mt-2 max-h-[500px]'}>
+            <Table isHeaderSticky>
                 <TableHeader columns={columns}>
                     {(column) => (
                         <TableColumn key={column.uid} align={"start"}>

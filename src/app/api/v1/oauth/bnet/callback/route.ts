@@ -30,6 +30,9 @@ export async function GET(request: NextRequest) {
     const redirectFrom = decodeURIComponent(requestURL.searchParams.get('redirectedFrom') || '')
     const cookieName = 'bnetToken'
     if (code) {
+        if(cookies().get(cookieName)) {
+            cookies().delete(cookieName)
+        }
         cookies().set(cookieName, tokenData.access_token, {
             maxAge: tokenData.expires_in,
             path: '/',

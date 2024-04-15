@@ -1,11 +1,13 @@
 import moment from "moment/moment";
 import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
-import {cookies} from "next/headers";
+import {cookies, headers} from "next/headers";
 import React from "react";
 
 import RaidParticipants from "@/app/raid/components/RaidParticipants";
 import AssistActions from "@/app/raid/components/AssistActions";
 import RaidTimeInfo from "@/app/raid/components/RaidTimeInfo";
+import {KpisView} from "@/app/raid/components/KpisView";
+import {redirect} from "next/navigation";
 
 const raidResetAttr = 'raid_date, id, name, min_lvl, image_url, time, end_date'
 
@@ -76,6 +78,12 @@ export default async function ({params}: { params: { id: string } }) {
 
 
     if (error) {
+        if(error.message.indexOf('Not valid base64url') > -1) {
+            const referer = headers().get('Referer')
+            const host = referer?.split('/').slice(0, 3).join('/')
+
+            redirect(host+'/api/v1/oauth/bnet/auth',)
+        }
         return <div>
             {JSON.stringify(error)}
         </div>
@@ -86,6 +94,10 @@ export default async function ({params}: { params: { id: string } }) {
         .eq('raid_id', data.id)
 
     if (participantsError) {
+        if(participantsError.message.indexOf('Not valid base64url') > -1) {
+            const host = headers().get('Referer')
+            redirect(host+'/api/v1/oauth/bnet/auth',)
+        }
         return <div>
             {JSON.stringify(participantsError)}
         </div>
@@ -94,16 +106,16 @@ export default async function ({params}: { params: { id: string } }) {
     const {id, raid_date: raidDate, name: raidName, min_lvl, image_url, time: raidTime, end_date} = data
 
     return (
-        <div className="w-full h-full flex flex-col">
+        <div className="w-full h-full flex flex-col ">
             <h4 className="font-bold text-large text-gold">{raidName}</h4>
             <small className="text-primary">Start {raidDate} - {raidTime}</small>
             <small className="text-primary">End: {end_date}</small>
+            <KpisView participants={participants} raidId={id}/>
             <RaidTimeInfo
                 raidTime={raidTime}
                 raidDate={raidDate}
             />
             <AssistActions raidId={id} minLvl={min_lvl} endDate={end_date} participants={participants}/>
-            <h1 className="text-primary">Participants:</h1>
             <RaidParticipants participants={participants} raidId={id}/>
         </div>
     )

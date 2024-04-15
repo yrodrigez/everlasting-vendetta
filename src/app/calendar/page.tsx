@@ -24,6 +24,15 @@ function createNextMaxRaidResetsDates(startDate: string, maxResets: number) {
     return raidResets
 }
 
+async function fetchRaidMembers(id: string, supabase: SupabaseClient) {
+    const {
+        data,
+    } = await supabase.from('ev_raid_participant').select('member:ev_member(*), is_confirmed, raid_id, details').eq('raid_id', id)
+
+    return data
+
+}
+
 async function fetchMaxRaidResets(supabase: SupabaseClient) {
     const raidResets = await supabase.from('raid_resets')
         .select('raid_date, id, name, min_lvl, image_url, time, end_date')
@@ -39,8 +48,7 @@ async function fetchMaxRaidResets(supabase: SupabaseClient) {
     return raidResets.data.length === MAX_RAID_RESETS ? raidResets.data : []
 }
 
-async function fetchNextRaidResets() {
-    const supabase = createServerComponentClient({cookies})
+async function fetchNextRaidResets(supabase: SupabaseClient) {
 
     const raidResets = await fetchMaxRaidResets(supabase)
 
@@ -72,7 +80,13 @@ export default async function Page() {
         )
     }
 
-    const raidResets = await fetchNextRaidResets()
+    const supabase = createServerComponentClient({cookies})
+
+    const raidResets = await Promise.all((await fetchNextRaidResets(supabase)).map(async (raidReset: any) => {
+        const raidRegistrations = await fetchRaidMembers(raidReset.id, supabase)
+        return {...raidReset, raidRegistrations}
+    }))
+
     return <main className="flex gap-3 flex-col justify-center items-center md:flex-wrap md:flex-row">
         {raidResets.map((raidReset: any, index: number) => {
 
@@ -85,7 +99,7 @@ export default async function Page() {
                 raidTime={raidReset.time}
                 minLevel={raidReset.min_lvl}
                 loggedInUser={token}
-            />
+                raidRegistrations={raidReset.raidRegistrations}/>
         })}
     </main>
 }
