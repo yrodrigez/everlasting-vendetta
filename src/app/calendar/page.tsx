@@ -97,8 +97,6 @@ export default async function Page() {
                 raidImage={raidReset.image_url ?? '/sunken_temple-raid.webp'}
                 raidDate={raidReset.raid_date}
                 raidTime={raidReset.time}
-                minLevel={raidReset.min_lvl}
-                loggedInUser={token}
                 raidRegistrations={raidReset.raidRegistrations}/>
         })}
     </main>
