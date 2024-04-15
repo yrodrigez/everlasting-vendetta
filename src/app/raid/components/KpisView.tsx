@@ -15,7 +15,7 @@ const DpsIcon = ({className}: { className: string }) => <svg className={classNam
 </svg>
 
 export function KpisView({participants, raidId}: { participants: any[], raidId: string }) {
-    const [currentDay] = useState(['Wed', 'Thur', 'Fri', 'Sat', 'Sun', 'Mon', 'Tues'].find(day => moment().format('ddd') === day) ?? '')
+    const [currentDay] = useState(['Wed', 'Thur', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue'].find(day => moment().format('ddd') === day) ?? '')
     const rtParticipants = useParticipants(raidId, participants)
 
     function findRoleAndDay(_participant: any, role: string, day: string) {

@@ -24,8 +24,7 @@ const columns = [
     {name: "STATUS", uid: "status"},
     {name: "DAYS", uid: "days"},
 ];
-const days = ['Wed', 'Thur', 'Fri', 'Sat', 'Sun', 'Mon', 'Tues'];
-
+const days = ['Wed', 'Thur', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue'];
 
 export default function RaidParticipants({participants, raidId}: { participants: any[], raidId: string }) {
     const {supabase, selectedCharacter} = useSession()
@@ -128,7 +127,7 @@ export default function RaidParticipants({participants, raidId}: { participants:
                     <div className="flex gap">
                         {(days).sort((a: string, b: string) => {
                             //sorts the dates starting on Wednesday
-                            const days = ['Wed', 'Thur', 'Fri', 'Sat', 'Sun', 'Mon', 'Tues'];
+                            const days = ['Wed', 'Thur', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue'];
                             return days.indexOf(a) - days.indexOf(b);
                         }).map((day: string) => {
                             const isToday = day === new Date().toString().substring(0, 3);

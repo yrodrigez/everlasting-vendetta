@@ -1,4 +1,3 @@
-import axios from "axios";
 
 interface Character {
     playable_class: any;

@@ -11,7 +11,7 @@ import {TentativeAssistance} from "@/app/raid/components/TentativeAssistance";
 import DeclineAssistance from "@/app/raid/components/DeclineAssistance";
 import {useEffect} from "react";
 
-const days= ['Wed', 'Thur', 'Fri', 'Sat', 'Sun', 'Mon', 'Tues']
+const days= ['Wed', 'Thur', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue']
 
 export const CheckIcon = ({className}: { className?: string }) => {
     return <FontAwesomeIcon icon={faCheck} className={className}/>
@@ -35,7 +35,7 @@ export default function AssistActions({raidId, minLvl, endDate, participants}: {
             (currentParticipant?.details?.days ?? []).forEach((day: string) => addDay(day));
         }
     }, [selectedCharacter]);
-    if (moment().isAfter(moment(endDate))) {
+    if (moment().isAfter(moment(endDate).endOf('day'))) {
         return <div className="text-red-500">Raid has ended</div>
     }
 
