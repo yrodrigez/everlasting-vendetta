@@ -12,9 +12,6 @@ import {CardFooter, CardHeader} from "@nextui-org/card";
 import {useParticipants} from "@/app/raid/components/useParticipants";
 import moment from "moment";
 
-
-
-
 export function RaidResetCard({raidDate, raidName, raidImage, raidTime = '20:30', id, raidRegistrations}: {
     id: string,
     raidDate: string,
@@ -28,26 +25,23 @@ export function RaidResetCard({raidDate, raidName, raidImage, raidTime = '20:30'
 
     return (
         <>
-            <Card className="bg-wood border-none w-[300px] text-default" radius="lg">
+            <Card className="bg-wood border-none w-[300px] text-default bg-[rgba(0,0,0,.6)]" radius="lg">
                 <Image
                     removeWrapper
                     alt="Card background"
-                    className="z-0 w-full h-full object-cover absolute"
+                    className="w-full h-full object-cover absolute z-0 filter brightness-50"
                     src={raidImage}
                     width={300}
                 />
-                <div
-                    className="absolute w-full h-full bg-black bg-[rgba(0,0,0,.6)] z-1"
-                />
-                <CardHeader className="flex flex-col bg-[rgba(0,0,0,.6)] shadow-xl">
+                <CardHeader className="flex flex-col  shadow-xl bg-[rgba(0,0,0,.60)]">
                     <h4 className="font-bold text-large text-gold">{raidName}</h4>
                     <small className="text-primary">{moment(raidDate).format('dddd, MMMM D')} - {raidTime}</small>
                 </CardHeader>
-                <CardBody className="py-1">
+                <CardBody className="py-1 bg-[rgba(0,0,0,.60)]">
                     <RaidTimeInfo raidDate={raidDate} raidTime={raidTime}/>
                     <KpisView participants={participants} raidId={id}/>
                 </CardBody>
-                <CardFooter>
+                <CardFooter className="bg-[rgba(0,0,0,.60)]">
                     <Button
                         onClick={() => {
                             router.push(`/raid/${id}`)
@@ -57,7 +51,6 @@ export function RaidResetCard({raidDate, raidName, raidImage, raidTime = '20:30'
                         Open
                     </Button>
                 </CardFooter>
-
             </Card>
         </>
     );
