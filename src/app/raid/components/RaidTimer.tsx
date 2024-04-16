@@ -7,7 +7,7 @@ export const RaidTimer = ({timeToGo}: {
 }) => {
 
     const calculateAndSetTimeLeft = () => {
-        const raidTime = timeToGo
+        const raidTime = moment(timeToGo)
         const currentTime = moment()
 
         return ({
