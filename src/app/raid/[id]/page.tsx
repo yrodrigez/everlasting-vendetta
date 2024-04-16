@@ -104,19 +104,29 @@ export default async function ({params}: { params: { id: string } }) {
     }
 
     const {id, raid_date: raidDate, name: raidName, min_lvl, image_url, time: raidTime, end_date} = data
-
+    const raidStartDate = moment(raidDate)
+    const raidEndDate = moment(end_date)
+    const raidInProgress = moment().isBetween(raidStartDate, raidEndDate)
     return (
         <div className="w-full h-full flex flex-col ">
             <h4 className="font-bold text-large text-gold">{raidName}</h4>
             <small className="text-primary">Start {raidDate} - {raidTime}</small>
             <small className="text-primary">End: {end_date}</small>
-            <KpisView participants={participants} raidId={id}/>
+            <KpisView
+                raidInProgress={raidInProgress}
+                participants={participants}
+                raidId={id}
+            />
             <RaidTimeInfo
                 raidTime={raidTime}
                 raidDate={raidDate}
             />
             <AssistActions raidId={id} minLvl={min_lvl} endDate={end_date} participants={participants}/>
-            <RaidParticipants participants={participants} raidId={id}/>
+            <RaidParticipants
+                raidInProgress={raidInProgress}
+                participants={participants}
+                raidId={id}
+            />
         </div>
     )
 }

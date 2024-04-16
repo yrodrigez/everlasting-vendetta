@@ -26,7 +26,7 @@ const columns = [
 ];
 const days = ['Wed', 'Thur', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue'];
 
-export default function RaidParticipants({participants, raidId}: { participants: any[], raidId: string }) {
+export default function RaidParticipants({participants, raidId, raidInProgress}: { participants: any[], raidId: string, raidInProgress: boolean}) {
     const {supabase, selectedCharacter} = useSession()
     const stateParticipants = useParticipants(raidId, participants)
     const renderCell = useCallback((registration: any, columnKey: React.Key) => {
@@ -135,7 +135,7 @@ export default function RaidParticipants({participants, raidId}: { participants:
                             return (
                                 <Chip
                                     key={day}
-                                    className={isToday ? 'border-2 border-gold' : ''}
+                                    className={(raidInProgress && isToday) ? 'border-2 border-gold' : ''}
                                     color={isDayRegistered ? 'success' : 'danger'}
                                     size="sm"
                                     variant="flat">

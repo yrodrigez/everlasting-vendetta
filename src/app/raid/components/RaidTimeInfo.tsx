@@ -1,3 +1,4 @@
+'use client'
 import moment from "moment/moment";
 import {RaidTimer} from "@/app/raid/components/RaidTimer";
 

@@ -39,7 +39,9 @@ export function RaidResetCard({raidDate, raidName, raidImage, raidTime = '20:30'
                 </CardHeader>
                 <CardBody className="py-1 bg-[rgba(0,0,0,.60)]">
                     <RaidTimeInfo raidDate={raidDate} raidTime={raidTime}/>
-                    <KpisView participants={participants} raidId={id}/>
+                    <KpisView participants={participants} raidId={id}
+                              raidInProgress={moment().isBetween(moment(raidDate), moment(raidDate).add(1, 'days'))}
+                    />
                 </CardBody>
                 <CardFooter className="bg-[rgba(0,0,0,.60)]">
                     <Button

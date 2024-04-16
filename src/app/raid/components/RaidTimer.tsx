@@ -1,9 +1,9 @@
 'use client'
-import moment, {Moment} from "moment/moment";
+import moment from "moment/moment";
 import {useEffect, useState} from "react";
 
 export const RaidTimer = ({timeToGo}: {
-    timeToGo: Moment
+    timeToGo: string
 }) => {
 
     const calculateAndSetTimeLeft = () => {
@@ -20,7 +20,7 @@ export const RaidTimer = ({timeToGo}: {
     useEffect(() => {
         const interval = setInterval(() => {
             setTimeLeft(calculateAndSetTimeLeft())
-        }, 3000)
+        }, 30000)
 
         return () => clearInterval(interval)
     }, [])

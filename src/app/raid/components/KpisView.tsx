@@ -14,7 +14,11 @@ const DpsIcon = ({className}: { className: string }) => <svg className={classNam
         d="M400 16L166.6 249.4l96 96L496 112 512 0 400 16zM0 416l96 96 32-32-16-32 56-56 88 56 32-32L96 224 64 256l56 88L64 400 32 384 0 416z"/>
 </svg>
 
-export function KpisView({participants, raidId}: { participants: any[], raidId: string }) {
+export function KpisView({participants, raidId, raidInProgress}: {
+    participants: any[],
+    raidId: string,
+    raidInProgress: boolean
+}) {
     const [currentDay] = useState(['Wed', 'Thur', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue'].find(day => moment().format('ddd') === day) ?? '')
     const rtParticipants = useParticipants(raidId, participants)
 
@@ -50,9 +54,13 @@ export function KpisView({participants, raidId}: { participants: any[], raidId: 
 
     return (
         <div className="flex flex-col gap-2 text-sm">
-            <div className="flex gap-2">
-                <span className="text-green-500">Confirmed: {confirmed}</span>
-                <span className="text-red-500">Declined: {declined}</span>
+
+            <div className="flex flex-col">
+                {raidInProgress && <span>Raiders for today:</span>}
+                <div className="flex gap-2">
+                    <span className="text-green-500">Confirmed: {confirmed}</span>
+                    <span className="text-red-500">Declined: {declined}</span>
+                </div>
             </div>
             <div className="grid grid-cols-2 w-14">
                 <FontAwesomeIcon icon={faShield}/>
