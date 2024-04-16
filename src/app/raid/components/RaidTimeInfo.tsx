@@ -22,7 +22,7 @@ export default function RaidTimeInfo({raidDate, raidTime, }: { raidDate: string,
             className={`${timeToGo.inProgress ? 'text-yellow-500 blink' : !timeToGo.isToday ? 'text-green-500' : 'text-red-500'}`}>
             {timeToGo.days <= 0 ? moment(`${raidDate} ${raidTime}`, 'YYYY-MM-DD HH:mm').isBefore(moment()) ? 'In progress' :
                     <RaidTimer timeToGo={
-                        moment(`${raidDate} ${raidTime}`, 'YYYY-MM-DD HH:mm')
+                        moment(`${raidDate} ${raidTime}`, 'YYYY-MM-DD HH:mm').format('YYYY-MM-DD HH:mm')
                     }/> :
                 `${timeToGo.days} days to go`
             }
