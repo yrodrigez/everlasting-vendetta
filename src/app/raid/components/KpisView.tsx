@@ -19,11 +19,13 @@ export function KpisView({participants, raidId, raidInProgress}: {
     raidId: string,
     raidInProgress: boolean
 }) {
-    const [currentDay] = useState(['Wed', 'Thur', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue'].find(day => moment().format('ddd') === day) ?? '')
+    const [currentDay] = useState(['Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue'].find(day => moment().format('ddd') === day) ?? '')
+
     const rtParticipants = useParticipants(raidId, participants)
 
     function findRoleAndDay(_participant: any, role: string, day: string) {
-        return _participant?.is_confirmed && _participant?.details?.role === role && _participant?.details?.days.includes(day)
+        console.log(_participant?.details?.days)
+        return _participant?.is_confirmed && _participant?.details?.role === role && _participant?.details?.days.find((d: string) => d.indexOf(day) >= 0)
     }
 
     function findConfirmedByRole(role: string, _participants: any[], day: string) {
@@ -31,7 +33,7 @@ export function KpisView({participants, raidId, raidInProgress}: {
     }
 
     function findConfirmedByDay(day: string, _participants: any[]) {
-        return _participants.reduce((acc, participant) => acc + +(participant?.is_confirmed && !!participant?.details?.days.includes(day)), 0)
+        return _participants.reduce((acc, participant) => acc + +(participant?.is_confirmed && !!participant?.details?.days.find((d: string) => d.indexOf(day) >= 0)), 0)
     }
 
     function findNotConfirmed(day: string, _participants: any[]) {

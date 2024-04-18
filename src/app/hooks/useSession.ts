@@ -13,6 +13,14 @@ async function installSession(token: string, selectedCharacter: any) {
         body: JSON.stringify({character: selectedCharacter, token})
     })
 
+    if (response.status === 302) { // Redirect to Bnet auth
+        return window.location.replace(response.headers.get('Location')!)
+    }
+
+    if (response.status === 401) {
+        return window.location.replace('/api/v1/oauth/bnet/auth')
+    }
+
     return await response.json()
 }
 
@@ -56,7 +64,9 @@ export function useSession() {
         (async () => {
             setLoading(true)
             const {access_token} = await installSession(bnetToken, selectedCharacter)
-            if (!access_token) return setLoading(false)
+            if (!access_token) {
+                return setLoading(false)
+            }
 
             const newSupabaseClient = createClient(access_token)
             setSupabase(() => newSupabaseClient);

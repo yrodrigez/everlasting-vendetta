@@ -37,12 +37,10 @@ export async function POST(request: NextRequest) {
 
     if (cookies().get(process.env.EV_COOKIE_NAME!)) {
         cookies().delete(process.env.EV_COOKIE_NAME!)
-
-
     }
 
     cookies().set(process.env.EV_COOKIE_NAME!, evTokenData.access_token, {
-        maxAge: evTokenData.expires_in,
+        maxAge: 60 * 60 * 24, // 24 hours
         path: '/',
         sameSite: 'lax',
         secure: IS_PRODUCTION,

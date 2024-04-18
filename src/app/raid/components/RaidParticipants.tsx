@@ -26,7 +26,11 @@ const columns = [
 ];
 const days = ['Wed', 'Thur', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue'];
 
-export default function RaidParticipants({participants, raidId, raidInProgress}: { participants: any[], raidId: string, raidInProgress: boolean}) {
+export default function RaidParticipants({participants, raidId, raidInProgress}: {
+    participants: any[],
+    raidId: string,
+    raidInProgress: boolean
+}) {
     const {supabase, selectedCharacter} = useSession()
     const stateParticipants = useParticipants(raidId, participants)
     const renderCell = useCallback((registration: any, columnKey: React.Key) => {
@@ -130,8 +134,8 @@ export default function RaidParticipants({participants, raidId, raidInProgress}:
                             const days = ['Wed', 'Thur', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue'];
                             return days.indexOf(a) - days.indexOf(b);
                         }).map((day: string) => {
-                            const isToday = day === new Date().toString().substring(0, 3);
-                            const isDayRegistered = (registrationDetails?.days ?? []).indexOf(day) !== -1;
+                            const isToday = day.indexOf(moment().format('ddd')) >= 0;
+                            const isDayRegistered = (registrationDetails?.days ?? []).find((d: string) => day.indexOf(d) >= 0);
                             return (
                                 <Chip
                                     key={day}
