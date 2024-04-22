@@ -2,9 +2,10 @@
 import {useEffect, useState} from "react";
 import {useCharacterStore} from "@/app/components/characterStore";
 import {createClientComponentClient} from "@supabase/auth-helpers-nextjs";
-import {getCookie, getLoggedInUserFromAccessToken} from "@/app/util";
+import {getCookie, getLoggedInUserFromAccessToken, logout} from "@/app/util";
+import {toast} from "sonner";
 
-async function installSession(token: string, selectedCharacter: any) {
+async function installSession(token: string, selectedCharacter: any, retries: number = 0) {
     const response = await fetch('/api/v1/supabase/auth', {
         method: 'POST',
         headers: {
@@ -21,7 +22,33 @@ async function installSession(token: string, selectedCharacter: any) {
         return window.location.replace('/api/v1/oauth/bnet/auth')
     }
 
-    return await response.json()
+    if (!response.ok) {
+        if (retries > 3) {
+            toast.error('Failed to install session', {
+                duration: 2500,
+                onDismiss: logout,
+                onAutoClose: logout,
+            })
+            console.error('Failed to install session - response not ok')
+            return {error: 'Failed to install session'}
+        }
+        return installSession(token, selectedCharacter, retries + 1)
+    }
+
+    try {
+        return await response.json()
+    } catch (e) {
+        if (retries > 3) {
+            toast.error('Failed to install session', {
+                duration: 2500,
+                onDismiss: logout,
+                onAutoClose: logout,
+            })
+            console.error('Failed to install session - error while parsing response')
+            return {error: 'Failed to install session'}
+        }
+        return installSession(token, selectedCharacter, retries + 1)
+    }
 }
 
 const createClient = (token: string) => createClientComponentClient({

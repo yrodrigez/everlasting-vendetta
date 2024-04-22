@@ -40,10 +40,10 @@ export async function POST(request: NextRequest) {
     }
 
     cookies().set(process.env.EV_COOKIE_NAME!, evTokenData.access_token, {
-        maxAge: 60 * 60 * 24, // 24 hours
+        maxAge: 60 * 60 * 23, // 23 hours
         path: '/',
         sameSite: 'lax',
-        secure: IS_PRODUCTION,
+        secure: true,
     })
 
     return NextResponse.json({...evTokenData, character})

@@ -1,7 +1,6 @@
 import type {Metadata} from "next";
 import {Inter} from "next/font/google";
 import "./globals.css";
-import Link from "next/link";
 import ResizeManager from "@/app/components/ResizeManager";
 import Providers from "@/app/providers";
 import BattleNetAuthManagerWindow from "@/app/components/BattleNetAuthManagerWindow";
@@ -11,7 +10,10 @@ import {config} from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
 
 config.autoAddCss = false
-import {Toaster, toast} from "sonner";
+import {Toaster} from "sonner";
+import React from "react";
+import {HeaderMenuButton} from "@/app/components/HeaderMenuButton";
+import {LoginButton} from "@/app/components/LoginButton";
 
 const inter = Inter({subsets: ["latin"]});
 
@@ -20,18 +22,6 @@ export const metadata: Metadata = {
     description: "Everlasting Vendetta is an active guild seeking raiders to join on the Lone Wolf server. Join us to conquer the greatest WoW challenges!",
     keywords: "wow, world of warcraft, guild recruitment, raiding, pve, pvp, classic, tbc, burning crusade, shadowlands, lone wolf, everlasting vendetta, guild events, guild forum, season of discovery, sod",
 };
-const HeaderMenuButton = ({text, url}: { text: string, url?: string }) => {
-    const key = text.toLowerCase();
-    const allowed = ['apply', 'roster', 'calendar',];
-    return (
-        <Link
-            className="px-2 py-1 flex flex-col items-center rounded hover:cursor-pointer hover:bg-white hover:bg-opacity-20 backdrop-filter backdrop-blur-md min-w-16 max-w-16"
-            href={url || `/${allowed.indexOf(key) === -1 ? '' : key}`}>
-            <img alt={text} src={`/btn-${key}.png`} className="rounded-full w-9 h-9 min-h-9 max-h-9 min-w-9 max-w-9"/>
-            <span>{text}</span>
-        </Link>
-    )
-}
 
 
 export default function RootLayout({
@@ -79,11 +69,9 @@ export default function RootLayout({
             {battleNetToken && <BattleNetAuthManagerWindow token={battleNetToken}/>}
             <ResizeManager/>
             <div className="absolute right-2 bottom-6 md:top-2.5">
-                {!battleNetToken && <HeaderMenuButton text="Login"
-                                                      url={`${battleNetRedirectUrl}`}/>}
-                {battleNetToken && <ProfileManager/>}
+                {!battleNetToken ? <LoginButton battleNetRedirectUrl={battleNetRedirectUrl}/> : <ProfileManager/>}
             </div>
-            <Toaster/>
+            <Toaster richColors position="top-center"/>
         </Providers>
         </body>
         </html>

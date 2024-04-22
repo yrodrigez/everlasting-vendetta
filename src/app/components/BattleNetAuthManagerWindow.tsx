@@ -51,6 +51,9 @@ export default function BattleNetAuthManagerWindow({token, open, setExternalOpen
             if (token?.value) {
                 setBnetCharacters(token.value, setCharacters).then(() => {
                     setLastUpdated(Date.now())
+                    const updatedSelectedCharacter = characters.find((character: any) => character.id === selectedCharacter?.id)
+                    const selectedRole = selectedCharacter?.selectedRole
+                    if (updatedSelectedCharacter) setSelectedCharacter({...updatedSelectedCharacter, selectedRole})
                 })
             }
         }

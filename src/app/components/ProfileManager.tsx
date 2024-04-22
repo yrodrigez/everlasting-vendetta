@@ -14,16 +14,20 @@ import {
     Spinner
 } from "@nextui-org/react";
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {useRouter} from 'next/navigation';
+
 
 import {
     faRightLeft,
     faPersonCircleQuestion,
     faUser,
-    type IconDefinition
+    faRightFromBracket,
+    type IconDefinition,
 } from '@fortawesome/free-solid-svg-icons'
 import {getRoleIcon} from "@/app/apply/components/utils";
 import {useSession} from "@/app/hooks/useSession";
+import {clearAllCookies, logout} from "@/app/util";
+import {toast} from "sonner";
+import {useRouter} from "next/navigation";
 
 function isRoleAssignable(role: 'tank' | 'healer' | 'dps', characterClass?: string) {
     if (!characterClass) return false
@@ -56,15 +60,6 @@ const MenuItem = ({text, onClick, icon}: { text: string, onClick: () => void, ic
     )
 }
 
-function clearAllCookies() {
-    const cookies = document.cookie.split(";");
-    for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i];
-        const eqPos = cookie.indexOf("=");
-        const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    }
-}
 
 export default function ProfileManager() {
     const [token, setToken] = useState({name: 'bnetToken', value: ''} as any)
@@ -74,7 +69,7 @@ export default function ProfileManager() {
     const setSelectedCharacter = useCharacterStore(state => state.setSelectedCharacter)
     const [popoverOpen, setPopoverOpen] = useState(false)
     const {supabase, loading: isSessionLoading, session} = useSession()
-
+    const router = useRouter()
 
     useEffect(() => {
         setToken({name: 'bnetToken', value: sessionStorage.getItem('bnetToken') || ''})
@@ -85,15 +80,18 @@ export default function ProfileManager() {
         if (isRoleSelectWindowOpen) return
         if (!selectedCharacter.selectedRole && session?.id === selectedCharacter.id) return setIsRoleSelectWindowOpen(true)
         setIsRoleSelectWindowOpen(false)
+        router.refresh()
     }, [selectedCharacter, session])
 
-    if(isSessionLoading) {
-        return <Spinner color={'success'}/>
+    if (isSessionLoading || !selectedCharacter || !supabase) {
+        return <div
+            className="px-1 py-2 lg:px-2 lg:py-1 flex flex-col items-center rounded-xl hover:cursor-pointer hover:bg-white hover:bg-opacity-20 hover:backdrop-filter hover:backdrop-blur-md h-[68px] w-[68px]"
+        >
+            <Spinner color={'success'}/>
+        </div>
     }
 
-    if (!selectedCharacter || !supabase) return null
-
-    return selectedCharacter.name !== 'Unknown' && (<>
+    return (<>
         <Popover isOpen={popoverOpen} onOpenChange={(open) => setPopoverOpen(open)}>
             <PopoverTrigger>
                 <div
@@ -132,6 +130,7 @@ export default function ProfileManager() {
                             window.location.href = `/roster/${selectedCharacter.name.toLowerCase()}`
                         }
                     } icon={faUser}/>
+                    <MenuItem text={'Logout'} onClick={logout} icon={faRightFromBracket}/>
                 </div>
             </PopoverContent>
         </Popover>
@@ -175,8 +174,17 @@ export default function ProfileManager() {
                                                         character: {...character, selectedRole: roleKey}
                                                     }).eq('id', session.id).single().then(({error}: any) => {
                                                         if (error) {
-                                                            console.error(error)
-                                                            window.location.reload()
+                                                            toast.error('Failed to update role', {
+                                                                duration: 2500,
+                                                                onDismiss: () => {
+                                                                    clearAllCookies()
+                                                                    window.location.reload()
+                                                                },
+                                                                onAutoClose: () => {
+                                                                    clearAllCookies()
+                                                                    window.location.reload()
+                                                                }
+                                                            })
                                                             return
                                                         }
                                                         setIsRoleSelectWindowOpen(false);
@@ -184,6 +192,7 @@ export default function ProfileManager() {
                                                             ...selectedCharacter,
                                                             selectedRole: roleKey
                                                         })
+                                                        router.refresh()
                                                     })
                                                 })
                                         }}

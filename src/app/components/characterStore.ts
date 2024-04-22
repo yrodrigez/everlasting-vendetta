@@ -11,7 +11,7 @@ interface Character {
     realm: {
         slug: string
     },
-    selectedRole: 'tank' | 'healer' | 'dps' | null,
+    selectedRole?: 'tank' | 'healer' | 'dps' | null,
     playable_class?: {
         name?: string
     },
