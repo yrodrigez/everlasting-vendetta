@@ -1,7 +1,7 @@
 'use client'
 import {useEffect, useState} from "react";
 import CharacterAvatar from "@/app/components/CharacterAvatar";
-import BattleNetAuthManagerWindow from "@/app/components/BattleNetAuthManagerWindow";
+import {BattleNetAuthManagerWindow} from "@/app/components/BattleNetAuthManagerWindow";
 import {useCharacterStore} from "@/app/components/characterStore";
 import {
     Modal,
@@ -14,7 +14,6 @@ import {
     Spinner
 } from "@nextui-org/react";
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-
 
 import {
     faRightLeft,

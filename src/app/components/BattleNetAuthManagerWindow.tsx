@@ -1,17 +1,14 @@
 'use client'
 import {useEffect, useState} from "react";
-import {Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure} from "@nextui-org/react";
+import {Modal, ModalBody, ModalContent, ModalHeader, useDisclosure} from "@nextui-org/react";
 import AvailableCharactersList from "@/app/components/AvailableCharactersList";
 import {useCharacterStore} from "@/app/components/characterStore";
+import {toast} from "sonner";
+import {logout} from "@/app/util";
 
-async function fetchBattleNetProfile(token: string) {
-    const url = 'https://eu.api.blizzard.com/profile/user/wow?namespace=profile-classic1x-eu&locale=en_US'
-    const headers = new Headers()
-    headers.append('Authorization', 'Bearer ' + token)
-
-    const response = await fetch(url, {
-        headers: headers
-    });
+async function fetchBattleNetProfile() {
+    console.log(window.location)
+    const response = await fetch(window.location.origin + '/api/v1/services/wow/getRawBnetProfile');
 
     return await response.json();
 }
@@ -25,15 +22,23 @@ function filterAccountWithValidCharacters(profile: any) {
     }, {characters: []})
 }
 
-async function setBnetCharacters(token: string, setCharacters: (profile: any) => void) {
-    const profile = await fetchBattleNetProfile(token)
+async function setBnetCharacters(setCharacters: (profile: any) => void) {
+    try {
+        const profile = await fetchBattleNetProfile()
+        const characters = filterAccountWithValidCharacters(profile)?.characters.sort((a: any, b: any) => b.level - a.level)
 
-    const characters = filterAccountWithValidCharacters(profile)?.characters.sort((a: any, b: any) => b.level - a.level)
-
-    setCharacters(characters)
+        setCharacters(characters)
+    } catch (e) {
+        toast.error('Failed to fetch profile from Battle.net', {
+            duration: 2500,
+            onDismiss: logout,
+            onAutoClose: logout
+        })
+    }
 }
 
-export default function BattleNetAuthManagerWindow({token, open, setExternalOpen}: {
+
+export function BattleNetAuthManagerWindow({token, open, setExternalOpen}: {
     token: { name: string, value: string },
     open?: boolean,
     setExternalOpen?: (value: boolean) => void
@@ -49,7 +54,7 @@ export default function BattleNetAuthManagerWindow({token, open, setExternalOpen
     useEffect(() => {
         if (lastUpdated < (Date.now() - 60000)) {
             if (token?.value) {
-                setBnetCharacters(token.value, setCharacters).then(() => {
+                setBnetCharacters(setCharacters).then(() => {
                     setLastUpdated(Date.now())
                     const updatedSelectedCharacter = characters.find((character: any) => character.id === selectedCharacter?.id)
                     const selectedRole = selectedCharacter?.selectedRole
@@ -62,7 +67,7 @@ export default function BattleNetAuthManagerWindow({token, open, setExternalOpen
     useEffect(() => {
         sessionStorage.setItem('bnetToken', token.value)
         if (token && !selectedCharacter) {
-            setBnetCharacters(token.value, setCharacters).then(() => {
+            setBnetCharacters(setCharacters).then(() => {
                 const storedCharacter = JSON.parse(localStorage.getItem('bnetProfile') || '{}')
                 if (!storedCharacter?.state?.selectedCharacter)
                     onOpen()

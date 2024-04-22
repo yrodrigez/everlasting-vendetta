@@ -3,18 +3,17 @@ import {Inter} from "next/font/google";
 import "./globals.css";
 import ResizeManager from "@/app/components/ResizeManager";
 import Providers from "@/app/providers";
-import BattleNetAuthManagerWindow from "@/app/components/BattleNetAuthManagerWindow";
-import {cookies, headers} from "next/headers";
+import {BattleNetAuthManagerWindow} from "@/app/components/BattleNetAuthManagerWindow";
+import {cookies} from "next/headers";
 import ProfileManager from "@/app/components/ProfileManager";
 import {config} from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
-
-config.autoAddCss = false
 import {Toaster} from "sonner";
 import React from "react";
 import {HeaderMenuButton} from "@/app/components/HeaderMenuButton";
 import {LoginButton} from "@/app/components/LoginButton";
 
+config.autoAddCss = false;
 const inter = Inter({subsets: ["latin"]});
 
 export const metadata: Metadata = {
