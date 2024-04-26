@@ -7,7 +7,6 @@ import {toast} from "sonner";
 import {logout} from "@/app/util";
 
 async function fetchBattleNetProfile() {
-    console.log(window.location)
     const response = await fetch(window.location.origin + '/api/v1/services/wow/getRawBnetProfile');
 
     return await response.json();
