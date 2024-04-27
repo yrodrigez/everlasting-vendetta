@@ -76,9 +76,9 @@ export function getClassIcon(classname: string) {
 
 export function getRoleIcon(role: string) {
     return {
-        'tank': 'https://wow.zamimg.com/images/wow/icons/large/inv_shield_06.jpg',
-        'off-tank': 'https://wow.zamimg.com/images/wow/icons/large/inv_shield_06.jpg',
-        'healer': 'https://wow.zamimg.com/images/wow/icons/large/spell_holy_heal.jpg',
-        'dps': 'https://wow.zamimg.com/images/wow/icons/large/ability_rogue_eviscerate.jpg',
+        'tank': '/role-icons/tank.png',
+        'off-tank': '/role-icons/tank.png',
+        'healer': '/role-icons/healer.png',
+        'dps': '/role-icons/dps.png',
     }[role.toLowerCase()] || '';
 }

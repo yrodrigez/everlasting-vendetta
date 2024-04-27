@@ -4,6 +4,7 @@ import Link from "next/link";
 import {useReservationsStore} from "@/app/calendar/components/reservationStore";
 import {useEffect, useRef, useState} from "react";
 import {Tooltip} from "@nextui-org/react";
+import {useWoWZamingCss} from "@/app/hooks/useWoWZamingCss";
 
 const qualityColors = [
     'poor',
@@ -51,28 +52,7 @@ export default function RaidItem({item}: { item: RaidItem }) {
         };
     }, [item.id, itemData.tooltip, itemData.quality]);
 
-    useEffect(() => {
-        const wowZamingCssUrl = 'https://wow.zamimg.com/css/universal.css?19'
-        const cssId = 'wow-zaming-css'
-        if (document.getElementById(cssId)) return () => {
-            const css = document.getElementById(cssId)
-            if (css) {
-                css.remove()
-            }
-        }
-        const css = document.createElement('link')
-        css.rel = 'stylesheet'
-        css.id = cssId
-        css.href = wowZamingCssUrl
-        document.head.appendChild(css)
-
-        return () => {
-            const css = document.getElementById(cssId)
-            if (css) {
-                css.remove()
-            }
-        }
-    });
+    useWoWZamingCss()
 
     return (
         <Tooltip

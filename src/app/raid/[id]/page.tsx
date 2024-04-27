@@ -8,6 +8,9 @@ import AssistActions from "@/app/raid/components/AssistActions";
 import RaidTimeInfo from "@/app/raid/components/RaidTimeInfo";
 import {KpisView} from "@/app/raid/components/KpisView";
 import {redirect} from "next/navigation";
+import {faGift} from "@fortawesome/free-solid-svg-icons";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import Link from "next/link";
 
 const raidResetAttr = 'raid_date, id, name, min_lvl, image_url, time, end_date'
 
@@ -78,11 +81,11 @@ export default async function ({params}: { params: { id: string } }) {
 
 
     if (error) {
-        if(error.message.indexOf('Not valid base64url') > -1) {
+        if (error.message.indexOf('Not valid base64url') > -1) {
             const referer = headers().get('Referer')
             const host = referer?.split('/').slice(0, 3).join('/')
 
-            redirect(host+'/api/v1/oauth/bnet/auth',)
+            redirect(host + '/api/v1/oauth/bnet/auth',)
         }
         return <div>
             {JSON.stringify(error)}
@@ -94,9 +97,9 @@ export default async function ({params}: { params: { id: string } }) {
         .eq('raid_id', data.id)
 
     if (participantsError) {
-        if(participantsError.message.indexOf('Not valid base64url') > -1) {
+        if (participantsError.message.indexOf('Not valid base64url') > -1) {
             const host = headers().get('Referer')
-            redirect(host+'/api/v1/oauth/bnet/auth',)
+            redirect(host + '/api/v1/oauth/bnet/auth',)
         }
         return <div>
             {JSON.stringify(participantsError)}
@@ -107,8 +110,11 @@ export default async function ({params}: { params: { id: string } }) {
     const raidStartDate = moment(raidDate)
     const raidEndDate = moment(end_date)
     const raidInProgress = moment().isBetween(raidStartDate, raidEndDate)
+
+    const hasLoot = await supabase.from('ev_loot_history').select('id').eq('raid_id', id).limit(1)
+
     return (
-        <div className="w-full h-full flex flex-col ">
+        <div className="w-full h-full flex flex-col relative">
             <h4 className="font-bold text-large text-gold">{raidName}</h4>
             <small className="text-primary">Start {raidDate} - {raidTime}</small>
             <small className="text-primary">End: {end_date}</small>
@@ -127,6 +133,12 @@ export default async function ({params}: { params: { id: string } }) {
                 participants={participants}
                 raidId={id}
             />
+            {!hasLoot?.error && hasLoot?.data?.length && <Link
+                href={`/raid/${id}/loot`}
+                className="absolute top-4 right-4 px-2 py-1"
+            >
+                <FontAwesomeIcon icon={faGift} />
+            </Link>}
         </div>
     )
 }
