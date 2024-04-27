@@ -56,9 +56,9 @@ export function LootItem({loot}: { loot: RaidLoot }) {
                     />
                     <div className="flex flex-col">
                         <Link
-                            data-wowhead={`domain=classic&item=${loot.id}`}
+                            data-wowhead={`domain=classic&item=${loot.itemID}`}
                             target="_blank"
-                            href={`https://www.wowhead.com/classic/item=${loot.id}`}>
+                            href={`https://www.wowhead.com/classic/item=${loot.itemID}`}>
                             <div className={`whitespace-pre p-1 underline text-${qualityColor}`}>{loot.item.name}</div>
                         </Link>
                     </div>
