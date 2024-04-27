@@ -4,14 +4,18 @@ function findTalentInSpecialization(talent: any, specialization: any) {
     return specialization?.talents?.find((talentSpec: any) => talentSpec.spell_tooltip?.spell?.name === talent.name)
 }
 
-export function TalentTree({specializationPlaceholder, specialization, name}: {
+export function TalentTree({specializationPlaceholder, specialization, name, treeIconUrl}: {
     specializationPlaceholder: any,
     specialization: any,
-    name: string
+    name: string,
+    treeIconUrl?: string
 }) {
     return (
         <div>
-            <div className="text-xl text-gold">{name} ({specialization ? specialization.spent_points : 0})</div>
+            <div className="text-xl text-gold"><div
+                className="w-8 h-8 bg-cover bg-center bg-no-repeat inline-block rounded mr-2"
+                style={{backgroundImage: `url(${treeIconUrl})`}}
+            ></div>{name} ({specialization ? specialization.spent_points : 0})</div>
             <div
                 className="p-2 bg-cover bg-center bg-no-repeat flex flex-col rounded border border-gold/30 shadow-2xl shadow-gold"
                 style={{backgroundImage: `url(${specializationPlaceholder.background})`}}>

@@ -33,7 +33,7 @@ export function CharacterViewOptions({items, top, bottom, containerClassName}: {
                 ))}
             </div>}
             {
-                <div key={selectedOption} className="overflow-auto">
+                <div key={selectedOption}>
                     {(items.find(item => item.label === selectedOption)?.children)}
                 </div>
             }
