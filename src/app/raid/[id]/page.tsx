@@ -133,12 +133,12 @@ export default async function ({params}: { params: { id: string } }) {
                 participants={participants}
                 raidId={id}
             />
-            {!hasLoot?.error && hasLoot?.data?.length && <Link
+            {(!hasLoot?.error && hasLoot?.data?.length) ? <Link
                 href={`/raid/${id}/loot`}
                 className="absolute top-4 right-4 px-2 py-1"
             >
-                <FontAwesomeIcon icon={faGift} />
-            </Link>}
+                <FontAwesomeIcon icon={faGift}/>
+            </Link> : null}
         </div>
     )
 }

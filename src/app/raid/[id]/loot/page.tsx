@@ -1,7 +1,7 @@
 import {cookies} from "next/headers";
 import React from "react";
 import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
-import {RaidLoot} from "@/app/raid/[id]/loot/components/types";
+import {CharacterWithLoot, RaidLoot} from "@/app/raid/[id]/loot/components/types";
 import {LootItem} from "@/app/raid/[id]/loot/components/LootItem";
 import Link from "next/link";
 import {faArrowLeft} from "@fortawesome/free-solid-svg-icons";
@@ -64,19 +64,34 @@ export default async function ({params}: { params: { id: string } }) {
     if (!lootHistory?.length) {
         return <div>Could not find loot history</div>
     }
-    const disenchanted = lootHistory.filter((loot) => loot.character === '_disenchanted')
-    const sortedLootHistory = lootHistory.filter((loot) => loot.character !== '_disenchanted').sort((a, b) => {
+
+    const charactersWithLoot: CharacterWithLoot[] = (lootHistory ?? []).reduce((acc: CharacterWithLoot[], loot) => {
+        const character = acc.find((c) => c.character === loot.character)
+        if (!character) {
+            acc.push({
+                character: loot.character,
+                loot: [loot]
+            })
+        } else {
+            character.loot.push(loot)
+        }
+        return acc
+    }, [])
+
+    const sortedCharactersWithLoot = charactersWithLoot.sort((a, b) => {
         return a.character.localeCompare(b.character)
-    })
+    }).filter((c) => c.character !== '_disenchanted')
+
+    const disenchanted = charactersWithLoot.filter((c) => c.character === '_disenchanted')
 
     return (
         <div>
             <Link href={`/raid/${params.id}`} className={'mb-2'}>
-                <FontAwesomeIcon icon={faArrowLeft} className={'mr-2'} />
+                <FontAwesomeIcon icon={faArrowLeft} className={'mr-2'}/>
                 Back to raid
             </Link>
-            {[...sortedLootHistory, ...disenchanted].map((loot) => {
-                return <LootItem key={loot.id} loot={loot}/>
+            {[...sortedCharactersWithLoot, ...disenchanted].map((loot, i) => {
+                return <LootItem key={i} loot={loot}/>
             })}
         </div>
     )

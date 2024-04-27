@@ -5,11 +5,17 @@ export type RaidLoot = {
     itemID: number;
     character: string;
     offspec: number;
-    item: {
-        name: string;
-        quality: number;
-        icon: string;
-        tooltip: string;
-        spells: any[];
-    };
+    item: Item;
+}
+export type Item = {
+    name: string;
+    quality: number;
+    icon: string;
+    tooltip: string;
+    spells: any[];
+    id: number;
+}
+export type CharacterWithLoot = {
+    character: string;
+    loot: RaidLoot[];
 }

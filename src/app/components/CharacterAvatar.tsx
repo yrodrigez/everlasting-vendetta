@@ -64,14 +64,15 @@ const CharacterAvatar = ({
     }, [token, realm, characterName, currentToken?.value])
 
     return <div className="relative">
-        <Image
-            width={width}
-            height={height}
-            src={avatar === 'unknown' ? '/avatar-anon.png' : avatar}
-            alt={characterName}
-            className={className}
-        />
-        {role && <Image src={getRoleIcon(role)} alt={role} width={16} height={16} className="absolute top-0 -right-3 rounded-full border border-gold"/>}
+        {avatar && <Image
+          width={width}
+          height={height}
+          src={avatar === 'unknown' ? '/avatar-anon.png' : avatar}
+          alt={characterName}
+          className={className}
+        />}
+        {role && <Image src={getRoleIcon(role)} alt={role} width={16} height={16}
+                        className="absolute top-0 -right-3 rounded-full border border-gold"/>}
     </div>
 
 }

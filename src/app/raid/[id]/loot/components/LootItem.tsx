@@ -1,5 +1,5 @@
 'use client'
-import {type RaidLoot} from "@/app/raid/[id]/loot/components/types";
+import {type CharacterWithLoot, type Item} from "@/app/raid/[id]/loot/components/types";
 import {useWoWZamingCss} from "@/app/hooks/useWoWZamingCss";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,8 +8,8 @@ import {faArrowRightLong} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {useEffect, useState} from "react";
 
-export function LootItem({loot}: { loot: RaidLoot }) {
-    useWoWZamingCss() // This is a custom hook that loads the WoW Zaming CSS
+
+const Item = ({item}: { item: Item }) => {
     const qualityColor = [
         'poor',
         'common',
@@ -17,7 +17,28 @@ export function LootItem({loot}: { loot: RaidLoot }) {
         'rare',
         'epic',
         'legendary',
-    ][loot.item.quality]
+    ][item.quality]
+    return (
+        <Tooltip
+            className={`bg-black border border-${qualityColor} rounded max-w-64`}
+            content={
+                <div
+                    dangerouslySetInnerHTML={{__html: item.tooltip || ''}}
+                />
+            }
+            placement="top"
+        >
+            <Image
+                className={`rounded-lg border border-${qualityColor} block bg-cover relative`}
+                src={item.icon} width={36} height={36} alt={item.name}
+            />
+        </Tooltip>
+    )
+}
+
+export function LootItem({loot}: { loot: CharacterWithLoot }) {
+    useWoWZamingCss() // This is a custom hook that loads the WoW Zaming CSS
+
     const [characterAvatar, setCharacterAvatar] = useState<string | null | undefined>(null)
     useEffect(() => {
         if (loot.character === '_disenchanted') {
@@ -27,48 +48,13 @@ export function LootItem({loot}: { loot: RaidLoot }) {
         fetch(`${window.location.origin}/api/v1/services/member/avatar/get?characterName=${encodeURIComponent(loot.character.toLowerCase())}`)
             .then(response => response.json())
             .then(data => {
-                console.log(data)
                 setCharacterAvatar(data.avatar)
             })
 
     })
+
     return (
-        <div
-            className={`
-             rounded-lg grid grid-cols-3 items-center gap-2 justify-center border border-${qualityColor} mb-1
-            `}
-        >
-            <Tooltip
-                className={`bg-black border border-${qualityColor} rounded max-w-64`}
-                content={
-                    <div
-                        dangerouslySetInnerHTML={{__html: loot.item.tooltip || ''}}
-                    />
-                }
-                placement="right"
-            >
-                <div className={
-                    `flex items-center gap-2 p-2`
-                }>
-                    <Image
-                        className={`rounded-lg border border-${loot.item.quality} block bg-cover relative`}
-                        src={loot.item.icon} width={36} height={36} alt={loot.item.name}
-                    />
-                    <div className="flex flex-col">
-                        <Link
-                            data-wowhead={`domain=classic&item=${loot.itemID}`}
-                            target="_blank"
-                            href={`https://www.wowhead.com/classic/item=${loot.itemID}`}>
-                            <div className={`whitespace-pre p-1 underline text-${qualityColor}`}>{loot.item.name}</div>
-                        </Link>
-                    </div>
-                </div>
-            </Tooltip>
-            <div className={
-                `flex items-center gap-2 p-2 justify-center`
-            }>
-                <FontAwesomeIcon icon={faArrowRightLong}/>
-            </div>
+        <div className={`rounded-lg grid grid-cols-3 items-center gap-2 justify-center mb-1`}>
             {
                 loot.character === '_disenchanted' ? (
                     <Tooltip
@@ -80,24 +66,38 @@ export function LootItem({loot}: { loot: RaidLoot }) {
                                 `flex flex-col items-center gap-2 p-2`
                             }
                         >
-                            <Image src={'/disenchant.jpg'} alt={'Disenchanted'} width={36} height={36}/>
+                            <Image className={`rounded-lg border border-gold`} src={'/disenchant.jpg'}
+                                   alt={'Disenchanted'} width={36} height={36}/>
                             <div className={`whitespace-pre p-1`}>Disenchanted</div>
                         </div>
                     </Tooltip>
                 ) : (
                     <Link
                         className={
-                            `flex flex-col items-center gap-2 p-2`
+                            `flex flex-col items-center p-2`
                         }
-                        href={`/member/${encodeURIComponent(loot.character)}`}>
-                        {characterAvatar && characterAvatar !== 'unknown' && <Image
+                        href={`/roster/${encodeURIComponent(loot.character.toLowerCase())}`}>
+                        {characterAvatar && <Image
                           className={`rounded-lg border border-gold block bg-cover relative`}
-                          src={characterAvatar || '/avatar.jpg'} width={36} height={36} alt={loot.character}
+                          src={characterAvatar === 'unknown' ? '/avatar-anon.png' : characterAvatar} width={36}
+                          height={36} alt={loot.character}
                         />}
                         <div className={`whitespace-pre p-1`}>{loot.character}</div>
                     </Link>
                 )
             }
+            <div className={
+                `flex items-center gap-2 p-2 justify-center`
+            }>
+                <FontAwesomeIcon icon={faArrowRightLong}/>
+            </div>
+            <div className={
+                `flex  gap-2 p-2 overflow-auto scrollbar-pill`
+            }>
+                {loot.loot.map((item, i) => {
+                    return <Item key={i} item={{...item.item, id: item.itemID}}/>
+                })}
+            </div>
         </div>
 
     )

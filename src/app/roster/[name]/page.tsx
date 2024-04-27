@@ -24,10 +24,13 @@ const getPlayerClassById = (classId: number) => {
         11: {name: 'Druid', icon: 'https://render.worldofwarcraft.com/classic1x-eu/icons/56/classicon_druid.jpg'},
     } as any
 
-    return classes[classId] || {name: 'Unknown', icon: 'unknown'}
+    return classes[classId] || {
+        name: 'Unknown',
+        icon: 'https://wow.zamimg.com/images/wow/icons/large/inv_misc_questionmark.jpg'
+    }
 }
 
-const findItemBySlotType = (equipment: any, slotType: string) => {
+const findItemBySlotType = (equipment: any = [], slotType: string) => {
     return equipment.find((item: any) => item.slot.type === slotType) || {
         slot: {type: slotType},
         item: {id: 999999},
@@ -50,7 +53,8 @@ const findEquipmentBySlotTypes = (equipment: any, slots: string[]) => {
 export default async function Page({params}: { params: { name: string } }) {
     const cookieToken = cookies().get(process.env.BNET_COOKIE_NAME!)?.value
     const {token} = (cookieToken ? {token: cookieToken} : (await getBlizzardToken()))
-    const characterName = params.name.toLowerCase()
+    const characterName = decodeURIComponent(params.name.toLowerCase())
+
     const {fetchMemberInfo, fetchEquipment, isLoggedUserInGuild, getCharacterTalents} = new WoWService()
     const [isGuildMember, characterInfo, equipment, talents] = await Promise.all([
         isLoggedUserInGuild(),
@@ -64,6 +68,9 @@ export default async function Page({params}: { params: { name: string } }) {
     const group2 = findEquipmentBySlotTypes(equipmentData, ['HANDS', 'WAIST', 'LEGS', 'FEET', 'FINGER_1', 'FINGER_2', 'TRINKET_1', 'TRINKET_2'])
     const group3 = findEquipmentBySlotTypes(equipmentData, ['MAIN_HAND', 'OFF_HAND', 'RANGED'])
 
+    if (characterInfo.error) {
+        return <div>Character not found</div>
+    }
     return (
         <div>
             <div className="mx-auto max-w-6xl px-4 flex justify-evenly items-center">
@@ -73,9 +80,9 @@ export default async function Page({params}: { params: { name: string } }) {
                                          className="rounded-full border-3 border-gold"/>
                     </div>
                     <div className="grid gap-1.5">
-                        <h2 className="font-semibold text-lg">{characterInfo.name}</h2>
+                        <h2 className="font-semibold text-lg">{characterInfo?.name}</h2>
                         <p className="text-sm text-muted">
-                            Level {characterInfo.level} {characterInfo.race.name} {characterInfo.character_class?.name}
+                            Level {characterInfo?.level} {characterInfo?.race?.name} {characterInfo?.character_class?.name}
                         </p>
                         <p className="text-sm text-muted">Last online: <span
                             className={`font-bold relative`}>
@@ -107,10 +114,10 @@ export default async function Page({params}: { params: { name: string } }) {
                         label: 'Gear', name: 'gear', children: <CharacterGear
                             characterName={characterName}
                             gear={{
-                            group1,
-                            group2,
-                            group3
-                        }} token={token}/>
+                                group1,
+                                group2,
+                                group3
+                            }} token={token}/>
                     },
                     {
                         label: 'Talents', name: 'talents', children: <CharacterTalents
