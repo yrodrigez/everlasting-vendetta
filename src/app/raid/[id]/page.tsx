@@ -8,9 +8,10 @@ import AssistActions from "@/app/raid/components/AssistActions";
 import RaidTimeInfo from "@/app/raid/components/RaidTimeInfo";
 import {KpisView} from "@/app/raid/components/KpisView";
 import {redirect} from "next/navigation";
-import {faGift} from "@fortawesome/free-solid-svg-icons";
+import {faChevronLeft, faChevronRight, faGift} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import Link from "next/link";
+import {RaidOptions} from "@/app/raid/components/RaidOptions";
 
 const raidResetAttr = 'raid_date, id, name, min_lvl, image_url, time, end_date'
 
@@ -54,6 +55,25 @@ async function fetchResetFromId(supabase: any, id: string) {
         .eq('id', id)
         .limit(1)
         .single()
+}
+
+function findPreviousAndNextReset(supabase: any, resetDate: any) {
+
+    return Promise.all([
+        supabase.from('raid_resets')
+            .select('id')
+            .lt('raid_date', resetDate)
+            .gte('raid_date', '2024-03-21')
+            .order('raid_date', {ascending: false})
+            .limit(1)
+            .single(),
+        supabase.from('raid_resets')
+            .select('id')
+            .gt('raid_date', resetDate)
+            .order('raid_date', {ascending: true})
+            .limit(1)
+            .single()
+    ])
 }
 
 export default async function ({params}: { params: { id: string } }) {
@@ -113,6 +133,8 @@ export default async function ({params}: { params: { id: string } }) {
 
     const hasLoot = await supabase.from('ev_loot_history').select('id').eq('raid_id', id).limit(1)
 
+    const [previousReset, nextReset] = await findPreviousAndNextReset(supabase, raidDate)
+
     return (
         <div className="w-full h-full flex flex-col relative">
             <h4 className="font-bold text-large text-gold">{raidName}</h4>
@@ -133,12 +155,14 @@ export default async function ({params}: { params: { id: string } }) {
                 participants={participants}
                 raidId={id}
             />
-            {(!hasLoot?.error && hasLoot?.data?.length) ? <Link
-                href={`/raid/${id}/loot`}
-                className="absolute top-4 right-4 px-2 py-1"
-            >
-                <FontAwesomeIcon icon={faGift}/>
-            </Link> : null}
+            <div className="absolute top-4 right-4 z-50">
+                <RaidOptions
+                    currentResetId={id}
+                    hasLoot={!!hasLoot?.data?.length}
+                    previousResetId={previousReset?.data?.id}
+                    nextResetId={nextReset?.data?.id}
+                />
+            </div>
         </div>
     )
 }

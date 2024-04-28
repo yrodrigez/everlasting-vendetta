@@ -86,7 +86,10 @@ export default async function ({params}: { params: { id: string } }) {
 
     return (
         <div>
-            <Link href={`/raid/${params.id}`} className={'mb-2'}>
+            <Link
+                href={`/raid/${params.id}`} className={`mt-2 
+                    px-2 py-3 text-white hover:text-gold 
+                `}>
                 <FontAwesomeIcon icon={faArrowLeft} className={'mr-2'}/>
                 Back to raid
             </Link>
