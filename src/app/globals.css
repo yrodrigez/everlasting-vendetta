@@ -62,6 +62,73 @@ body {
     }
 }
 
+@keyframes glow {
+    0%, 100% {
+        box-shadow: 0 0 10px #c9a866, 0 0 20px #c9a866;
+    }
+    5% {
+        box-shadow: 2px 2px 12px #c9a866, -2px -2px 22px #c9a866;
+    }
+    10% {
+        box-shadow: -2px -2px 14px #c9a866, 2px 2px 24px #c9a866;
+    }
+    15% {
+        box-shadow: 4px 4px 16px #c9a866, -4px -4px 26px #c9a866;
+    }
+    20% {
+        box-shadow: -4px -4px 18px #c9a866, 4px 4px 28px #c9a866;
+    }
+    25% {
+        box-shadow: 6px 6px 20px #c9a866, -6px -6px 30px #c9a866;
+    }
+    30% {
+        box-shadow: -6px -6px 22px #c9a866, 6px 6px 32px #c9a866;
+    }
+    35% {
+        box-shadow: 8px 8px 24px #c9a866, -8px -8px 34px #c9a866;
+    }
+    40% {
+        box-shadow: -8px -8px 26px #c9a866, 8px 8px 36px #c9a866;
+    }
+    45% {
+        box-shadow: 10px 10px 28px #c9a866, -10px -10px 38px #c9a866;
+    }
+    50% {
+        box-shadow: -10px -10px 30px #c9a866, 10px 10px 40px #c9a866;
+    }
+    55% {
+        box-shadow: 12px 12px 32px #c9a866, -12px -12px 42px #c9a866;
+    }
+    60% {
+        box-shadow: -12px -12px 34px #c9a866, 12px 12px 44px #c9a866;
+    }
+    65% {
+        box-shadow: 14px 14px 36px #c9a866, -14px -14px 46px #c9a866;
+    }
+    70% {
+        box-shadow: -14px -14px 38px #c9a866, 14px 14px 48px #c9a866;
+    }
+    75% {
+        box-shadow: 16px 16px 40px #c9a866, -16px -16px 50px #c9a866;
+    }
+    80% {
+        box-shadow: -16px -16px 42px #c9a866, 16px 16px 52px #c9a866;
+    }
+    85% {
+        box-shadow: 18px 18px 44px #c9a866, -18px -18px 54px #c9a866;
+    }
+    90% {
+        box-shadow: -18px -18px 46px #c9a866, 18px 18px 56px #c9a866;
+    }
+    95% {
+        box-shadow: 20px 20px 48px #c9a866, -20px -20px 58px #c9a866;
+    }
+}
+
+.glow-animation {
+    animation: glow 20s infinite alternate ease-in-out;
+}
+
 .scrollbar-pill {
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 253, 231, 1) transparent;

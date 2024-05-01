@@ -148,6 +148,7 @@ export default async function ({params}: { params: { id: string } }) {
             <RaidTimeInfo
                 raidTime={raidTime}
                 raidDate={raidDate}
+                raidEndDate={end_date}
             />
             <AssistActions raidId={id} minLvl={min_lvl} endDate={end_date} participants={participants}/>
             <RaidParticipants

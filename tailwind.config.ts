@@ -10,6 +10,10 @@ const config: Config = {
     ],
     theme: {
         extend: {
+            dropShadow: {
+                glow: '0 4px 6px -1px rgba(201, 168, 102, 0.1), 0 2px 4px -2px rgba(201, 168, 102, 0.1)',
+                sunrays: '0 0 10px #c9a866, 0 0 20px #c9a866, 0 0 40px #c9a866, 0 0 60px #c9a866',
+            },
             backgroundImage: {
                 "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
                 "gradient-conic":

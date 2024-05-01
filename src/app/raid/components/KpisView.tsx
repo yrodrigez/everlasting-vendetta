@@ -55,7 +55,6 @@ export function KpisView({participants, raidId, raidInProgress}: {
 
     return (
         <div className="flex flex-col gap-2 text-sm">
-
             <div className="flex flex-col">
                 {raidInProgress && <span>Raiders for today:</span>}
                 <div className="flex gap-2">

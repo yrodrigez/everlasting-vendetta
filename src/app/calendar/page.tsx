@@ -91,6 +91,7 @@ export default async function Page() {
         {raidResets.map((raidReset: any, index: number) => {
 
             return <RaidResetCard
+                raidEndDate={raidReset.end_date}
                 id={raidReset.id}
                 key={index}
                 raidName={raidReset.name}

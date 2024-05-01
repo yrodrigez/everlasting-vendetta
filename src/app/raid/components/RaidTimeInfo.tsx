@@ -3,8 +3,13 @@ import moment from "moment/moment";
 import {RaidTimer} from "@/app/raid/components/RaidTimer";
 
 
-export default function RaidTimeInfo({raidDate, raidTime, }: { raidDate: string, raidTime: string }) {
+export default function RaidTimeInfo({raidDate, raidTime, raidEndDate}: {
+    raidDate: string,
+    raidTime: string,
+    raidEndDate: string
+}) {
     const raidDateTime = moment(`${raidDate} ${raidTime}`, 'YYYY-MM-DD HH:mm')
+    const isRaidOver = moment().isAfter(moment(`${raidEndDate} ${raidTime}`, 'YYYY-MM-DD HH:mm'))
     const currentTime = moment()
     const diff = raidDateTime.diff(currentTime)
     const duration = moment.duration(diff)
@@ -18,14 +23,17 @@ export default function RaidTimeInfo({raidDate, raidTime, }: { raidDate: string,
     }
 
     return (
-        <small
-            className={`${timeToGo.inProgress ? 'text-yellow-500 blink' : !timeToGo.isToday ? 'text-green-500' : 'text-red-500'}`}>
-            {timeToGo.days <= 0 ? moment(`${raidDate} ${raidTime}`, 'YYYY-MM-DD HH:mm').isBefore(moment()) ? 'In progress' :
-                    <RaidTimer timeToGo={
-                        moment(`${raidDate} ${raidTime}`, 'YYYY-MM-DD HH:mm').format('YYYY-MM-DD HH:mm')
-                    }/> :
-                `${timeToGo.days} days to go`
-            }
-        </small>
+        isRaidOver ? null :
+            <small
+                className={`${timeToGo.inProgress && !isRaidOver ? 'text-yellow-500 blink' : (!timeToGo.isToday && !isRaidOver) ? 'text-green-500' : 'text-red-500'}`}>
+                {
+                    isRaidOver ? 'Raid is over' :
+                        timeToGo.days <= 0 ? moment(`${raidDate} ${raidTime}`, 'YYYY-MM-DD HH:mm').isBefore(moment()) ? 'In progress' :
+                                <RaidTimer timeToGo={
+                                    moment(`${raidDate} ${raidTime}`, 'YYYY-MM-DD HH:mm').format('YYYY-MM-DD HH:mm')
+                                }/> :
+                            `${timeToGo.days} days to go`
+                }
+            </small>
     );
 }
