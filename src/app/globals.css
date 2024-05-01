@@ -126,7 +126,7 @@ body {
 }
 
 .glow-animation {
-    animation: glow 20s infinite alternate ease-in-out;
+    animation: glow 65s infinite alternate ease-in-out;
 }
 
 .scrollbar-pill {
