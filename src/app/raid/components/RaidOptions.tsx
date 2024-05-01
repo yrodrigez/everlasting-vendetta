@@ -3,6 +3,7 @@ import {Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger} from "@ne
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faBackward, faCalendarDay, faForward, faGear, faGift} from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
+import {useRouter} from "next/navigation";
 
 export function RaidOptions({nextResetId, previousResetId, currentResetId, hasLoot}: {
     nextResetId: string,
@@ -10,6 +11,7 @@ export function RaidOptions({nextResetId, previousResetId, currentResetId, hasLo
     currentResetId: string,
     hasLoot: boolean
 }) {
+    const router = useRouter()
     return (
         <Dropdown>
             <DropdownTrigger>
@@ -20,42 +22,58 @@ export function RaidOptions({nextResetId, previousResetId, currentResetId, hasLo
                     <FontAwesomeIcon icon={faGear}/>
                 </Button>
             </DropdownTrigger>
-            <DropdownMenu aria-label="Raid actions">
+            <DropdownMenu
+                onAction={(key) => {
+                    if (key === 'loot') {
+                        router.push(`/raid/${currentResetId}/loot`, {
+                            scroll: false
+
+                        })
+                    }
+                    if(key === 'current') {
+                        router.push(`/raid/current`)
+                    }
+
+                    if (key === 'next') {
+                        router.push(`/raid/${nextResetId}`)
+                    }
+
+                    if (key === 'previous') {
+                        router.push(`/raid/${previousResetId}`)
+                    }
+
+                }}
+                aria-label="Raid actions">
                 <DropdownItem
                     isDisabled={!nextResetId}
+                    key={'next'}
+                    className="flex items-center gap-2 justify-between"
                 >
-                    <Link
-                        href={`/raid/${nextResetId}`}
-                        className="flex items-center gap-2 justify-between">
-                        Next
-                        <FontAwesomeIcon icon={faForward}/>
-                    </Link>
+                    <div className="flex items-center gap-2 justify-between">
+                        Next <FontAwesomeIcon icon={faForward}/>
+                    </div>
                 </DropdownItem>
                 <DropdownItem
+                    key={'previous'}
                     isDisabled={!previousResetId}
                 >
-                    <Link
-                        href={`/raid/${previousResetId}`}
-                        className="flex items-center gap-2 justify-between">
-                        Previous
-                        <FontAwesomeIcon icon={faBackward}/>
-                    </Link>
+                    <div className="flex items-center gap-2 justify-between">
+                        Previous <FontAwesomeIcon icon={faBackward}/>
+                    </div>
                 </DropdownItem>
-                <DropdownItem>
-                    <Link
-                        href={`/raid/current`}
-                        className="flex items-center gap-2 justify-between">
-                        Current
-                        <FontAwesomeIcon icon={faCalendarDay}/>
-                    </Link>
+                <DropdownItem
+                    key={'current'}
+                >
+                    <div className="flex items-center gap-2 justify-between">
+                        Current <FontAwesomeIcon icon={faCalendarDay}/>
+                    </div>
                 </DropdownItem>
-                <DropdownItem isDisabled={!hasLoot}>
-                    <Link
-                        href={`/raid/${currentResetId}/loot`}
-                        className="flex items-center gap-2 justify-between">
-                        Loot
-                        <FontAwesomeIcon icon={faGift}/>
-                    </Link>
+                <DropdownItem
+                    key={'loot'}
+                    isDisabled={!hasLoot}>
+                    <div className="flex items-center gap-2 justify-between">
+                        Loot <FontAwesomeIcon icon={faGift}/>
+                    </div>
                 </DropdownItem>
             </DropdownMenu>
         </Dropdown>

@@ -39,7 +39,7 @@ const Item = ({item}: { item: Item }) => {
 export function LootItem({loot}: { loot: CharacterWithLoot }) {
     useWoWZamingCss() // This is a custom hook that loads the WoW Zaming CSS
 
-    const [characterAvatar, setCharacterAvatar] = useState<string | null | undefined>(null)
+    const [characterAvatar, setCharacterAvatar] = useState<string | null | undefined>('/avatar-anon.png')
     useEffect(() => {
         if (loot.character === '_disenchanted') {
             return
