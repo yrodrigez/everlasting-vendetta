@@ -8,10 +8,11 @@ import AssistActions from "@/app/raid/components/AssistActions";
 import RaidTimeInfo from "@/app/raid/components/RaidTimeInfo";
 import {KpisView} from "@/app/raid/components/KpisView";
 import {redirect} from "next/navigation";
-import {faChevronLeft, faChevronRight, faGift} from "@fortawesome/free-solid-svg-icons";
+import {faCartPlus, faChevronLeft, faChevronRight, faGift} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 import {RaidOptions} from "@/app/raid/components/RaidOptions";
+import {Button, Tooltip} from "@nextui-org/react";
 
 const raidResetAttr = 'raid_date, id, name, min_lvl, image_url, time, end_date'
 
@@ -158,7 +159,7 @@ export default async function ({params}: { params: { id: string } }) {
                 participants={participants}
                 raidId={id}
             />
-            <div className="absolute top-4 right-4 z-50">
+            <div className="absolute top-4 right-4 z-50 flex flex-col items-center gap-2">
                 <RaidOptions
                     currentResetId={id}
                     hasLoot={!!hasLoot?.data?.length}
@@ -166,6 +167,30 @@ export default async function ({params}: { params: { id: string } }) {
                     nextResetId={nextReset?.data?.id}
                     raidStarted={raidStarted}
                 />
+                <Link
+                    href={`/raid/${id}/soft-reserv`}>
+                    <Tooltip
+                        content="Soft Reservations"
+                        placement="right"
+                    >
+                        <Button className="bg-moss text-default font-bold rounded" isIconOnly>
+                            <FontAwesomeIcon icon={faCartPlus}/>
+                        </Button>
+                    </Tooltip>
+                </Link>
+                {!!hasLoot?.data?.length && (
+                    <Link
+                        href={`/raid/${id}/loot`}>
+                        <Tooltip
+                            content="Loot"
+                            placement="right"
+                        >
+                            <Button className="bg-moss text-default font-bold rounded" isIconOnly>
+                                <FontAwesomeIcon icon={faGift}/>
+                            </Button>
+                        </Tooltip>
+                    </Link>
+                )}
             </div>
         </div>
     )

@@ -21,8 +21,7 @@ export function RaidOptions({
         <Dropdown>
             <DropdownTrigger>
                 <Button
-                    variant={'light'}
-                    className={'rounded-full bg-transparent text-default hover:text-gold hover:bg-wood'}
+                    className={'rounded bg-transparent text-default hover:bg-wood bg-moss'}
                     isIconOnly>
                     <FontAwesomeIcon icon={faGear}/>
                 </Button>
@@ -72,11 +71,7 @@ export function RaidOptions({
                         Current <FontAwesomeIcon icon={faCalendarDay}/>
                     </div>
                 </DropdownItem>
-                <DropdownItem key={'soft-reserv'}>
-                    <div className="flex items-center gap-2 justify-between">
-                        Soft reserv <FontAwesomeIcon icon={faCartPlus}/>
-                    </div>
-                </DropdownItem>
+
                 <DropdownItem
                     key={'loot'}
                     isDisabled={!hasLoot}>
