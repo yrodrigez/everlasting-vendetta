@@ -5,9 +5,10 @@ import {useReservations} from "@/app/raid/[id]/soft-reserv/useReservations";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faLock, faLockOpen} from "@fortawesome/free-solid-svg-icons";
 import {ExportToGargul} from "@/app/raid/[id]/soft-reserv/ExportToGargul";
+import {ShowReservations} from "@/app/raid/[id]/soft-reserv/ShowReservations";
 
 export default function AdminPanel({isAdmin, resetId}: { isAdmin: boolean, resetId: string }) {
-    const {isReservationsOpen, setIsReservationsOpen, reservationsByItem} = useReservations(resetId)
+    const {isReservationsOpen, setIsReservationsOpen, reservationsByItem, items} = useReservations(resetId)
     return (
         <div
             className={'flex flex-col gap-2'}
@@ -33,6 +34,7 @@ export default function AdminPanel({isAdmin, resetId}: { isAdmin: boolean, reset
                 reservationsByItem={reservationsByItem}
                 isReservationsOpen={isReservationsOpen}
             />
+            {(isAdmin || !isReservationsOpen) ? <ShowReservations items={items}/> : null}
         </div>
     )
 }

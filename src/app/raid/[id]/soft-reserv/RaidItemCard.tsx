@@ -7,7 +7,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCartPlus, faClose, faObjectGroup, faTrash, faUserGroup} from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 
-const ItemTooltip = ({item, qualityColor}: {
+export const ItemTooltip = ({item, qualityColor}: {
     item: RaidItem,
     qualityColor: 'poor' | 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'
 }) => {
