@@ -59,9 +59,7 @@ export default async function Page({params}: { params: { id: string } }) {
 
     return (
         <div className="w-full flex-col flex h-full justify-between relative">
-            <div className={
-                'absolute -top-0 -left-72 w-64 h-64 z-10 border-gold border rounded-md'
-            }>
+            <div className={'absolute -top-0 -left-72 w-64 h-64 z-10 border-gold border rounded-md'}>
                 <YourReservations
                     resetId={resetId}
                     initialReservedItems={reservations}
@@ -72,9 +70,7 @@ export default async function Page({params}: { params: { id: string } }) {
                 initialReservedItems={reservations}
                 resetId={resetId}
             />
-            <div className={
-                'absolute -top-0 -right-24 z-10'
-            }>
+            <div className={'absolute -top-0 -right-24 z-10'}>
                 <AdminPanel
                     isAdmin={!!data}
                     resetId={resetId}

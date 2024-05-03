@@ -168,7 +168,14 @@ export const useReservations = (resetId: string, initialItems: Reservation[] = [
         setLoading(true)
         const isError = await reserveItem(supabase, resetId, itemId, selectedCharacter.id)
         setLoading(false)
-        if (isError) toast.error('Only 2 reservations per save is allowed.')
+        if (isError) {
+            const audio = new Audio('/sounds/HumanMale_err_itemmaxcount01.ogg');
+            audio.play().then().catch(console.error)
+            toast.error('Only 2 reservations per save is allowed.')
+        } else {
+            const audio = new Audio('/sounds/LootCoinSmall.ogg');
+            audio.play().then().catch(console.error)
+        }
     }
 
     const remove = async (itemId: number) => {
@@ -176,6 +183,8 @@ export const useReservations = (resetId: string, initialItems: Reservation[] = [
         setLoading(true)
         await removeReservation(supabase, resetId, itemId, selectedCharacter.id)
         setLoading(false)
+        const audio = new Audio('/sounds/PutDownCloth_Leather01.ogg');
+        audio.play().then().catch(console.error)
     }
 
     const toggleReservationsOpen = async () => {
