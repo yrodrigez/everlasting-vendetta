@@ -3,7 +3,7 @@ import {persist} from 'zustand/middleware';
 
 const storeKey = 'bnetProfile'
 
-interface Character {
+export interface Character {
     id: number
     name: string
     level: number

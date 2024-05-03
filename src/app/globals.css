@@ -12,6 +12,7 @@
     --epic-rgb: 163, 53, 238;
     --common-rgb: 255, 255, 255;
     --uncommon-rgb: 0, 255, 0;
+    --poor-rgb: 128, 128, 128;
     --relic-rgb: 229, 204, 128;
     --pink-rgb: 226, 104, 168;
     --moss-rgb: 62, 92, 79;
@@ -256,6 +257,65 @@ th.text-foreground-500 {
     color: rgb(var(--gold-rgb));
 }
 
+.bg-rare {
+    background-color: rgb(var(--rare-rgb));
+}
+
+.bg-epic {
+    background-color: rgb(var(--epic-rgb));
+}
+
+.bg-common {
+    background-color: rgb(var(--common-rgb));
+}
+
+.bg-uncommon {
+    background-color: rgb(var(--uncommon-rgb));
+}
+
+.bg-relic {
+    background-color: rgb(var(--relic-rgb));
+}
+
+.bg-pink {
+    background-color: rgb(var(--pink-rgb));
+}
+
+.bg-gold {
+    background-color: rgb(var(--gold-rgb));
+}
+
+.bg-legendary {
+    background-color: rgb(var(--legendary-rgb));
+}
+
+.bg-moss {
+    background-color: rgb(var(--moss-rgb));
+}
+
+.bg-gradient-legendary {
+    background: linear-gradient(to bottom, rgb(204, 102, 0) 0%, rgb(255, 128, 0) 100%);
+}
+
+.bg-gradient-rare {
+    background: linear-gradient(to bottom, rgb(0, 90, 204) 0%, rgb(0, 112, 255) 100%);
+}
+
+.bg-gradient-epic {
+    background: linear-gradient(to bottom, rgb(131, 42, 191) 0%, rgb(163, 53, 238) 100%);
+}
+
+.bg-gradient-common {
+    background: linear-gradient(to bottom, rgb(230, 230, 230) 0%, rgb(255, 255, 255) 100%);
+}
+
+.bg-gradient-uncommon {
+    background: linear-gradient(to bottom, rgb(0, 178, 0) 0%, rgb(2, 162, 2) 100%);
+}
+
+.bg-gradient-poor {
+    background: linear-gradient(to bottom, rgb(102, 102, 102) 0%, rgb(128, 128, 128) 100%);
+}
 
 
 

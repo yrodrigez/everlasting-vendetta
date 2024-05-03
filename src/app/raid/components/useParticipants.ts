@@ -21,7 +21,7 @@ export function useParticipants(raidId: string, initialParticipants: any[]) {
                 if (error) {
                     console.error(error)
                 }
-                setParticipants(data)
+                setParticipants(data ?? [])
             }).subscribe()
         return () => {
             supabase.removeChannel(raidParticipantChannel)

@@ -1,8 +1,11 @@
 'use client'
 import React, {useEffect, useState} from "react";
-import {RaidItem} from "@/app/calendar/components/RaidItemsList";
 
-export default function SimpleListContainer({children, minus = 160}: { children: React.ReactNode, minus?: number }) {
+export default function SimpleListContainer({children, minus = 160, className}: {
+    children: React.ReactNode,
+    minus?: number,
+    className?: string
+}) {
     const [listMaxHeight, setListMaxHeight] = useState(0)
     useEffect(() => {
         const resizer = () => {
@@ -24,8 +27,9 @@ export default function SimpleListContainer({children, minus = 160}: { children:
     }, [])
 
     return (
-        <div className="overflow-auto w-96 scrollbar-pill flex flex-col gap-3" style={{
-            height: listMaxHeight
+        <div className={className} style={{
+            height: listMaxHeight,
+            overflow: 'auto',
         }}>
             {children}
         </div>

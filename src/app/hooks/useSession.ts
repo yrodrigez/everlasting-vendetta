@@ -1,7 +1,7 @@
 'use client'
 import {useEffect, useState} from "react";
 import {useCharacterStore} from "@/app/components/characterStore";
-import {createClientComponentClient} from "@supabase/auth-helpers-nextjs";
+import {createClientComponentClient, SupabaseClient} from "@supabase/auth-helpers-nextjs";
 import {getCookie, getLoggedInUserFromAccessToken, logout} from "@/app/util";
 import {toast} from "sonner";
 
@@ -64,9 +64,10 @@ const createClient = (token: string) => createClientComponentClient({
 export function useSession() {
     const [session, setSession] = useState<any>(null)
     const [loading, setLoading] = useState<boolean>(true)
-    const [supabase, setSupabase] = useState<any>()
+    const [supabase, setSupabase] = useState<SupabaseClient>()
     const selectedCharacter = useCharacterStore(state => state.selectedCharacter)
     const [bnetToken, setBnetToken] = useState<string | undefined>(undefined)
+    const [tokenUser, setTokenUser] = useState<any>(null)
 
     useEffect(() => {
         setSupabase(undefined)
@@ -85,6 +86,7 @@ export function useSession() {
             const newSupabaseClient = createClient(access_token)
             setSupabase(() => newSupabaseClient);
             setSession(() => getLoggedInUserFromAccessToken(access_token));
+            setTokenUser(currentCookieCharacter)
             return setLoading(false)
         }
 
@@ -98,9 +100,10 @@ export function useSession() {
             const newSupabaseClient = createClient(access_token)
             setSupabase(() => newSupabaseClient);
             setSession(() => getLoggedInUserFromAccessToken(access_token));
+            setTokenUser(getLoggedInUserFromAccessToken(access_token) ?? null)
             setLoading(false)
         })()
     }, [selectedCharacter])
 
-    return {session, selectedCharacter, supabase, bnetToken, loading}
+    return {session, selectedCharacter, supabase, bnetToken, loading, tokenUser}
 }

@@ -9,7 +9,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {useEffect, useState} from "react";
 
 
-const Item = ({item}: { item: Item }) => {
+export const ItemWithTooltip = ({item}: { item: Item }) => {
     const qualityColor = [
         'poor',
         'common',
@@ -20,16 +20,17 @@ const Item = ({item}: { item: Item }) => {
     ][item.quality]
     return (
         <Tooltip
-            className={`bg-black border border-${qualityColor} rounded max-w-64`}
+            className={`bg-black border border-${qualityColor} rounded-lg max-w-64`}
             content={
                 <div
                     dangerouslySetInnerHTML={{__html: item.tooltip || ''}}
                 />
             }
             placement="top"
+            showArrow
         >
             <Image
-                className={`rounded-lg border border-${qualityColor} block bg-cover relative`}
+                className={`rounded-lg border border-${qualityColor} block bg-cover relative min-h-10 min-w-10`}
                 src={item.icon} width={36} height={36} alt={item.name}
             />
         </Tooltip>
@@ -92,10 +93,10 @@ export function LootItem({loot}: { loot: CharacterWithLoot }) {
                 <FontAwesomeIcon icon={faArrowRightLong}/>
             </div>
             <div className={
-                `flex  gap-2 p-2 overflow-auto scrollbar-pill`
+                `flex gap-2 p-2 overflow-auto scrollbar-pill`
             }>
                 {loot.loot.map((item, i) => {
-                    return <Item key={i} item={{...item.item, id: item.itemID}}/>
+                    return <ItemWithTooltip key={i} item={{...item.item, id: item.itemID}}/>
                 })}
             </div>
         </div>

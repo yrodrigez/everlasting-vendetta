@@ -135,6 +135,8 @@ export default async function ({params}: { params: { id: string } }) {
 
     const [previousReset, nextReset] = await findPreviousAndNextReset(supabase, raidDate)
 
+    const raidStarted = moment().isAfter(raidStartDate)
+
     return (
         <div className="w-full h-full flex flex-col relative">
             <h4 className="font-bold text-large text-gold">{raidName}</h4>
@@ -162,6 +164,7 @@ export default async function ({params}: { params: { id: string } }) {
                     hasLoot={!!hasLoot?.data?.length}
                     previousResetId={previousReset?.data?.id}
                     nextResetId={nextReset?.data?.id}
+                    raidStarted={raidStarted}
                 />
             </div>
         </div>

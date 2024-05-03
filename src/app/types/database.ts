@@ -86,7 +86,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
       chat_messages: {
@@ -132,7 +132,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
       chat_room_members: {
@@ -175,7 +175,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
       chat_rooms: {
@@ -204,7 +204,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
       ev_application: {
@@ -236,6 +236,211 @@ export type Database = {
           role?: string
         }
         Relationships: []
+      }
+      ev_loot_history: {
+        Row: {
+          character: string | null
+          dateTime: string
+          id: string
+          itemID: number | null
+          offspec: number | null
+          raid_id: string
+        }
+        Insert: {
+          character?: string | null
+          dateTime?: string
+          id: string
+          itemID?: number | null
+          offspec?: number | null
+          raid_id: string
+        }
+        Update: {
+          character?: string | null
+          dateTime?: string
+          id?: string
+          itemID?: number | null
+          offspec?: number | null
+          raid_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ev_loot_history_raid_id_fkey"
+            columns: ["raid_id"]
+            isOneToOne: false
+            referencedRelation: "raid_resets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ev_member: {
+        Row: {
+          character: Json | null
+          created_at: string
+          id: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          character?: Json | null
+          created_at?: string
+          id?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Update: {
+          character?: Json | null
+          created_at?: string
+          id?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ev_member_role: {
+        Row: {
+          created_at: string
+          id: string
+          member_id: number
+          role_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          member_id: number
+          role_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          member_id?: number
+          role_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "public_ev_member_role_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: true
+            referencedRelation: "ev_member"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "public_ev_member_role_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "ev_role"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ev_raid: {
+        Row: {
+          created_at: string
+          id: string
+          min_level: number | null
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          min_level?: number | null
+          name?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          min_level?: number | null
+          name?: string
+        }
+        Relationships: []
+      }
+      ev_raid_participant: {
+        Row: {
+          created_at: string
+          details: Json | null
+          is_confirmed: boolean
+          member_id: number
+          raid_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          details?: Json | null
+          is_confirmed: boolean
+          member_id?: number
+          raid_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          details?: Json | null
+          is_confirmed?: boolean
+          member_id?: number
+          raid_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "public_member_raid_reset_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "ev_member"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "public_member_raid_reset_raid_id_fkey"
+            columns: ["raid_id"]
+            isOneToOne: false
+            referencedRelation: "raid_resets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ev_role: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      ev_role_permissions: {
+        Row: {
+          created_at: string
+          id: string
+          permission: string
+          role_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          permission: string
+          role_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          permission?: string
+          role_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "public_ev_role_permissions_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "ev_role"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       follows: {
         Row: {
@@ -270,7 +475,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
       likes: {
@@ -306,7 +511,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
       posts: {
@@ -345,7 +550,150 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
-          }
+          },
+        ]
+      }
+      raid_loot_item: {
+        Row: {
+          created_at: string
+          description: Json | null
+          id: number
+          name: string
+          raid_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: Json | null
+          id?: number
+          name: string
+          raid_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: Json | null
+          id?: number
+          name?: string
+          raid_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "public_raid_loot_item_raid_id_fkey"
+            columns: ["raid_id"]
+            isOneToOne: false
+            referencedRelation: "ev_raid"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      raid_loot_reservation: {
+        Row: {
+          created_at: string
+          id: string
+          item_id: number
+          member_id: number
+          modified_at: string | null
+          reset_id: string
+          status: string | null
+          status_color: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_id: number
+          member_id: number
+          modified_at?: string | null
+          reset_id: string
+          status?: string | null
+          status_color?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_id?: number
+          member_id?: number
+          modified_at?: string | null
+          reset_id?: string
+          status?: string | null
+          status_color?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "public_raid_loot_reservation_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "raid_loot_item"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "public_raid_loot_reservation_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "ev_member"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "public_raid_loot_reservation_reset_id_fkey"
+            columns: ["reset_id"]
+            isOneToOne: false
+            referencedRelation: "raid_resets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      raid_resets: {
+        Row: {
+          created_at: string
+          end_date: string | null
+          id: string
+          image_url: string | null
+          max_delay_days: number | null
+          min_lvl: number | null
+          modified_at: string | null
+          name: string | null
+          raid_date: string
+          raid_id: string | null
+          reservations_closed: boolean | null
+          status: string | null
+          time: string | null
+        }
+        Insert: {
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          image_url?: string | null
+          max_delay_days?: number | null
+          min_lvl?: number | null
+          modified_at?: string | null
+          name?: string | null
+          raid_date: string
+          raid_id?: string | null
+          reservations_closed?: boolean | null
+          status?: string | null
+          time?: string | null
+        }
+        Update: {
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          image_url?: string | null
+          max_delay_days?: number | null
+          min_lvl?: number | null
+          modified_at?: string | null
+          name?: string | null
+          raid_date?: string
+          raid_id?: string | null
+          reservations_closed?: boolean | null
+          status?: string | null
+          time?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "raid_resets_raid_id_fkey"
+            columns: ["raid_id"]
+            isOneToOne: false
+            referencedRelation: "ev_raid"
+            referencedColumns: ["id"]
+          },
         ]
       }
       recipients: {
@@ -404,7 +752,7 @@ export type Database = {
             isOneToOne: true
             referencedRelation: "users"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
     }
@@ -418,6 +766,21 @@ export type Database = {
       }
     }
     Functions: {
+      count_reservations:
+        | {
+            Args: {
+              member_id_arg: number
+              reset_id_arg: number
+            }
+            Returns: number
+          }
+        | {
+            Args: {
+              member_id_arg: number
+              reset_id_arg: string
+            }
+            Returns: number
+          }
       get_accessible_rooms: {
         Args: {
           user_id: string
@@ -453,14 +816,16 @@ export type Database = {
   }
 }
 
+type PublicSchema = Database[Extract<keyof Database, "public">]
+
 export type Tables<
   PublicTableNameOrOptions extends
-    | keyof (Database["public"]["Tables"] & Database["public"]["Views"])
+    | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
     | { schema: keyof Database },
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
     ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
         Database[PublicTableNameOrOptions["schema"]]["Views"])
-    : never = never
+    : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
       Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
@@ -468,67 +833,67 @@ export type Tables<
     }
     ? R
     : never
-  : PublicTableNameOrOptions extends keyof (Database["public"]["Tables"] &
-      Database["public"]["Views"])
-  ? (Database["public"]["Tables"] &
-      Database["public"]["Views"])[PublicTableNameOrOptions] extends {
-      Row: infer R
-    }
-    ? R
+  : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] &
+        PublicSchema["Views"])
+    ? (PublicSchema["Tables"] &
+        PublicSchema["Views"])[PublicTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
     : never
-  : never
 
 export type TablesInsert<
   PublicTableNameOrOptions extends
-    | keyof Database["public"]["Tables"]
+    | keyof PublicSchema["Tables"]
     | { schema: keyof Database },
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
     ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
-    : never = never
+    : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
     : never
-  : PublicTableNameOrOptions extends keyof Database["public"]["Tables"]
-  ? Database["public"]["Tables"][PublicTableNameOrOptions] extends {
-      Insert: infer I
-    }
-    ? I
+  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
+    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
     : never
-  : never
 
 export type TablesUpdate<
   PublicTableNameOrOptions extends
-    | keyof Database["public"]["Tables"]
+    | keyof PublicSchema["Tables"]
     | { schema: keyof Database },
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
     ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
-    : never = never
+    : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
     : never
-  : PublicTableNameOrOptions extends keyof Database["public"]["Tables"]
-  ? Database["public"]["Tables"][PublicTableNameOrOptions] extends {
-      Update: infer U
-    }
-    ? U
+  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
+    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
     : never
-  : never
 
 export type Enums<
   PublicEnumNameOrOptions extends
-    | keyof Database["public"]["Enums"]
+    | keyof PublicSchema["Enums"]
     | { schema: keyof Database },
   EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
     ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
-    : never = never
+    : never = never,
 > = PublicEnumNameOrOptions extends { schema: keyof Database }
   ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : PublicEnumNameOrOptions extends keyof Database["public"]["Enums"]
-  ? Database["public"]["Enums"][PublicEnumNameOrOptions]
-  : never
+  : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
+    ? PublicSchema["Enums"][PublicEnumNameOrOptions]
+    : never

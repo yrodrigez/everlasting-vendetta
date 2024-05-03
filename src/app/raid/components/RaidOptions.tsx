@@ -1,15 +1,20 @@
 'use client';
 import {Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger} from "@nextui-org/react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faBackward, faCalendarDay, faForward, faGear, faGift} from "@fortawesome/free-solid-svg-icons";
-import Link from "next/link";
+import {faBackward, faCalendarDay, faForward, faGear, faGift, faCartPlus} from "@fortawesome/free-solid-svg-icons";
 import {useRouter} from "next/navigation";
 
-export function RaidOptions({nextResetId, previousResetId, currentResetId, hasLoot}: {
+export function RaidOptions({
+                                nextResetId,
+                                previousResetId,
+                                currentResetId,
+                                hasLoot,
+                            }: {
     nextResetId: string,
     previousResetId: string,
     currentResetId: string,
     hasLoot: boolean
+    raidStarted: boolean
 }) {
     const router = useRouter()
     return (
@@ -27,10 +32,9 @@ export function RaidOptions({nextResetId, previousResetId, currentResetId, hasLo
                     if (key === 'loot') {
                         router.push(`/raid/${currentResetId}/loot`, {
                             scroll: false
-
                         })
                     }
-                    if(key === 'current') {
+                    if (key === 'current') {
                         router.push(`/raid/current`)
                     }
 
@@ -41,7 +45,9 @@ export function RaidOptions({nextResetId, previousResetId, currentResetId, hasLo
                     if (key === 'previous') {
                         router.push(`/raid/${previousResetId}`)
                     }
-
+                    if(key === 'soft-reserv') {
+                        router.push(`/raid/${currentResetId}/soft-reserv`)
+                    }
                 }}
                 aria-label="Raid actions">
                 <DropdownItem
@@ -61,11 +67,14 @@ export function RaidOptions({nextResetId, previousResetId, currentResetId, hasLo
                         Previous <FontAwesomeIcon icon={faBackward}/>
                     </div>
                 </DropdownItem>
-                <DropdownItem
-                    key={'current'}
-                >
+                <DropdownItem key={'current'}>
                     <div className="flex items-center gap-2 justify-between">
                         Current <FontAwesomeIcon icon={faCalendarDay}/>
+                    </div>
+                </DropdownItem>
+                <DropdownItem key={'soft-reserv'}>
+                    <div className="flex items-center gap-2 justify-between">
+                        Soft reserv <FontAwesomeIcon icon={faCartPlus}/>
                     </div>
                 </DropdownItem>
                 <DropdownItem
