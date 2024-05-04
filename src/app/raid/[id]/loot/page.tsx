@@ -6,6 +6,7 @@ import {LootItem} from "@/app/raid/[id]/loot/components/LootItem";
 import Link from "next/link";
 import {faArrowLeft} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import NotLoggedInView from "@/app/components/NotLoggedInView";
 
 async function fetchLootHistory(supabase: any, raidId: string): Promise<RaidLoot[]> {
     const {error, data} = await supabase.from('ev_loot_history')
@@ -44,9 +45,7 @@ export default async function ({params}: { params: { id: string } }) {
 
     const isLoggedInUser = cookies().get('evToken')
     if (!isLoggedInUser) {
-        return <div>
-            You are not logged in
-        </div>
+        return <NotLoggedInView/>
     }
 
 

@@ -35,7 +35,7 @@ const config: Config = {
                 common: "#FFFFFF",
                 relic: "#e5cc80",
                 pink: "#e268a8",
-                battlenet: "#00AEFF",
+                battlenet: "#0074e0",
             },
         },
     },

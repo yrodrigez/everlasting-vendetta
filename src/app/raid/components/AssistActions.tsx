@@ -10,6 +10,7 @@ import {LateAssistance} from "@/app/raid/components/LateAssistance";
 import {TentativeAssistance} from "@/app/raid/components/TentativeAssistance";
 import DeclineAssistance from "@/app/raid/components/DeclineAssistance";
 import {useEffect} from "react";
+import NotLoggedInView from "@/app/components/NotLoggedInView";
 
 const days= ['Wed', 'Thur', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue']
 
@@ -49,7 +50,7 @@ export default function AssistActions({raidId, minLvl, endDate, participants, ha
     }
 
     if (!session) {
-        return <div className="text-red-500">You must be logged in to assist</div>
+        return <div className="text-red-500">You must be logged in to confirm</div>
     }
 
     if ((selectedCharacter?.level ?? 0) < minLvl) {

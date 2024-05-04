@@ -14,6 +14,7 @@ import Link from "next/link";
 import {RaidOptions} from "@/app/raid/components/RaidOptions";
 import {Button, Tooltip} from "@nextui-org/react";
 import {getLoggedInUserFromAccessToken} from "@/app/util";
+import NotLoggedInView from "@/app/components/NotLoggedInView";
 
 const raidResetAttr = 'raid_date, id, name, min_lvl, image_url, time, end_date'
 
@@ -81,9 +82,7 @@ function findPreviousAndNextReset(supabase: any, resetDate: any) {
 export default async function ({params}: { params: { id: string } }) {
     const isLoggedInUser = cookies().get('evToken')
     if (!isLoggedInUser?.value) {
-        return <div>
-            You are not logged in
-        </div>
+        return <NotLoggedInView/>
     }
 
     const supabase = createServerComponentClient({cookies}, {

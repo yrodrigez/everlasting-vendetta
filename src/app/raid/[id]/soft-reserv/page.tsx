@@ -8,13 +8,14 @@ import YourReservations from "@/app/raid/[id]/soft-reserv/YourReservations";
 import React from "react";
 import AdminPanel from "@/app/raid/[id]/soft-reserv/AdminPanel";
 import RaidTimeInfo from "@/app/raid/components/RaidTimeInfo";
+import NotLoggedInView from "@/app/components/NotLoggedInView";
 
 
 export default async function Page({params}: { params: { id: string } }) {
     const token = cookies().get(process.env.BNET_COOKIE_NAME!)?.value
     const evToken = cookies().get(process.env.EV_COOKIE_NAME!)?.value
     if (!token || !evToken) {
-        return <div>Not logged in</div>
+        return <NotLoggedInView/>
     }
 
 
