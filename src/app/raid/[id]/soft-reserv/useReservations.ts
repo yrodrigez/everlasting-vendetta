@@ -150,7 +150,6 @@ export const useReservations = (resetId: string, initialItems: Reservation[] = [
                 setIsReservationsOpen(isOpen)
             }).subscribe()
 
-
         return () => {
             supabase.removeChannel(isOpenChannel).then(
                 () => console.log('Unsubscribed from channel raid_resets'),

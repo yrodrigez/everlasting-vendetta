@@ -36,7 +36,7 @@ export function ShowReservations({items = []}: { items: Reservation[] }) {
         <>
             <Button
                 size={'lg'}
-                className={'bg-moss text-gold shadow-none'}
+                className={'bg-moss text-gold shadow-none rounded'}
                 onClick={onOpen}
                 isIconOnly
             >

@@ -126,8 +126,26 @@ body {
     }
 }
 
+@keyframes border-blink {
+    0%, 100% {
+        /*transparent*/
+        border-color: transparent;
+    }
+    50% {
+        border-color: rgb(var(--gold-rgb));
+    }
+}
+
+.animate-blink-and-glow {
+    animation: border-blink 2s infinite alternate ease-in-out, glow 65s infinite alternate ease-in-out;
+}
+
 .glow-animation {
     animation: glow 65s infinite alternate ease-in-out;
+}
+
+.border-blink {
+    animation: border-blink 2s infinite alternate ease-in-out;
 }
 
 .scrollbar-pill {

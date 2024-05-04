@@ -17,11 +17,12 @@ export const CheckIcon = ({className}: { className?: string }) => {
     return <FontAwesomeIcon icon={faCheck} className={className}/>
 }
 
-export default function AssistActions({raidId, minLvl, endDate, participants}: {
+export default function AssistActions({raidId, minLvl, endDate, participants, hasLootReservations = false}: {
     raidId: string,
     minLvl: number,
     endDate: string,
     participants: any[]
+    hasLootReservations?: boolean
 }) {
     const {selectedCharacter, session, loading: isSessionLoading} = useSession()
     const selectedRole = selectedCharacter?.selectedRole
@@ -66,7 +67,9 @@ export default function AssistActions({raidId, minLvl, endDate, participants}: {
                     placement={'right'}
                 >
                     <div>
-                        <ConfirmAssistance raidId={raidId}/>
+                        <ConfirmAssistance
+                            hasLootReservations={hasLootReservations}
+                            raidId={raidId}/>
                     </div>
                 </Tooltip>
                 <LateAssistance raidId={raidId}/>

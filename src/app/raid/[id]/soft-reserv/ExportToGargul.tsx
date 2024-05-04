@@ -94,7 +94,7 @@ export function ExportToGargul({isReservationsOpen, reservationsByItem}: {
                         variant={'light'}
                         isDisabled={isReservationsOpen}
                         isIconOnly
-                        className={'bg-moss text-gold'}
+                        className={'bg-moss text-gold rounded'}
                         onClick={onOpen}
                         onPress={onOpen}
                     >

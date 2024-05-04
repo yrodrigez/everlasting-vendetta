@@ -13,6 +13,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 import {RaidOptions} from "@/app/raid/components/RaidOptions";
 import {Button, Tooltip} from "@nextui-org/react";
+import {getLoggedInUserFromAccessToken} from "@/app/util";
 
 const raidResetAttr = 'raid_date, id, name, min_lvl, image_url, time, end_date'
 
@@ -79,7 +80,7 @@ function findPreviousAndNextReset(supabase: any, resetDate: any) {
 
 export default async function ({params}: { params: { id: string } }) {
     const isLoggedInUser = cookies().get('evToken')
-    if (!isLoggedInUser) {
+    if (!isLoggedInUser?.value) {
         return <div>
             You are not logged in
         </div>
@@ -133,6 +134,12 @@ export default async function ({params}: { params: { id: string } }) {
     const raidInProgress = moment().isBetween(raidStartDate, raidEndDate)
 
     const hasLoot = await supabase.from('ev_loot_history').select('id').eq('raid_id', id).limit(1)
+    const loggedInUser = getLoggedInUserFromAccessToken(isLoggedInUser.value)
+    const hasLootReservations = await supabase.from('raid_loot_reservation')
+        .select('id')
+        .eq('member_id', loggedInUser?.id)
+        .eq('reset_id', id)
+        .limit(1)
 
     const [previousReset, nextReset] = await findPreviousAndNextReset(supabase, raidDate)
 
@@ -153,7 +160,13 @@ export default async function ({params}: { params: { id: string } }) {
                 raidDate={raidDate}
                 raidEndDate={end_date}
             />
-            <AssistActions raidId={id} minLvl={min_lvl} endDate={end_date} participants={participants}/>
+            <AssistActions
+                hasLootReservations={!!hasLootReservations?.data?.length}
+                raidId={id}
+                minLvl={min_lvl}
+                endDate={end_date}
+                participants={participants}
+            />
             <RaidParticipants
                 raidInProgress={raidInProgress}
                 participants={participants}
@@ -173,7 +186,7 @@ export default async function ({params}: { params: { id: string } }) {
                         content="Soft Reservations"
                         placement="right"
                     >
-                        <Button className="bg-moss text-default font-bold rounded" isIconOnly>
+                        <Button className={`bg-moss text-default font-bold rounded ${!hasLootReservations?.data?.length ? 'shadow-2xl shadow-gold border-2 animate-blink-and-glow': ''}`} isIconOnly>
                             <FontAwesomeIcon icon={faCartPlus}/>
                         </Button>
                     </Tooltip>

@@ -21,7 +21,7 @@ export default function YourReservations({resetId, initialReservedItems}: {
         setStateReservations(yourReservations)
     }, [yourReservations])
     return <div
-        className={"flex flex-col gap-2 p-2 relative w-full h-full"}
+        className={"flex flex-col gap-2 relative w-full"}
     >
         {!isReservationsOpen && (
             <div className={
@@ -33,7 +33,7 @@ export default function YourReservations({resetId, initialReservedItems}: {
         }
 
         <div className={
-            `flex flex-col justify-between p-2 rounded-md`
+            `flex flex-col justify-between rounded-md`
         }>
             <h3 className="text-lg font-bold">Your reserved items:</h3>
         </div>

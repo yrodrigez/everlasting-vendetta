@@ -7,9 +7,10 @@ import {faArrowLeft, faBackward, faLock, faLockOpen} from "@fortawesome/free-sol
 import {ExportToGargul} from "@/app/raid/[id]/soft-reserv/ExportToGargul";
 import {ShowReservations} from "@/app/raid/[id]/soft-reserv/ShowReservations";
 import Link from "next/link";
+import ShowReserveRules from "@/app/raid/[id]/soft-reserv/ShowReserveRules";
 
 export default function AdminPanel({isAdmin, resetId}: { isAdmin: boolean, resetId: string }) {
-    const {isReservationsOpen, setIsReservationsOpen, reservationsByItem, items} = useReservations(resetId)
+    const {isReservationsOpen, setIsReservationsOpen, reservationsByItem, items, loading} = useReservations(resetId)
     return (
         <div
             className={'flex flex-col gap-2'}
@@ -20,7 +21,7 @@ export default function AdminPanel({isAdmin, resetId}: { isAdmin: boolean, reset
                     placement={'right'}
                 >
                     <Button
-                        className={'bg-moss text-gold'}
+                        className={'bg-moss text-gold rounded'}
                         size={'lg'}
                         variant={'light'}
                         isIconOnly>
@@ -28,28 +29,31 @@ export default function AdminPanel({isAdmin, resetId}: { isAdmin: boolean, reset
                     </Button>
                 </Tooltip>
             </Link>
-            <Tooltip
-                content={isAdmin ? (isReservationsOpen ? 'Close reservations' : 'Open reservations') : isReservationsOpen ? 'Reservations are open' : 'Reservations are closed'}
-                placement={'right'}
-            >
-                <div>
-                    <Button
-                        onClick={setIsReservationsOpen}
-                        disabled={!isAdmin}
-                        isDisabled={!isAdmin}
-                        className={'bg-moss text-gold'}
-                        size={'lg'}
-                        variant={'light'}
-                        isIconOnly>
-                        <FontAwesomeIcon icon={isReservationsOpen ? faLockOpen : faLock}/>
-                    </Button>
-                </div>
-            </Tooltip>
-            <ExportToGargul
-                reservationsByItem={reservationsByItem}
-                isReservationsOpen={isReservationsOpen}
-            />
-            {(isAdmin || !isReservationsOpen) ? <ShowReservations items={items}/> : null}
+            <ShowReserveRules/>
+            {loading === false ? (<>
+                <Tooltip
+                    content={isAdmin ? (isReservationsOpen ? 'Close reservations' : 'Open reservations') : isReservationsOpen ? 'Reservations are open' : 'Reservations are closed'}
+                    placement={'right'}
+                >
+                    <div>
+                        <Button
+                            onClick={setIsReservationsOpen}
+                            disabled={!isAdmin}
+                            isDisabled={!isAdmin}
+                            className={'bg-moss text-gold rounded'}
+                            size={'lg'}
+                            variant={'light'}
+                            isIconOnly>
+                            <FontAwesomeIcon icon={isReservationsOpen ? faLockOpen : faLock}/>
+                        </Button>
+                    </div>
+                </Tooltip>
+                <ExportToGargul
+                    reservationsByItem={reservationsByItem}
+                    isReservationsOpen={isReservationsOpen}
+                />
+                {(isAdmin || !isReservationsOpen) ? <ShowReservations items={items}/> : null}
+            </>) : null}
         </div>
     )
 }

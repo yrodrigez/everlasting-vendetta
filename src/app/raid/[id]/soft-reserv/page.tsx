@@ -7,6 +7,7 @@ import {getLoggedInUserFromAccessToken} from "@/app/util";
 import YourReservations from "@/app/raid/[id]/soft-reserv/YourReservations";
 import React from "react";
 import AdminPanel from "@/app/raid/[id]/soft-reserv/AdminPanel";
+import RaidTimeInfo from "@/app/raid/components/RaidTimeInfo";
 
 
 export default async function Page({params}: { params: { id: string } }) {
@@ -29,7 +30,7 @@ export default async function Page({params}: { params: { id: string } }) {
 
     const resetId = params.id
     const resetData = await database.from('raid_resets')
-        .select('raid_id, raid:ev_raid(min_level)')
+        .select('raid_id, raid:ev_raid(min_level, name, image), raid_date, time, end_date')
         .eq('id', resetId)
         .single()
     if (!resetData.data) {
@@ -59,11 +60,36 @@ export default async function Page({params}: { params: { id: string } }) {
 
     return (
         <div className="w-full flex-col flex h-full justify-between relative">
-            <div className={'absolute -top-0 -left-72 w-64 h-64 z-10 border-gold border rounded-md'}>
-                <YourReservations
-                    resetId={resetId}
-                    initialReservedItems={reservations}
-                />
+            <div
+                className={'absolute -top-0 -left-72 w-64 z-10 border-gold border rounded-md'}>
+                <div className="relative flex w-full h-full">
+                    <div className="absolute flex p-2 rounded-md background-position-center bg-cover w-full h-full"
+                         style={{
+                             // @ts-ignore - image is a string
+                             backgroundImage: `url('/${resetData.data?.raid?.image}')`,
+                             backgroundSize: 'cover',
+                             backgroundPosition: 'center',
+                             filter: 'brightness(35%)'
+                         }}/>
+                    <div className="flex flex-col w-full h-full justify-between relative p-2">
+                        <div className="flex items-center gap-2">
+                            {/* @ts-ignore - name is a string */}
+                            <span className="text-lg font-bold">{resetData.data?.raid?.name}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <RaidTimeInfo
+                                raidDate={resetData.data.raid_date}
+                                raidTime={resetData.data.time}
+                                raidEndDate={resetData.data.end_date}
+                            />
+                        </div>
+                        <YourReservations
+                            resetId={resetId}
+                            initialReservedItems={reservations}
+                        />
+                    </div>
+
+                </div>
             </div>
             <RaidItemsList
                 items={items}

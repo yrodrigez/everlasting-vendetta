@@ -9,7 +9,7 @@ import {useState} from "react";
 import {Tooltip} from "@nextui-org/react";
 
 export const getTalentTreeIconUrl = (className: string, talentName: string) => {
-    return `/talents-spec/${className.toLowerCase()}/${talentName.replaceAll(' ', '')}.jpg`
+    return `/talents-spec/${(className ?? '').toLowerCase()}/${(talentName ?? '').replaceAll(' ', '')}.jpg`
 }
 
 export function CharacterTalents({talents, characterInfo}: {
@@ -17,7 +17,7 @@ export function CharacterTalents({talents, characterInfo}: {
     characterInfo?: any
 }) {
     const talentGroups = (talents?.specialization_groups ?? []).map((group: any) => {
-        const specializationName = group.specializations.sort((a: any, b: any) => {
+        const specializationName = (group.specializations ?? []).sort((a: any, b: any) => {
             return b.spent_points - a.spent_points
         })[0]?.specialization_name
         return {
