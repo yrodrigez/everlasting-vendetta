@@ -29,9 +29,15 @@ export async function POST(request: NextRequest) {
         },
     });
 
+    if (!evToken.ok) {
+        cookies().delete(process.env.BNET_COOKIE_NAME!)
+        return NextResponse.json({error: 'Error fetching EV token: ' + evToken.statusText})
+    }
+
 
     const evTokenData = await evToken.json()
     if (evTokenData.error) {
+        cookies().delete(process.env.BNET_COOKIE_NAME!)
         return NextResponse.json({error: 'Error fetching EV token: ' + evTokenData.error})
     }
 
