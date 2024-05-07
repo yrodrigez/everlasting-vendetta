@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export default function NotLoggedInView() {
     const path = usePathname()
-    const loginPath = process.env.BNET_LOGIN_URI!
+    const loginPath = '/api/v1/oauth/bnet/auth'
     const loginUrl = `${loginPath}${path ? `?redirectedFrom=${encodeURIComponent(path)}` : ''}`
     return (
         <div className={'flex flex-col gap-2 w-full h-full items-center justify-center'}>

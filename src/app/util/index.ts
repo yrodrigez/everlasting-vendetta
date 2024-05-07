@@ -15,7 +15,7 @@ export function getLoggedInUserFromAccessToken(accessToken: string) {
 
         return payload.wow_account
     } catch (e) {
-        console.error('Error parsing access token', e)
+        //console.error('Error parsing access token', e)
         return null
     }
 }

@@ -81,13 +81,15 @@ export function useSession() {
         setBnetToken(bnetToken);
 
         const access_token = getCookie('evToken')
-        const currentCookieCharacter = getLoggedInUserFromAccessToken(access_token ?? '')
-        if (currentCookieCharacter?.id === selectedCharacter.id && access_token) { // If the selected character is the same as the one in the cookie, we can use the current session
-            const newSupabaseClient = createClient(access_token)
-            setSupabase(() => newSupabaseClient);
-            setSession(() => getLoggedInUserFromAccessToken(access_token));
-            setTokenUser(currentCookieCharacter)
-            return setLoading(false)
+        if (access_token) {
+            const currentCookieCharacter = getLoggedInUserFromAccessToken(access_token)
+            if (currentCookieCharacter?.id === selectedCharacter.id) { // If the selected character is the same as the one in the cookie, we can use the current session
+                const newSupabaseClient = createClient(access_token)
+                setSupabase(() => newSupabaseClient);
+                setSession(() => getLoggedInUserFromAccessToken(access_token));
+                setTokenUser(currentCookieCharacter)
+                return setLoading(false)
+            }
         }
 
         (async () => {
