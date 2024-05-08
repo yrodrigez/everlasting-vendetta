@@ -39,6 +39,7 @@ export function ShowReservations({items = []}: { items: Reservation[] }) {
                 className={'bg-moss text-gold shadow-none rounded'}
                 onClick={onOpen}
                 isIconOnly
+                isDisabled={items.length === 0}
             >
                 <FontAwesomeIcon icon={faUserGroup}/>
             </Button>
@@ -46,54 +47,58 @@ export function ShowReservations({items = []}: { items: Reservation[] }) {
                 isOpen={isOpen}
                 onClose={onClose}
                 onOpenChange={onOpenChange}
+                placement="center"
             ><ModalContent>
                 {() => (
                     <>
                         <ModalHeader>
-                            Reservations
+                            Reservations ({reservations.length})
                         </ModalHeader>
                         <ModalBody>
-                            {reservations.map((item, i) => {
-                                return <div key={i} className={'flex gap-2 justify-between p-2 items-center'}>
-                                    <span>{item.character.name}</span>
-                                    <div className="flex gap-2">
-                                        {item.reservations.map((item, i) => {
-                                            return (
-                                                <Tooltip
-                                                    className={'bg-transparent border-none shadow-none'}
-                                                    key={i}
-                                                    // @ts-ignore - nextui types are wrong
-                                                    shadow={'none'}
-                                                    placement={'right'}
-                                                    offset={20}
-                                                    content={
-                                                        <div className="flex gap">
-                                                            <ItemTooltip item={item}
-                                                                         qualityColor={[
-                                                                             'poor',
-                                                                             'common',
-                                                                             'uncommon',
-                                                                             'rare',
-                                                                             'epic',
-                                                                             'legendary',
-                                                                         ][item.description.quality ?? 0] as 'poor' | 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'}
-                                                            />
-                                                        </div>
-                                                    }
-                                                >
-                                                    <Image
-                                                        src={item.description.icon}
-                                                        alt={item.name}
-                                                        width={40}
-                                                        height={40}
-                                                        className={`border-gold border rounded-md`}
-                                                    />
-                                                </Tooltip>
-                                            )
-                                        })}
+                            <div className="overflow-auto max-h-[600px] w-full scrollbar-pill">
+                                {reservations.map((item, i) => {
+                                    return <div key={i} className={'flex gap-2 justify-between p-2 items-center'}>
+                                        <span>{item.character.name}</span>
+                                        <div className="flex gap-2">
+                                            {item.reservations.map((item, i) => {
+                                                return (
+                                                    <Tooltip
+                                                        className={'bg-transparent border-none shadow-none'}
+                                                        key={i}
+                                                        // @ts-ignore - nextui types are wrong
+                                                        shadow={'none'}
+                                                        placement={'right'}
+                                                        offset={20}
+                                                        content={
+                                                            <div className="flex gap">
+                                                                <ItemTooltip item={item}
+                                                                             qualityColor={[
+                                                                                 'poor',
+                                                                                 'common',
+                                                                                 'uncommon',
+                                                                                 'rare',
+                                                                                 'epic',
+                                                                                 'legendary',
+                                                                             ][item.description.quality ?? 0] as 'poor' | 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'}
+                                                                />
+                                                            </div>
+                                                        }
+                                                    >
+                                                        <Image
+                                                            src={item.description.icon}
+                                                            alt={item.name}
+                                                            width={40}
+                                                            height={40}
+                                                            className={`border-gold border rounded-md`}
+                                                        />
+                                                    </Tooltip>
+                                                )
+                                            })}
+                                        </div>
                                     </div>
-                                </div>
-                            })}
+
+                                })}
+                            </div>
                         </ModalBody>
                     </>
                 )}

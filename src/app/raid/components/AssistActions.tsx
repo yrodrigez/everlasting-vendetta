@@ -12,7 +12,7 @@ import DeclineAssistance from "@/app/raid/components/DeclineAssistance";
 import {useEffect} from "react";
 import NotLoggedInView from "@/app/components/NotLoggedInView";
 
-const days= ['Wed', 'Thur', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue']
+const days = ['Wed', 'Thur', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue']
 
 export const CheckIcon = ({className}: { className?: string }) => {
     return <FontAwesomeIcon icon={faCheck} className={className}/>
@@ -77,28 +77,46 @@ export default function AssistActions({raidId, minLvl, endDate, participants, ha
                 <TentativeAssistance raidId={raidId}/>
                 <DeclineAssistance raidId={raidId}/>
             </div>
-            <div>
-                {days.map(day => {
-                    return <Button
-                        key={day}
-                        className={
-                            'bg-moss text-gold'
-                            + ` ${selectedDays?.indexOf(day) !== -1 ? 'bg-gold text-moss' : ''}`
-                        }
-                        onClick={() => {
-                            if (selectedDays?.indexOf(day) !== -1) {
-                                removeDay(day)
-                            } else {
-                                addDay(day)
+            <Tooltip
+                content={
+                    <div
+                        className="animate-blink-and-glow border-gold border rounded-lg p-4"
+                    >
+                        <div>Select the days you can assist before continue</div>
+                    </div>
+                }
+                showArrow
+                placement={'top-end'}
+                isOpen={selectedDays?.length === 0}
+            >
+                <div
+                    className={
+                        'grid gap-2 grid-cols-7'
+
+                    }
+                >
+                    {days.map(day => {
+                        return <Button
+                            key={day}
+                            className={
+                                'bg-moss text-gold'
+                                + ` ${selectedDays?.indexOf(day) !== -1 ? 'bg-gold text-moss' : ''}`
                             }
-                        }}
-                        endContent={
-                            selectedDays?.indexOf(day) === -1 ? null : <CheckIcon/>
-                        }
-                    >{day}
-                    </Button>
-                })}
-            </div>
+                            onClick={() => {
+                                if (selectedDays?.indexOf(day) !== -1) {
+                                    removeDay(day)
+                                } else {
+                                    addDay(day)
+                                }
+                            }}
+                            endContent={
+                                selectedDays?.indexOf(day) === -1 ? null : <CheckIcon/>
+                            }
+                        >{day}
+                        </Button>
+                    })}
+                </div>
+            </Tooltip>
         </div>
     )
 }

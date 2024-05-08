@@ -8,7 +8,12 @@ interface AssistanceStore {
 }
 
 const initialState = {
-    selectedDays: Array<string>()
+    selectedDays: [
+        "Wed",
+        "Thur",
+        "Mon",
+        "Tue",
+    ]
 }
 
 export const useAssistanceStore = createStore<AssistanceStore>()(persist((set, get) => ({
