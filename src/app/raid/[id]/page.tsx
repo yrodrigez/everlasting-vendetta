@@ -15,6 +15,7 @@ import {RaidOptions} from "@/app/raid/components/RaidOptions";
 import {Button, Tooltip} from "@nextui-org/react";
 import {getLoggedInUserFromAccessToken} from "@/app/util";
 import NotLoggedInView from "@/app/components/NotLoggedInView";
+import {faDiscord} from "@fortawesome/free-brands-svg-icons";
 
 const raidResetAttr = 'raid_date, id, name, min_lvl, image_url, time, end_date'
 
@@ -179,6 +180,18 @@ export default async function ({params}: { params: { id: string } }) {
                     nextResetId={nextReset?.data?.id}
                     raidStarted={raidStarted}
                 />
+                <Link
+                    target={'_blank'}
+                    href={`https://discord.gg/fYw9WCNFDU`}>
+                    <Tooltip
+                        content="Discord"
+                        placement="right"
+                    >
+                        <Button className={`bg-moss text-default font-bold rounded ${!hasLootReservations?.data?.length ? 'shadow-2xl shadow-gold border-2 animate-blink-and-glow': ''}`} isIconOnly>
+                            <FontAwesomeIcon icon={faDiscord}/>
+                        </Button>
+                    </Tooltip>
+                </Link>
                 <Link
                     href={`/raid/${id}/soft-reserv`}>
                     <Tooltip
