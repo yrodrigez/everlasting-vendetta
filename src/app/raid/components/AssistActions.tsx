@@ -38,7 +38,7 @@ export default function AssistActions({raidId, minLvl, endDate, participants, ha
         }
     }, [selectedCharacter]);
     if (moment().isAfter(moment(endDate).endOf('day'))) {
-        return <div className="text-red-500">Raid has ended</div>
+        return <div className="text-red-500 flex items-center min-h-20">Raid has ended</div>
     }
 
     if (isSessionLoading) {

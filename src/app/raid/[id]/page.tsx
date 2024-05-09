@@ -187,7 +187,7 @@ export default async function ({params}: { params: { id: string } }) {
                         content="Discord"
                         placement="right"
                     >
-                        <Button className={`bg-moss text-default font-bold rounded ${!hasLootReservations?.data?.length ? 'shadow-2xl shadow-gold border-2 animate-blink-and-glow': ''}`} isIconOnly>
+                        <Button className={`bg-moss text-default font-bold rounded`} isIconOnly>
                             <FontAwesomeIcon icon={faDiscord}/>
                         </Button>
                     </Tooltip>

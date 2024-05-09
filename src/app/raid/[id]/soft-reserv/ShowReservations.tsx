@@ -1,10 +1,11 @@
 import {Character, RaidItem, Reservation} from "@/app/raid/[id]/soft-reserv/types";
 import {Button, Modal, ModalBody, ModalContent, ModalHeader, Tooltip, useDisclosure} from "@nextui-org/react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faUserGroup} from "@fortawesome/free-solid-svg-icons";
+import {faArrowRightLong, faClose, faObjectGroup, faUserGroup} from "@fortawesome/free-solid-svg-icons";
 import {useEffect, useState} from "react";
 import Image from "next/image";
 import {ItemTooltip} from "@/app/raid/[id]/soft-reserv/RaidItemCard";
+import Link from "next/link";
 
 const groupByCharacter = (items: Reservation[]): { character: Character, reservations: RaidItem[] }[] => {
     return items.reduce((acc, item) => {
@@ -21,15 +22,187 @@ const groupByCharacter = (items: Reservation[]): { character: Character, reserva
     }, [] as { character: Character, reservations: RaidItem[] }[])
 }
 
-export function ShowReservations({items = []}: { items: Reservation[] }) {
+const groupByItem = (items: Reservation[]): { item: RaidItem, reservations: Character[] }[] => {
+    return items.reduce((acc, item) => {
+        const found = acc.find((i) => i.item.id === item.item.id)
+        if (found) {
+            found.reservations.push(item.member.character)
+        } else {
+            acc.push({
+                item: item.item,
+                reservations: [item.member.character]
+            })
+        }
+        return acc
+    }, [] as { item: RaidItem, reservations: Character[] }[])
+}
+
+const ReservationByItem = ({item}: { item: { item: RaidItem, reservations: Character[] } }) => {
+    return (
+        <div className={'flex gap-2 justify-between p-2 items-center'}>
+            <Tooltip
+                className={'bg-transparent border-none shadow-none'}
+
+                // @ts-ignore - nextui types are wrong
+                shadow={'none'}
+                placement={'right'}
+                offset={20}
+                content={
+                    <div className="flex gap">
+                        <ItemTooltip item={item.item}
+                                     qualityColor={[
+                                         'poor',
+                                         'common',
+                                         'uncommon',
+                                         'rare',
+                                         'epic',
+                                         'legendary',
+                                     ][item.item.description.quality ?? 0] as 'poor' | 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'}
+                        />
+                    </div>
+                }
+            >
+                <Image
+                    src={item.item.description.icon}
+                    alt={item.item.name}
+                    width={40}
+                    height={40}
+                    className={`border-gold border rounded-md`}
+                />
+            </Tooltip>
+            <FontAwesomeIcon icon={faArrowRightLong}/>
+            <div className="flex gap-2 overflow-auto max-w-40 w-40 scrollbar-pill">
+                {item.reservations.map((character, i) => {
+                    return (
+                        <Tooltip
+                            key={i}
+                            content={character.name}
+                            placement={'top'}
+                        >
+                            <Link
+                                href={`/roster/${encodeURIComponent(character.name.toLowerCase())}`}
+                                target={'_blank'}
+                            >
+                                <Image
+                                    src={character.avatar ?? '/avatar-anon.png'}
+                                    alt={character.name}
+                                    width={40}
+                                    height={40}
+                                    className={`border-gold border rounded-md`}
+                                />
+                            </Link>
+                        </Tooltip>
+                    )
+                })}
+            </div>
+        </div>
+    )
+}
+
+const ReservationByCharacter = ({item, isAdmin}: { item: { character: Character, reservations: RaidItem[] }, isAdmin?: boolean }) => {
+    return (
+        <div className={'flex gap-2 justify-between p-2 items-center'}>
+            <div className="flex items-center">
+                {isAdmin? <Button
+                    size={'sm'}
+                    className={'text-default'}
+                    isIconOnly
+                    variant={'light'}
+                    onClick={() => {
+                        (async ()=>{
+                            const confirm = window.confirm(`Are you sure you want to remove all reservations for ${item.character.name}?`)
+                            if (!confirm) return
+                            const origin = window.location.origin
+                            const resetId = window.location.pathname.split('/')[2] // raid id
+                            const response = await fetch(`${origin}/api/v1/services/reserve?resetId=${resetId}&memberId=${item.character.id}`, {
+                                method: 'DELETE'
+                            })
+                            if (!response.ok) {
+                                alert('Failed to remove reservations')
+                                return
+                            }
+                            const data = await response.json()
+                            if (data.error) {
+                                alert(data.error)
+                            } else {
+                                alert('Reservations removed')
+                            }
+                        })()
+
+                    }}
+                >
+                    <FontAwesomeIcon icon={faClose}/>
+                </Button> : null}
+            <Link
+                className={'flex gap-2 items-center'}
+                href={`/roster/${encodeURIComponent(item.character.name.toLowerCase())}`} target={'_blank'}>
+                <Image
+                    src={item.character.avatar ?? '/avatar-anon.png'}
+                    alt={item.character.name}
+                    width={40}
+                    height={40}
+                    className={`border-gold border rounded-md`}
+                />
+                <span>{item.character.name}</span>
+            </Link>
+                </div>
+            <div className="flex gap-2">
+                {item.reservations.map((item, i) => {
+                    return (
+                        <Tooltip
+                            className={'bg-transparent border-none shadow-none'}
+                            key={i}
+                            // @ts-ignore - nextui types are wrong
+                            shadow={'none'}
+                            placement={'right'}
+                            offset={20}
+                            content={
+                                <div className="flex gap">
+                                    <ItemTooltip item={item}
+                                                 qualityColor={[
+                                                     'poor',
+                                                     'common',
+                                                     'uncommon',
+                                                     'rare',
+                                                     'epic',
+                                                     'legendary',
+                                                 ][item.description.quality ?? 0] as 'poor' | 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'}
+                                    />
+                                </div>
+                            }
+                        >
+                            <Image
+                                src={item.description.icon}
+                                alt={item.name}
+                                width={40}
+                                height={40}
+                                className={`border-gold border rounded-md`}
+                            />
+                        </Tooltip>
+                    )
+                })}
+            </div>
+        </div>
+    )
+}
+
+export function ShowReservations({items = [], isAdmin}: { items: Reservation[], isAdmin?: boolean}) {
     const {isOpen, onOpen, onClose, onOpenChange} = useDisclosure()
-    const [reservations, setReservations] = useState<{
+    const [reservationsByCharacter, setReservationsByCharacter] = useState<{
         character: Character,
         reservations: RaidItem[]
     }[]>(groupByCharacter(items))
 
+    const [reservationsByItem, setReservationsByItem] = useState<{
+        item: RaidItem,
+        reservations: Character[]
+    }[]>(groupByItem(items))
+
+    const [isByCharacter, setIsByCharacter] = useState(true)
+
     useEffect(() => {
-        setReservations(groupByCharacter(items))
+        setReservationsByCharacter(groupByCharacter(items))
+        setReservationsByItem(groupByItem(items))
     }, [items])
 
     return (
@@ -52,51 +225,38 @@ export function ShowReservations({items = []}: { items: Reservation[] }) {
                 {() => (
                     <>
                         <ModalHeader>
-                            Reservations ({reservations.length})
+                            <div className="flex justify-between items-center w-full text-default">
+                                Reservations
+                                <div className="flex gap-2 mr-4">
+                                    <Button
+                                        size={'sm'}
+                                        className="text-default"
+                                        variant={'light'}
+                                        isIconOnly
+                                        onClick={() => setIsByCharacter(true)}
+                                    >
+                                        <FontAwesomeIcon icon={faUserGroup}/>
+                                    </Button>
+                                    <Button
+                                        size={'sm'}
+                                        className="text-default"
+                                        variant={'light'}
+                                        isIconOnly
+                                        onClick={() => setIsByCharacter(false)}
+                                    >
+                                        <FontAwesomeIcon icon={faObjectGroup}/>
+                                    </Button>
+                                </div>
+                            </div>
                         </ModalHeader>
                         <ModalBody>
                             <div className="overflow-auto max-h-[600px] w-full scrollbar-pill">
-                                {reservations.map((item, i) => {
-                                    return <div key={i} className={'flex gap-2 justify-between p-2 items-center'}>
-                                        <span>{item.character.name}</span>
-                                        <div className="flex gap-2">
-                                            {item.reservations.map((item, i) => {
-                                                return (
-                                                    <Tooltip
-                                                        className={'bg-transparent border-none shadow-none'}
-                                                        key={i}
-                                                        // @ts-ignore - nextui types are wrong
-                                                        shadow={'none'}
-                                                        placement={'right'}
-                                                        offset={20}
-                                                        content={
-                                                            <div className="flex gap">
-                                                                <ItemTooltip item={item}
-                                                                             qualityColor={[
-                                                                                 'poor',
-                                                                                 'common',
-                                                                                 'uncommon',
-                                                                                 'rare',
-                                                                                 'epic',
-                                                                                 'legendary',
-                                                                             ][item.description.quality ?? 0] as 'poor' | 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'}
-                                                                />
-                                                            </div>
-                                                        }
-                                                    >
-                                                        <Image
-                                                            src={item.description.icon}
-                                                            alt={item.name}
-                                                            width={40}
-                                                            height={40}
-                                                            className={`border-gold border rounded-md`}
-                                                        />
-                                                    </Tooltip>
-                                                )
-                                            })}
-                                        </div>
-                                    </div>
-
+                                {isByCharacter ? reservationsByCharacter.map((item, i) => {
+                                    return <ReservationByCharacter key={i} item={item} isAdmin={isAdmin}/>
+                                }) : reservationsByItem.map((item, i) => {
+                                    return (
+                                        <ReservationByItem item={item} key={i}/>
+                                    )
                                 })}
                             </div>
                         </ModalBody>

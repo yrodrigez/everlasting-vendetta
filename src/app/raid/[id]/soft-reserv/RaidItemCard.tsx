@@ -13,9 +13,9 @@ export const ItemTooltip = ({item, qualityColor}: {
 }) => {
 
     return <div
-        className={`flex gap-2`}>
+        className={`flex gap-2 relative`}>
         <Image src={item.description.icon} alt={item.name} width={40} height={40}
-               className={`max-h-[40px] max-w-[40px] w-[40px] h-[40px] border-${qualityColor} rounded`}/>
+               className={`max-h-[40px] max-w-[40px] w-[40px] h-[40px] border border-${qualityColor} rounded absolute top-0 -left-10`}/>
         <div
             className={`bg-black border border-${qualityColor} rounded max-w-64 p-2`}
             dangerouslySetInnerHTML={{
@@ -107,10 +107,10 @@ export function RaidItemCard({item, reserve, remove, reservedBy, isClicked, setI
                             height: widthAndHeight.height
                         } : {}}
             >
-                {showReservedBy ? <ReservedByList reservedBy={reservedBy ?? []}/> : <ItemTooltip
+                {showReservedBy ? <ReservedByList reservedBy={reservedBy ?? []}/> : <><div className="w-8"/><ItemTooltip
                     qualityColor={qualityColor}
                     item={item}
-                />}
+                /></>}
                 <div className={
                     `flex flex-col gap-2 h-full w-12 grow-1 overflow-y-auto justify-between items-center min-h-52`
                 }>

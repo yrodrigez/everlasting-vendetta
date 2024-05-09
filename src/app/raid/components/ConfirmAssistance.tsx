@@ -40,7 +40,7 @@ export function ConfirmAssistance({raidId, hasLootReservations = false}: {
                         await assistRaid(raidId, selectedDays, selectedCharacter, selectedRole, 'confirmed')
                         if (!hasLootReservations) {
                             onOpen()
-                            const noLootAudio = new Audio('/sounds/uEscapeScreenOpen.ogg')
+                            const noLootAudio = new Audio('/sounds/levelup2.ogg')
                             noLootAudio.play().then(() => {
                             }).catch((reason) => {
                                 console.error(reason)
@@ -59,6 +59,7 @@ export function ConfirmAssistance({raidId, hasLootReservations = false}: {
                 onClose={onClose}
                 hideCloseButton
                 onOpenChange={onOpenChange}
+                isDismissable={false}
             >
                 <ModalContent>
                     {(onClose) => (

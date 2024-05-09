@@ -46,6 +46,14 @@ export default function RaidItemsList({items, initialReservedItems, resetId}: {
         updateFilteredItems()
     }, [isClicked]);
 
+    useEffect(() => {
+        const openStore = new Audio('/sounds/AuctionWindowOpen.ogg')
+        openStore.play().then(() => {
+        }).catch((reason) => {
+            console.error(reason)
+        })
+    }, []);
+
     return (
         <div className="flex flex-col gap-3 w-full">
             <Input
