@@ -207,6 +207,29 @@ export type Database = {
           },
         ]
       }
+      ev_admin: {
+        Row: {
+          created_at: string
+          id: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ev_admin_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "ev_member"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ev_application: {
         Row: {
           class: string
@@ -234,6 +257,24 @@ export type Database = {
           message?: string | null
           name?: string
           role?: string
+        }
+        Relationships: []
+      }
+      ev_guild_roster_history: {
+        Row: {
+          created_at: string
+          details: Json
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          details: Json
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          details?: Json
+          id?: string
         }
         Relationships: []
       }
@@ -336,18 +377,21 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          image: string | null
           min_level: number | null
           name: string
         }
         Insert: {
           created_at?: string
           id?: string
+          image?: string | null
           min_level?: number | null
           name?: string
         }
         Update: {
           created_at?: string
           id?: string
+          image?: string | null
           min_level?: number | null
           name?: string
         }
@@ -755,6 +799,27 @@ export type Database = {
           },
         ]
       }
+      wow_items: {
+        Row: {
+          created_at: string
+          details: Json
+          id: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          details: Json
+          id?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          details?: Json
+          id?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       chat_room_members_view: {
@@ -786,6 +851,10 @@ export type Database = {
           user_id: string
         }
         Returns: string[]
+      }
+      get_guild_roster_history: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
       }
       is_user_alloed_to_see_members: {
         Args: {

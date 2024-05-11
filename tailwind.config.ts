@@ -22,9 +22,12 @@ const config: Config = {
             colors: {
                 primary: "#dbd2c3",
                 dark: '#031111',
+                ['dark-100']: '#1d383b',
                 ocean: '#1D4851',
                 wood: '#423B35',
+                ['wood-100']: '#5f5a53',
                 stone: '#797467',
+                ['stone-100']: '#afad9a',
                 moss: '#3E5C4F',
                 sky: '#A2B5BB',
                 ivory: '#DBD2C3',

@@ -5,11 +5,17 @@ export const fetchCharacterAvatar = async (token: string, realm: string, charact
     if (!token) {
         token = await getBlizzardToken()
     }
+
     const response = await fetch(`${url}?locale=${locale}&namespace=${namespace}`, {
         headers: {
             'Authorization': 'Bearer ' + token
         }
     })
+
+    if (!response.ok) {
+        console.error('Error fetching character avatar', characterName, response.status, response.statusText)
+        return 'unknown'
+    }
     const data = await response.json()
 
     return data?.assets?.find((asset: any) => {
