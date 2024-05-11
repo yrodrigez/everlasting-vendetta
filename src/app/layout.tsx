@@ -38,14 +38,15 @@ export default function RootLayout({
             <div className="pt-1 flex flex-col w-full h-full max-h-full min-h-screen items-center">
                 <div className="h-[80px] w-full flex items-center justify-center border-b border-gold relative">
                     <div className="md:max-w-[900px] flex items-center justify-between h-full ">
-                        <div className="flex items-center md:w-[240px] flex-1 gap-3 justify-center">
+                        <div className="flex items-center md:w-[240px] flex-1 gap-2 justify-center mr-2 lg:mr-0">
                             <HeaderMenuButton text="Home"/>
                             {/*<HeaderMenuButton text="News"/>*/}
                             <HeaderMenuButton text="Apply"/>
+                            <HeaderMenuButton text="Stats"/>
                         </div>
                         <img alt={'center-img'} src={`/center-img.png`}
                              className="flex-1 rounded-full max-w-20 hidden md:flex"/>
-                        <div className="flex items-center md:w-[240px] flex-1 gap-3 justify-center">
+                        <div className="flex items-center md:w-[240px] flex-1 gap-2 justify-center">
                             <HeaderMenuButton text="Roster"/>
                             {/*<HeaderMenuButton text="Forum"/>*/}
                             <HeaderMenuButton text="Calendar"/>
@@ -67,7 +68,7 @@ export default function RootLayout({
             </div>
             {battleNetToken && <BattleNetAuthManagerWindow token={battleNetToken}/>}
             <ResizeManager/>
-            <div className="absolute right-2 bottom-6 md:top-2.5">
+            <div className="absolute right-2 bottom-6 md:top-2.5 md:bottom-full">
                 {!battleNetToken ? <LoginButton battleNetRedirectUrl={battleNetRedirectUrl}/> : <ProfileManager/>}
             </div>
             <Toaster richColors position="top-center"/>

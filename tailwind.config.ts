@@ -20,6 +20,8 @@ const config: Config = {
                     "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
             },
             colors: {
+                primary: "#dbd2c3",
+                dark: '#031111',
                 ocean: '#1D4851',
                 wood: '#423B35',
                 stone: '#797467',
@@ -27,7 +29,6 @@ const config: Config = {
                 sky: '#A2B5BB',
                 ivory: '#DBD2C3',
                 gold: '#C9A866',
-                primary: "#dbd2c3",
                 legendary: "#FF8000",
                 epic: "#A335EE",
                 rare: "#0070f3",
