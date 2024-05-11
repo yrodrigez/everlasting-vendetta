@@ -172,9 +172,9 @@ export default async function Page() {
         <div
             className="flex flex-col items-center justify-center py-2 h-full w-full"
         >
-            <div className="flex gap-2 w-full h-[400px] overflow-x-auto justify-center">
+            <div className="flex gap-2 w-full h-[400px] overflow-y-auto items-center lg:justify-center overflow-x-hidden flex-col lg:flex-row scrollbar-pill snap-y">
                 <Card shadow="lg"
-                      className="flex flex-col items-center justify-center w-1/3 h-[250px] bg-dark border border-dark-100 text-primary">
+                      className="flex flex-col items-center justify-center min-h-[250px] bg-dark border border-dark-100 text-primary min-w-[325px] w-full lg:max-w-[325px] snap-center">
                     <CardHeader>
                         <h1 className={'text-xl font-bold'}>Joiners vs leavers</h1>
                     </CardHeader>
@@ -209,7 +209,7 @@ export default async function Page() {
                     </CardFooter>
                 </Card>
                 <Card shadow="lg"
-                      className="flex flex-col items-center justify-center w-1/3 h-[250px] bg-green-500 border border-green-300 text-white">
+                      className="flex flex-col items-center justify-center h-[250px] min-h-[250px] bg-green-500 border border-green-300 w-full text-white min-w-[325px] lg:max-w-[325px] snap-center">
                     <CardHeader>
                         <h1 className={'text-xl font-bold'}>Joiners</h1>
                     </CardHeader>
@@ -238,7 +238,7 @@ export default async function Page() {
                     </CardFooter>
                 </Card>
                 <Card shadow="lg"
-                      className={'flex flex-col items-center justify-center w-1/3 h-[250px] bg-red-500 border border-red-300 text-white'}>
+                      className={'flex flex-col items-center justify-center h-[250px] min-h-[250px] bg-red-500 border border-red-300 w-full text-white min-w-[325px] lg:max-w-[325px] snap-center'}>
                     <CardHeader>
                         <h1 className={'text-xl font-bold'}>Leavers</h1>
                     </CardHeader>
@@ -255,7 +255,7 @@ export default async function Page() {
                                         height={36}
                                         alt={officer.name}
                                         src={officer.avatar || '/avatar-anon.png'}
-                                        className="rounded-full w-10 h-10 border border-gold filter grayscale(100%)"
+                                        className="rounded-full w-10 h-10 border border-gold filter grayscale"
                                     />
                                     <h1>{officer.name}</h1>
                                 </Link>

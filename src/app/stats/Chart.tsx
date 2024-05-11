@@ -70,8 +70,8 @@ export default ({members}: { members: MemberWithStatistics[] }) => {
     }, [members]);
     const [loading, setLoading] = React.useState(true);
     React.useEffect(() => {
-        setLoading(false);
-    }, []);
+        setLoading(!window);
+    }, );
     return (
         <div
             className={`bg-moss border border-stone rounded-lg min-h-[340px] backdrop-filter backdrop-blur-md w-full opacity-90 p-4`}>
