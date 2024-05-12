@@ -8,6 +8,10 @@ export type RaidItem = {
         quality?: 0 | 1 | 2 | 3 | 4 | 5;
         tooltip: string;
         spells: []
+        qualityName: string;
+        itemClass: string;
+        itemSubclass: string;
+        inventoryType: string;
     };
     raid_id: string;
 };

@@ -123,10 +123,12 @@ export default async function Page() {
     const {data: blizzardToken} = await supabase.functions.invoke('everlasting-vendetta', {});
     const token = blizzardToken?.token;
 
-    const latest = data[0] ?? [];
+    const lastUpdate = moment(data?.[0]?.created_at).fromNow();
+
+    const latest = data?.slice(0, 7).map((x: any) => x.members).flat() ?? [];
     const historic = data?.slice(1) ?? [];
 
-    const members = await Promise.all([...latest.members, ...(historic.reduce((acc: any, x: any) => {
+    const members = await Promise.all([...latest, ...(historic.reduce((acc: any, x: any) => {
         return [...acc, ...x.members]
     }, []))].filter((member: MemberRecord) => member.level > 10).map((member: MemberRecord) => {
         const previousRank = historic.find((h) => h.members.some((m: MemberRecord) => m.id === member.id))?.members.find((m: MemberRecord) => m.id === member.id)?.rank;
@@ -134,7 +136,7 @@ export default async function Page() {
         const rankName = getRankNameFromNumber(member.rank);
         const classColor = getClassColor(className);
 
-        const leaver = historic.some((h) => h.members.some((m: MemberRecord) => m.id === member.id)) && !latest.members.some((m: MemberRecord) => m.id === member.id);
+        const leaver = historic.some((h) => h.members.some((m: MemberRecord) => m.id === member.id)) && !latest.some((m: MemberRecord) => m.id === member.id);
         const joined = !historic.some((h) => h.members.some((m: MemberRecord) => m.id === member.id));
 
         return {
@@ -172,7 +174,11 @@ export default async function Page() {
         <div
             className="flex flex-col items-center justify-center py-2 h-full w-full"
         >
-            <div className="flex gap-2 w-full h-[400px] overflow-y-auto items-center lg:justify-center overflow-x-hidden flex-col lg:flex-row scrollbar-pill snap-y">
+            <div className="w-full hidden lg:visible">
+            <h1 className="text-4xl font-bold">Statistics</h1>
+            </div>
+            <div
+                className="flex gap-2 w-full h-[400px] overflow-y-auto items-center lg:justify-center overflow-x-hidden flex-col lg:flex-row scrollbar-pill snap-y">
                 <Card shadow="lg"
                       className="flex flex-col items-center justify-center min-h-[250px] bg-dark border border-dark-100 text-primary min-w-[325px] w-full lg:max-w-[325px] snap-center">
                     <CardHeader>
@@ -205,7 +211,7 @@ export default async function Page() {
                         </div>
                     </CardBody>
                     <CardFooter>
-                        <h1>Data from {moment(latest?.created_at).fromNow()}</h1>
+                        <h1>Data from {lastUpdate}</h1>
                     </CardFooter>
                 </Card>
                 <Card shadow="lg"
@@ -234,7 +240,7 @@ export default async function Page() {
                         </div>
                     </CardBody>
                     <CardFooter>
-                        <h1>Data from {moment(latest?.created_at).fromNow()}</h1>
+                        <h1>Data from {lastUpdate}</h1>
                     </CardFooter>
                 </Card>
                 <Card shadow="lg"
@@ -263,7 +269,7 @@ export default async function Page() {
                         </div>
                     </CardBody>
                     <CardFooter>
-                        <h1>Data from {moment(latest?.created_at).fromNow()}</h1>
+                        <h1>Data from {lastUpdate}</h1>
                     </CardFooter>
                 </Card>
             </div>

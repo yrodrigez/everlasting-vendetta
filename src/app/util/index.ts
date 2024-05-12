@@ -1,3 +1,5 @@
+import {ApplyFormStore} from "@/app/apply/components/store";
+
 export function getCookie(name: string) {
     if (typeof window === 'undefined') return
     if (!document?.cookie) return
@@ -6,6 +8,22 @@ export function getCookie(name: string) {
     if (parts.length === 2) return parts.pop()?.split(';').shift()
     return parts.length === 2 ? parts.pop()?.split(';').shift() : undefined;
 
+}
+
+export const zustandLogger = (config: any) => (set: any, get: any, api: any) => {
+    if (process.env.NODE_ENV === 'production') {
+        return config(set, get, api)
+    }
+
+    return config(
+        (args: ApplyFormStore) => {
+            console.log('  applying', args)
+            set(args)
+            console.log('  new state', get())
+        },
+        get,
+        api
+    )
 }
 
 export function getLoggedInUserFromAccessToken(accessToken: string) {

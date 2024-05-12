@@ -335,5 +335,30 @@ th.text-foreground-500 {
     background: linear-gradient(to bottom, rgb(102, 102, 102) 0%, rgb(128, 128, 128) 100%);
 }
 
+.shadow-gold {
+    --tw-shadow: 0 0 10px rgb(var(--gold-rgb)), 0 0 20px rgb(var(--gold-rgb));
+}
+
+.shadow-legendary {
+    --tw-shadow: 0 0 10px rgb(var(--legendary-rgb)), 0 0 20px rgb(var(--legendary-rgb));
+}
+
+.shadow-rare {
+    --tw-shadow: 0 0 10px rgb(var(--rare-rgb)), 0 0 20px rgb(var(--rare-rgb));
+}
+
+.shadow-epic {
+    --tw-shadow: 0 0 10px rgb(var(--epic-rgb)), 0 0 20px rgb(var(--epic-rgb));
+}
+
+.shadow-common {
+    --tw-shadow: 0 0 10px rgb(var(--common-rgb)), 0 0 20px rgb(var(--common-rgb));
+}
+
+.shadow-uncommon {
+    --tw-shadow: 0 0 10px rgb(var(--uncommon-rgb)), 0 0 20px rgb(var(--uncommon-rgb));
+}
+
+
 
 
