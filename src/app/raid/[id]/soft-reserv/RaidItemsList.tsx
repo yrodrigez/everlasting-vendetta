@@ -98,11 +98,9 @@ export default function RaidItemsList({items, initialReservedItems, resetId}: {
 
     return (
         <div className="flex flex-col gap-3 w-full">
-            <Filters
-
-            />
+            <Filters/>
             <SimpleListContainer
-                minus={180}
+                minus={100}
                 className="flex gap-2 p-2 flex-wrap w-full"
             >
                 {filteredItems.length === 0 && <div className="text-center w-full h-full flex flex-col items-center ">

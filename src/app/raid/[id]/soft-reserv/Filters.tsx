@@ -115,14 +115,9 @@ export function Filters() {
     const isUsingAdvancedFilters = (((inventoryType?.length ?? 0) > 0) || ((itemSubClass?.length ?? 0) > 0)) || ((qualityName?.length ?? 0) > 0) || ((itemClass?.length ?? 0) > 0)
     return (
         <div
-            className={`flex flex-col w-full`}
+            className={`flex flex-row gap-2 items-center w-full`}
         >
-            <Input
-                value={name}
-                onChange={(e) => {
-                    if (name !== e.target.value) setName(e.target.value)
-                }}
-                label="Filter" id="filter" type="filter"/>
+
             <Tooltip
                 placement="left"
                 isOpen={advancedFiltersOpen}
@@ -139,7 +134,7 @@ export function Filters() {
                 )}
             >
                 <div
-                    className="relative w-12 h-12 flex justify-center items-center mt-2"
+                    className="relative w-12 h-12 flex justify-center items-center"
                 >
                     {isUsingAdvancedFilters && !advancedFiltersOpen ? (
                         <div
@@ -149,7 +144,7 @@ export function Filters() {
                         </div>
                     ) : null}
                     <Button
-                        className={`bg-dark text-gold rounded border border-dark-100 font-bold ml-2 relative`}
+                        className={`bg-moss text-gold rounded font-bold ml-2 relative`}
                         isIconOnly
                         size={'lg'}
                         onClick={() => setAdvancedFiltersOpen(!advancedFiltersOpen)}
@@ -159,6 +154,12 @@ export function Filters() {
                     </Button>
                 </div>
             </Tooltip>
+            <Input
+                value={name}
+                onChange={(e) => {
+                    if (name !== e.target.value) setName(e.target.value)
+                }}
+                label="Filter" id="filter" type="filter"/>
         </div>
     )
 }

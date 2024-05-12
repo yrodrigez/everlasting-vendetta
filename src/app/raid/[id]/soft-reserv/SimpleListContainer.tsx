@@ -24,7 +24,7 @@ export default function SimpleListContainer({children, minus = 160, className}: 
             window.removeEventListener('resize', resizer)
             clearInterval(interval)
         }
-    }, [])
+    }, [minus])
 
     return (
         <div className={className} style={{
