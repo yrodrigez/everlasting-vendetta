@@ -10,6 +10,15 @@ const config: Config = {
     ],
     theme: {
         extend: {
+            keyframes: {
+                wiggle: {
+                    '0%, 100%': { transform: 'rotate(-3deg)' },
+                    '50%': { transform: 'rotate(3deg)' },
+                }
+            },
+            animation: {
+                wiggle: 'wiggle 1s ease-in-out infinite',
+            },
             dropShadow: {
                 glow: '0 4px 6px -1px rgba(201, 168, 102, 0.1), 0 2px 4px -2px rgba(201, 168, 102, 0.1)',
                 sunrays: '0 0 10px #c9a866, 0 0 20px #c9a866, 0 0 40px #c9a866, 0 0 60px #c9a866',
@@ -32,6 +41,7 @@ const config: Config = {
                 sky: '#A2B5BB',
                 ivory: '#DBD2C3',
                 gold: '#C9A866',
+                ['gold-100']: '#E5CC80',
                 legendary: "#FF8000",
                 epic: "#A335EE",
                 rare: "#0070f3",

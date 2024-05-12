@@ -102,7 +102,7 @@ export default function RaidItemsList({items, initialReservedItems, resetId}: {
 
             />
             <SimpleListContainer
-                minus={332}
+                minus={180}
                 className="flex gap-2 p-2 flex-wrap w-full"
             >
                 {filteredItems.length === 0 && <div className="text-center w-full h-full flex flex-col items-center ">

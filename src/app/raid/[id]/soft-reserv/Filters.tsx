@@ -1,6 +1,8 @@
 import {useFiltersStore} from "@/app/raid/[id]/soft-reserv/filtersStore";
-import {Chip, Input} from "@nextui-org/react";
-import React from "react";
+import {Button, Chip, Input, Tooltip} from "@nextui-org/react";
+import React, {useState} from "react";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faClose, faFilter} from "@fortawesome/free-solid-svg-icons";
 
 const FilterContainer = ({children}: { children: React.ReactNode }) => {
     return <div className="flex w-full gap-2 p-2 flex-wrap">{children}</div>
@@ -108,7 +110,9 @@ const InventoryTypeFilter = () => {
 
 export function Filters() {
     const {name, setName} = useFiltersStore(state => state)
-
+    const [advancedFiltersOpen, setAdvancedFiltersOpen] = useState(false)
+    const {inventoryType, itemSubClass, qualityName, itemClass} = useFiltersStore(state => state)
+    const isUsingAdvancedFilters = (((inventoryType?.length ?? 0) > 0) || ((itemSubClass?.length ?? 0) > 0)) || ((qualityName?.length ?? 0) > 0) || ((itemClass?.length ?? 0) > 0)
     return (
         <div
             className={`flex flex-col w-full`}
@@ -119,10 +123,42 @@ export function Filters() {
                     if (name !== e.target.value) setName(e.target.value)
                 }}
                 label="Filter" id="filter" type="filter"/>
-            <ItemClassFilter/>
-            <ItemSubClassFilter/>
-            <InventoryTypeFilter/>
-            <QualityFilter/>
+            <Tooltip
+                placement="left"
+                isOpen={advancedFiltersOpen}
+                className="bg-dark rounded border border-dark-100"
+                content={(
+                    <div
+                        className={`flex flex-col gap-2 w-96`}
+                    >
+                        <ItemClassFilter/>
+                        <ItemSubClassFilter/>
+                        <InventoryTypeFilter/>
+                        <QualityFilter/>
+                    </div>
+                )}
+            >
+                <div
+                    className="relative w-12 h-12 flex justify-center items-center mt-2"
+                >
+                    {isUsingAdvancedFilters && !advancedFiltersOpen ? (
+                        <div
+                            className={`absolute -top-1 -right-2 bg-gold text-dark text-xs font-bold rounded-full w-2 h-2 p-2 flex justify-center items-center z-50 border border-gold-100`}
+                        >
+                            {(inventoryType?.length ?? 0) + (itemSubClass?.length ?? 0) + (qualityName?.length ?? 0) + (itemClass?.length ?? 0)}
+                        </div>
+                    ) : null}
+                    <Button
+                        className={`bg-dark text-gold rounded border border-dark-100 font-bold ml-2 relative`}
+                        isIconOnly
+                        size={'lg'}
+                        onClick={() => setAdvancedFiltersOpen(!advancedFiltersOpen)}
+                    >
+
+                        {advancedFiltersOpen ? <FontAwesomeIcon icon={faClose}/> : <FontAwesomeIcon icon={faFilter}/>}
+                    </Button>
+                </div>
+            </Tooltip>
         </div>
     )
 }
