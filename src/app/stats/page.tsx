@@ -1,4 +1,4 @@
-import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
+import {createServerComponentClient, SupabaseClient} from "@supabase/auth-helpers-nextjs";
 import {cookies} from "next/headers";
 import Chart from "@/app/stats/Chart";
 import {fetchCharacterAvatar} from "@/app/lib/fetchCharacterAvatar";
@@ -107,6 +107,26 @@ function getClassColor(className: string) {
 
 }
 
+async function findMembersAvatars(members: MemberWithStatistics[], token: string, supabase: SupabaseClient) {
+    return await Promise.all(members.map(async (member: MemberWithStatistics) => {
+        let avatar = '/avatar-anon.png';
+        const {data, error} = await supabase.from('ev_member').select('character').eq('id', member.id).single();
+        if (error) {
+            avatar = await fetchCharacterAvatar(
+                token,
+                'lone-wolf',
+                member.name,
+            );
+        } else {
+            avatar = data.character.avatar;
+        }
+
+        return {
+            ...member,
+            avatar
+        }
+    }));
+}
 
 export default async function Page() {
     const supabase = createServerComponentClient({cookies});
@@ -125,10 +145,22 @@ export default async function Page() {
 
     const lastUpdate = moment(data?.[0]?.created_at).fromNow();
 
-    const latest = data?.slice(0, 7).map((x: any) => x.members).flat() ?? [];
-    const historic = data?.slice(1) ?? [];
+    const latest = data?.slice(0, 2).map((x: any) => x.members).flat() ?? []; // latest 7 days
+    const historic = data?.slice(1, 15) ?? []; // 15 days ago
 
-    const members = await Promise.all([...latest, ...(historic.reduce((acc: any, x: any) => {
+    const latestMembers = (data?.[0]?.members ?? []).map((member: MemberRecord) => {
+        const className = getClassNameFromNumber(member.class);
+        const rankName = getRankNameFromNumber(member.rank);
+        const classColor = getClassColor(className);
+        return {
+            ...member,
+            className,
+            rankName,
+            classColor
+        } as MemberWithStatistics
+    });
+
+    const members = [...latestMembers, ...(historic.reduce((acc: any, x: any) => {
         return [...acc, ...x.members]
     }, []))].filter((member: MemberRecord) => member.level > 10).map((member: MemberRecord) => {
         const previousRank = historic.find((h) => h.members.some((m: MemberRecord) => m.id === member.id))?.members.find((m: MemberRecord) => m.id === member.id)?.rank;
@@ -148,34 +180,17 @@ export default async function Page() {
             leaver,
             joined
         } as MemberWithStatistics
-    }).map(async (member: MemberWithStatistics) => {
-        let avatar = '/avatar-anon.png';
-        const {data, error} = await supabase.from('ev_member').select('character').eq('id', member.id).single();
-        if (error) {
-            avatar = await fetchCharacterAvatar(
-                token,
-                'lone-wolf',
-                member.name,
-            );
-        } else {
-            avatar = data.character.avatar;
-        }
+    });
 
-        return {
-            ...member,
-            avatar
-        }
-    }));
+    const leavers = await findMembersAvatars(members.filter((x: MemberWithStatistics) => x.leaver), token, supabase);
+    const joiners = await findMembersAvatars(members.filter((x: MemberWithStatistics) => x.joined), token, supabase);
 
-    const leavers = members.filter((x: MemberWithStatistics) => x.leaver);
-    const joiners = members.filter((x: MemberWithStatistics) => x.joined);
-    const latestMembers = members.filter((x: MemberWithStatistics) => !x.leaver && !x.joined);
     return (
         <div
             className="flex flex-col items-center justify-center py-2 h-full w-full"
         >
             <div className="w-full hidden lg:visible">
-            <h1 className="text-4xl font-bold">Statistics</h1>
+                <h1 className="text-4xl font-bold">Statistics</h1>
             </div>
             <div
                 className="flex gap-2 w-full h-[400px] overflow-y-auto items-center lg:justify-center overflow-x-hidden flex-col lg:flex-row scrollbar-pill snap-y">
@@ -185,7 +200,7 @@ export default async function Page() {
                         <h1 className={'text-xl font-bold'}>Joiners vs leavers</h1>
                     </CardHeader>
                     <CardBody>
-                        <div className={`grid grid-cols-1 gap-2 mb-2`}>
+                        <div className={`grid grid-cols-1 mb-1`}>
                             <div className={`grid grid-cols-2`}>
                                 <h1>Joiners</h1>
                                 <h1>{joiners.length}</h1>
@@ -195,23 +210,29 @@ export default async function Page() {
                                 <h1>{leavers.length}</h1>
                             </div>
                         </div>
-                        <div className={`scrollbar-pill grid grid-cols-1 gap-2`}>
+                        <div className={`scrollbar-pill grid grid-cols-1 `}>
                             <div className={`grid grid-cols-2`}>
                                 <h1>Churn rate</h1>
                                 <h1>
-                                    {Math.round((leavers.length / (joiners.length + leavers.length)) * 100)}%
+                                    {Math.round((leavers.length / (members.length + leavers.length)) * 100)}%
                                 </h1>
                             </div>
                             <div className={`grid grid-cols-2`}>
                                 <h1>Retention rate</h1>
                                 <h1>
-                                    {Math.round((joiners.length / (joiners.length + leavers.length)) * 100)}%
+                                    {Math.round((members.length / (members.length + leavers.length)) * 100)}%
+                                </h1>
+                            </div>
+                            <div className={`grid grid-cols-2`}>
+                                <h1>Join rate</h1>
+                                <h1>
+                                    {Math.round((joiners.length / (members.length + joiners.length)) * 100)}%
                                 </h1>
                             </div>
                         </div>
                     </CardBody>
-                    <CardFooter>
-                        <h1>Data from {lastUpdate}</h1>
+                    <CardFooter className={'flex justify-end'}>
+                        <h1 className={'text-xs'}>Data from {lastUpdate}</h1>
                     </CardFooter>
                 </Card>
                 <Card shadow="lg"
@@ -239,8 +260,8 @@ export default async function Page() {
                             ))}
                         </div>
                     </CardBody>
-                    <CardFooter>
-                        <h1>Data from {lastUpdate}</h1>
+                    <CardFooter className={'flex justify-end'}>
+                        <h1 className={'text-xs'}>Data from {lastUpdate}</h1>
                     </CardFooter>
                 </Card>
                 <Card shadow="lg"
@@ -268,8 +289,8 @@ export default async function Page() {
                             ))}
                         </div>
                     </CardBody>
-                    <CardFooter>
-                        <h1>Data from {lastUpdate}</h1>
+                    <CardFooter className={'flex justify-end'}>
+                        <h1 className={'text-xs'}>Data from {lastUpdate}</h1>
                     </CardFooter>
                 </Card>
             </div>
