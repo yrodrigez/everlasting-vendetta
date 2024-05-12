@@ -52,7 +52,6 @@ export default function RaidItemsList({items, initialReservedItems, resetId}: {
         if (!!itemSubClassFilter) {
             filteredItems = filteredItems.filter(({description: item}) => {
                 if (!itemSubClassFilter || itemSubClassFilter?.length === 0) return true
-                console.log(itemSubClassFilter, item.itemSubclass)
                 return itemSubClassFilter.map((itemSubClass) => itemSubClass?.toLowerCase()).includes(item.itemSubclass?.toLowerCase())
             })
         }
@@ -69,7 +68,6 @@ export default function RaidItemsList({items, initialReservedItems, resetId}: {
             filteredItems = filteredItems.filter(({description: item}) => {
                 if (!qualityNameFilter || qualityNameFilter.length === 0) return true
                 const qualityName = ['Poor', 'Common', 'Uncommon', 'Rare', 'Epic', 'Legendary',][item.quality ?? 0]
-                console.log(qualityName, qualityNameFilter)
                 return qualityNameFilter.includes(qualityName)
             })
         }
