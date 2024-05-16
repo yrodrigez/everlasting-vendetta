@@ -17,7 +17,7 @@ const config: Config = {
                 }
             },
             animation: {
-                wiggle: 'wiggle 1s ease-in-out infinite',
+                wiggle: 'wiggle .4s ease-in-out infinite',
             },
             dropShadow: {
                 glow: '0 4px 6px -1px rgba(201, 168, 102, 0.1), 0 2px 4px -2px rgba(201, 168, 102, 0.1)',

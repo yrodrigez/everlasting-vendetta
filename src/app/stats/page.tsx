@@ -109,7 +109,7 @@ function getClassColor(className: string) {
 
 async function findMembersAvatars(members: MemberWithStatistics[], token: string, supabase: SupabaseClient) {
     return await Promise.all(members.map(async (member: MemberWithStatistics) => {
-        let avatar = '/avatar-anon.png';
+        let avatar: string;
         const {data, error} = await supabase.from('ev_member').select('character').eq('id', member.id).single();
         if (error) {
             avatar = await fetchCharacterAvatar(
@@ -182,8 +182,19 @@ export default async function Page() {
         } as MemberWithStatistics
     });
 
-    const leavers = await findMembersAvatars(members.filter((x: MemberWithStatistics) => x.leaver), token, supabase);
-    const joiners = await findMembersAvatars(members.filter((x: MemberWithStatistics) => x.joined), token, supabase);
+    const leavers = await findMembersAvatars(members.reduce((acc: MemberWithStatistics[], x: MemberWithStatistics) => {
+        if (x.leaver && !acc.find((y: MemberWithStatistics) => y.name === x.name)) {
+            acc.push(x);
+        }
+        return acc;
+    }, [] as MemberWithStatistics[]), token, supabase);
+
+    const joiners = await findMembersAvatars(members.reduce((acc: MemberWithStatistics[], x: MemberWithStatistics) => {
+        if (x.joined && !acc.find((y: MemberWithStatistics) => y.name === x.name)) {
+            acc.push(x);
+        }
+        return acc;
+    }, [] as MemberWithStatistics[]), token, supabase);
 
     return (
         <div
@@ -281,7 +292,7 @@ export default async function Page() {
                                         width={36}
                                         height={36}
                                         alt={officer.name}
-                                        src={officer.avatar || '/avatar-anon.png'}
+                                        src={officer.avatar ?? '/avatar-anon.png'}
                                         className="rounded-full w-10 h-10 border border-gold filter grayscale"
                                     />
                                     <h1>{officer.name}</h1>

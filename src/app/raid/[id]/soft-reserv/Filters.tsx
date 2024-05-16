@@ -117,15 +117,23 @@ export function Filters() {
         <div
             className={`flex flex-row gap-2 items-center w-full`}
         >
-
             <Tooltip
                 placement="left"
                 isOpen={advancedFiltersOpen}
                 className="bg-dark rounded border border-dark-100"
                 content={(
                     <div
-                        className={`flex flex-col gap-2 w-96`}
+                        className={`flex flex-col gap-2 w-96 relative`}
                     >
+                        <Button
+                            isIconOnly
+                            className="absolute -top-1 -right-2 text-gold"
+                            onClick={() => setAdvancedFiltersOpen(false)}
+                            variant="light"
+                            size="sm"
+                        >
+                            <FontAwesomeIcon icon={faClose}/>
+                        </Button>
                         <ItemClassFilter/>
                         <ItemSubClassFilter/>
                         <InventoryTypeFilter/>

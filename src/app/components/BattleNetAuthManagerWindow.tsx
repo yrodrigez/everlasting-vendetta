@@ -1,40 +1,110 @@
 'use client'
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {Modal, ModalBody, ModalContent, ModalHeader, useDisclosure} from "@nextui-org/react";
 import AvailableCharactersList from "@/app/components/AvailableCharactersList";
 import {useCharacterStore} from "@/app/components/characterStore";
 import {toast} from "sonner";
 import {logout} from "@/app/util";
+import {Character} from "@/app/util/blizzard/battleNetWoWAccount/types";
+import {GUILD_REALM_NAME} from "@/app/util/constants";
 
-async function fetchBattleNetProfile() {
-    const response = await fetch(window.location.origin + '/api/v1/services/wow/getRawBnetProfile');
+async function fetchBattleNetProfile(): Promise<{ characters: Character[] }> {
+    const response = await fetch(window.location.origin + '/api/v1/services/wow/getUserCharacters')
 
     return await response.json();
 }
 
-function filterAccountWithValidCharacters(profile: any) {
-    return profile?.wow_accounts.filter((account: any) => {
-        return account.characters.some((character: any) => character.realm.slug === 'lone-wolf' && character.level >= 10)
-    }).reduce((acc: any, account: any) => {
-        acc.characters.push(...account.characters.filter((character: any) => character.realm.slug === 'lone-wolf' && character.level >= 10))
-        return acc
-    }, {characters: []})
-}
-
-async function setBnetCharacters(setCharacters: (profile: any) => void) {
+async function getBnetCharacters(): Promise<Character[] | null> {
     try {
         const profile = await fetchBattleNetProfile()
-        const characters = filterAccountWithValidCharacters(profile)?.characters.sort((a: any, b: any) => b.level - a.level)
+        const {characters} = profile
 
-        setCharacters(characters)
+        const validCharacters = characters?.filter((character: Character) => character.level >= 10) ?? []
+
+        return (validCharacters.sort((a: Character, b: Character) => b.level - a.level))
     } catch (e) {
         toast.error('Failed to fetch profile from Battle.net', {
             duration: 2500,
             onDismiss: logout,
             onAutoClose: logout
         })
+        return null
     }
 }
+
+const useFetchCharacters = (token: { value: string }, onOpen: () => void, logout: (force: any) => void) => {
+    const setCharacters = useCharacterStore(state => state.setCharacters);
+    const selectedCharacter = useCharacterStore(state => state.selectedCharacter);
+    const setSelectedCharacter = useCharacterStore(state => state.setSelectedCharacter);
+    const lastUpdated = useCharacterStore(state => state.lastUpdated);
+    const setLastUpdated = useCharacterStore(state => state.setLastUpdated);
+    const clearCharacterStore = useCharacterStore(state => state.clear);
+
+    const hasFetchedData = useRef(false);
+    const errorOccurred = useRef(false);
+
+    const handleError = (message: string) => {
+        toast.error(message, {
+            duration: 3500,
+            onDismiss: () => logout(true),
+            onAutoClose: () => logout(true),
+        });
+        errorOccurred.current = true;
+        clearCharacterStore();
+        errorOccurred.current = false;
+    };
+
+    const updateCharacters = (heroes: Character[], shouldOpen: boolean) => {
+        setCharacters(
+            heroes.map(character => ({
+                ...character,
+                avatar: '/avatar-anon.png',
+            }))
+        );
+
+        const updatedSelectedCharacter = heroes.find(character => character.id === selectedCharacter?.id);
+        const selectedRole = selectedCharacter?.selectedRole;
+
+        if (updatedSelectedCharacter) {
+            setSelectedCharacter({...updatedSelectedCharacter, avatar: '/avatar-anon.png', selectedRole});
+        }
+
+        setLastUpdated(Date.now());
+        if (shouldOpen) onOpen();
+    };
+
+    useEffect(() => {
+        if (!token?.value) return;
+        if (lastUpdated >= Date.now() - 60000 && selectedCharacter) return;
+        if (hasFetchedData.current) return;
+        if (errorOccurred.current) return;
+
+        const fetchCharacters = async () => {
+            hasFetchedData.current = true;
+
+            try {
+                const heroes = await getBnetCharacters();
+
+                if (!heroes?.length) {
+                    handleError(`No characters found on your account in the realm '${GUILD_REALM_NAME}' please make sure you are using the right account`);
+                    return;
+                }
+
+
+                const shouldOpen = !useCharacterStore.getState().selectedCharacter || !heroes.find(character => character.id === useCharacterStore.getState().selectedCharacter?.id);
+                updateCharacters(heroes, shouldOpen);
+
+            } catch (error) {
+                toast.error('Error fetching data');
+            } finally {
+                hasFetchedData.current = false;
+            }
+        };
+
+        fetchCharacters().then();
+    }, [token?.value, lastUpdated, selectedCharacter, setCharacters, setLastUpdated, setSelectedCharacter, onOpen, clearCharacterStore, logout]);
+
+};
 
 
 export function BattleNetAuthManagerWindow({token, open, setExternalOpen}: {
@@ -43,38 +113,11 @@ export function BattleNetAuthManagerWindow({token, open, setExternalOpen}: {
     setExternalOpen?: (value: boolean) => void
 }) {
     const {isOpen, onOpen, onOpenChange, onClose} = useDisclosure();
-    const characters = useCharacterStore(state => state.characters)
-    const selectedCharacter = useCharacterStore(state => state.selectedCharacter)
-    const setSelectedCharacter = useCharacterStore(state => state.setSelectedCharacter)
-    const setCharacters = useCharacterStore(state => state.setCharacters)
-    const lastUpdated = useCharacterStore(state => state.lastUpdated)
-    const setLastUpdated = useCharacterStore(state => state.setLastUpdated)
+    const characters = useCharacterStore(state => state.characters);
+    const selectedCharacter = useCharacterStore(state => state.selectedCharacter);
+    const setSelectedCharacter = useCharacterStore(state => state.setSelectedCharacter);
 
-    useEffect(() => {
-        if (lastUpdated < (Date.now() - 60000)) {
-            if (token?.value) {
-                setBnetCharacters(setCharacters).then(() => {
-                    setLastUpdated(Date.now())
-                    const updatedSelectedCharacter = characters.find((character: any) => character.id === selectedCharacter?.id)
-                    const selectedRole = selectedCharacter?.selectedRole
-                    if (updatedSelectedCharacter) setSelectedCharacter({...updatedSelectedCharacter, selectedRole})
-                })
-            }
-        }
-    }, [token?.value, setCharacters, lastUpdated, setLastUpdated]);
-
-    useEffect(() => {
-        sessionStorage.setItem('bnetToken', token.value)
-        if (token && !selectedCharacter) {
-            setBnetCharacters(setCharacters).then(() => {
-                const storedCharacter = JSON.parse(localStorage.getItem('bnetProfile') || '{}')
-                if (!storedCharacter?.state?.selectedCharacter)
-                    onOpen()
-            })
-        }
-
-    }, [selectedCharacter, token?.value, setCharacters, onOpen]);
-
+    useFetchCharacters(token, onOpen, logout);
 
     return (
         <Modal
@@ -101,7 +144,6 @@ export function BattleNetAuthManagerWindow({token, open, setExternalOpen}: {
                                         setSelectedCharacter({...character})
                                         setExternalOpen && setExternalOpen(false)
                                         onClose()
-                                        window.location.reload()
                                     }}/>
                             </div>
                         </ModalBody>

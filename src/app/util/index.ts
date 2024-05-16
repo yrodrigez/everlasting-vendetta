@@ -1,5 +1,15 @@
 import {ApplyFormStore} from "@/app/apply/components/store";
+import {BLIZZARD_LOGOUT_URL} from "@/app/util/constants";
+import {toast} from "sonner";
 
+
+/**
+ * Gets the value of a cookie by name
+ * @param name - The name of the cookie
+ * @returns The cookie value
+ * @example
+ * getCookie('cookieName')
+ */
 export function getCookie(name: string) {
     if (typeof window === 'undefined') return
     if (!document?.cookie) return
@@ -10,6 +20,12 @@ export function getCookie(name: string) {
 
 }
 
+/**
+ * Zustand logger
+ * Logs the state changes to the console in development mode only
+ * @param config - The zustand config
+ * @returns The zustand config
+ */
 export const zustandLogger = (config: any) => (set: any, get: any, api: any) => {
     if (process.env.NODE_ENV === 'production') {
         return config(set, get, api)
@@ -26,6 +42,13 @@ export const zustandLogger = (config: any) => (set: any, get: any, api: any) => 
     )
 }
 
+/**
+ * Parses the access token and returns the user object
+ * @param accessToken - The access token
+ * @returns The user object
+ * @example
+ * getLoggedInUserFromAccessToken('ey48jf...');
+ */
 export function getLoggedInUserFromAccessToken(accessToken: string) {
     try {
         const parts = accessToken.split('.')
@@ -38,7 +61,12 @@ export function getLoggedInUserFromAccessToken(accessToken: string) {
     }
 }
 
-
+/**
+ * Clears all cookies
+ * @returns void
+ * @example
+ * clearAllCookies()
+ */
 export function clearAllCookies() {
     const cookies = document.cookie.split(";");
     for (let i = 0; i < cookies.length; i++) {
@@ -49,13 +77,38 @@ export function clearAllCookies() {
     }
 }
 
-export function logout() {
+/**
+ * Logs out the user by clearing the session storage and all cookies
+ * and then redirects the user to the home page
+ * @returns void
+ * @example
+ * logout()
+ */
+export function logout(force: any = false) {
     sessionStorage?.clear()
     clearAllCookies()
+    if (typeof force !== 'boolean') window.location.href = '/'
 
-    setTimeout(() => {
-        sessionStorage?.clear()
-        clearAllCookies()
-        window.location.href = '/'
-    }, 1000)
+    if (force === true) {
+        const message = `You have been logged out - since there is no logout from battle net I need to redirect you to the bnet logout page`
+        toast(message, {
+            action: {
+                label: 'Logout',
+                onClick: () => {
+                    const logoutWindow = window.open(BLIZZARD_LOGOUT_URL, '_blank',)
+                    setTimeout(() => {
+                        logoutWindow?.close()
+                        window.focus()
+                        window.location.href = '/'
+                    }, 800)
+                }
+            },
+            onDismiss: () => {
+                window.location.href = '/'
+            },
+            onAutoClose: () => {
+                window.location.href = '/'
+            }
+        })
+    }
 }

@@ -1,19 +1,7 @@
 import {cookies} from "next/headers";
 import {NextRequest, NextResponse} from "next/server";
+import {fetchBattleNetProfile} from "@/app/util/blizzard/battleNetWoWAccount";
 
-async function fetchBattleNetProfile(token: string) {
-    if (!token) throw new Error('fetchBattleNetProfile - token parameter is required')
-    const url = 'https://eu.api.blizzard.com/profile/user/wow?namespace=profile-classic1x-eu&locale=en_US'
-    const headers = new Headers()
-    headers.append('Authorization', 'Bearer ' + token)
-
-    const response = await fetch(url, {
-        method: 'GET',
-        headers: headers,
-    });
-
-    return await response.json();
-}
 
 export async function GET(request: NextRequest) {
     const token = cookies().get('bnetToken')

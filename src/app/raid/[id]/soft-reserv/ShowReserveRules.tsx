@@ -1,15 +1,33 @@
 import {Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure} from "@nextui-org/react";
 import {faCircleInfo} from "@fortawesome/free-solid-svg-icons";
-import React from "react";
+import React, {useEffect} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import useReservationsStore from "@/app/raid/[id]/soft-reserv/reservationsStore";
 
 export default function ShowReserveRules() {
     const {isOpen, onOpen, onClose, onOpenChange} = useDisclosure()
+    const [shouldBlink, setShouldBlink] = React.useState(false)
+    useEffect(() => {
+        const hasReadTerms = JSON.parse(localStorage?.getItem('hasReadTerms') ?? '{"read":false, "time":0}')
+        if (!hasReadTerms.read || hasReadTerms.time <= Date.now() - 1000 * 60 * 60 * 24 * 7) {
+            return onOpen()
+        }
+    }, [isOpen])
+
+    const handleAccept = () => {
+        localStorage.setItem('hasReadTerms', JSON.stringify({read: true, time: Date.now()}))
+        onClose()
+        setShouldBlink(true)
+        setTimeout(() => {
+            setShouldBlink(false)
+        }, 2100)
+    }
+
     return (
         <>
             <Button
                 size={'lg'}
-                className={'bg-moss text-gold rounded'}
+                className={`bg-moss text-gold rounded ${shouldBlink ? 'border-2 border-gold animate-wiggle' : ''}`}
                 isIconOnly
                 onClick={onOpen}
             >
@@ -18,6 +36,7 @@ export default function ShowReserveRules() {
             <Modal
                 isOpen={isOpen}
                 onClose={onClose}
+                isDismissable={false}
                 placement="center"
                 scrollBehavior="inside"
                 className="border border-gold scrollbar-pill"
@@ -25,7 +44,7 @@ export default function ShowReserveRules() {
                 onOpenChange={onOpenChange}
             >
                 <ModalContent>
-                    {(onClose) => (
+                    {() => (
                         <>
                             <ModalHeader>
                                 <h1 className="text-2xl font-bold text-center">Reserve Rules</h1>
@@ -58,7 +77,7 @@ export default function ShowReserveRules() {
                             </ModalBody>
                             <ModalFooter>
                                 <Button
-                                    onClick={onClose}
+                                    onClick={handleAccept}
                                     className={'bg-moss text-default rounded'}
                                 >
                                     I understand

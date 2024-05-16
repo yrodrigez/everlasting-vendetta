@@ -14,11 +14,11 @@ export const fetchCharacterAvatar = async (token: string, realm: string, charact
 
     if (!response.ok) {
         console.error('Error fetching character avatar', characterName, response.status, response.statusText)
-        return 'unknown'
+        return '/avatar-anon.png'
     }
     const data = await response.json()
 
     return data?.assets?.find((asset: any) => {
         return asset.key === 'avatar'
-    })?.value || 'unknown'
+    })?.value || '/avatar-anon.png'
 }
