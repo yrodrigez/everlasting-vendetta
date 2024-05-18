@@ -48,9 +48,7 @@ export default function RaidParticipants({participants, raidId, raidInProgress}:
     const renderCell = useCallback((registration: any, columnKey: React.Key) => {
         const {name, avatar, playable_class} = registration.member?.character
         const registrationDetails = registration.details
-        if (isMobile && columnKey === 'days') {
-            return null
-        }
+
         switch (columnKey) {
             case "name":
                 return (
