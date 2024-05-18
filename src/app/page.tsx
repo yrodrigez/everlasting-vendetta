@@ -1,34 +1,46 @@
+import {Card, Image, CardFooter} from "@nextui-org/react";
+
+
 const intro = [
     {
+        img: "/news/news-1.webp",
         header: "Welcome to Everlasting Vendetta",
         paragraphs: [
             "Embark on an epic journey with Everlasting Vendetta, a distinguished World of Warcraft guild where legends are forged and camaraderie reigns.",
-            "Our guild stands as a beacon for adventurers seeking the thrill of conquest and the warmth of fellowship."
         ]
     },
     {
+        img: "/news/news-2.webp",
         header: "United by Legacy, Bound by Adventure",
         paragraphs: [
             "Our guild is more than just a group of gamers; we're a family bound by a shared love for the extraordinary worlds Blizzard has created.",
-            "Inspired by the mystic allure of the lore and the enduring spirit of the people, Everlasting Vendetta is a sanctuary for those who cherish history, fantasy, and the relentless pursuit of greatness."
         ]
     },
     {
+        img: "/news/news-3.webp",
         header: "Join Our Quest",
         paragraphs: [
             "Whether you're a seasoned raider, a strategic battleground commander, or a spirited newcomer eager to make your mark, you'll find a home here.",
-            "We celebrate the victories, weather the storms, and embrace the endless possibilities that lie ahead. With us, every member contributes to our shared story, crafting unforgettable memories and achieving new heights of glory."
         ]
     },
 ]
 
-const CustomSection = ({header, paragraphs}: { header: string, paragraphs: string[] }) => {
+const CustomSection = ({header, paragraphs, img}: { header: string, paragraphs: string[], img: string }) => {
     return (
-        <section
-            className="flex flex-col justify-around gap-2 p-3 bg-moss border border-gold rounded min-h-[340px] backdrop-filter backdrop-blur-md md:w-80 opacity-90 ">
-            <h1 className="font-bold text-xl">{header}</h1>
-            {paragraphs.map(paragraph => <p>{paragraph}</p>)}
-        </section>
+        <Card
+            isFooterBlurred
+            className="border-none text-defaul bg-dark shadow-small w-80 min-h-[340px] rounded border-1 border-gold relative overflow-hidden"
+        >
+            <div
+                className="w-80 h-[170px] bg-cover bg-center bg-no-repeat overflow-hidden shadow-small border border-gold/50 rounded-t border-b-0"
+                style={{backgroundImage: `url(${img})`}}
+            ></div>
+            <CardFooter className="scrollbar-pill flex-col bg-dark border-gold/50 min-h-[calc(50%)] border overflow-hidden py-2 absolute rounded rounded-t-none bottom-0 w-[calc(100%)] shadow-small z-10">
+                <h1 className="font-bold text-xl text-gold self-start">{header}</h1>
+                {paragraphs.map((paragraph, i) => <p key={i}>{paragraph}</p>)}
+            </CardFooter>
+
+        </Card>
     )
 }
 

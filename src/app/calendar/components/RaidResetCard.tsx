@@ -29,7 +29,9 @@ export function RaidResetCard({
     const isRaidCurrent = moment().isBetween(moment(raidDate), moment(raidEndDate))
 
     return (
-        <Card className={`w-[300px] relative text-default bg-[rgba(0,0,0,.6)] ${
+        <Card
+            isFooterBlurred
+            className={`w-[300px] relative text-default bg-[rgba(0,0,0,.6)] ${
             isRaidCurrent ? 'border-2 border-gold shadow-2xl shadow-gold glow-animation ' : ''    
         }`} radius="lg">
             <Image
