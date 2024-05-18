@@ -10,10 +10,11 @@ import Link from "next/link";
 import ShowReserveRules from "@/app/raid/[id]/soft-reserv/ShowReserveRules";
 
 export default function AdminPanel({isAdmin, resetId}: { isAdmin: boolean, resetId: string }) {
-    const {isReservationsOpen, setIsReservationsOpen, reservationsByItem, items, } = useReservations(resetId)
+    const {isReservationsOpen, setIsReservationsOpen, reservationsByItem, items,} = useReservations(resetId)
+
     return (
         <div
-            className={'flex flex-col gap-2'}
+            className="flex flex-col gap-2"
         >
             <Link href={`/raid/${resetId}`}>
                 <Tooltip
@@ -30,7 +31,6 @@ export default function AdminPanel({isAdmin, resetId}: { isAdmin: boolean, reset
                 </Tooltip>
             </Link>
             <ShowReserveRules/>
-
             <Tooltip
                 content={isAdmin ? (isReservationsOpen ? 'Close reservations' : 'Open reservations') : isReservationsOpen ? 'Reservations are open' : 'Reservations are closed'}
                 placement={'right'}

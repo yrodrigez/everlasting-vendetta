@@ -18,12 +18,6 @@ import useScreenSize from "@/app/hooks/useScreenSize";
 import moment from "moment";
 import {useParticipants} from "@/app/raid/components/useParticipants";
 
-const columns = [
-    {name: "NAME", uid: "name"},
-    {name: "ROLE", uid: "role"},
-    {name: "STATUS", uid: "status"},
-    {name: "DAYS", uid: "days"},
-];
 const days = ['Wed', 'Thur', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue'];
 
 export default function RaidParticipants({participants, raidId, raidInProgress}: {
@@ -33,10 +27,30 @@ export default function RaidParticipants({participants, raidId, raidInProgress}:
 }) {
     const {supabase, selectedCharacter} = useSession()
     const stateParticipants = useParticipants(raidId, participants)
+    const {isMobile} = useScreenSize()
+    const initialColumns = [
+        {name: "NAME", uid: "name"},
+        {name: "ROLE", uid: "role"},
+        {name: "STATUS", uid: "status"},
+    ]
+    const [columns, setColumns] = React.useState(initialColumns)
+    useEffect(() => {
+        if (isMobile) {
+            setColumns(initialColumns)
+        } else {
+            setColumns([
+                ...initialColumns,
+                {name: "DAYS", uid: "days"}
+            ])
+        }
+    }, [isMobile]);
+
     const renderCell = useCallback((registration: any, columnKey: React.Key) => {
         const {name, avatar, playable_class} = registration.member?.character
         const registrationDetails = registration.details
-
+        if (isMobile && columnKey === 'days') {
+            return null
+        }
         switch (columnKey) {
             case "name":
                 return (
@@ -106,7 +120,6 @@ export default function RaidParticipants({participants, raidId, raidInProgress}:
                         }
                     })(registrationDetails?.status);
                     return (
-
                         name === 'Aoriad' ? <Chip color={'warning'} size="sm" variant="flat">Late</Chip> :
                             <Chip className="capitalize" color={color}
                                   size="sm"
@@ -126,7 +139,6 @@ export default function RaidParticipants({participants, raidId, raidInProgress}:
                 );
 
             case "days":
-
                 return (
                     <div className="flex gap">
                         {(days).sort((a: string, b: string) => {

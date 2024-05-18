@@ -3,8 +3,8 @@ import moment from "moment";
 import {RaidResetCard} from "@/app/calendar/components/RaidResetCard";
 import {cookies} from "next/headers";
 import {createServerComponentClient, type SupabaseClient} from "@supabase/auth-helpers-nextjs";
-import {isUserInGuild} from "@/app/lib/isUserInGuild";
-import NotLoggedInView from "@/app/components/NotLoggedInView";
+
+export const dynamic = 'force-dynamic'
 
 const START_DATE = '2024-04-03'
 const RAID_RESET_DAYS = 7
@@ -72,12 +72,6 @@ async function fetchNextRaidResets(supabase: SupabaseClient) {
 
 
 export default async function Page() {
-    const token = cookies().get(process.env.BNET_COOKIE_NAME!)
-    if (!token) {
-        return (
-            <NotLoggedInView/>
-        )
-    }
 
     const supabase = createServerComponentClient({cookies})
 

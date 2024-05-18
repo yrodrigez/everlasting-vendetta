@@ -18,7 +18,6 @@ export default async function Page({params}: { params: { id: string } }) {
         return <NotLoggedInView/>
     }
 
-
     const database = createServerComponentClient({cookies}, {
         options: {
             global: {
@@ -97,7 +96,7 @@ export default async function Page({params}: { params: { id: string } }) {
                 initialReservedItems={reservations}
                 resetId={resetId}
             />
-            <div className={'absolute -top-0 -right-24 z-10'}>
+            <div className={`absolute -top-0 -right-24 z-10`}>
                 <AdminPanel
                     isAdmin={!!data}
                     resetId={resetId}

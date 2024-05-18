@@ -1,16 +1,18 @@
 'use client'
 import moment from "moment";
 import {useSession} from "@/app/hooks/useSession";
-import {Button, Spinner, Tooltip} from "@nextui-org/react";
+import {Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Spinner, Tooltip} from "@nextui-org/react";
 import {useAssistanceStore} from "@/app/raid/components/assistanceStore";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faCheck} from "@fortawesome/free-solid-svg-icons";
+import {faCheck, faPersonCircleQuestion, faPlus, faUserPlus} from "@fortawesome/free-solid-svg-icons";
 import {ConfirmAssistance} from "@/app/raid/components/ConfirmAssistance";
 import {LateAssistance} from "@/app/raid/components/LateAssistance";
 import {TentativeAssistance} from "@/app/raid/components/TentativeAssistance";
 import DeclineAssistance from "@/app/raid/components/DeclineAssistance";
 import {useEffect} from "react";
 import NotLoggedInView from "@/app/components/NotLoggedInView";
+import useScreenSize from "@/app/hooks/useScreenSize";
+import {BnetLoginButton} from "@/app/components/BnetLoginButton";
 
 const days = ['Wed', 'Thur', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue']
 
@@ -37,6 +39,9 @@ export default function AssistActions({raidId, minLvl, endDate, participants, ha
             (currentParticipant?.details?.days ?? []).forEach((day: string) => addDay(day));
         }
     }, [selectedCharacter]);
+
+    const {isMobile} = useScreenSize()
+
     if (moment().isAfter(moment(endDate).endOf('day'))) {
         return <div className="text-red-500 flex items-center min-h-20">Raid has ended</div>
     }
@@ -45,12 +50,15 @@ export default function AssistActions({raidId, minLvl, endDate, participants, ha
         return <Spinner/>
     }
 
-    if (!selectedRole) {
-        return <div className="text-red-500">Select a role first</div>
+    if (!session) {
+        return <div className="text-red-500 flex flex-col">Login to confirm your assistance
+            <BnetLoginButton/>
+        </div>
     }
 
-    if (!session) {
-        return <div className="text-red-500">You must be logged in to confirm</div>
+    if (!selectedRole) {
+        return <div className="text-red-500">Select a role first</div>
+
     }
 
     if ((selectedCharacter?.level ?? 0) < minLvl) {
@@ -73,10 +81,35 @@ export default function AssistActions({raidId, minLvl, endDate, participants, ha
                             raidId={raidId}/>
                     </div>
                 </Tooltip>
-                <LateAssistance raidId={raidId}/>
-                <TentativeAssistance raidId={raidId}/>
-                <DeclineAssistance raidId={raidId}/>
+                {isMobile ? (
+                    <Dropdown>
+                        <DropdownTrigger>
+                            <Button
+                                isIconOnly
+                                className={'bg-wood text-default rounded border border-default/30'}
+                            >
+                                <FontAwesomeIcon icon={faPersonCircleQuestion}/>
+                            </Button>
+                        </DropdownTrigger>
+                        <DropdownMenu>
+                            <DropdownItem>
+                                <LateAssistance raidId={raidId}/>
+                            </DropdownItem>
+                            <DropdownItem>
+                                <TentativeAssistance raidId={raidId}/>
+                            </DropdownItem>
+                            <DropdownItem>
+                                <DeclineAssistance raidId={raidId}/>
+                            </DropdownItem>
+                        </DropdownMenu>
+                    </Dropdown>
+                ) : <>
+                    <LateAssistance raidId={raidId}/>
+                    <TentativeAssistance raidId={raidId}/>
+                    <DeclineAssistance raidId={raidId}/>
+                </>}
             </div>
+
             <Tooltip
                 content={
                     <div
@@ -98,9 +131,10 @@ export default function AssistActions({raidId, minLvl, endDate, participants, ha
                     {days.map(day => {
                         return <Button
                             key={day}
+                            isIconOnly={isMobile}
                             className={
-                                'bg-moss text-gold'
-                                + ` ${selectedDays?.indexOf(day) !== -1 ? 'bg-gold text-moss' : ''}`
+                                'bg-red-400/80 text-red-800 rounded-full border border-red-900'
+                                + ` ${selectedDays?.indexOf(day) !== -1 ? 'bg-green-500/80 text-green-900 border-green-900' : ''}`
                             }
                             onClick={() => {
                                 if (selectedDays?.indexOf(day) !== -1) {
@@ -110,7 +144,7 @@ export default function AssistActions({raidId, minLvl, endDate, participants, ha
                                 }
                             }}
                             endContent={
-                                selectedDays?.indexOf(day) === -1 ? null : <CheckIcon/>
+                                isMobile || selectedDays?.indexOf(day) === -1 ? null : <CheckIcon/>
                             }
                         >{day}
                         </Button>

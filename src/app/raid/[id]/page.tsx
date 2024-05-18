@@ -82,11 +82,8 @@ function findPreviousAndNextReset(supabase: any, resetDate: any) {
 
 export default async function ({params}: { params: { id: string } }) {
     const isLoggedInUser = cookies().get('evToken')
-    if (!isLoggedInUser?.value) {
-        return <NotLoggedInView/>
-    }
 
-    const supabase = createServerComponentClient({cookies}, {
+    const supabaseOptions = isLoggedInUser ? {
         options: {
             global: {
                 headers: {
@@ -94,7 +91,10 @@ export default async function ({params}: { params: { id: string } }) {
                 }
             }
         }
-    })
+    } : {}
+
+    const supabase = createServerComponentClient({cookies}, supabaseOptions)
+
 
     const {
         data,
@@ -134,12 +134,16 @@ export default async function ({params}: { params: { id: string } }) {
     const raidInProgress = moment().isBetween(raidStartDate, raidEndDate)
 
     const hasLoot = await supabase.from('ev_loot_history').select('id').eq('raid_id', id).limit(1)
-    const loggedInUser = getLoggedInUserFromAccessToken(isLoggedInUser.value)
-    const hasLootReservations = await supabase.from('raid_loot_reservation')
-        .select('id')
-        .eq('member_id', loggedInUser?.id)
-        .eq('reset_id', id)
-        .limit(1)
+
+    let hasLootReservations = false
+    if(isLoggedInUser) {
+        const loggedInUser = getLoggedInUserFromAccessToken(isLoggedInUser.value)
+        hasLootReservations = !!(await supabase.from('raid_loot_reservation')
+            .select('id')
+            .eq('member_id', loggedInUser?.id)
+            .eq('reset_id', id)
+            .limit(1))?.data?.length
+    }
 
     const [previousReset, nextReset] = await findPreviousAndNextReset(supabase, raidDate)
 
@@ -161,7 +165,7 @@ export default async function ({params}: { params: { id: string } }) {
                 raidEndDate={end_date}
             />
             <AssistActions
-                hasLootReservations={!!hasLootReservations?.data?.length}
+                hasLootReservations={hasLootReservations}
                 raidId={id}
                 minLvl={min_lvl}
                 endDate={end_date}
@@ -198,7 +202,9 @@ export default async function ({params}: { params: { id: string } }) {
                         content="Soft Reservations"
                         placement="right"
                     >
-                        <Button className={`bg-moss text-default font-bold rounded ${!hasLootReservations?.data?.length ? 'shadow-2xl shadow-gold border-2 animate-blink-and-glow': ''}`} isIconOnly>
+                        <Button
+                            className={`bg-moss text-default font-bold rounded ${!hasLootReservations && isLoggedInUser ? 'shadow-2xl shadow-gold border-2 animate-blink-and-glow' : ''}`}
+                            isIconOnly>
                             <FontAwesomeIcon icon={faCartPlus}/>
                         </Button>
                     </Tooltip>

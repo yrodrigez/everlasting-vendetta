@@ -33,7 +33,7 @@ export function ConfirmAssistance({raidId, hasLootReservations = false}: {
             <Button
                 disabled={loading || !selectedDays?.length}
                 isDisabled={loading || !selectedDays?.length}
-                className={'bg-moss text-gold'}
+                className={'bg-moss text-gold rounded border border-gold/50'}
                 onClick={() => {
                     (async () => {
                         setLoading(true)
@@ -50,7 +50,7 @@ export function ConfirmAssistance({raidId, hasLootReservations = false}: {
                     })()
                 }}
                 endContent={loading ? <Spinner size='sm' color='success'/> : selectedRole &&
-                  <img className="w-6 h-6 rounded-full border border-gold"
+                  <img className="w-6 h-6 rounded-full"
                        src={getRoleIcon(selectedRole)} alt={selectedRole}/>}
             >Confirm as {selectedRole}
             </Button>

@@ -32,7 +32,7 @@ export default function useScreenSize() {
         return () => {
             window.removeEventListener('resize', handleResize)
         }
-    }, [])
+    }, [screenSize])
 
     return {screenSize, isMobile, isTablet, isDesktop, screenHeight}
 }
