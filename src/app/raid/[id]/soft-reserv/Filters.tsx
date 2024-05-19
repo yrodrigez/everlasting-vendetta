@@ -164,10 +164,26 @@ export function Filters() {
             </Tooltip>
             <Input
                 value={name}
+                endContent={
+                    name && <Button
+                    onClick={(e) => {
+                        setName('')
+                        // @ts-ignore - blur is a valid function
+                        e.target.blur && e.target.blur()
+                    }}
+                    variant="light"
+                    isIconOnly
+                    size="sm"
+                    className="text-[rgba(19,19,19,0.5)]"
+                  >
+                    <FontAwesomeIcon icon={faClose}/>
+                  </Button>
+                }
                 onChange={(e) => {
                     if (name !== e.target.value) setName(e.target.value)
                 }}
                 label="Filter" id="filter" type="filter"/>
+
         </div>
     )
 }
