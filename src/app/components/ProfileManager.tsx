@@ -48,7 +48,7 @@ const MenuItem = ({text, onClick, icon}: { text: string, onClick: () => void, ic
     return (
         <div
             onClick={onClick}
-            className="text-small flex py-2 px-1 gap-2 cursor-pointer rounded-sm items-center justify-between hover:bg-white hover:bg-opacity-20 hover:backdrop-filter hover:backdrop-blur-md">
+            className="text-small flex py-2 px-2 gap-2 cursor-pointer rounded items-center justify-between hover:bg-white hover:bg-opacity-20 hover:backdrop-filter hover:backdrop-blur-md">
             {text} {
             !icon ? null :
                 typeof icon === 'string' ?
@@ -77,7 +77,7 @@ export default function ProfileManager() {
     useEffect(() => {
         if (!selectedCharacter) return
         if (isRoleSelectWindowOpen) return
-        if (!selectedCharacter.selectedRole && session?.id === selectedCharacter.id) return setIsRoleSelectWindowOpen(true)
+        if (!selectedCharacter.selectedRole && session?.id === selectedCharacter.id && selectedCharacter?.id) return setIsRoleSelectWindowOpen(true)
         setIsRoleSelectWindowOpen(false)
         router.refresh()
     }, [selectedCharacter, session])
@@ -171,7 +171,7 @@ export default function ProfileManager() {
                                                     const {character} = data
                                                     supabase.from('ev_member').update({
                                                         character: {...character, selectedRole: roleKey}
-                                                    }).eq('id', session.id).single().then(({error}: any) => {
+                                                    }).eq('id', session?.id).single().then(({error}: any) => {
                                                         if (error) {
                                                             toast.error('Failed to update role', {
                                                                 duration: 2500,

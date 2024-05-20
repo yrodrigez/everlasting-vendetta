@@ -26,21 +26,22 @@ export function getCookie(name: string) {
  * @param config - The zustand config
  * @returns The zustand config
  */
-export const zustandLogger = (config: any) => (set: any, get: any, api: any) => {
-    if (process.env.NODE_ENV === 'production') {
-        return config(set, get, api)
-    }
+export const zustandLogger = <T extends object, S>(config: (set: (args: Partial<T>) => void, get: () => S, api: any) => T) =>
+    (set: (args: Partial<T>) => void, get: () => S, api: any): T => {
+        if (process.env.NODE_ENV === 'production') {
+            return config(set, get, api);
+        }
 
-    return config(
-        (args: ApplyFormStore) => {
-            console.log('  applying', args)
-            set(args)
-            console.log('  new state', get())
-        },
-        get,
-        api
-    )
-}
+        return config(
+            (args: Partial<T>) => {
+                console.log('  applying', args);
+                set(args);
+                console.log('  new state', get());
+            },
+            get,
+            api
+        );
+};
 
 /**
  * Parses the access token and returns the user object
