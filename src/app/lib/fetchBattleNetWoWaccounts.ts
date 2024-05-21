@@ -9,7 +9,9 @@ export async function fetchBattleNetWoWAccounts(token: string) {
 
         const data = await response.json();
 
-        return data?.wow_accounts[0]?.characters || []
+        return (data.wow_accounts ?? []).reduce((acc: any[], wowAccount: any) => {
+            return [...acc, ...(wowAccount?.characters ?? [])]
+        }, [])
     } catch (e) {
         console.error('Error fetching wow accounts:', e)
         return []
