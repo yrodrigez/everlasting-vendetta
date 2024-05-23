@@ -12,7 +12,8 @@ const MAX_RAID_RESETS = 9
 const CURRENT_RAID_NAME = 'Sunken Temple'
 const CURRENT_MAX_LEVEL = 50
 const CURRENT_RAID_IMAGE = '/sunken_temple-raid.webp'
-const PROPOSED_RAID_TIME = '20:30'
+const RAID_TIME = '20:30'
+const CURRENT_RAID_ID = '65c70baf-e3c1-4746-8520-02d2e4c1a813'
 
 function createNextMaxRaidResetsDates(startDate: string, maxResets: number) {
     const raidResets = []
@@ -26,12 +27,16 @@ function createNextMaxRaidResetsDates(startDate: string, maxResets: number) {
 }
 
 async function fetchRaidMembers(id: string, supabase: SupabaseClient) {
-    const {
-        data,
-    } = await supabase.from('ev_raid_participant').select('member:ev_member(*), is_confirmed, raid_id, details').eq('raid_id', id)
+    const {data, error} = await supabase.from('ev_raid_participant')
+        .select('member:ev_member(*), is_confirmed, raid_id, details')
+        .eq('raid_id', id);
 
-    return data
+    if (error) {
+        console.error('Error fetching raid members:', error);
+        return [];
+    }
 
+    return data;
 }
 
 async function fetchMaxRaidResets(supabase: SupabaseClient) {
@@ -46,7 +51,7 @@ async function fetchMaxRaidResets(supabase: SupabaseClient) {
         return []
     }
 
-    return raidResets.data.length === MAX_RAID_RESETS ? raidResets.data : []
+    return raidResets.data ?? []
 }
 
 async function fetchNextRaidResets(supabase: SupabaseClient) {
@@ -64,7 +69,9 @@ async function fetchNextRaidResets(supabase: SupabaseClient) {
         name: CURRENT_RAID_NAME,
         min_lvl: CURRENT_MAX_LEVEL,
         image_url: CURRENT_RAID_IMAGE,
-        time: PROPOSED_RAID_TIME
+        time: RAID_TIME,
+        end_date: moment(raid_date).add(7, 'day').format('YYYY-MM-DD'),
+        raid_id: CURRENT_RAID_ID
     })))
 
     return fetchMaxRaidResets(supabase)
