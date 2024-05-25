@@ -66,6 +66,51 @@ export function ReserveForOthers({resetId}: { resetId: string }) {
         queryFn: () => fetchItems(supabase),
         enabled: !!supabase,
     })
+    const createReserve = useMemo(() => (character: Character & { avatar: string }, itemId: number) => {
+        if (!character.id) {
+            toast.error('Character not found')
+            return
+        }
+        if (!supabase) {
+            toast.error('Error connecting to the database')
+            return
+        }
+
+        (async () => {
+            const toUpsertCharacter = {
+                id: character.id,
+                name: character.name,
+                level: character.level,
+                character_class: {
+                    name: character.character_class?.name ?? 'Unknown'
+                },
+                playable_class: {
+                    name: character.character_class?.name ?? 'Unknown'
+                },
+                guild: {
+                    name: character.guild?.name,
+                    id: character.guild?.id,
+                },
+                realm: {
+                    name: character.realm.name,
+                    id: character.realm.id,
+                },
+                avatar: character.avatar,
+            }
+            const {data, error} = await supabase.from('ev_member').upsert({
+                id: character.id,
+                character: toUpsertCharacter,
+                updated_at: new Date(),
+                registration_source: 'manual_reservation'
+            }).select('id, user_id').single()
+            if (error) {
+                toast.error('Error creating member')
+                return
+            }
+
+            await reserve(itemId, data.id)
+        })()
+    }, [lowerCaseCharacterName, supabase])
 
     const {data: character, error: userFetchError, isLoading: userIsLoading, refetch: reFetchUser} = useQuery({
         queryKey: ['character', lowerCaseCharacterName],
@@ -183,7 +228,7 @@ export function ReserveForOthers({resetId}: { resetId: string }) {
                                             onClick={() => {
                                                 if (!character?.id) return
                                                 if (!itemId) return
-                                                reserve(itemId, character.id)
+                                                createReserve(character, itemId)
                                             }}
                                         >
                                             <FontAwesomeIcon icon={faCartPlus}/>
