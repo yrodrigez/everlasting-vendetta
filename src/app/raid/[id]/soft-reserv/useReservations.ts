@@ -1,5 +1,5 @@
 'use client'
-import {useEffect, useState} from "react";
+import {useEffect} from "react";
 import {useSession} from "@/app/hooks/useSession";
 import {raidLootReservationsColumns} from "@/app/raid/[id]/soft-reserv/supabase_config";
 import {type RaidItem, type Reservation, type Character} from "@/app/raid/[id]/soft-reserv/types";
@@ -162,10 +162,10 @@ export const useReservations = (resetId: string, initialItems: Reservation[] = [
         }
     }, [resetId, selectedCharacter, supabase]);
 
-    const reserve = async (itemId: number) => {
-        if (!selectedCharacter?.id || !supabase) return
+    const reserve = async (itemId: number, characterId = selectedCharacter?.id) => {
+        if (!characterId || !supabase) return
         setLoading(true)
-        const isError = await reserveItem(supabase, resetId, itemId, selectedCharacter.id)
+        const isError = await reserveItem(supabase, resetId, itemId, characterId)
         setLoading(false)
         if (isError) {
             const audio = new Audio('/sounds/HumanMale_err_itemmaxcount01.ogg');

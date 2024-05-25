@@ -32,8 +32,16 @@ interface Character {
     realm: Realm;
     playable_class: PlayableClass;
     playable_race: PlayableRace;
+    character_class?: PlayableClass;
     gender: Gender;
     faction: Faction;
+    guild?: {
+        key: {
+            href: string;
+        };
+        name: string;
+        id: number;
+    }
     level: number;
 }
 
