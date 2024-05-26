@@ -8,20 +8,19 @@ import {
     ModalContent,
     ModalFooter,
     ModalHeader,
-    Tooltip,
     useDisclosure
 } from "@nextui-org/react";
-import {useEffect, useMemo, useRef, useState} from "react";
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useReservations} from "@/app/raid/[id]/soft-reserv/useReservations";
 import {toast} from "sonner";
 import {Character} from "@/app/util/blizzard/battleNetWoWAccount/types";
 import {useSession} from "@/app/hooks/useSession";
 import {useQuery} from '@tanstack/react-query'
 import Link from "next/link";
-import {ItemTooltip} from "@/app/raid/[id]/soft-reserv/RaidItemCard";
-import Image from "next/image";
-
-const CURRENT_RAID_ID = '65c70baf-e3c1-4746-8520-02d2e4c1a813'
+import {insertCharacterIfNotExists} from "@/app/lib/database/ev_member/insertCharacterIfNotExists";
+import {fetchItems} from "@/app/lib/database/raid_loot_item/fetchItems";
+import {getRaidIdByResetId} from "@/app/lib/database/raid_resets/getRaidIdByResetId";
+import {Item} from "@/app/components/item/Item";
 
 async function fetchCharacterByName(characterName: string) {
     const url = `/api/v1/services/wow/getCharacterByName?name=${characterName}`
@@ -34,17 +33,6 @@ async function fetchCharacterByName(characterName: string) {
     return response.json()
 }
 
-async function fetchItems(supabase: any,) {
-    const {data: items, error} = await supabase.from('raid_loot_item')
-        .select('*, raid:ev_raid(name, id, min_level)')
-        .eq('raid_id', CURRENT_RAID_ID)
-
-    if (error) {
-        throw new Error(error.message)
-    }
-
-    return items
-}
 
 export function ReserveForOthers({resetId}: { resetId: string }) {
     const {isOpen, onOpen, onClose, onOpenChange} = useDisclosure()
@@ -63,10 +51,16 @@ export function ReserveForOthers({resetId}: { resetId: string }) {
     const [itemName, setItemName] = useState('' as string)
     const {data: items = [], error, isLoading} = useQuery({
         queryKey: ['raid_loot_item', resetId],
-        queryFn: () => fetchItems(supabase),
+        queryFn: async () => {
+            if (!supabase) return []
+            const raidId = await getRaidIdByResetId(supabase, resetId)
+            if (!raidId) throw new Error('Raid not found')
+            return fetchItems(supabase, raidId)
+        },
         enabled: !!supabase,
     })
-    const createReserve = useMemo(() => (character: Character & { avatar: string }, itemId: number) => {
+
+    const createReserve = useCallback((character: Character & { avatar: string }, itemId: number) => {
         if (!character.id) {
             toast.error('Character not found')
             return
@@ -97,22 +91,17 @@ export function ReserveForOthers({resetId}: { resetId: string }) {
                 },
                 avatar: character.avatar,
             }
-            const {data, error} = await supabase.from('ev_member').upsert({
-                id: character.id,
-                character: toUpsertCharacter,
-                updated_at: new Date(),
-                registration_source: 'manual_reservation'
-            }).select('id, user_id').single()
-            if (error) {
-                toast.error('Error creating member')
-                return
-            }
 
-            await reserve(itemId, data.id)
+            try {
+                const characterId = await insertCharacterIfNotExists(supabase, toUpsertCharacter, 'manual_reservation')
+                await reserve(itemId, characterId)
+            } catch (e: any) {
+                toast.error(e.message ?? 'Error reserving item')
+            }
         })()
     }, [lowerCaseCharacterName, supabase])
 
-    const {data: character, error: userFetchError, isLoading: userIsLoading, refetch: reFetchUser} = useQuery({
+    const {data: character, refetch: reFetchUser} = useQuery({
         queryKey: ['character', lowerCaseCharacterName],
         queryFn: () => fetchCharacterByName(lowerCaseCharacterName),
         enabled: !!lowerCaseCharacterName,
@@ -207,19 +196,14 @@ export function ReserveForOthers({resetId}: { resetId: string }) {
                                                 if (!name) {
                                                     setItemId(undefined)
                                                     setSelectedItem(null)
+                                                    setItemName(name)
+
+                                                    return
                                                 }
                                                 setItemName(name)
-                                                const item = items.find((item: any) => item?.name?.toLowerCase().includes(name.toLowerCase()))
-                                                if (!item) {
-                                                    return setItemId(undefined)
-                                                }
-                                                setItemId(item.id)
+                                                const item = !name ? undefined : items.find((item: any) => item?.name?.toLowerCase().includes(name.toLowerCase()))
+                                                setItemId(item?.id)
                                                 setSelectedItem(item)
-                                            }}
-                                            isClearable
-                                            onClear={() => {
-                                                setItemId(undefined)
-                                                setSelectedItem(null)
                                             }}
                                         />
                                         <Button
@@ -235,47 +219,12 @@ export function ReserveForOthers({resetId}: { resetId: string }) {
                                         </Button>
                                     </div>
                                     <div className="w-full h-11 flex gap-2">
-                                        {selectedItem && (<>
-                                                <Tooltip
-                                                    className={'bg-transparent border-none shadow-none'}
-
-                                                    // @ts-ignore - nextui types are wrong
-                                                    shadow={'none'}
-                                                    placement={'right'}
-                                                    offset={20}
-                                                    content={
-                                                        <div className="flex gap">
-                                                            <ItemTooltip item={selectedItem}
-                                                                         qualityColor={[
-                                                                             'poor',
-                                                                             'common',
-                                                                             'uncommon',
-                                                                             'rare',
-                                                                             'epic',
-                                                                             'legendary',
-                                                                         ][selectedItem.description.quality ?? 0] as 'poor' | 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'}
-                                                            />
-                                                        </div>
-                                                    }
-                                                >
-                                                    <Image
-                                                        src={selectedItem.description.icon}
-                                                        alt={selectedItem.name}
-                                                        width={40}
-                                                        height={40}
-                                                        className={`border-gold border rounded-md`}
-                                                    />
-                                                </Tooltip>
-                                                <span>{selectedItem?.name}</span>
-                                            </>
-                                        )}
+                                        {selectedItem && (<Item item={selectedItem}/>)}
                                     </div>
                                 </div>
                             </ModalBody>
                             <ModalFooter>
-                                <Button
-                                    onClick={onClose}
-                                >
+                                <Button onClick={onClose}>
                                     Done
                                 </Button>
                             </ModalFooter>

@@ -11,17 +11,15 @@ import {Button} from "@/app/components/Button";
 import {ReserveForOthers} from "@/app/raid/[id]/soft-reserv/ReserveForOthers";
 
 export default function AdminPanel({isAdmin, resetId}: { isAdmin: boolean, resetId: string }) {
-    const {isReservationsOpen, setIsReservationsOpen, reservationsByItem, items,} = useReservations(resetId)
+    const {isReservationsOpen, setIsReservationsOpen, reservationsByItem, items, loading} = useReservations(resetId)
 
     return (
-        <div
-            className="flex flex-col gap-2"
-        >
-            <Link href={`/raid/${resetId}`}>
-                <Tooltip
-                    content={'Back to raid'}
-                    placement={'right'}
-                >
+        <div className="flex flex-col gap-2">
+            <Tooltip
+                content={'Back to raid'}
+                placement={'right'}
+            >
+                <Link href={`/raid/${resetId}`}>
                     <Button
                         className={'bg-moss text-gold rounded'}
                         size={'lg'}
@@ -29,8 +27,8 @@ export default function AdminPanel({isAdmin, resetId}: { isAdmin: boolean, reset
                         isIconOnly>
                         <FontAwesomeIcon icon={faArrowLeft}/>
                     </Button>
-                </Tooltip>
-            </Link>
+                </Link>
+            </Tooltip>
             <ShowReserveRules/>
             <Tooltip
                 content={isAdmin ? (isReservationsOpen ? 'Close reservations' : 'Open reservations') : isReservationsOpen ? 'Reservations are open' : 'Reservations are closed'}
