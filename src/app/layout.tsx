@@ -12,6 +12,7 @@ import {Toaster} from "sonner";
 import React from "react";
 import {HeaderMenuButton} from "@/app/components/HeaderMenuButton";
 import {LoginButton} from "@/app/components/LoginButton";
+import Script from 'next/script';
 
 config.autoAddCss = false;
 const inter = Inter({subsets: ["latin"]});
@@ -73,6 +74,14 @@ export default function RootLayout({
             </div>
             <Toaster richColors position="top-center"/>
         </Providers>
+        <Script
+            src="/scripts/jquery3.js"
+            strategy="beforeInteractive"
+        />
+        <Script
+            src="/scripts/modelviewer.js"
+            strategy="beforeInteractive"
+        />
         </body>
         </html>
     );
