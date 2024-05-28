@@ -1,17 +1,14 @@
 import {NextRequest, NextResponse} from "next/server";
 
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest, context: any) {
 
-    const url = new URL(request.url ?? '');
-    const slot = url.pathname.split('/')[6];
-    const displayId = url.toString().split('/').pop();
+    const {slot, displayId} = context.params;
 
-    const baseUrl = `https://wow.zamimg.com/modelviewer/live/meta/armor/${slot}/${displayId}`;
+    const baseUrl = `https://wow.zamimg.com/modelviewer/live/meta/armor/${slot}/${displayId}.json`;
     const response = await fetch(baseUrl);
     if (!response.ok) {
-        console.log(url.toString())
-        console.log(baseUrl);
+        console.log('erro fetchign', baseUrl)
         return new NextResponse(null, {status: response.status});
     }
     const data = await response.json();

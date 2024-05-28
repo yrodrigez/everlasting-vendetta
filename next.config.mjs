@@ -26,6 +26,10 @@ const nextConfig = {
         destination: '/api/v1/bypass/meta/textures/:id',
       },
       {
+        source:      '/api/v1/bypass/meta/item/:id.json',
+        destination: '/api/v1/bypass/meta/item/:id',
+      },
+      {
         source:      '/api/v1/bypass/meta/bone/:id.png',
         destination: '/api/v1/bypass/meta/bone/:id',
       },

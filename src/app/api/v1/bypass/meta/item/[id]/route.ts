@@ -1,9 +1,11 @@
 import {NextRequest, NextResponse} from "next/server";
 
+
 export async function GET(request: NextRequest, context: any) {
 
-    const {raceId} = context.params;
-    const baseUrl = `https://wow.zamimg.com/modelviewer/live/meta/character/${raceId}.json`;
+    const {id} = context.params;
+
+    const baseUrl = `https://wow.zamimg.com/modelviewer/live/meta/item/${id}.json`;
     const response = await fetch(baseUrl);
     if (!response.ok) {
         console.log('erro fetchign', baseUrl)

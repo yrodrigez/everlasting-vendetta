@@ -189,10 +189,12 @@ export default function ({item: _item, token, reverse, bottom, characterName}: {
                 setLoading(false)
                 return;
             }
-            const {itemIconUrl, itemDetails} = await response.json()
+            const {itemIconUrl, itemDetails, displayId} = await response.json()
             setItemIconUrl(itemIconUrl);
             setItemDetails(itemDetails);
             updateItem({
+                id,
+                displayId,
                 ...item,
                 itemIconUrl,
                 details: itemDetails

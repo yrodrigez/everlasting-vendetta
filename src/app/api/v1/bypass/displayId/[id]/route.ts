@@ -1,22 +1,13 @@
-import {NextRequest} from "next/server";
+import {NextRequest, NextResponse} from "next/server";
+import {getItemDisplayId} from "@/app/util/wowhead/getItemDisplayId";
 
 export async function GET(request: NextRequest, context: any) {
     const id = context.params.id;
-    const baseUrl = `https://www.wowhead.com/classic/item=${id}`;
-    const response = await fetch(baseUrl);
-    if (!response.ok) {
-        console.log(baseUrl);
-        return new Response(null, {status: response.status});
+    try {
+        const displayId = await getItemDisplayId(id);
+        return NextResponse.json({displayId});
+    } catch (e: any) {
+        console.error(e);
+        return new NextResponse(JSON.stringify({error: e?.message ?? e}), {status: 500});
     }
-    const data = await response.text();
-
-    const regex = /&quot;displayId&quot;\s*:\s*([0-9]+)/
-    const match = data.match(regex);
-    if (!match) {
-        console.log('no match');
-        return new Response(null, {status: 500});
-    }
-    const displayId = match[1];
-
-    return new Response(JSON.stringify({displayId}));
 }

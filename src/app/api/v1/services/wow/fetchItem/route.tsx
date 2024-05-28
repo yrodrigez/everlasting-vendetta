@@ -2,6 +2,13 @@ import axios from "axios";
 import {cookies} from "next/headers";
 import {type NextRequest, NextResponse} from "next/server";
 import {createServerComponentClient, SupabaseClient} from "@supabase/auth-helpers-nextjs";
+import {getItemDisplayId} from "@/app/util/wowhead/getItemDisplayId";
+import {
+    BLIZZARD_API_LOCALE,
+    BLIZZARD_API_NAMESPACE,
+    BLIZZARD_API_BASE_URL,
+    BNET_COOKIE_NAME, BLIZZARD_API_STATIC_NAMESPACE, createBlizzardItemFetchUrl
+} from "@/app/util/constants";
 
 function knownItemLevelQuality(itemId: number) {
     const knownItemLevels = {
@@ -21,7 +28,7 @@ function knownItemLevelQuality(itemId: number) {
 }
 
 async function fetchItemDetails(token: string, itemId: number, locale: string = 'en_US') {
-    const url = `https://eu.api.blizzard.com/data/wow/item/${itemId}?namespace=static-classic1x-eu&locale=${locale}`;
+    const url = createBlizzardItemFetchUrl(itemId);
     let itemDetails = {quality: {}, level: knownItemLevelQuality(itemId)} as any;
 
     try {
@@ -31,7 +38,7 @@ async function fetchItemDetails(token: string, itemId: number, locale: string = 
         itemDetails = data;
     } catch (e) {
         //console.error('Error fetching item details:', e)
-
+        return itemDetails
     }
     if (itemDetails.quality.level === 0) {
         console.error('Item quality not found for item:', itemId)
@@ -89,12 +96,12 @@ async function getItemFromDatabase(supabase: SupabaseClient, itemId: number) {
         return null
     }
 
-    return {details: data.details, lastUpdated: data.updated_at}
+    return {details: data.details, lastUpdated: data.updated_at, displayId: data.displayId, id: data.id}
 }
 
-async function saveItemToDatabase(supabase: SupabaseClient, itemId: number, itemDetails: any) {
+async function saveItemToDatabase(supabase: SupabaseClient, itemId: number, itemDetails: any, displayId: number) {
     const {data, error} = await supabase.from('wow_items')
-        .upsert({id: itemId, details: itemDetails}).select('details')
+        .upsert({id: itemId, details: itemDetails, display_id: displayId, updated_at: new Date()}).select('details')
         .limit(1)
         .single()
     if (error) {
@@ -106,9 +113,10 @@ async function saveItemToDatabase(supabase: SupabaseClient, itemId: number, item
 }
 
 async function fetchNewItem(supabase: SupabaseClient, token: { value: string, name: string }, itemId: number) {
-    const [wowHeadItem, bnetDetails] = await Promise.all([
+    const [wowHeadItem, bnetDetails, displayId] = await Promise.all([
         fetchWoWHeadItem(itemId),
-        fetchItemDetails(token?.value, itemId)
+        fetchItemDetails(token?.value, itemId),
+        getItemDisplayId(itemId).catch(() => 0)
     ])
 
     const itemDetails = {
@@ -117,18 +125,18 @@ async function fetchNewItem(supabase: SupabaseClient, token: { value: string, na
         icon: wowHeadItem.icon,
     }
 
-    saveItemToDatabase(supabase, itemId, itemDetails).then() // Don't wait for this to finish
+    saveItemToDatabase(supabase, itemId, itemDetails, displayId).then() // Don't wait for this to finish
     const itemIconUrl = itemDetails.icon
-    return NextResponse.json({itemIconUrl, itemDetails})
+    return NextResponse.json({itemIconUrl, itemDetails, displayId})
 }
 
 export async function GET(request: NextRequest) {
     const cookieList = cookies()
-    let token = cookieList.get(process.env.BNET_COOKIE_NAME!)
+    let token = cookieList.get(BNET_COOKIE_NAME)
     const url = new URL(request.url)
     const itemId = Number(url.searchParams.get('itemId'))
     if (!token?.value) {
-        token = {value: url.searchParams.get('token') ?? '', name: process.env.BNET_COOKIE_NAME!}
+        token = {value: url.searchParams.get('token') ?? '', name: BNET_COOKIE_NAME}
     }
 
     if (itemId === 999999) {
@@ -142,12 +150,14 @@ export async function GET(request: NextRequest) {
     const itemFromDatabase = await getItemFromDatabase(supabase, itemId)
     const itemDetailsFromDatabase = itemFromDatabase?.details
     const lastUpdated = itemFromDatabase?.lastUpdated
+    const displayId = itemFromDatabase?.displayId
     const updatedLessThanAWeekAgo = ((new Date().getTime() - new Date(lastUpdated).getTime()) < 1000 * 60 * 60 * 24 * 7)
-    if (itemDetailsFromDatabase && lastUpdated && updatedLessThanAWeekAgo) { // If item is in database and updated less than a week ago
+
+    if ((itemDetailsFromDatabase && lastUpdated && updatedLessThanAWeekAgo) && (displayId || displayId === 0)) { // If item is in database and was updated less than a week ago
         const itemIconUrl = itemDetailsFromDatabase.icon
         const itemDetails = itemDetailsFromDatabase;
-        
-        return NextResponse.json({itemIconUrl, itemDetails})
+
+        return NextResponse.json({itemIconUrl, itemDetails, displayId})
     }
 
     return fetchNewItem(supabase, token, itemId)

@@ -1,13 +1,11 @@
-import {NextResponse} from "next/server";
-import {NextApiRequest} from "next";
+import {NextRequest, NextResponse} from "next/server";
 
-export async function GET(request: NextApiRequest) {
-    const url = new URL(request.url ?? '');
-    const raceGender = url.pathname.split('/').pop();
-    const baseUrl = `https://wow.zamimg.com/modelviewer/live/meta/charactercustomization/${raceGender}`;
+export async function GET(request: NextRequest, context: any) {
+    const {raceGender} = context.params;
+    const baseUrl = `https://wow.zamimg.com/modelviewer/live/meta/charactercustomization/${raceGender}.json`;
     const response = await fetch(baseUrl);
     if (!response.ok) {
-
+        console.log('erro fetchign', baseUrl)
         return new NextResponse(null, {status: response.status});
     }
     const data = await response.json();

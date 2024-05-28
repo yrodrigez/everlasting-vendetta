@@ -1,15 +1,24 @@
 import {cookies} from "next/headers";
 import {fetchGuildInfo} from "@/app/lib/fetchGuildInfo";
 import {getBlizzardToken} from "@/app/lib/getBlizzardToken";
+import {
+    BLIZZARD_API_LOCALE, BLIZZARD_API_NAMESPACE,
+    BLIZZARD_API_REGION,
+    BNET_COOKIE_NAME, createProfileCharacterFetchUrl,
+    GUILD_ID,
+    GUILD_NAME,
+    GUILD_REALM_SLUG,
+    REALM_ID
+} from "@/app/util/constants";
 
 interface WoWService {
     token: string | undefined
     guild: string
-    guildId: string
+    guildId: number
     region: string
     locale: string
     realmSlug: string
-    realmId: string
+    realmId: number
     headers: Headers
     namespace: string
 
@@ -25,23 +34,23 @@ interface WoWService {
 export default class WoWService_Impl implements WoWService {
     token: string | undefined;
     guild: string;
-    guildId: string;
+    guildId: number;
     region: string;
     locale: string;
     realmSlug: string;
-    realmId: string;
+    realmId: number;
     headers: Headers;
     namespace: string;
 
     constructor() {
-        this.token = cookies().get(process.env.BNET_COOKIE_NAME!)?.value
-        this.guild = process.env.GUILD_NAME!
-        this.guildId = process.env.GUILD_ID!
-        this.region = process.env.GUILD_REGION!
-        this.locale = 'en_US'
-        this.realmSlug = process.env.GUILD_REALM_SLUG!
-        this.realmId = process.env.GUILD_REALM_ID!
-        this.namespace = 'profile-classic1x-eu'
+        this.token = cookies().get(BNET_COOKIE_NAME)?.value
+        this.guild = GUILD_NAME!
+        this.guildId = GUILD_ID
+        this.region = BLIZZARD_API_REGION
+        this.locale = BLIZZARD_API_LOCALE
+        this.realmSlug = GUILD_REALM_SLUG
+        this.realmId = REALM_ID
+        this.namespace = BLIZZARD_API_NAMESPACE
         const headers = new Headers()
         headers.append('Authorization', 'Bearer ' + this.token)
         this.headers = headers
@@ -52,7 +61,7 @@ export default class WoWService_Impl implements WoWService {
             throw new Error('WoWService::fetchMemberInfo - characterName parameter is required')
         }
         const token = this.token ?? (await getBlizzardToken()).token
-        const url = `https://eu.api.blizzard.com/profile/wow/character/${this.realmSlug}/${encodeURIComponent(characterName.toLowerCase())}`;
+        const url = createProfileCharacterFetchUrl(characterName);
         const query = new URLSearchParams({
             locale: this.locale,
             namespace: this.namespace
@@ -63,7 +72,7 @@ export default class WoWService_Impl implements WoWService {
                 'Authorization': 'Bearer ' + token
             }
         })
-        if(!response.ok) {
+        if (!response.ok) {
             return {error: 'Character not found: ' + characterName}
         }
         const data = await response.json()

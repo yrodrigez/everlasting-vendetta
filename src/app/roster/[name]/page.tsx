@@ -71,6 +71,12 @@ export default async function Page({params}: { params: { name: string } }) {
     if (characterInfo.error) {
         return <div>Character not found</div>
     }
+
+    const characterAppearance= {
+        gender: characterInfo?.gender?.type === 'MALE' ? 0 : 1,
+        race: characterInfo?.race?.id
+    }
+
     return (
         <div>
             <div className="mx-auto max-w-6xl px-4 flex justify-evenly items-center">
@@ -113,6 +119,7 @@ export default async function Page({params}: { params: { name: string } }) {
                     {
                         label: 'Gear', name: 'gear', children: <CharacterGear
                             characterName={characterName}
+                            characterAppearance={characterAppearance}
                             gear={{
                                 group1,
                                 group2,

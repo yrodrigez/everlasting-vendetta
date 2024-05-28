@@ -1,10 +1,9 @@
-import {NextResponse} from "next/server";
-import {NextApiRequest} from "next";
+import {NextRequest, NextResponse} from "next/server";
 
-export async function GET(request: NextApiRequest) {
-    const url = new URL(request.url ?? '');
 
-    const id = url.pathname.split('/').pop();
+export async function GET(request: NextRequest, context: any) {
+
+    const { id } = context.params;
     const baseUrl = `https://wow.zamimg.com/modelviewer/live/bone/${id}`;
 
 
