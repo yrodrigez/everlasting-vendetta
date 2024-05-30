@@ -2,9 +2,11 @@ import {cookies} from "next/headers";
 import {fetchGuildInfo} from "@/app/lib/fetchGuildInfo";
 import {getBlizzardToken} from "@/app/lib/getBlizzardToken";
 import {
-    BLIZZARD_API_LOCALE, BLIZZARD_API_NAMESPACE,
+    BLIZZARD_API_LOCALE,
+    BLIZZARD_API_NAMESPACE,
     BLIZZARD_API_REGION,
-    BNET_COOKIE_NAME, createProfileCharacterFetchUrl,
+    BNET_COOKIE_NAME,
+    createProfileCharacterFetchUrl,
     GUILD_ID,
     GUILD_NAME,
     GUILD_REALM_SLUG,
@@ -62,12 +64,8 @@ export default class WoWService_Impl implements WoWService {
         }
         const token = this.token ?? (await getBlizzardToken()).token
         const url = createProfileCharacterFetchUrl(characterName);
-        const query = new URLSearchParams({
-            locale: this.locale,
-            namespace: this.namespace
-        })
 
-        const response = await fetch(`${url}?${query}`, {
+        const response = await fetch(`${url}`, {
             headers: {
                 'Authorization': 'Bearer ' + token
             }
@@ -75,9 +73,9 @@ export default class WoWService_Impl implements WoWService {
         if (!response.ok) {
             return {error: 'Character not found: ' + characterName}
         }
-        const data = await response.json()
+        const responseJson = await response.json()
 
-        return data
+        return responseJson
     }
 
 

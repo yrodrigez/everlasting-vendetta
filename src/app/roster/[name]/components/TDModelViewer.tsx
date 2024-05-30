@@ -33,14 +33,17 @@ export function TDModelViewer({characterAppearance}: {
         if (items.some((item: any) => item.loading)) return
 
         const effectiveItems = items.map((item: any) => {
-            const {slot, displayId} = item
+            const {slot, displayId, details} = item
             switch (slot?.type) {
                 case 'HEAD':
                     return [1, displayId]
                 case 'SHOULDER':
                     return [3, displayId]
                 case 'CHEST':
-                    return [5, displayId]
+                    if (details?.item_subclass?.name.toLowerCase() === 'cloth' && !JSON.stringify(item ?? {}).toLowerCase().includes('vest')) {
+                        return [20, displayId]
+                    }
+                    else return [5, displayId]
                 case 'WAIST':
                     return [6, displayId]
                 case 'LEGS':
@@ -54,9 +57,9 @@ export function TDModelViewer({characterAppearance}: {
                 case 'BACK':
                     return [15, displayId]
                 case 'MAIN_HAND':
-                    return [16, displayId]
-                case 'OFF_HAND':
                     return [17, displayId]
+                case 'OFF_HAND':
+                    return [22, displayId]
                 default:
                     return null
             }
@@ -64,9 +67,9 @@ export function TDModelViewer({characterAppearance}: {
 
         const character = {
             ...characterAppearance,
-            skin: 4,
-            face: 0,
-            hairStyle: 2,
+            skin: 4, // min 0, max 11
+            face: 9, // min 0, max 11
+            hairStyle: 2, // min 0, max 26
             hairColor: 5,
             facialStyle: 0,
             items: effectiveItems

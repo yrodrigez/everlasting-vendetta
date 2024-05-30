@@ -16,6 +16,7 @@ export function CharacterTalents({talents, characterInfo}: {
     talents: any,
     characterInfo?: any
 }) {
+    console.log('talents', characterInfo)
     const talentGroups = (talents?.specialization_groups ?? []).map((group: any) => {
         const specializationName = (group.specializations ?? []).sort((a: any, b: any) => {
             return b.spent_points - a.spent_points
