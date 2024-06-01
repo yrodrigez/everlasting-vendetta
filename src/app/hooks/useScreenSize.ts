@@ -1,38 +1,49 @@
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 
 export default function useScreenSize() {
-    const [screenWidth, setScreenWidth] = useState(0)
-    const [screenHeight, setScreenHeight] = useState(0)
-    const [isMobile, setIsMobile] = useState(false)
-    const [isTablet, setIsTablet] = useState(false)
-    const [isDesktop, setIsDesktop] = useState(false)
+    const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+    const [screenHeight, setScreenHeight] = useState(window.innerHeight);
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    const [isTablet, setIsTablet] = useState(window.innerWidth >= 768 && window.innerWidth < 1024);
+    const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
 
     useEffect(() => {
         const handleResize = () => {
-            setScreenWidth(window.innerWidth)
-            setScreenHeight(window.innerHeight)
-        }
+            setScreenWidth(window.innerWidth);
+            setScreenHeight(window.innerHeight);
+        };
 
-        if (screenWidth < 768) {
-            setIsMobile(true)
-            setIsTablet(false)
-            setIsDesktop(false)
-        } else if (screenWidth >= 768 && screenWidth < 1024) {
-            setIsMobile(false)
-            setIsTablet(true)
-            setIsDesktop(false)
-        } else {
-            setIsMobile(false)
-            setIsTablet(false)
-            setIsDesktop(true)
-        }
+        let debounceTimeout = setTimeout(() => {}, 0);
+        const debouncedHandleResize = () => {
+            clearTimeout(debounceTimeout);
+            debounceTimeout = setTimeout(handleResize, 300);
+        };
 
-        window.addEventListener('resize', handleResize)
-        handleResize()
+        window.addEventListener('resize', debouncedHandleResize);
+
+        handleResize();
+
         return () => {
-            window.removeEventListener('resize', handleResize)
-        }
-    }, [screenWidth])
+            window.removeEventListener('resize', debouncedHandleResize);
+            clearTimeout(debounceTimeout);
+        };
+    }, []);
 
-    return {screenWidth, isMobile, isTablet, isDesktop, screenHeight}
+    useEffect(() => {
+        if (screenWidth < 768) {
+            setIsMobile(true);
+            setIsTablet(false);
+            setIsDesktop(false);
+        } else if (screenWidth >= 768 && screenWidth < 1024) {
+            setIsMobile(false);
+            setIsTablet(true);
+            setIsDesktop(false);
+        } else {
+            setIsMobile(false);
+            setIsTablet(false);
+            setIsDesktop(true);
+        }
+    }, [screenWidth]);
+
+    return { screenWidth, isMobile, isTablet, isDesktop, screenHeight };
 }

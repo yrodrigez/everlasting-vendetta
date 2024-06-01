@@ -37,9 +37,10 @@ function generateID(length: number) {
 }
 
 
-export function ExportToGargul({isReservationsOpen, reservationsByItem}: {
+export function ExportToGargul({isReservationsOpen, reservationsByItem, loading}: {
     isReservationsOpen: boolean,
     reservationsByItem: { item: RaidItem, reservations: Character[] }[]
+    loading: boolean
 }) {
     const {isOpen, onOpen, onOpenChange} = useDisclosure();
     const createStructure = () => {
@@ -92,7 +93,7 @@ export function ExportToGargul({isReservationsOpen, reservationsByItem}: {
                     <Button
                         size={'lg'}
                         variant={'light'}
-                        isDisabled={isReservationsOpen}
+                        isDisabled={loading || isReservationsOpen}
                         isIconOnly
                         className={'bg-moss text-gold rounded'}
                         onClick={onOpen}

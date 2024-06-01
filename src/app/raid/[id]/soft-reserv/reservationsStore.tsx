@@ -20,7 +20,7 @@ const initialState = {
     items: [],
     yourReservations: [],
     reservationsByItem: [],
-    loading: false,
+    loading: true,
     isReservationsOpen: false,
 }
 

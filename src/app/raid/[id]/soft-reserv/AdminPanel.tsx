@@ -47,6 +47,7 @@ export default function AdminPanel({isAdmin, resetId}: { isAdmin: boolean, reset
                 </div>
             </Tooltip>
             <ExportToGargul
+                loading={loading}
                 reservationsByItem={reservationsByItem}
                 isReservationsOpen={isReservationsOpen}
             />
