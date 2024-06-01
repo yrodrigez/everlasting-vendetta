@@ -1,6 +1,7 @@
 'use client'
 import {useEffect, useState} from "react";
 import {useCharacterItemsStore} from "@/app/roster/[name]/characterItemsStore";
+import useScreenSize from "@/app/hooks/useScreenSize";
 
 
 export function TDModelViewer({characterAppearance}: {
@@ -10,6 +11,7 @@ export function TDModelViewer({characterAppearance}: {
     const items = useCharacterItemsStore(state => state.items);
     const [isLoading, setIsLoading] = useState(true);
     const [modelGenerator, setGenerateModels] = useState<any>(null);
+    const {isDesktop} = useScreenSize();
 
     const loadGenerateModels = async () => {
         // @ts-ignore
@@ -23,11 +25,13 @@ export function TDModelViewer({characterAppearance}: {
     };
 
     useEffect(() => {
+        if (!isDesktop) return;
         setIsClient(true);
         loadGenerateModels();
-    }, []);
+    }, [isDesktop, characterAppearance]);
 
     useEffect(() => {
+        if (!isDesktop) return;
         if (!isClient || !modelGenerator) return;
         if (!items.length) return
         if (items.some((item: any) => item.loading)) return
@@ -42,8 +46,7 @@ export function TDModelViewer({characterAppearance}: {
                 case 'CHEST':
                     if (details?.item_subclass?.name.toLowerCase() === 'cloth' && !JSON.stringify(item ?? {}).toLowerCase().includes('vest')) {
                         return [20, displayId]
-                    }
-                    else return [5, displayId]
+                    } else return [5, displayId]
                 case 'WAIST':
                     return [6, displayId]
                 case 'LEGS':
@@ -91,9 +94,9 @@ export function TDModelViewer({characterAppearance}: {
             setIsLoading(false)
         })
 
-    }, [items, characterAppearance, isClient])
+    }, [items, characterAppearance, isClient, isDesktop])
 
-    return isLoading ? (<div
+    return !isDesktop ? null : isLoading ? (<div
         className="w-full h-full flex items-center justify-center absolute top-0 left-0 right-0 bottom-0 bg-dark rounded-lg bg-opacity-50 backdrop-filter backdrop-blur-md text-gold"
     >
         loading model...
