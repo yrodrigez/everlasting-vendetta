@@ -1,5 +1,5 @@
 'use client'
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useRef} from "react";
 import {Modal, ModalBody, ModalContent, ModalHeader, useDisclosure} from "@nextui-org/react";
 import AvailableCharactersList from "@/app/components/AvailableCharactersList";
 import {useCharacterStore} from "@/app/components/characterStore";
@@ -7,28 +7,26 @@ import {toast} from "sonner";
 import {logout} from "@/app/util";
 import {Character} from "@/app/util/blizzard/battleNetWoWAccount/types";
 import {GUILD_REALM_NAME} from "@/app/util/constants";
+import {useQuery} from "@tanstack/react-query";
 
 async function fetchBattleNetProfile(): Promise<{ characters: Character[] }> {
     const response = await fetch(window.location.origin + '/api/v1/services/wow/getUserCharacters')
-
     return await response.json();
 }
 
 async function getBnetCharacters(): Promise<Character[] | null> {
     try {
-        const profile = await fetchBattleNetProfile()
-        const {characters} = profile
-
-        const validCharacters = characters?.filter((character: Character) => character.level >= 10) ?? []
-
-        return (validCharacters.sort((a: Character, b: Character) => b.level - a.level))
+        const profile = await fetchBattleNetProfile();
+        const {characters} = profile;
+        const validCharacters = characters?.filter((character: Character) => character.level >= 10) ?? [];
+        return validCharacters.sort((a: Character, b: Character) => b.level - a.level);
     } catch (e) {
         toast.error('Failed to fetch profile from Battle.net', {
             duration: 2500,
             onDismiss: logout,
             onAutoClose: logout
-        })
-        return null
+        });
+        return null;
     }
 }
 
@@ -73,39 +71,40 @@ const useFetchCharacters = (token: { value: string }, onOpen: () => void, logout
         if (shouldOpen) onOpen();
     };
 
+    const {data: heroes, error, isFetching} = useQuery(
+        {
+            queryKey: ['bnetCharacters', token?.value],
+            enabled: !!token?.value && !hasFetchedData.current && lastUpdated < Date.now() - 60000,
+            queryFn: getBnetCharacters,
+
+        });
+
     useEffect(() => {
-        if (!token?.value) return;
-        if (lastUpdated >= Date.now() - 60000 && selectedCharacter) return;
-        if (hasFetchedData.current) return;
-        if (errorOccurred.current) return;
+        if (!token?.value || isFetching || errorOccurred.current || hasFetchedData.current) return;
 
-        const fetchCharacters = async () => {
-            hasFetchedData.current = true;
-
-            try {
-                const heroes = await getBnetCharacters();
-
-                if (!heroes?.length) {
-                    handleError(`No characters found on your account in the realm '${GUILD_REALM_NAME}' please make sure you are using the right account`);
-                    return;
-                }
-
-
-                const shouldOpen = !useCharacterStore.getState().selectedCharacter || !heroes.find(character => character.id === useCharacterStore.getState().selectedCharacter?.id);
-                updateCharacters(heroes, shouldOpen);
-
-            } catch (error) {
-                toast.error('Error fetching data');
-            } finally {
-                hasFetchedData.current = false;
+        if (heroes) {
+            if (!heroes?.length) {
+                handleError(`No characters found on your account in the realm '${GUILD_REALM_NAME}' please make sure you are using the right account`);
+                return;
             }
-        };
 
-        fetchCharacters().then();
-    }, [token?.value, lastUpdated, selectedCharacter, setCharacters, setLastUpdated, setSelectedCharacter, onOpen, clearCharacterStore, logout]);
+            const shouldOpen = !useCharacterStore.getState().selectedCharacter || !heroes.find(character => character.id === useCharacterStore.getState().selectedCharacter?.id);
+            updateCharacters(heroes, shouldOpen);
+            hasFetchedData.current = false;
+        } else if (error) {
+            toast.error('Error fetching data');
+            hasFetchedData.current = false;
+        }
 
+        hasFetchedData.current = true;
+    }, [token?.value, isFetching, error, heroes, errorOccurred, hasFetchedData]);
+
+    useEffect(() => {
+        if (!token?.value || isFetching || errorOccurred.current || hasFetchedData.current) return;
+
+        hasFetchedData.current = true;
+    }, [token?.value, isFetching, errorOccurred, hasFetchedData]);
 };
-
 
 export function BattleNetAuthManagerWindow({token, open, setExternalOpen}: {
     token: { name: string, value: string },

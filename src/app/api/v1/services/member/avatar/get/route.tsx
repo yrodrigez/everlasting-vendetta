@@ -2,6 +2,7 @@ import {NextRequest, NextResponse} from "next/server";
 import {cookies} from "next/headers";
 import {fetchCharacterAvatar} from "@/app/lib/fetchCharacterAvatar";
 import {getBlizzardToken} from "@/app/lib/getBlizzardToken";
+import {BNET_COOKIE_NAME} from "@/app/util/constants";
 
 
 export async function GET(request: NextRequest) {
@@ -14,8 +15,9 @@ export async function GET(request: NextRequest) {
     }
 
     if (!tokenString) {
-        tokenString = cookies().get(process.env.BNET_COOKIE_NAME!)?.value || (await getBlizzardToken()).token
+        tokenString = cookies().get(BNET_COOKIE_NAME)?.value || (await getBlizzardToken()).token
     }
+
     if (!tokenString) {
         return NextResponse.redirect(url.origin + '/api/v1/oauth/bnet/auth')
     }

@@ -18,7 +18,7 @@ class SessionManager {
         access_token?: string,
         error?: string
     }> {
-        console.log('installSession', token, selectedCharacter, retries);
+
         const maxRetries = 3;
 
         try {

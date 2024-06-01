@@ -12,7 +12,7 @@ export const BLIZZARD_API_LOCALE = 'en_US'
 export const BLIZZARD_API_REGION = 'eu'
 export const BLIZZARD_LOGOUT_URL = 'https://eu.battle.net/login/en/logout'
 export const LOGIN_URL = '/api/v1/oauth/bnet/auth'
-
+export const CURRENT_MAX_LEVEL = 50
 /**
  * Default search params for Blizzard API requests
  * @type {URLSearchParams}

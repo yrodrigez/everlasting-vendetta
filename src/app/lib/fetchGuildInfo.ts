@@ -1,3 +1,4 @@
+import {CURRENT_MAX_LEVEL} from "@/app/util/constants";
 
 interface Character {
     playable_class: any;
@@ -36,12 +37,12 @@ const rankComparator = (a: any, b: any) => {
     if (rankComparison !== 0) {
         return rankComparison
     }
-    return a.character.level - b.character.level
 
+    return a.character.level - b.character.level
 }
 
 export function getGuildRosterFromGuildInfo(guildInfo: any): Character[] {
-    const maxLevel = 40;
+    const maxLevel = CURRENT_MAX_LEVEL;
     const vipMembersNames = [
         'Alveric',
         'Kornyous',
@@ -52,16 +53,17 @@ export function getGuildRosterFromGuildInfo(guildInfo: any): Character[] {
         'Tacy',
         'Felsargon'
     ]
+
     const vipMembers = guildInfo?.members.filter((member: any) => {
         return vipMembersNames.includes(member.character.name)
     }).sort(rankComparator);
 
     const maxLevelMembers = (guildInfo?.members || []).filter((member: any) => {
-        return member.character.level >= maxLevel && !vipMembersNames.includes(member.character.name)
+        return member.character.level >= maxLevel && !vipMembersNames.includes(member.character.name) && member.rank <= 3
     }).sort(rankComparator);
 
     const minLevelMembers = (guildInfo?.members || []).filter((member: any) => {
-        return member.character.level < maxLevel && member.character.level > 15 && !vipMembersNames.includes(member.character.name)
+        return member.character.level >= maxLevel && !vipMembersNames.includes(member.character.name) && (member.rank > 5 || member.rank === 4)
     }).sort(rankComparator);
 
     return [...vipMembers, ...maxLevelMembers, ...minLevelMembers].map(rosterMapper)
@@ -94,13 +96,14 @@ function getRankName(rank: number) {
         5: 'Alter'
     } as any
 
-    return ranks[rank] || 'Unknown'
+    return ranks[rank] || 'Member'
 }
 
 function rosterMapper(member: any) {
     const {name, realm, id, level, playable_class} = member.character
     const {name: className, icon} = getPlayerClassById(playable_class.id)
     const rankName = getRankName(member.rank)
+
     return {
         name,
         realm,

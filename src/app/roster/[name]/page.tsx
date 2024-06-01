@@ -10,6 +10,8 @@ import {Tooltip} from "@nextui-org/react";
 import {getBlizzardToken} from "@/app/lib/getBlizzardToken";
 import WoWService from "@/app/services/wow-service";
 import GearScore from "@/app/roster/[name]/components/GearScore";
+import Link from "next/link";
+import {GUILD_NAME} from "@/app/util/constants";
 
 const getPlayerClassById = (classId: number) => {
     const classes = {
@@ -72,7 +74,7 @@ export default async function Page({params}: { params: { name: string } }) {
         return <div>Character not found</div>
     }
 
-    const characterAppearance= {
+    const characterAppearance = {
         gender: characterInfo?.gender?.type === 'MALE' ? 0 : 1,
         race: characterInfo?.race?.id
     }
@@ -87,11 +89,14 @@ export default async function Page({params}: { params: { name: string } }) {
                     </div>
                     <div className="grid gap-1.5">
                         <h2 className="font-semibold text-lg">{characterInfo?.name}</h2>
+                        {characterInfo?.guild?.name ? (
+                            <Link href={characterInfo?.guild?.name === GUILD_NAME ? '/roster': `/guild/${characterInfo?.guild?.realm?.id}-${characterInfo?.guild?.id}`}
+                                  className="text-sm text-gold">{`<${characterInfo?.guild?.name}>`}</Link>
+                        ) : null}
                         <p className="text-sm text-muted">
                             Level {characterInfo?.level} {characterInfo?.race?.name} {characterInfo?.character_class?.name}
                         </p>
-                        <p className="text-sm text-muted">Last online: <span
-                            className={`font-bold relative`}>
+                        <p className="text-sm text-muted">Last online: <span className={`font-bold relative`}>
                             {isGuildMember ? moment(characterInfo?.last_login_timestamp).format('MMMM D HH:MM') : 'no seas porco'}
                             {!isGuildMember ? <Tooltip
                                 placement="right"
@@ -104,6 +109,7 @@ export default async function Page({params}: { params: { name: string } }) {
                             </Tooltip> : null}
                         </span>
                         </p>
+
                         <GearScore character={characterName}/>
                     </div>
                 </div>

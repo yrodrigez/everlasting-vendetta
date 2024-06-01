@@ -12,8 +12,9 @@ export async function GET(request: NextRequest) {
     const url = new URL(request.url);
     const searchParams = url.searchParams;
     const redirectedFrom = searchParams.get('redirectedFrom');
+    const isWindowOpener = Boolean(searchParams.get('windowOpener') ?? '');
     const randomValue = Math.ceil(Math.random() * 10000000);
-    const state = toBase64(JSON.stringify({redirectedFrom, randomValue}));
+    const state = toBase64(JSON.stringify({redirectedFrom, randomValue, windowOpener: isWindowOpener}));
     const scopes = ['wow.profile'].join(',');
     const responseType = 'code';
 

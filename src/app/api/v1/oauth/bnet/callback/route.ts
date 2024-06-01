@@ -1,5 +1,6 @@
 import {type NextRequest, NextResponse} from "next/server";
 import {cookies} from "next/headers";
+import {BNET_COOKIE_NAME} from "@/app/util/constants";
 
 const IS_PRODUCTION = process.env.NODE_ENV === 'production'
 const PRODUCTION_ORIGIN = 'https://www.everlastingvendetta.com/'
@@ -42,19 +43,31 @@ export async function GET(request: NextRequest) {
 
     const tokenData = await tokenResponse.json()
     const redirectFrom = stateData?.redirectedFrom || '/'
+    const windowOpener = stateData?.windowOpener
 
-    const cookieName = 'bnetToken'
     if (code) {
-        if (cookies().get(cookieName)) {
-            cookies().delete(cookieName)
+        if (cookies().get(BNET_COOKIE_NAME)) {
+            cookies().delete(BNET_COOKIE_NAME)
         }
-        cookies().set(cookieName, tokenData.access_token, {
+        cookies().set(BNET_COOKIE_NAME, tokenData.access_token, {
             maxAge: tokenData.expires_in,
             path: '/',
             sameSite: 'lax',
             secure: true,
         })
     }
+
+    if (windowOpener) {
+        return new NextResponse(
+            `<script>window.opener.postMessage('${BNET_COOKIE_NAME}', '*');window.close();</script>`,
+            {
+                headers: {
+                    'Content-Type': 'text/html',
+                },
+            }
+        )
+    }
+
 
     if (IS_PRODUCTION) {
         return NextResponse.redirect(PRODUCTION_ORIGIN + redirectFrom)

@@ -34,5 +34,4 @@ export default async function Page() {
             </Link>
         })}
     </main>
-
 }
