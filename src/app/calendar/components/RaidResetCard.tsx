@@ -32,7 +32,7 @@ export function RaidResetCard({
         <Card
             isFooterBlurred
             className={`w-[300px] relative text-default bg-[rgba(0,0,0,.6)] ${
-            isRaidCurrent ? 'border-2 border-gold shadow-2xl shadow-gold glow-animation ' : ''    
+            isRaidCurrent ? 'border-2 border-gold shadow-2xl shadow-gold glow-animation ' : 'border-1 border-[rgba(255,255,255,.2)]'    
         }`} radius="lg">
             <Image
                 removeWrapper
