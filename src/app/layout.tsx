@@ -37,7 +37,7 @@ export default function RootLayout({
         <body className={inter.className} style={{width: '100%', height: '100%', position: 'relative'}}>
         <Providers>
             <div className="pt-1 flex flex-col w-full h-full max-h-full min-h-screen items-center">
-                <div className="h-[80px] w-full flex items-center justify-center border-b border-gold relative">
+                <div className="h-[80px] w-full flex items-center justify-center border-b border-gold relative bg-[rgba(12,18,18)]">
                     <div className="md:max-w-[900px] flex items-center justify-between h-full ">
                         <div className="flex items-center md:w-[240px] flex-1 gap-2 justify-center mr-2 lg:mr-0">
                             <HeaderMenuButton text="Home"/>

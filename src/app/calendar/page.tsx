@@ -6,25 +6,8 @@ import {createServerComponentClient, type SupabaseClient} from "@supabase/auth-h
 
 export const dynamic = 'force-dynamic'
 
-const START_DATE = '2024-04-03'
-const RAID_RESET_DAYS = 7
 const MAX_RAID_RESETS = 9
-const CURRENT_RAID_NAME = 'Sunken Temple'
-const CURRENT_MAX_LEVEL = 50
-const CURRENT_RAID_IMAGE = '/sunken_temple-raid.webp'
-const RAID_TIME = '20:30'
-const CURRENT_RAID_ID = '65c70baf-e3c1-4746-8520-02d2e4c1a813'
 
-function createNextMaxRaidResetsDates(startDate: string, maxResets: number) {
-    const raidResets = []
-    let nextRaidDate = moment(startDate)
-
-    for (let i = 0; i < maxResets; i++) {
-        raidResets.push(nextRaidDate.add(RAID_RESET_DAYS, 'days').format('YYYY-MM-DD'))
-    }
-
-    return raidResets
-}
 
 async function fetchRaidMembers(id: string, supabase: SupabaseClient) {
     const {data, error} = await supabase.from('ev_raid_participant')
@@ -41,7 +24,7 @@ async function fetchRaidMembers(id: string, supabase: SupabaseClient) {
 
 async function fetchMaxRaidResets(supabase: SupabaseClient) {
     const raidResets = await supabase.from('raid_resets')
-        .select('raid_date, id, name, min_lvl, image_url, time, end_date')
+        .select('raid_date, id, raid:ev_raid(name, min_level, image), time, end_date')
         .gte('end_date', moment().format('YYYY-MM-DD'))
         .order('raid_date', {ascending: true})
         .limit(MAX_RAID_RESETS)
@@ -54,35 +37,12 @@ async function fetchMaxRaidResets(supabase: SupabaseClient) {
     return raidResets.data ?? []
 }
 
-async function fetchNextRaidResets(supabase: SupabaseClient) {
-
-    const raidResets = await fetchMaxRaidResets(supabase)
-
-    if (raidResets.length >= MAX_RAID_RESETS) {
-        return raidResets
-    }
-
-    const lastRaidDate = raidResets[raidResets.length - 1]?.raid_date ?? START_DATE
-    const newRaidResets = createNextMaxRaidResetsDates(lastRaidDate, MAX_RAID_RESETS - raidResets.length)
-    await supabase.from('raid_resets').insert(newRaidResets.map(raid_date => ({
-        raid_date,
-        name: CURRENT_RAID_NAME,
-        min_lvl: CURRENT_MAX_LEVEL,
-        image_url: CURRENT_RAID_IMAGE,
-        time: RAID_TIME,
-        end_date: moment(raid_date).add(7, 'day').format('YYYY-MM-DD'),
-        raid_id: CURRENT_RAID_ID
-    })))
-
-    return fetchMaxRaidResets(supabase)
-}
-
 
 export default async function Page() {
 
     const supabase = createServerComponentClient({cookies})
 
-    const raidResets = await Promise.all((await fetchNextRaidResets(supabase)).map(async (raidReset: any) => {
+    const raidResets = await Promise.all((await fetchMaxRaidResets(supabase)).map(async (raidReset: any) => {
         const raidRegistrations = await fetchRaidMembers(raidReset.id, supabase)
         return {...raidReset, raidRegistrations}
     }))
@@ -94,8 +54,8 @@ export default async function Page() {
                 raidEndDate={raidReset.end_date}
                 id={raidReset.id}
                 key={index}
-                raidName={raidReset.name}
-                raidImage={raidReset.image_url ?? '/sunken_temple-raid.webp'}
+                raidName={raidReset.raid.name}
+                raidImage={`/${raidReset.raid.image}`}
                 raidDate={raidReset.raid_date}
                 raidTime={raidReset.time}
                 raidRegistrations={raidReset.raidRegistrations}/>

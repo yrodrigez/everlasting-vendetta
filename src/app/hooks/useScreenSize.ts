@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 
 export default function useScreenSize() {
-    const [screenWidth, setScreenWidth] = useState(window.innerWidth);
-    const [screenHeight, setScreenHeight] = useState(window.innerHeight);
-    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-    const [isTablet, setIsTablet] = useState(window.innerWidth >= 768 && window.innerWidth < 1024);
-    const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
+    const [screenWidth, setScreenWidth] = useState(1080);
+    const [screenHeight, setScreenHeight] = useState(1920);
+    const [isMobile, setIsMobile] = useState(false);
+    const [isTablet, setIsTablet] = useState(false);
+        const [isDesktop, setIsDesktop] = useState(true);
 
     useEffect(() => {
         const handleResize = () => {

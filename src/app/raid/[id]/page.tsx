@@ -14,10 +14,9 @@ import Link from "next/link";
 import {RaidOptions} from "@/app/raid/components/RaidOptions";
 import {Button, Tooltip} from "@nextui-org/react";
 import {getLoggedInUserFromAccessToken} from "@/app/util";
-import NotLoggedInView from "@/app/components/NotLoggedInView";
 import {faDiscord} from "@fortawesome/free-brands-svg-icons";
 
-const raidResetAttr = 'raid_date, id, name, min_lvl, image_url, time, end_date'
+const raidResetAttr = 'raid_date, id, raid:ev_raid(name, min_level, image), time, end_date'
 
 function findNextWednesday() {
     if (moment().day() === 3) {
@@ -128,7 +127,8 @@ export default async function ({params}: { params: { id: string } }) {
         </div>
     }
 
-    const {id, raid_date: raidDate, name: raidName, min_lvl, image_url, time: raidTime, end_date} = data
+    const {id, raid_date: raidDate, raid, time: raidTime, end_date} = data
+    const {name: raidName, min_level: min_lvl} = raid
     const raidStartDate = moment(raidDate)
     const raidEndDate = moment(end_date)
     const raidInProgress = moment().isBetween(raidStartDate, raidEndDate)
