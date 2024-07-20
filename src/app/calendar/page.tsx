@@ -27,6 +27,7 @@ async function fetchMaxRaidResets(supabase: SupabaseClient) {
         .select('raid_date, id, raid:ev_raid(name, min_level, image), time, end_date')
         .gte('end_date', moment().format('YYYY-MM-DD'))
         .order('raid_date', {ascending: true})
+        .order('raid_id', {ascending: false})
         .limit(MAX_RAID_RESETS)
 
     if (raidResets.error) {
