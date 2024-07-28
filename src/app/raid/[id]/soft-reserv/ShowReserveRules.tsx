@@ -73,6 +73,17 @@ export default function ShowReserveRules() {
                                         <p>Reservations will be closed at the discretion of the loot master. No
                                             modifications are allowed once closed.</p>
                                     </div>
+                                    <div className="p-4 bg-moss rounded">
+                                        <h2 className="font-semibold">6. Legendary Items Distribution</h2>
+                                        <p>The distribution of legendary items will be decided by the loot master, with
+                                            priority given to long-term members to recognize their contributions and
+                                            loyalty.</p>
+                                    </div>
+                                    <div className="p-4 bg-moss rounded">
+                                        <h2 className="font-semibold">7. Exceptional Cases</h2>
+                                        <p>In exceptional cases, the loot master has the discretion to make changes to
+                                            loot distribution as deemed necessary.</p>
+                                    </div>
                                 </div>
                             </ModalBody>
                             <ModalFooter>
@@ -80,7 +91,7 @@ export default function ShowReserveRules() {
                                     onClick={handleAccept}
                                     className={'bg-moss text-default rounded'}
                                 >
-                                    I understand
+                                I understand
                                 </Button>
                             </ModalFooter>
                         </>
