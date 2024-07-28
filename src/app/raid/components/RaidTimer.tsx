@@ -5,11 +5,17 @@ import {useEffect, useState} from "react";
 export const RaidTimer = ({timeToGo}: {
     timeToGo: string
 }) => {
-    const [timeLeft, setTimeLeft] = useState(moment(timeToGo).fromNow())
+
+    function getTimeLeft() {
+        const _timeToGo = moment(timeToGo).fromNow()
+        return _timeToGo[0].toUpperCase() + _timeToGo.slice(1)
+    }
+
+    const [timeLeft, setTimeLeft] = useState(getTimeLeft())
 
     useEffect(() => {
         const interval = setInterval(() => {
-            setTimeLeft(moment(timeToGo).fromNow())
+            setTimeLeft(getTimeLeft())
         }, 10000)
 
         return () => clearInterval(interval)

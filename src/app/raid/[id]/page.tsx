@@ -152,8 +152,9 @@ export default async function ({params}: { params: { id: string } }) {
     return (
         <div className="w-full h-full flex flex-col relative">
             <h4 className="font-bold text-large text-gold">{raidName}</h4>
-            <small className="text-primary">Start {raidDate} - {raidTime}</small>
+            <small className="text-primary">Start {raidDate} - {raidTime} to {'00:00:00'}</small>
             <small className="text-primary">End: {end_date}</small>
+
             <KpisView
                 raidInProgress={raidInProgress}
                 participants={participants}

@@ -43,7 +43,7 @@ export function RaidResetCard({
             />
             <CardHeader className="flex flex-col  shadow-xl bg-[rgba(0,0,0,.60)]">
                 <h4 className="font-bold text-large text-gold">{raidName}</h4>
-                <small className="text-primary">{moment(raidDate).format('dddd, MMMM D')} - {raidTime}</small>
+                <small className="text-primary">{moment(raidDate).format('dddd, MMMM D')} - {raidTime} to {'00:00:00'}</small>
             </CardHeader>
             <CardBody className="py-1 bg-[rgba(0,0,0,.60)]">
                 <RaidTimeInfo

@@ -27,7 +27,7 @@ export default function RaidTimeInfo({raidDate, raidTime, raidEndDate}: {
                 className={`${timeToGo.inProgress && !isRaidOver ? 'text-yellow-500 blink' : (!timeToGo.isToday && !isRaidOver) ? 'text-green-500' : 'text-red-500'}`}>
                 {
                     isRaidOver ? 'Raid is over' :
-                        timeToGo.isToday ? raidDateTime.isBefore(moment()) ? 'In progress' :
+                        !timeToGo.isToday ? raidDateTime.isBefore(moment()) ? 'In progress' :
                                 <RaidTimer timeToGo={
                                     moment(raidDateTime, 'YYYY-MM-DD HH:mm').format('YYYY-MM-DD HH:mm')
                                 }/> :
