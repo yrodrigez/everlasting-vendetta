@@ -1,12 +1,17 @@
+'use client'
 import {Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure} from "@nextui-org/react";
 import {faCircleInfo} from "@fortawesome/free-solid-svg-icons";
 import React, {useEffect} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import useReservationsStore from "@/app/raid/[id]/soft-reserv/reservationsStore";
+import {useRouter} from "next/navigation";
 
-export default function ShowReserveRules() {
-    const {isOpen, onOpen, onClose, onOpenChange} = useDisclosure()
+export default function ShowReserveRules({shouldAlwaysOpen}: {
+    shouldAlwaysOpen?: boolean
+
+}) {
+    const {isOpen, onOpen, onClose, onOpenChange} = useDisclosure(shouldAlwaysOpen ? {isOpen: shouldAlwaysOpen} : {})
     const [shouldBlink, setShouldBlink] = React.useState(false)
+    const router = useRouter()
     useEffect(() => {
         const hasReadTerms = JSON.parse(localStorage?.getItem('hasReadTerms') ?? '{"read":false, "time":0}')
         if (!hasReadTerms.read || hasReadTerms.time <= Date.now() - 1000 * 60 * 60 * 24 * 7) {
@@ -17,6 +22,9 @@ export default function ShowReserveRules() {
     const handleAccept = () => {
         localStorage.setItem('hasReadTerms', JSON.stringify({read: true, time: Date.now()}))
         onClose()
+        if (shouldAlwaysOpen) {
+            router.push('/')
+        }
         setShouldBlink(true)
         setTimeout(() => {
             setShouldBlink(false)
@@ -25,14 +33,16 @@ export default function ShowReserveRules() {
 
     return (
         <>
-            <Button
-                size={'lg'}
-                className={`bg-moss text-gold rounded ${shouldBlink ? 'border-2 border-gold animate-wiggle' : ''}`}
-                isIconOnly
-                onClick={onOpen}
-            >
-                <FontAwesomeIcon icon={faCircleInfo}/>
-            </Button>
+            {shouldAlwaysOpen ? null : (
+                <Button
+                    size={'lg'}
+                    className={`bg-moss text-gold rounded ${shouldBlink ? 'border-2 border-gold animate-wiggle' : ''}`}
+                    isIconOnly
+                    onClick={onOpen}
+                >
+                    <FontAwesomeIcon icon={faCircleInfo}/>
+                </Button>
+            )}
             <Modal
                 isOpen={isOpen}
                 onClose={onClose}
@@ -106,7 +116,7 @@ export default function ShowReserveRules() {
                                     onClick={handleAccept}
                                     className={'bg-moss text-default rounded'}
                                 >
-                                I understand
+                                    I understand
                                 </Button>
                             </ModalFooter>
                         </>
