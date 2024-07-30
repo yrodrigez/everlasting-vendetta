@@ -56,31 +56,46 @@ export default function ShowReserveRules() {
                                         <p>Each participant is allowed to reserve a maximum of two items.</p>
                                     </div>
                                     <div className="p-4 bg-moss rounded">
-                                        <h2 className="font-semibold">2. Duplicate Reservations</h2>
+                                        <h2 className="font-semibold">2. Timing of Loot Distribution</h2>
+                                        <p>To ensure a fair and organized process, all loot will be distributed at the
+                                            conclusion of the raid. We appreciate your understanding and cooperation in
+                                            this matter.</p>
+                                    </div>
+                                    <div className="p-4 bg-moss rounded">
+                                        <h2 className="font-semibold">3. Duplicate Reservations</h2>
                                         <p>If you reserve the same item twice, you are only eligible to roll against
                                             others who have also reserved that item twice.</p>
                                     </div>
                                     <div className="p-4 bg-moss rounded">
-                                        <h2 className="font-semibold">3. Reservation Authority</h2>
+                                        <h2 className="font-semibold">4. Reservation Authority</h2>
                                         <p>Only those who have reserved an item are authorized to roll for it.</p>
                                     </div>
                                     <div className="p-4 bg-moss rounded">
-                                        <h2 className="font-semibold">4. Open Rolls for Unreserved Items</h2>
+                                        <h2 className="font-semibold">5. Open Rolls for Unreserved Items</h2>
                                         <p>If an item has not been reserved, it is open for all to roll.</p>
                                     </div>
                                     <div className="p-4 bg-moss rounded">
-                                        <h2 className="font-semibold">5. Closure of Reservations</h2>
-                                        <p>Reservations will be closed at the discretion of the loot master. No
-                                            modifications are allowed once closed.</p>
+                                        <h2 className="font-semibold">6. Distribution of Repeated Items</h2>
+                                        <p>In cases where multiple identical items are available, these items will be
+                                            distributed in a single roll among all participants who have rolled for
+                                            them, with priority given to those who rolled the highest numbers. For
+                                            example, if there are three participants and two identical items, a single
+                                            roll will determine which two participants receive the items, prioritizing
+                                            those with the highest rolls.</p>
                                     </div>
                                     <div className="p-4 bg-moss rounded">
-                                        <h2 className="font-semibold">6. Legendary Items Distribution</h2>
+                                        <h2 className="font-semibold">7. Legendary Items Distribution</h2>
                                         <p>The distribution of legendary items will be decided by the loot master, with
                                             priority given to long-term members to recognize their contributions and
                                             loyalty.</p>
                                     </div>
                                     <div className="p-4 bg-moss rounded">
-                                        <h2 className="font-semibold">7. Exceptional Cases</h2>
+                                        <h2 className="font-semibold">8. Closure of Reservations</h2>
+                                        <p>Reservations will be closed at the discretion of the loot master. No
+                                            modifications are allowed once closed.</p>
+                                    </div>
+                                    <div className="p-4 bg-moss rounded">
+                                        <h2 className="font-semibold">9. Exceptional Cases</h2>
                                         <p>In exceptional cases, the loot master has the discretion to make changes to
                                             loot distribution as deemed necessary.</p>
                                     </div>
