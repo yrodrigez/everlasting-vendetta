@@ -124,7 +124,7 @@ export default function ApplyForm() {
                                     <p>You can reach out to any of our officers: <Link className={'text-gold'}
                                                                                        href={'/roster/alveric'}>Alveric</Link> or <Link
                                         className={'text-gold'}
-                                        href={'/roster/nivlor'}>Nivlor</Link></p>
+                                        href={'/roster/porco'}>Porco</Link></p>
                                     <p>Good luck!</p>
                                 </>),
                                 footer: ''
