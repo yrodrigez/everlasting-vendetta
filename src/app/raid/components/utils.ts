@@ -1,5 +1,5 @@
-export async function assistRaid(raidId: string, selectedDays: any = [], selectedCharacter: any, selectedRole: any, status: string) {
-    return fetch('/api/v1/services/calendar/raid/assist', {
+export async function assistRaid(raidId: string, selectedDays: any = [], selectedCharacter: any, selectedRole: any, status: string, hasLootReservations: boolean = false, onOpen: any) {
+    await fetch('/api/v1/services/calendar/raid/assist', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -16,4 +16,12 @@ export async function assistRaid(raidId: string, selectedDays: any = [], selecte
         })
     })
 
+    if (!hasLootReservations) {
+        onOpen()
+        const noLootAudio = new Audio('/sounds/levelup2.ogg')
+        noLootAudio.play().then(() => {
+        }).catch((reason) => {
+            console.error(reason)
+        })
+    }
 }

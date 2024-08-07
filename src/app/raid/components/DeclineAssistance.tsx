@@ -22,14 +22,14 @@ export default function DeclineAssistance({raidId}: { raidId: string }) {
             onClick={() =>
                 (async () => {
                     setLoading(true)
-                    await assistRaid(raidId, [], selectedCharacter, selectedRole, 'declined')
+                    await assistRaid(raidId, [], selectedCharacter, selectedRole, 'declined', true, () => {}) // TODO: change the logic here
                     setLoading(false)
                 })()
             }
             className={`bg-red-800 text-white rounded ${isMobile ? 'w-full' : ''}`}
             endContent={
-                loading ? <Spinner size='sm' color='success'/>:
-                <FontAwesomeIcon icon={faBan}/>
+                loading ? <Spinner size='sm' color='success'/> :
+                    <FontAwesomeIcon icon={faBan}/>
             }
         >
             Decline

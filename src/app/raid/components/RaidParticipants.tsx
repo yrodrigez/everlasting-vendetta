@@ -17,8 +17,23 @@ import Image from "next/image";
 import useScreenSize from "@/app/hooks/useScreenSize";
 import moment from "moment";
 import {useParticipants} from "@/app/raid/components/useParticipants";
+import {GUILD_NAME} from "@/app/util/constants";
 
-const days = ['Wed', 'Thur', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue'];
+//const days = ['Wed', 'Thur', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue'];
+const days = ['Wed', 'Sun'];
+
+const GuildMemberIndicator = (character: any) => {
+
+    const isGuildie = character.guild?.name === GUILD_NAME;
+    const guildName = character.guild?.name || 'Not guilded';
+    return (
+        <Tooltip content={guildName} placement={'top'}>
+            <Chip color={isGuildie ? 'success' : 'warning'} size="sm" variant="flat">
+                {isGuildie ? 'Yes' : 'No'}
+            </Chip>
+        </Tooltip>
+    )
+}
 
 export default function RaidParticipants({participants, raidId, raidInProgress}: {
     participants: any[],
@@ -40,7 +55,8 @@ export default function RaidParticipants({participants, raidId, raidInProgress}:
         } else {
             setColumns([
                 ...initialColumns,
-                {name: "DAYS", uid: "days"}
+                {name: "DAYS", uid: "days"},
+                {name: "GUILDIE", uid: "is_guildie"}
             ])
         }
     }, [isMobile]);
@@ -68,12 +84,13 @@ export default function RaidParticipants({participants, raidId, raidInProgress}:
                                 className={`w-8 h-8 rounded-full ${!registration.is_confirmed && 'grayscale'} border border-gold`}
                                 src={avatar}
                             />
-                            <div className="flex flex-col">
-                                <h5 className="text-gold font-bold">{name} {(name === selectedCharacter?.name) ? '(You)' : null}</h5>
+                            <div className="flex items-center">
+                                <h5 className="text-gold font-bold mr-2">{name} {(name === selectedCharacter?.name) ? '(You)' : null}</h5>
                             </div>
                         </div>
                     </Link>
-                );
+                )
+                    ;
             case "role":
                 if (registrationDetails) {
                     return (
@@ -103,7 +120,6 @@ export default function RaidParticipants({participants, raidId, raidInProgress}:
                     </div>
                 );
             case "status":
-
                 if (registrationDetails) {
                     const color = ((status: string) => {
                         switch (status) {
@@ -118,13 +134,13 @@ export default function RaidParticipants({participants, raidId, raidInProgress}:
                         }
                     })(registrationDetails?.status);
                     return (
-                        name === 'Aoriad' ? <Chip color={'warning'} size="sm" variant="flat">Late</Chip> :
+                        name === 'Aoriad' && registrationDetails?.status === 'confirmed' ?
+                            <Chip color={'warning'} size="sm" variant="flat">Late</Chip> :
                             <Chip className="capitalize" color={color}
                                   size="sm"
                                   variant="flat">
                                 {registrationDetails.status}
                             </Chip>
-
                     );
                 }
 
@@ -160,6 +176,9 @@ export default function RaidParticipants({participants, raidId, raidInProgress}:
                     </div>
                 );
 
+            case "is_guildie":
+                return <GuildMemberIndicator {...registration.member.character}/>
+
             default:
                 return <></>;
         }
@@ -177,7 +196,7 @@ export default function RaidParticipants({participants, raidId, raidInProgress}:
                 </TableHeader>
                 <TableBody
                     className="scrollbar-pill"
-                    emptyContent={"No one like us."}
+                    emptyContent={"No one signed up yet."}
                     items={stateParticipants.sort((a: any, b: any) => {
                         const aCreated = new Date(a.created_at)
                         const bCreated = new Date(b.created_at)

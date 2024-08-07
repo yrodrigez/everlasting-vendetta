@@ -10,11 +10,11 @@ import {LateAssistance} from "@/app/raid/components/LateAssistance";
 import {TentativeAssistance} from "@/app/raid/components/TentativeAssistance";
 import DeclineAssistance from "@/app/raid/components/DeclineAssistance";
 import {useEffect} from "react";
-import NotLoggedInView from "@/app/components/NotLoggedInView";
+
 import useScreenSize from "@/app/hooks/useScreenSize";
 import {BnetLoginButton} from "@/app/components/BnetLoginButton";
 
-const days = ['Wed', 'Thur', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue']
+const days = ['Wed', /*'Thur', 'Fri', 'Sat', */'Sun', /*''Mon', Tue'*/]
 
 export const CheckIcon = ({className}: { className?: string }) => {
     return <FontAwesomeIcon icon={faCheck} className={className}/>
@@ -29,8 +29,7 @@ export default function AssistActions({raidId, minLvl, endDate, participants, ha
 }) {
     const {selectedCharacter, session, loading: isSessionLoading} = useSession()
     const selectedRole = selectedCharacter?.selectedRole
-    const selectedDays = useAssistanceStore(state => state.selectedDays)
-    const {addDay, removeDay} = useAssistanceStore(state => state)
+    const {addDay, removeDay, selectedDays} = useAssistanceStore(state => state)
 
     useEffect(() => {
         const currentParticipant = (participants ?? []).find((p: any) => p?.member?.character?.name === selectedCharacter?.name)
@@ -93,10 +92,14 @@ export default function AssistActions({raidId, minLvl, endDate, participants, ha
                         </DropdownTrigger>
                         <DropdownMenu>
                             <DropdownItem>
-                                <LateAssistance raidId={raidId}/>
+                                <LateAssistance
+                                    hasLootReservations={hasLootReservations}
+                                    raidId={raidId}/>
                             </DropdownItem>
                             <DropdownItem>
-                                <TentativeAssistance raidId={raidId}/>
+                                <TentativeAssistance
+                                    hasLootReservations={hasLootReservations}
+                                    raidId={raidId}/>
                             </DropdownItem>
                             <DropdownItem>
                                 <DeclineAssistance raidId={raidId}/>
@@ -104,8 +107,12 @@ export default function AssistActions({raidId, minLvl, endDate, participants, ha
                         </DropdownMenu>
                     </Dropdown>
                 ) : <>
-                    <LateAssistance raidId={raidId}/>
-                    <TentativeAssistance raidId={raidId}/>
+                    <LateAssistance
+                        hasLootReservations={hasLootReservations}
+                        raidId={raidId}/>
+                    <TentativeAssistance
+                        hasLootReservations={hasLootReservations}
+                        raidId={raidId}/>
                     <DeclineAssistance raidId={raidId}/>
                 </>}
             </div>

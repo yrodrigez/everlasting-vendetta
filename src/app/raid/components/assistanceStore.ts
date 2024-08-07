@@ -10,9 +10,10 @@ interface AssistanceStore {
 const initialState = {
     selectedDays: [
         "Wed",
-        "Thur",
+        /*"Thur",
         "Mon",
-        "Tue",
+        "Tue",*/
+        "Sun"
     ]
 }
 
