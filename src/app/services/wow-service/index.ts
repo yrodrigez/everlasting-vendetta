@@ -78,6 +78,30 @@ export default class WoWService_Impl implements WoWService {
         return responseJson
     }
 
+    fetchCharacterStatistics = async (characterName: string) => {
+        if (!characterName) {
+            throw new Error('WoWService::fetchCharacterStatistics - characterName parameter is required')
+        }
+        const token = this.token ?? (await getBlizzardToken()).token
+        const url = `https://eu.api.blizzard.com/profile/wow/character/${this.realmSlug}/${characterName}/statistics`
+        const query = new URLSearchParams({
+            namespace: this.namespace,
+            locale: this.locale
+        })
+
+
+        try {
+            const response = await fetch(`${url}?${query}`, {
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            })
+            return response.json()
+        } catch (e) {
+            console.error('Error fetching character statistics:', e)
+            return {}
+        }
+    }
 
     fetchBattleNetWoWAccounts = async () => {
         if (!this.token) {

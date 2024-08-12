@@ -1,10 +1,9 @@
 import CharacterItem from "@/app/components/CharacterItem";
 
-export function CharacterGear({gear, token, characterName, characterAppearance}: {
+export function CharacterGear({gear, token, characterName }: {
     gear: { group1: any[], group2: any[], group3: any[] },
     token: string,
     characterName: string,
-    characterAppearance: { race: number, gender: number }
 }) {
     const {group1, group2, group3} = gear
     return (

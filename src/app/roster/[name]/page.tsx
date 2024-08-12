@@ -5,13 +5,15 @@ import {CharacterTalents} from "@/app/roster/[name]/components/CharacterTalents"
 import Image from 'next/image'
 import moment from "moment";
 import {cookies} from "next/headers";
-import {Tooltip} from "@nextui-org/react";
-
+import {Divider, Tooltip} from "@nextui-org/react";
 import {getBlizzardToken} from "@/app/lib/getBlizzardToken";
 import WoWService from "@/app/services/wow-service";
 import GearScore from "@/app/roster/[name]/components/GearScore";
 import Link from "next/link";
 import {GUILD_NAME} from "@/app/util/constants";
+import {LootHistory} from "@/app/roster/[name]/components/LootHistory";
+import {StatisticsView} from "@/app/roster/[name]/components/StatisticsView";
+import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
 
 const getPlayerClassById = (classId: number) => {
     const classes = {
@@ -51,18 +53,90 @@ const findEquipmentBySlotTypes = (equipment: any, slots: string[]) => {
     return result
 }
 
+async function fetchLootHistory(characterName: string) {
+    const isLoggedInUser = cookies().get('evToken')
+
+    const supabaseOptions = isLoggedInUser ? {
+        options: {
+            global: {
+                headers: {
+                    Authorization: `Bearer ${isLoggedInUser.value}`
+                }
+            }
+        }
+    } : {}
+
+    const supabase = createServerComponentClient({cookies}, supabaseOptions)
+    const {data, error} = await supabase
+        .from('ev_loot_history')
+        .select('*')
+        .ilike('character', characterName)
+
+    if (error) {
+        console.error(error)
+    }
+    const loot = (data ?? []).map((item: any) => {
+        return {
+            characterName: item.character ?? '',
+            id: parseInt(item.itemID),
+            date: item.dateTime ?? '',
+            resetId: item.raid_id ?? '',
+        }
+    }).sort((a, b) => {
+        return moment(a.date).isBefore(moment(b.date)) ? 1 : -1
+    }).reduce((acc, item) => {
+        if (!acc[item.resetId]) {
+            acc[item.resetId] = {
+                // @ts-ignore
+                id: item.resetId,
+                date: item.date,
+                items: [],
+                reset: {}
+            }
+        }
+        // @ts-ignore
+        acc[item.resetId].items.push(item)
+        return acc
+    }, {} as { [key: string]: { id: string, characterName: string, date: string, items: any[], reset: any }[] })
+    for (const key in loot) {
+        // @ts-ignore
+        const resetId = loot[key].id
+        const {data: reset, error} = await supabase
+            .from('raid_resets')
+            .select('name, raid:ev_raid(name)')
+            .eq('id', resetId)
+            .single()
+        if (error) {
+            console.error(error)
+            continue
+        }
+        // @ts-ignore
+        loot[key].reset = reset
+    }
+
+    return loot
+}
+
 
 export default async function Page({params}: { params: { name: string } }) {
     const cookieToken = cookies().get(process.env.BNET_COOKIE_NAME!)?.value
     const {token} = (cookieToken ? {token: cookieToken} : (await getBlizzardToken()))
     const characterName = decodeURIComponent(params.name.toLowerCase())
 
-    const {fetchMemberInfo, fetchEquipment, isLoggedUserInGuild, getCharacterTalents} = new WoWService()
-    const [isGuildMember, characterInfo, equipment, talents] = await Promise.all([
+    const {
+        fetchMemberInfo,
+        fetchEquipment,
+        isLoggedUserInGuild,
+        getCharacterTalents,
+        fetchCharacterStatistics
+    } = new WoWService()
+    const [isGuildMember, characterInfo, equipment, talents, characterStatistics, lootHistory] = await Promise.all([
         isLoggedUserInGuild(),
         fetchMemberInfo(characterName),
         fetchEquipment(characterName),
-        getCharacterTalents(characterName)
+        getCharacterTalents(characterName),
+        fetchCharacterStatistics(characterName),
+        fetchLootHistory(characterName)
     ])
 
     const equipmentData = equipment.equipped_items
@@ -72,11 +146,6 @@ export default async function Page({params}: { params: { name: string } }) {
 
     if (characterInfo.error) {
         return <div>Character not found</div>
-    }
-
-    const characterAppearance = {
-        gender: characterInfo?.gender?.type === 'MALE' ? 0 : 1,
-        race: characterInfo?.race?.id
     }
 
     return (
@@ -90,8 +159,9 @@ export default async function Page({params}: { params: { name: string } }) {
                     <div className="grid gap-1.5">
                         <h2 className="font-semibold text-lg">{characterInfo?.name}</h2>
                         {characterInfo?.guild?.name ? (
-                            <Link href={characterInfo?.guild?.name === GUILD_NAME ? '/roster': `/guild/${characterInfo?.guild?.realm?.id}-${characterInfo?.guild?.id}`}
-                                  className="text-sm text-gold">{`<${characterInfo?.guild?.name}>`}</Link>
+                            <Link
+                                href={characterInfo?.guild?.name === GUILD_NAME ? '/roster' : `/guild/${characterInfo?.guild?.realm?.id}-${characterInfo?.guild?.id}`}
+                                className="text-sm text-gold">{`<${characterInfo?.guild?.name}>`}</Link>
                         ) : null}
                         <p className="text-sm text-muted">
                             Level {characterInfo?.level} {characterInfo?.race?.name} {characterInfo?.character_class?.name}
@@ -120,12 +190,17 @@ export default async function Page({params}: { params: { name: string } }) {
                     alt={characterInfo.character_class?.name}
                     src={getPlayerClassById(characterInfo.character_class?.id).icon}/>
             </div>
+            <div>
+                <Divider className="my-4 text-gray-500"/>
+                <StatisticsView character={characterInfo} statistics={characterStatistics}/>
+                <Divider className="my-4"/>
+            </div>
             <CharacterViewOptions
                 items={[
                     {
                         label: 'Gear', name: 'gear', children: <CharacterGear
                             characterName={characterName}
-                            characterAppearance={characterAppearance}
+
                             gear={{
                                 group1,
                                 group2,
@@ -138,8 +213,14 @@ export default async function Page({params}: { params: { name: string } }) {
                             talents={talents}
                         />
                     },
+                    {
+                        label: 'Loot History',
+                        name: 'loot-history',
+                        children: <LootHistory lootHistory={lootHistory}/>
+                    }
                 ]}
             />
+
         </div>
     )
 }
