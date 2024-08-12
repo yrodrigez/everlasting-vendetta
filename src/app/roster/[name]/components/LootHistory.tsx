@@ -3,6 +3,7 @@ import moment from "moment/moment";
 import {ItemWithTooltip} from "@/app/raid/[id]/loot/components/LootItem";
 import {useEffect, useState} from "react";
 import {Spinner} from "@nextui-org/react";
+import {useWoWZamingCss} from "@/app/hooks/useWoWZamingCss";
 
 const fetchItemDataById = async (itemId: string) => {
     const fetchItem = await fetch(`https://nether.wowhead.com/tooltip/item/${itemId}?dataEnv=4&locale=0`)
@@ -14,8 +15,9 @@ const fetchItemDataById = async (itemId: string) => {
 function Item({id}: { id: string | number }) {
     const [item, setItem] = useState<any>(null)
     const [loading, setLoading] = useState(true)
-
+    useWoWZamingCss()
     useEffect(() => {
+
         fetchItemDataById(id.toString()).then((item) => {
             setItem(item)
         }).finally(() => {
