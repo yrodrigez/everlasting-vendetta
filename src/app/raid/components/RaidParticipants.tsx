@@ -134,13 +134,11 @@ export default function RaidParticipants({participants, raidId, raidInProgress}:
                         }
                     })(registrationDetails?.status);
                     return (
-                        name === 'Aoriad' && registrationDetails?.status === 'confirmed' ?
-                            <Chip color={'warning'} size="sm" variant="flat">Late</Chip> :
-                            <Chip className="capitalize" color={color}
-                                  size="sm"
-                                  variant="flat">
-                                {registrationDetails.status}
-                            </Chip>
+                        <Chip className="capitalize" color={color}
+                              size="sm"
+                              variant="flat">
+                            {registrationDetails.status}
+                        </Chip>
                     );
                 }
 
