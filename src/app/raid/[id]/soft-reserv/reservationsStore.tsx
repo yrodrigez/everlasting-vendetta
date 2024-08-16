@@ -8,12 +8,20 @@ interface ReservationStore {
     yourReservations: Reservation[]
     reservationsByItem: { item: RaidItem, reservations: Character[] }[]
     loading: boolean
+    maxReservations: number
+    extraReservations?: {
+        resetId: string
+        characterId: number
+        extra: number
+    }
     setItems: (items: Reservation[]) => void
     setYourReservations: (items: Reservation[]) => void
     setReservationsByItem: (items: { item: RaidItem, reservations: Character[] }[]) => void
     setLoading: (loading: boolean) => void
     isReservationsOpen: boolean
     setIsReservationsOpen: (open: boolean) => void
+    setMaxReservations: (maxReservations: number) => void
+    setExtraReservations: (extraReservations: ReservationStore['extraReservations']) => void
 }
 
 const initialState = {
@@ -22,6 +30,7 @@ const initialState = {
     reservationsByItem: [],
     loading: true,
     isReservationsOpen: false,
+    maxReservations: 0,
 }
 
 export default createStore<ReservationStore>((set) => ({
@@ -31,4 +40,6 @@ export default createStore<ReservationStore>((set) => ({
     setReservationsByItem: (items) => set({reservationsByItem: items}),
     setLoading: (loading) => set({loading}),
     setIsReservationsOpen: (isReservationsOpen) => set({isReservationsOpen}),
+    setMaxReservations: (maxReservations) => set({maxReservations}),
+    setExtraReservations: (extraReservations) => set({extraReservations}),
 }))

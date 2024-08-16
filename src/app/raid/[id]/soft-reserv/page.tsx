@@ -9,6 +9,20 @@ import React from "react";
 import AdminPanel from "@/app/raid/[id]/soft-reserv/AdminPanel";
 import RaidTimeInfo from "@/app/raid/components/RaidTimeInfo";
 import NotLoggedInView from "@/app/components/NotLoggedInView";
+type Raid = {
+    min_level: number;
+    name: string;
+    image: string;
+    reservation_amount: number;
+};
+
+type RaidQueryResult = {
+    raid_id: string;
+    raid: Raid;  // Specifying that `raid` is a single object of type `Raid`
+    raid_date: string;
+    time: string;
+    end_date: string;
+};
 
 
 export default async function Page({params}: { params: { id: string } }) {
@@ -29,19 +43,33 @@ export default async function Page({params}: { params: { id: string } }) {
     })
 
     const resetId = params.id
-    const resetData = await database.from('raid_resets')
-        .select('raid_id, raid:ev_raid(min_level, name, image), raid_date, time, end_date')
+    const resetData = await database
+        .from('raid_resets')
+        .select('raid_id, raid:ev_raid(min_level, name, image, reservation_amount), raid_date, time, end_date')
         .eq('id', resetId)
-        .single()
+        .single<RaidQueryResult>()
+
     if (!resetData.data) {
         return <div>Reset not found</div>
     }
 
-    const loggedInCharacter = getLoggedInUserFromAccessToken(evToken)
 
-    // @ts-ignore - min_level is a number
-    if (resetData.data.raid?.min_level > loggedInCharacter.level) {
-        return <div>Character level too low</div>
+    const loggedInCharacter = getLoggedInUserFromAccessToken(evToken)
+    const raid  = resetData.data.raid
+    const raidMinLevel = raid?.min_level
+    if (raidMinLevel > loggedInCharacter.level) {
+        return <div className="mt-auto mb-auto w-full p-8 bg-dark border border-gold rounded-lg">
+            <h1 className="text-center text-2xl mb-2">
+                Character level too low you should be <span className="text-gold font-bold">{raidMinLevel}</span> but
+                you are {loggedInCharacter.level}</h1>
+            <h2>We encourage you to engage in other activities to level up your character which
+                is only <span className="text-gold font-bold">{raidMinLevel - loggedInCharacter.level}</span> levels
+                away from the required level.
+            </h2>
+            <h4 className="text-xs text-gray-500 mt-2">If you think this is an error please try disconnecting from the game and login
+                in a incognito window.
+            </h4>
+        </div>
     }
 
     const databaseItems = await database.from('raid_loot_item')
@@ -61,11 +89,10 @@ export default async function Page({params}: { params: { id: string } }) {
     return (
         <div className="w-full flex-col flex h-full justify-between relative">
             <div
-                className={'absolute -top-0 -left-72 w-64 z-10 border-gold border rounded-md'}>
+                className={'absolute -top-0 -left-72 w-64 h-48 z-10 border-gold border rounded-md'}>
                 <div className="relative flex w-full h-full">
                     <div className="absolute flex p-2 rounded-md background-position-center bg-cover w-full h-full"
                          style={{
-                             // @ts-ignore - image is a string
                              backgroundImage: `url('/${resetData.data?.raid?.image}')`,
                              backgroundSize: 'cover',
                              backgroundPosition: 'center',
@@ -73,7 +100,6 @@ export default async function Page({params}: { params: { id: string } }) {
                          }}/>
                     <div className="flex flex-col w-full h-full justify-between relative p-2">
                         <div className="flex items-center gap-2">
-                            {/* @ts-ignore - name is a string */}
                             <span className="text-lg font-bold">{resetData.data?.raid?.name}</span>
                         </div>
                         <div className="flex items-center gap-2">

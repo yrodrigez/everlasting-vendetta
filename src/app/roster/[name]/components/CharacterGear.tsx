@@ -7,8 +7,8 @@ export function CharacterGear({gear, token, characterName }: {
 }) {
     const {group1, group2, group3} = gear
     return (
-        <div className="w-full h-full flex flex-col items-center">
-            <div className="w-full flex justify-between items-center relative">
+        <div className="w-full flex flex-col items-center">
+            <div className="w-full flex justify-between items-center">
                 <div className="flex flex-1 gap-4 flex-col">
                     {group1.map((item: any, index: number) => {
                         return <CharacterItem characterName={characterName} key={'item-' + index} item={item}

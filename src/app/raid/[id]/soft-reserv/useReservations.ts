@@ -1,5 +1,5 @@
 'use client'
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import {useSession} from "@/app/hooks/useSession";
 import {raidLootReservationsColumns} from "@/app/raid/[id]/soft-reserv/supabase_config";
 import {type RaidItem, type Reservation, type Character} from "@/app/raid/[id]/soft-reserv/types";
@@ -100,16 +100,57 @@ const fetchReservationsOpen = async (supabase: SupabaseClient, reset_id: string)
     return !data?.reservations_closed
 }
 
+const fetchRaidData = async (supabase: SupabaseClient, reset_id: string) => {
+    const {data, error} = await supabase
+        .from('raid_resets')
+        .select('raid:ev_raid(name, min_level, image, reservation_amount)')
+        .eq('id', reset_id)
+        .single<{
+            raid: {
+                name: string;
+                min_level: number;
+                image: string;
+                reservation_amount: number;
+            }
+        }>()
 
-export const useReservations = (resetId: string, initialItems: Reservation[] = []) => {
+    if (error) {
+        console.error(error)
+        return undefined
+    }
+
+    return data?.raid
+}
+
+
+const fetchTotalReservations = async (supabase: SupabaseClient, reset_id: string, characterId: number) => {
+    const {data, error} = await supabase
+        .rpc('calculate_total_reservations', {
+            reset_uuid: reset_id,
+            char_id: characterId
+        });
+
+    return data
+}
+
+export const useReservations = (resetId: string, initialItems: Reservation[] = [], options: { onExtraReserveUpdate?: Array<Function> } = {} ) => {
     const {selectedCharacter, supabase} = useSession()
-    const [items, yourReservations, reservationsByItem, loading, isReservationsOpen] = useReservationsStore(state => [state.items, state.yourReservations, state.reservationsByItem, state.loading, state.isReservationsOpen])
+    const [
+        items,
+        yourReservations,
+        reservationsByItem,
+        loading,
+        isReservationsOpen,
+        maxReservations
+    ] = useReservationsStore(state => [state.items, state.yourReservations, state.reservationsByItem, state.loading, state.isReservationsOpen, state.maxReservations])
+
     const {
         setYourReservations,
         setReservationsByItem,
         setItems,
         setLoading,
-        setIsReservationsOpen
+        setIsReservationsOpen,
+        setMaxReservations
     } = useReservationsStore(state => state)
 
     useEffect(() => {
@@ -126,6 +167,8 @@ export const useReservations = (resetId: string, initialItems: Reservation[] = [
             const isOpen = await fetchReservationsOpen(supabase, resetId)
             setIsReservationsOpen(isOpen)
             setLoading(false)
+            const total = await fetchTotalReservations(supabase, resetId, selectedCharacter.id)
+            setMaxReservations(total)
         })();
 
         const reservationsChannel = supabase.channel(`raid_loot_reservation:reset_id=eq.${resetId}`)
@@ -150,6 +193,21 @@ export const useReservations = (resetId: string, initialItems: Reservation[] = [
                 setIsReservationsOpen(isOpen)
             }).subscribe()
 
+        const extraReservationsChannel = supabase.channel(`ev_extra_reservations:reset_id=eq.${resetId}`)
+            .on('postgres_changes', {
+                event: '*',
+                schema: 'public',
+                table: 'ev_extra_reservations',
+                filter: `reset_id=eq.${resetId}`
+            }, () => {
+
+                (async () => {
+                    const total = await fetchTotalReservations(supabase, resetId, selectedCharacter.id)
+                    setMaxReservations(total)
+                    options.onExtraReserveUpdate?.forEach((cb) => cb())
+                })()
+            }).subscribe()
+
         return () => {
             supabase.removeChannel(isOpenChannel).then(
                 () => console.log('Unsubscribed from channel raid_resets'),
@@ -157,6 +215,10 @@ export const useReservations = (resetId: string, initialItems: Reservation[] = [
             )
             supabase.removeChannel(reservationsChannel).then(
                 () => console.log('Unsubscribed from channel raid_loot_reservation'),
+                (error: any) => console.error('Error unsubscribing from channel', error)
+            )
+            supabase.removeChannel(extraReservationsChannel).then(
+                () => console.log('Unsubscribed from channel extra_reservations'),
                 (error: any) => console.error('Error unsubscribing from channel', error)
             )
         }
@@ -203,6 +265,7 @@ export const useReservations = (resetId: string, initialItems: Reservation[] = [
         reserve,
         remove,
         isReservationsOpen,
-        setIsReservationsOpen: toggleReservationsOpen
+        setIsReservationsOpen: toggleReservationsOpen,
+        maxReservations
     }
 }

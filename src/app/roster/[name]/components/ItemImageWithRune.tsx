@@ -1,9 +1,11 @@
 'use client'
 import {ItemDetails} from "@/app/components/CharacterItem";
-import {Tooltip} from "@nextui-org/react";
+import {Button, Modal, ModalBody, ModalContent, Tooltip, useDisclosure} from "@nextui-org/react";
 
 import {ItemDetailedView} from "@/app/roster/[name]/components/ItemDetailedView";
 import {useSharedTooltipStore} from "@/app/roster/[name]/components/sharedTooltipstore";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faClose, faPersonCircleQuestion} from "@fortawesome/free-solid-svg-icons";
 
 export function ItemImageWithRune({
                                       item, itemIconUrl, borderColor, reverse = false, bottom = false
@@ -21,64 +23,74 @@ export function ItemImageWithRune({
         .replace(/[-']/g, '_')
         .toLowerCase() || ''
 
-    const itemId = item?.item?.id
-
-    const {
-        setIsClicked,
-        setIsHovered,
-        setItemId
-    } = useSharedTooltipStore(state => ({
-        setIsClicked: state.setIsClicked,
-        setIsHovered: state.setIsHovered,
-        setItemId: state.setItemId
-    }))
-
-    const isHovered = useSharedTooltipStore(state => state.isHovered)
-    const isClicked = useSharedTooltipStore(state => state.isClicked)
-    const sharedItemId = useSharedTooltipStore(state => state.itemId)
+    const {isOpen, onOpen, onClose, onOpenChange} = useDisclosure()
 
     return (
-        <Tooltip
-            isDisabled={item.name === 'Unknown'}
-            isOpen={(isHovered || isClicked) && sharedItemId === itemId}
-            placement={bottom ? 'top' : reverse ? 'left' : 'right'}
-            className={`rounded block bg-cover bg-black bg-opacity-95 p-3 border border-${item.quality.name.toLowerCase()}`}
-            onMouseLeave={() => {
-                setIsHovered(false);
-                setItemId(itemId);
-            }}
-            onMouseEnter={() => {
-                setIsHovered(true);
-                setItemId(itemId);
-            }}
-            content={
-                <ItemDetailedView item={item}/>
-            }>
-            <div
-                onMouseEnter={() => {
-                    setIsHovered(true);
-                    setItemId(itemId);
-                }}
-                onMouseLeave={() => {
-                    setIsHovered(false);
-                    setItemId(itemId);
-                }}
-                onClick={() => {
-                    setIsClicked(!isClicked);
-                    setItemId(itemId);
-                }}
-                className={`w-12 h-12 min-w-12 rounded-lg overflow-hidden border block bg-cover relative`} style={{
-                borderColor,
-                backgroundImage: `url(${itemIconUrl})`,
-            }}>
-                {rune &&
-                  <div className="absolute bottom-0 right-0 w-6 h-6 rounded-sm border border-black bg-cover"
-                       style={{
-                           backgroundImage: `url(/runes/${runeKey}.webp)`,
-                       }}
-                  />
-                }
-            </div>
-        </Tooltip>
+        <>
+            <Tooltip
+                isDisabled={item.name === 'Unknown'}
+                placement={bottom ? 'top' : reverse ? 'left' : 'right'}
+                className={`rounded block bg-cover bg-black bg-opacity-95 p-3 border border-${item.quality.name.toLowerCase()}`}
+                content={
+                    <ItemDetailedView item={item}/>
+                }>
+                <div
+                    className={`w-12 h-12 min-w-12 rounded-lg overflow-hidden border block bg-cover relative cursor-pointer z-50`}
+                    onClick={onOpen} style={{
+                    borderColor,
+                    backgroundImage: `url(${itemIconUrl})`,
+                }}>
+                    {rune &&
+                      <div className="absolute bottom-0 right-0 w-6 h-6 rounded-sm border border-black bg-cover"
+                           style={{
+                               backgroundImage: `url(/runes/${runeKey}.webp)`,
+                           }}
+                      />
+                    }
+                </div>
+            </Tooltip>
+            <Modal
+                isOpen={isOpen}
+                onClose={onClose}
+                onOpenChange={onOpenChange}
+                className="bg-transparent"
+                scrollBehavior="outside"
+                size="xl"
+                closeButton={<Button
+                    isIconOnly
+                    variant="light"
+                    size="sm"
+                >
+                    <FontAwesomeIcon icon={faClose}/>
+                </Button>}
+            >
+                <ModalContent>
+                    {() =>
+                        <ModalBody>
+                            <div className="flex gap-1">
+                                <div
+                                    className={`w-12 h-12 min-w-12 rounded-lg overflow-hidden border block bg-cover relative cursor-pointer`}
+                                    style={{
+                                    borderColor,
+                                    backgroundImage: `url(${itemIconUrl})`,
+                                }}>
+                                    {rune &&
+                                      <div
+                                        className="absolute bottom-0 right-0 w-6 h-6 rounded-sm border border-black bg-cover"
+                                        style={{
+                                            backgroundImage: `url(/runes/${runeKey}.webp)`,
+                                        }}
+                                      />
+                                    }
+                                </div>
+                                <div className="bg-dark border border-gold p-2 rounded">
+                                    <ItemDetailedView item={item}/>
+                                </div>
+                            </div>
+                        </ModalBody>
+                    }
+                </ModalContent>
+            </Modal>
+        </>
     )
 }

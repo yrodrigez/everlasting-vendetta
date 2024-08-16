@@ -128,7 +128,7 @@ export function ReserveForOthers({resetId}: { resetId: string }) {
         <>
             <Button
                 isIconOnly
-                disabled={!isReservationsOpen || isLoading}
+                disabled={isLoading}
                 onClick={onOpen}
                 size={'lg'}
             >

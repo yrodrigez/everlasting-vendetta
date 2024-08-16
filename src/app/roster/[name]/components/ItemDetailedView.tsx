@@ -28,6 +28,7 @@ export function ItemDetailedView({item}: { item: any }) {
             `flex flex-col gap text-default-100 max-w-md`
         }>
             <Link
+                target={'_blank'}
                 href={`https://www.wowhead.com/classic/item=${item.item.id}`}
             >
                 <h1 className={`text-lg font-bold text-${item.quality.name.toLowerCase()} underline`}>{item.name}</h1>

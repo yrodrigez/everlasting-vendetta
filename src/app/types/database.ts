@@ -260,6 +260,58 @@ export type Database = {
         }
         Relationships: []
       }
+      ev_extra_reservation: {
+        Row: {
+          character_id: number
+          created_at: string
+          extra_reservations: number
+          given_by: number | null
+          id: number
+          reset_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          character_id: number
+          created_at?: string
+          extra_reservations?: number
+          given_by?: number | null
+          id?: number
+          reset_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          character_id?: number
+          created_at?: string
+          extra_reservations?: number
+          given_by?: number | null
+          id?: number
+          reset_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ev_extra_reservation_character_id_fkey"
+            columns: ["character_id"]
+            isOneToOne: false
+            referencedRelation: "ev_member"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ev_extra_reservation_given_by_fkey"
+            columns: ["given_by"]
+            isOneToOne: false
+            referencedRelation: "ev_member"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ev_extra_reservation_reset_id_fkey"
+            columns: ["reset_id"]
+            isOneToOne: false
+            referencedRelation: "raid_resets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ev_guild_roster_history: {
         Row: {
           created_at: string
@@ -318,6 +370,7 @@ export type Database = {
           character: Json | null
           created_at: string
           id: number
+          registration_source: string | null
           updated_at: string | null
           user_id: string
         }
@@ -325,6 +378,7 @@ export type Database = {
           character?: Json | null
           created_at?: string
           id?: number
+          registration_source?: string | null
           updated_at?: string | null
           user_id?: string
         }
@@ -332,6 +386,7 @@ export type Database = {
           character?: Json | null
           created_at?: string
           id?: number
+          registration_source?: string | null
           updated_at?: string | null
           user_id?: string
         }
@@ -380,6 +435,7 @@ export type Database = {
           image: string | null
           min_level: number | null
           name: string
+          reservation_amount: number
         }
         Insert: {
           created_at?: string
@@ -387,6 +443,7 @@ export type Database = {
           image?: string | null
           min_level?: number | null
           name?: string
+          reservation_amount?: number
         }
         Update: {
           created_at?: string
@@ -394,6 +451,7 @@ export type Database = {
           image?: string | null
           min_level?: number | null
           name?: string
+          reservation_amount?: number
         }
         Relationships: []
       }
@@ -522,6 +580,54 @@ export type Database = {
           },
         ]
       }
+      last_raid: {
+        Row: {
+          created_at: string | null
+          end_date: string | null
+          id: string | null
+          image_url: string | null
+          max_delay_days: number | null
+          min_lvl: number | null
+          modified_at: string | null
+          name: string | null
+          raid_date: string | null
+          raid_id: string | null
+          reservations_closed: boolean | null
+          status: string | null
+          time: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          end_date?: string | null
+          id?: string | null
+          image_url?: string | null
+          max_delay_days?: number | null
+          min_lvl?: number | null
+          modified_at?: string | null
+          name?: string | null
+          raid_date?: string | null
+          raid_id?: string | null
+          reservations_closed?: boolean | null
+          status?: string | null
+          time?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          end_date?: string | null
+          id?: string | null
+          image_url?: string | null
+          max_delay_days?: number | null
+          min_lvl?: number | null
+          modified_at?: string | null
+          name?: string | null
+          raid_date?: string | null
+          raid_id?: string | null
+          reservations_closed?: boolean | null
+          status?: string | null
+          time?: string | null
+        }
+        Relationships: []
+      }
       likes: {
         Row: {
           created_at: string
@@ -557,6 +663,21 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      log_table: {
+        Row: {
+          log_time: string | null
+          message: string | null
+        }
+        Insert: {
+          log_time?: string | null
+          message?: string | null
+        }
+        Update: {
+          log_time?: string | null
+          message?: string | null
+        }
+        Relationships: []
       }
       posts: {
         Row: {
@@ -669,17 +790,17 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "public_raid_loot_reservation_member_id_fkey"
-            columns: ["member_id"]
-            isOneToOne: false
-            referencedRelation: "ev_member"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "public_raid_loot_reservation_reset_id_fkey"
             columns: ["reset_id"]
             isOneToOne: false
             referencedRelation: "raid_resets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "raid_loot_reservation_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "ev_member"
             referencedColumns: ["id"]
           },
         ]
@@ -803,18 +924,21 @@ export type Database = {
         Row: {
           created_at: string
           details: Json
+          display_id: number | null
           id: number
           updated_at: string
         }
         Insert: {
           created_at?: string
           details: Json
+          display_id?: number | null
           id?: number
           updated_at?: string
         }
         Update: {
           created_at?: string
           details?: Json
+          display_id?: number | null
           id?: number
           updated_at?: string
         }
@@ -846,6 +970,17 @@ export type Database = {
             }
             Returns: number
           }
+      duplicate_molten_core_raid: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      duplicate_raid: {
+        Args: {
+          p_interval: unknown
+          p_raid_id: string
+        }
+        Returns: undefined
+      }
       get_accessible_rooms: {
         Args: {
           user_id: string
@@ -855,6 +990,12 @@ export type Database = {
       get_guild_roster_history: {
         Args: Record<PropertyKey, never>
         Returns: Json
+      }
+      get_last_raid_date: {
+        Args: {
+          p_raid_id: string
+        }
+        Returns: string
       }
       is_user_alloed_to_see_members: {
         Args: {
@@ -874,6 +1015,14 @@ export type Database = {
           room_id: string
         }
         Returns: boolean
+      }
+      run_weekly_raids: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      test_select_last_raid: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
     }
     Enums: {

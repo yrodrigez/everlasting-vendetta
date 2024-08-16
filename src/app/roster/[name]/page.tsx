@@ -196,11 +196,11 @@ export default async function Page({params}: { params: { name: string } }) {
                 <Divider className="my-4"/>
             </div>
             <CharacterViewOptions
+                containerClassName={'mb-6'}
                 items={[
                     {
                         label: 'Gear', name: 'gear', children: <CharacterGear
                             characterName={characterName}
-
                             gear={{
                                 group1,
                                 group2,
@@ -220,7 +220,6 @@ export default async function Page({params}: { params: { name: string } }) {
                     }
                 ]}
             />
-
         </div>
     )
 }
