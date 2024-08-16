@@ -232,7 +232,7 @@ export const useReservations = (resetId: string, initialItems: Reservation[] = [
         if (isError) {
             const audio = new Audio('/sounds/HumanMale_err_itemmaxcount01.ogg');
             audio.play().then().catch(console.error)
-            toast.error('Only 2 reservations per save is allowed.')
+            toast.error(`Only ${maxReservations} reservations per save is allowed.`)
         } else {
             const audio = new Audio('/sounds/LootCoinSmall.ogg');
             audio.play().then().catch(console.error)
