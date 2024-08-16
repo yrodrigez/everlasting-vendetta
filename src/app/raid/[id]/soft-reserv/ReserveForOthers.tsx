@@ -130,9 +130,10 @@ export function ReserveForOthers({resetId}: { resetId: string }) {
                 isIconOnly
                 disabled={isLoading}
                 onClick={onOpen}
+                isLoading={isLoading}
                 size={'lg'}
             >
-                {!isLoading ? <FontAwesomeIcon icon={faUserTie}/> : <FontAwesomeIcon icon={faSpinner} spin/>}
+                <FontAwesomeIcon icon={faUserTie}/>
             </Button>
             <Modal
                 isOpen={isOpen}

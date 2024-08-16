@@ -10,6 +10,7 @@ import ShowReserveRules from "@/app/raid/[id]/soft-reserv/ShowReserveRules";
 import {Button} from "@/app/components/Button";
 import {ReserveForOthers} from "@/app/raid/[id]/soft-reserv/ReserveForOthers";
 import {ExtraReserveButton} from "@/app/raid/[id]/soft-reserv/ExtraReserveButton";
+import {AddItem} from "@/app/raid/[id]/soft-reserv/AddItem";
 
 export default function AdminPanel({isAdmin, resetId}: { isAdmin: boolean, resetId: string }) {
     const {isReservationsOpen, setIsReservationsOpen, reservationsByItem, items, loading} = useReservations(resetId)
@@ -57,6 +58,7 @@ export default function AdminPanel({isAdmin, resetId}: { isAdmin: boolean, reset
                 isAdmin && (<>
                     <ReserveForOthers resetId={resetId}/>
                     <ExtraReserveButton resetId={resetId}/>
+                    <AddItem resetId={resetId}/>
                 </>)
             }
         </div>
