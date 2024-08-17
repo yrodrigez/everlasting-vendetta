@@ -11,12 +11,12 @@ function getEruptionDuration() {
 }
 
 export function BlackrockEruptionBanner() {
-    const spanishTime = moment.tz("Europe/Madrid");
     const [isLive, setIsLive] = useState(false);
     const [timeRemaining, setTimeRemaining] = useState(getEruptionDuration());
 
     useEffect(() => {
         const interval = setInterval(() => {
+            const spanishTime = moment.tz("Europe/Madrid");
             // is live if the current hour is pair
             setIsLive(spanishTime.hour() % 2 === 0);
             // time remaining until the next eruption or to the next hour
