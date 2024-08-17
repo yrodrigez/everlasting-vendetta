@@ -1,4 +1,7 @@
 import {Card, Image, CardFooter} from "@nextui-org/react";
+import {faVolcano} from "@fortawesome/free-solid-svg-icons";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {BlackrockEruptionBanner} from "@/app/components/BlackrockEruptionBanner";
 
 
 const intro = [
@@ -35,7 +38,8 @@ const CustomSection = ({header, paragraphs, img}: { header: string, paragraphs: 
                 className="w-80 h-[170px] bg-cover bg-center bg-no-repeat overflow-hidden shadow-small border border-gold/50 rounded-t border-b-0"
                 style={{backgroundImage: `url(${img})`}}
             ></div>
-            <CardFooter className="scrollbar-pill flex-col bg-dark border-gold/50 min-h-[calc(50%)] border overflow-hidden py-2 absolute rounded rounded-t-none bottom-0 w-[calc(100%)] shadow-small z-10">
+            <CardFooter
+                className="scrollbar-pill flex-col bg-dark border-gold/50 min-h-[calc(50%)] border overflow-hidden py-2 absolute rounded rounded-t-none bottom-0 w-[calc(100%)] shadow-small z-10">
                 <h1 className="font-bold text-xl text-gold self-start">{header}</h1>
                 {paragraphs.map((paragraph, i) => <p key={i}>{paragraph}</p>)}
             </CardFooter>
@@ -48,6 +52,10 @@ export default async function Home() {
     return (
         <main className="flex w-full h-full justify-evenly flex-col">
             <div className="hidden lg:block h-full w-full">
+                <div
+                    className="absolute top-2 right-4 flex flex-col">
+                    <BlackrockEruptionBanner/>
+                </div>
                 <div className={
                     "absolute bottom-[51%] left-0 w-full top-0 bg-cover bg-center bg-no-repeat backdrop-filter backdrop-blur-md border-bottom-image"
                 } style={{backgroundImage: "url('/banner.png')"}}>
