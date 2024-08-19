@@ -30,7 +30,7 @@ export function BlackrockEruptionBanner() {
 
     return (
         <div
-            className="flex items-center justify-center px-4 h-14 bg-orange-800 z-50 rounded-lg border border-orange-500">
+            className="flex items-center justify-center px-4 h-14 bg-orange-800 z-50 rounded-lg border border-orange-500 shadow-lg shadow-orange-700">
             <FontAwesomeIcon icon={faVolcano} className="text-white"
                              bounce={isLive}
             />

@@ -52,19 +52,30 @@ async function addItemToRaid(raidId?: string, item?: any, supabase?: SupabaseCli
         return false
     }
 
-    const {error} = await supabase
+    const {error: lootError} = await supabase
         .from('raid_loot_item')
         .upsert({
-            ...item,
-            raid_id: raidId
+            ...item
         })
 
-    if (error) {
-        console.error(error)
+    if (lootError) {
+        console.error(lootError)
     }
 
-    return (error === undefined || error === null)
+    const {error: raid_loot_error} = await supabase
+        .from('raid_loot')
+        .upsert({
+            raid_id: raidId,
+            item_id: item.id
+        }, {
+            onConflict: 'item_id, raid_id'
+        })
 
+    if (raid_loot_error) {
+        console.error(raid_loot_error)
+    }
+
+    return (lootError === undefined || lootError === null)
 }
 
 export function AddItem({resetId}: { resetId: string }) {

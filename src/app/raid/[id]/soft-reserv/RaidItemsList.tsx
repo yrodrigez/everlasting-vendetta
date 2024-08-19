@@ -9,8 +9,6 @@ import {Filters} from "@/app/raid/[id]/soft-reserv/Filters";
 import {useFiltersStore} from "@/app/raid/[id]/soft-reserv/filtersStore";
 import {Button} from "@nextui-org/react";
 
-const MAX_RESERVATIONS = 2
-
 export default function RaidItemsList({items, initialReservedItems, resetId}: {
     items: RaidItem[],
     initialReservedItems: Reservation[],

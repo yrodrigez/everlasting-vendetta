@@ -260,7 +260,7 @@ export type Database = {
         }
         Relationships: []
       }
-      ev_extra_reservation: {
+      ev_extra_reservations: {
         Row: {
           character_id: number
           created_at: string
@@ -718,6 +718,48 @@ export type Database = {
           },
         ]
       }
+      raid_loot: {
+        Row: {
+          created_at: string
+          id: string
+          is_visible: boolean | null
+          item_id: number | null
+          raid_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_visible?: boolean | null
+          item_id?: number | null
+          raid_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_visible?: boolean | null
+          item_id?: number | null
+          raid_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "raid_loot_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "raid_loot_item"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "raid_loot_raid_id_fkey"
+            columns: ["raid_id"]
+            isOneToOne: false
+            referencedRelation: "ev_raid"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       raid_loot_item: {
         Row: {
           created_at: string
@@ -955,6 +997,13 @@ export type Database = {
       }
     }
     Functions: {
+      calculate_total_reservations: {
+        Args: {
+          reset_uuid: string
+          char_id: number
+        }
+        Returns: number
+      }
       count_reservations:
         | {
             Args: {

@@ -2,13 +2,14 @@ import {cookies} from "next/headers";
 import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
 import RaidItemsList from "@/app/raid/[id]/soft-reserv/RaidItemsList";
 import {raidLootReservationsColumns} from "@/app/raid/[id]/soft-reserv/supabase_config";
-import {Reservation} from "@/app/raid/[id]/soft-reserv/types";
+import {RaidItem, Reservation} from "@/app/raid/[id]/soft-reserv/types";
 import {getLoggedInUserFromAccessToken} from "@/app/util";
 import YourReservations from "@/app/raid/[id]/soft-reserv/YourReservations";
 import React from "react";
 import AdminPanel from "@/app/raid/[id]/soft-reserv/AdminPanel";
 import RaidTimeInfo from "@/app/raid/components/RaidTimeInfo";
 import NotLoggedInView from "@/app/components/NotLoggedInView";
+
 type Raid = {
     min_level: number;
     name: string;
@@ -55,7 +56,7 @@ export default async function Page({params}: { params: { id: string } }) {
 
 
     const loggedInCharacter = getLoggedInUserFromAccessToken(evToken)
-    const raid  = resetData.data.raid
+    const raid = resetData.data.raid
     const raidMinLevel = raid?.min_level
     if (raidMinLevel > loggedInCharacter.level) {
         return <div className="mt-auto mb-auto w-full p-8 bg-dark border border-gold rounded-lg">
@@ -66,22 +67,27 @@ export default async function Page({params}: { params: { id: string } }) {
                 is only <span className="text-gold font-bold">{raidMinLevel - loggedInCharacter.level}</span> levels
                 away from the required level.
             </h2>
-            <h4 className="text-xs text-gray-500 mt-2">If you think this is an error please try disconnecting from the game and login
+            <h4 className="text-xs text-gray-500 mt-2">If you think this is an error please try disconnecting from the
+                game and login
                 in a incognito window.
             </h4>
         </div>
     }
 
-    const databaseItems = await database.from('raid_loot_item')
-        .select('*, raid:ev_raid(name, id, min_level)')
+    const databaseItems = await database.from('raid_loot')
+        .select('item:raid_loot_item(*)')
         .eq('raid_id', resetData.data?.raid_id)
+        .eq('is_visible', true)
+        .returns<{ item: RaidItem }[]>()
 
+    const items = (databaseItems.data ?? []).map(function (x) {
+        return x.item
+    })
 
     const dataBaseReservations = await database.from('raid_loot_reservation')
         .select(raidLootReservationsColumns)
         .eq('reset_id', resetId)
 
-    const items = (databaseItems.data ?? [])
 
     const reservations = (dataBaseReservations?.data ?? []) as unknown as Reservation[]
     const {data, error} = await database.from('ev_admin').select('id').eq('id', loggedInCharacter.id).single()

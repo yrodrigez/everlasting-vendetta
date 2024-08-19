@@ -1,4 +1,5 @@
 import {type SupabaseClient} from "@supabase/auth-helpers-nextjs";
+import {RaidLoot} from "@/app/raid/[id]/loot/components/types";
 
 /**
  * Fetches all items for a raid from the database and returns them as an array
@@ -30,27 +31,42 @@ export async function fetchItems(supabase: SupabaseClient, raidId: string): Prom
         min_level: number
     }
 }[]> {
-    const {data: items, error} = await supabase.from('raid_loot_item')
-        .select('*, raid:ev_raid(name, id, min_level)')
+    const {data: items, error} = await supabase.from('raid_loot')
+        .select('item:raid_loot_item(*), raid:ev_raid(name, id, min_level)')
         .eq('raid_id', raidId)
+        .eq('is_visible', true)
+        .returns<{
+            item: {
+                id: number,
+                name: string,
+                created_at: string,
+                updated_at: string,
+                raid_id: string,
+                description: {
+                    icon: string,
+                    name: string,
+                    quality: number,
+                    tooltip: string,
+                    itemClass: number,
+                    itemSubClass: number,
+                    inventoryType: number,
+                },
+            }
+            raid: {
+                name: string,
+                id: string,
+                min_level: number,
+            }
+        }[]>()
 
     if (error) {
         throw new Error(error.message)
     }
 
-    return items?.map((item: any) => {
+    return items?.map((item) => {
         return {
-            id: item.id as number,
-            name: item.name as string,
-            created_at: item.created_at as string,
-            updated_at: item.updated_at as string,
-            raid_id: item.raid_id as string,
-            description: item.description as { icon: string, itemClass: number, itemSubClass: number, inventoryType: number, name: string, quality: number, tooltip: string},
-            raid: {
-                name: item.raid?.name ?? '' as string,
-                id: item.raid?.id ?? '' as string,
-                min_level: item.raid?.min_level ?? 0 as number
-            }
+            ...item.item,
+            raid: item.raid
         }
     })
 }
