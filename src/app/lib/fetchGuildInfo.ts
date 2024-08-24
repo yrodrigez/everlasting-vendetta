@@ -1,4 +1,4 @@
-import {CURRENT_MAX_LEVEL, GUILD_ID, REALM_ID} from "@/app/util/constants";
+import {GUILD_ID, REALM_ID} from "@/app/util/constants";
 
 type Guild = {
     id: number;
@@ -77,7 +77,17 @@ export function getGuildRosterFromGuildInfo(guildInfo: Character[]): (Character 
         'Aoriad',
         'Porco',
         'Tacy',
-        'Felsargon'
+        'Felsargon',
+        'Speeps'
+    ]
+
+    const raiders = [
+        'Rimefang',
+        'Dvayse',
+        'Lebiatan',
+        'Tjaak',
+        'Llara',
+        'Compounded',
     ]
 
     const vipMembers = guildInfo?.filter((member: any) => {
@@ -89,13 +99,25 @@ export function getGuildRosterFromGuildInfo(guildInfo: Character[]): (Character 
             ...member,
             guild: {
                 ...member.guild,
-                rank: member.guild.rank ?? 1
+                rank: member.name === 'Alveric' ? 0 : 1
+            }
+        }
+    });
+
+    const raidersMembers = guildInfo?.filter((member: any) => {
+        return raiders.includes(member.name)
+    }).map(function (member: Character) {
+        return {
+            ...member,
+            guild: {
+                ...member.guild,
+                rank: 3
             }
         }
     });
 
     const maxLevelMembers = (guildInfo || []).filter((member: any) => {
-        return !vipMembersNames.includes(member.name) && (member.rank <= 3 || !member.rank)
+        return !vipMembersNames.includes(member.name) && !raiders.includes(member.name)
     }).map(function (member: Character) {
         return {
             ...member,
@@ -107,7 +129,7 @@ export function getGuildRosterFromGuildInfo(guildInfo: Character[]): (Character 
     }).sort(rankComparator);
 
 
-    return [...vipMembers, ...maxLevelMembers].map(rosterMapper)
+    return [...vipMembers, ...raidersMembers, ...maxLevelMembers].map(rosterMapper)
 }
 
 

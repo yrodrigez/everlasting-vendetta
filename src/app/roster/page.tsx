@@ -41,11 +41,12 @@ export default async function Page() {
     const supabase = createServerComponentClient({cookies})
     const {data, error} = await supabase.from('ev_member')
         .select('character')
-        .filter('character->>level', 'gte', CURRENT_MAX_LEVEL)
+        .filter('character->>level', 'gte', CURRENT_MAX_LEVEL -10)
         .filter('character->guild->>name', 'eq', GUILD_NAME)
-        .filter('updated_at', 'gte', new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString()) // 30 days
+        .filter('updated_at', 'gte', new Date(Date.now() - 1000 * 60 * 60 * 24 * 60).toISOString()) // 30 days
         .order('updated_at', {ascending: false})
         .returns<{ character: Character }[]>()
+
     if (error) {
         console.error(error)
         return <div>Error {error.message}</div>
