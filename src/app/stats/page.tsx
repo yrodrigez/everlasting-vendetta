@@ -7,6 +7,7 @@ import {CardFooter, CardHeader} from "@nextui-org/card";
 import Image from "next/image";
 import moment from "moment";
 import Link from "next/link";
+import {GUILD_REALM_SLUG} from "@/app/util/constants";
 
 export const dynamic = 'force-dynamic'
 
@@ -114,7 +115,7 @@ async function findMembersAvatars(members: MemberWithStatistics[], token: string
         if (error) {
             avatar = await fetchCharacterAvatar(
                 token,
-                'lone-wolf',
+                GUILD_REALM_SLUG,
                 member.name,
             );
         } else {

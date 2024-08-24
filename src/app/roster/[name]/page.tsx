@@ -10,7 +10,7 @@ import {getBlizzardToken} from "@/app/lib/getBlizzardToken";
 import WoWService from "@/app/services/wow-service";
 import GearScore from "@/app/roster/[name]/components/GearScore";
 import Link from "next/link";
-import {GUILD_NAME} from "@/app/util/constants";
+import {GUILD_NAME, GUILD_REALM_SLUG} from "@/app/util/constants";
 import {LootHistory} from "@/app/roster/[name]/components/LootHistory";
 import {StatisticsView} from "@/app/roster/[name]/components/StatisticsView";
 import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
@@ -153,7 +153,7 @@ export default async function Page({params}: { params: { name: string } }) {
             <div className="mx-auto max-w-6xl px-4 flex justify-evenly items-center">
                 <div className="flex items-center gap-4 mb-4">
                     <div className="w-20 h-20 rounded-full overflow-hidden">
-                        <CharacterAvatar token={token} realm={'lone-wolf'} characterName={characterInfo.name}
+                        <CharacterAvatar token={token} realm={GUILD_REALM_SLUG} characterName={characterInfo.name}
                                          className="rounded-full border-3 border-gold"/>
                     </div>
                     <div className="grid gap-1.5">

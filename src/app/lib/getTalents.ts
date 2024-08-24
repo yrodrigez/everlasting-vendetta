@@ -1,4 +1,5 @@
 import {getBlizzardToken} from "@/app/lib/getBlizzardToken";
+import {GUILD_REALM_SLUG} from "@/app/util/constants";
 
 export type GetTalentsParams = {
     token?: string
@@ -10,7 +11,7 @@ export type GetTalentsParams = {
 
 export default async function getCharacterTalents({
                                              token,
-                                             realm = 'lone-wolf',
+                                             realm = GUILD_REALM_SLUG,
                                              characterName,
                                              locale = 'en_US',
                                              namespace = 'profile-classic1x-eu'
