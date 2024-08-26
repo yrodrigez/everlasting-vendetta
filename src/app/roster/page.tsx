@@ -2,7 +2,7 @@ import Link from "next/link";
 import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
 import {cookies} from "next/headers";
 import {type Character, getGuildRosterFromGuildInfo} from "@/app/lib/fetchGuildInfo";
-import {CURRENT_MAX_LEVEL, GUILD_NAME} from "@/app/util/constants";
+import {CURRENT_MAX_LEVEL, GUILD_NAME, GUILD_REALM_NAME} from "@/app/util/constants";
 
 export const dynamic = 'force-dynamic'
 
@@ -36,12 +36,21 @@ const MemberView = ({member}: { member: Character & { icon: string, className: s
     </Link>
 }
 
+export async function generateMetadata() {
+
+    return {
+        title: `${GUILD_NAME} Roster - ${GUILD_REALM_NAME} Server | Everlasting Vendetta`,
+        description: `Explore the roster of ${GUILD_NAME}, one of the most active guilds on the ${GUILD_REALM_NAME} server.`,
+        keywords: 'wow, world of warcraft, guild roster, raiding, pve, pvp, classic, tbc, burning crusade, shadowlands, lone wolf, everlasting vendetta, guild events, guild members, guild forum, season of discovery, sod',
+    };
+}
+
 export default async function Page() {
 
     const supabase = createServerComponentClient({cookies})
     const {data, error} = await supabase.from('ev_member')
         .select('character')
-        .filter('character->>level', 'gte', CURRENT_MAX_LEVEL -10)
+        .filter('character->>level', 'gte', CURRENT_MAX_LEVEL - 10)
         .filter('character->guild->>name', 'eq', GUILD_NAME)
         .filter('updated_at', 'gte', new Date(Date.now() - 1000 * 60 * 60 * 24 * 60).toISOString()) // 30 days
         .order('updated_at', {ascending: false})

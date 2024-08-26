@@ -9,6 +9,8 @@ import React from "react";
 import AdminPanel from "@/app/raid/[id]/soft-reserv/AdminPanel";
 import RaidTimeInfo from "@/app/raid/components/RaidTimeInfo";
 import NotLoggedInView from "@/app/components/NotLoggedInView";
+import {Metadata} from "next";
+import moment from "moment";
 
 type Raid = {
     min_level: number;
@@ -25,6 +27,61 @@ type RaidQueryResult = {
     end_date: string;
 };
 
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+    const supabase = createServerComponentClient({ cookies });
+
+    // Fetch the raid reset data
+    const resetData = await supabase
+        .from('raid_resets')
+        .select('raid:ev_raid(name, image), raid_date, time, end_date')
+        .eq('id', params.id)
+        .single<{
+            raid: Raid;
+            raid_date: string;
+            time: string;
+            end_date: string;
+        }>();
+
+    if (!resetData.data) {
+        return {
+            title: 'Raid Not Found | Everlasting Vendetta',
+            description: 'The raid you are looking for does not exist or cannot be found.',
+        };
+    }
+
+    const { raid, raid_date: raidDate, time: raidTime, end_date: raidEndDate } = resetData.data;
+    const { name: raidName } = raid;
+
+    const raidStartDateFormatted = moment(raidDate).format('MMMM D, YYYY');
+    const raidEndDateFormatted = moment(raidEndDate).format('MMMM D, YYYY');
+
+    const metadataBase = new URL(process.env.NEXT_PUBLIC_BASE_URL!);
+
+    return {
+        title: `${raidName} - Raid on ${raidStartDateFormatted} | Everlasting Vendetta`,
+        description: `Join the ${raidName} raid starting on ${raidStartDateFormatted} at ${raidTime}. Participate in epic battles and secure your loot until ${raidEndDateFormatted}.`,
+        keywords: 'wow, world of warcraft, raid, raiding, pve, guild, loot, soft reservations, Everlasting Vendetta',
+        openGraph: {
+            title: `${raidName} - Raid on ${raidStartDateFormatted}`,
+            description: `Don't miss the ${raidName} raid from ${raidStartDateFormatted} to ${raidEndDateFormatted}. Be part of the adventure and claim your loot.`,
+            images: [
+                {
+                    url: new URL(raid.image, metadataBase).toString(),
+                    width: 800,
+                    height: 600,
+                    alt: `${raidName} Raid Image`,
+                },
+            ],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: `${raidName} - Raid on ${raidStartDateFormatted}`,
+            description: `Join the ${raidName} raid from ${raidStartDateFormatted} to ${raidEndDateFormatted}. Prepare for epic battles and claim your rewards.`,
+            images: new URL(raid.image, metadataBase).toString(),
+        },
+        metadataBase,  // Set the metadata base URL
+    };
+}
 
 export default async function Page({params}: { params: { id: string } }) {
     const token = cookies().get(process.env.BNET_COOKIE_NAME!)?.value

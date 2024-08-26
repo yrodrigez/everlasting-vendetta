@@ -15,6 +15,7 @@ import {RaidOptions} from "@/app/raid/components/RaidOptions";
 import {Button, Tooltip} from "@nextui-org/react";
 import {getLoggedInUserFromAccessToken} from "@/app/util";
 import {faDiscord} from "@fortawesome/free-brands-svg-icons";
+import {Metadata} from "next";
 
 const raidResetAttr = 'raid_date, id, raid:ev_raid(name, min_level, image), time, end_date'
 
@@ -77,6 +78,32 @@ function findPreviousAndNextReset(supabase: any, resetDate: any) {
             .limit(1)
             .single()
     ])
+}
+
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+    const supabase = createServerComponentClient({ cookies });
+
+    // Fetch the raid data based on the ID
+    const { data, error } = params.id === 'next' ? (await fetchNextReset(supabase)) : params.id === 'current' ? (await fetchCurrentReset(supabase)) : (await fetchResetFromId(supabase, params.id));
+
+    if (error) {
+        return {
+            title: 'Raid Not Found | Everlasting Vendetta',
+            description: 'The raid you are looking for does not exist or cannot be found.',
+        };
+    }
+
+    const { raid, raid_date: raidDate, time: raidTime, end_date } = data;
+    const { name: raidName } = raid;
+
+    const raidStartDate = moment(raidDate).format('MMMM D, YYYY');
+    const raidEndDate = moment(end_date).format('MMMM D, YYYY');
+
+    return {
+        title: `${raidName} Raid - ${raidStartDate} | Everlasting Vendetta`,
+        description: `Join the ${raidName} raid starting on ${raidStartDate} at ${raidTime}. Participate in epic battles and secure your loot until ${raidEndDate}.`,
+        keywords: `wow, world of warcraft, raid, raiding, pve, pvp, guild, guild events, loot, soft reservations, ${raidName}, ${raidStartDate}`,
+    };
 }
 
 export default async function ({params}: { params: { id: string } }) {

@@ -14,6 +14,8 @@ import {GUILD_NAME, GUILD_REALM_SLUG} from "@/app/util/constants";
 import {LootHistory} from "@/app/roster/[name]/components/LootHistory";
 import {StatisticsView} from "@/app/roster/[name]/components/StatisticsView";
 import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
+import Head from "next/head";
+import {Metadata} from "next";
 
 const getPlayerClassById = (classId: number) => {
     const classes = {
@@ -117,6 +119,20 @@ async function fetchLootHistory(characterName: string) {
     return loot
 }
 
+export async function generateMetadata({ params }: { params: { name: string } }): Promise<Metadata> {
+    // Fetch or compute character information here
+    const { fetchMemberInfo } = new WoWService()
+    const characterInfo = await fetchMemberInfo(params.name);
+
+    return {
+        title: `${characterInfo.name} - ${characterInfo.guild?.name ?? 'No Guild'} | Everlasting Vendetta`,
+        description: `${characterInfo.name} is a level ${characterInfo.level} ${characterInfo.race?.name} ${characterInfo.character_class?.name}. ${
+            characterInfo.guild?.name ? `A proud member of ${characterInfo.guild.name}` : 'Not part of any guild.'
+        } View gear, talents, and loot history.`,
+        keywords: 'wow, world of warcraft, guild recruitment, raiding, pve, pvp, classic, tbc, burning crusade, shadowlands, lone wolf, everlasting vendetta, guild events, guild forum, season of discovery, sod',
+    };
+}
+
 
 export default async function Page({params}: { params: { name: string } }) {
     const cookieToken = cookies().get(process.env.BNET_COOKIE_NAME!)?.value
@@ -149,77 +165,82 @@ export default async function Page({params}: { params: { name: string } }) {
     }
 
     return (
-        <div>
-            <div className="mx-auto max-w-6xl px-4 flex justify-evenly items-center">
-                <div className="flex items-center gap-4 mb-4">
-                    <div className="w-20 h-20 rounded-full overflow-hidden">
-                        <CharacterAvatar token={token} realm={GUILD_REALM_SLUG} characterName={characterInfo.name}
-                                         className="rounded-full border-3 border-gold"/>
-                    </div>
-                    <div className="grid gap-1.5">
-                        <h2 className="font-semibold text-lg">{characterInfo?.name}</h2>
-                        {characterInfo?.guild?.name ? (
-                            <Link
-                                href={characterInfo?.guild?.name === GUILD_NAME ? '/roster' : `/guild/${characterInfo?.guild?.realm?.id}-${characterInfo?.guild?.id}`}
-                                className="text-sm text-gold">{`<${characterInfo?.guild?.name}>`}</Link>
-                        ) : null}
-                        <p className="text-sm text-muted">
-                            Level {characterInfo?.level} {characterInfo?.race?.name} {characterInfo?.character_class?.name}
-                        </p>
-                        <p className="text-sm text-muted">Last online: <span className={`font-bold relative`}>
+        <>
+            <Head>
+                <title>{characterInfo.name} - {characterInfo.guild?.name ?? 'No Guild'}</title>
+            </Head>
+            <div>
+                <div className="mx-auto max-w-6xl px-4 flex justify-evenly items-center">
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="w-20 h-20 rounded-full overflow-hidden">
+                            <CharacterAvatar token={token} realm={GUILD_REALM_SLUG} characterName={characterInfo.name}
+                                             className="rounded-full border-3 border-gold"/>
+                        </div>
+                        <div className="grid gap-1.5">
+                            <h2 className="font-semibold text-lg">{characterInfo?.name}</h2>
+                            {characterInfo?.guild?.name ? (
+                                <Link
+                                    href={characterInfo?.guild?.name === GUILD_NAME ? '/roster' : `/guild/${characterInfo?.guild?.realm?.id}-${characterInfo?.guild?.id}`}
+                                    className="text-sm text-gold">{`<${characterInfo?.guild?.name}>`}</Link>
+                            ) : null}
+                            <p className="text-sm text-muted">
+                                Level {characterInfo?.level} {characterInfo?.race?.name} {characterInfo?.character_class?.name}
+                            </p>
+                            <p className="text-sm text-muted">Last online: <span className={`font-bold relative`}>
                             {isGuildMember ? moment(characterInfo?.last_login_timestamp).format('MMMM D HH:MM') : 'no seas porco'}
-                            {!isGuildMember ? <Tooltip
-                                placement="right"
-                                showArrow
-                                className="bg-wood text-white p-2 rounded"
-                                content={'You must be a guild member to see this information'}
-                            >
+                                {!isGuildMember ? <Tooltip
+                                    placement="right"
+                                    showArrow
+                                    className="bg-wood text-white p-2 rounded"
+                                    content={'You must be a guild member to see this information'}
+                                >
                                 <span className={
                                     `absolute left-0 right-0 -top-1 -bottom-1 rounded backdrop-filter backdrop-blur backdrop-saturate-150 backdrop-contrast-50 bg-gold blur-sm`}/>
-                            </Tooltip> : null}
+                                </Tooltip> : null}
                         </span>
-                        </p>
+                            </p>
 
-                        <GearScore character={characterName}/>
+                            <GearScore character={characterName}/>
+                        </div>
                     </div>
+                    <Image
+                        width={56}
+                        height={56}
+                        className={'rounded-full'}
+                        alt={characterInfo.character_class?.name}
+                        src={getPlayerClassById(characterInfo.character_class?.id).icon}/>
                 </div>
-                <Image
-                    width={56}
-                    height={56}
-                    className={'rounded-full'}
-                    alt={characterInfo.character_class?.name}
-                    src={getPlayerClassById(characterInfo.character_class?.id).icon}/>
+                <div>
+                    <Divider className="my-4 text-gray-500"/>
+                    <StatisticsView character={characterInfo} statistics={characterStatistics}/>
+                    <Divider className="my-4"/>
+                </div>
+                <CharacterViewOptions
+                    containerClassName={'mb-6'}
+                    items={[
+                        {
+                            label: 'Gear', name: 'gear', children: <CharacterGear
+                                characterName={characterName}
+                                gear={{
+                                    group1,
+                                    group2,
+                                    group3
+                                }} token={token}/>
+                        },
+                        {
+                            label: 'Talents', name: 'talents', children: <CharacterTalents
+                                characterInfo={characterInfo}
+                                talents={talents}
+                            />
+                        },
+                        {
+                            label: 'Loot History',
+                            name: 'loot-history',
+                            children: <LootHistory lootHistory={lootHistory}/>
+                        }
+                    ]}
+                />
             </div>
-            <div>
-                <Divider className="my-4 text-gray-500"/>
-                <StatisticsView character={characterInfo} statistics={characterStatistics}/>
-                <Divider className="my-4"/>
-            </div>
-            <CharacterViewOptions
-                containerClassName={'mb-6'}
-                items={[
-                    {
-                        label: 'Gear', name: 'gear', children: <CharacterGear
-                            characterName={characterName}
-                            gear={{
-                                group1,
-                                group2,
-                                group3
-                            }} token={token}/>
-                    },
-                    {
-                        label: 'Talents', name: 'talents', children: <CharacterTalents
-                            characterInfo={characterInfo}
-                            talents={talents}
-                        />
-                    },
-                    {
-                        label: 'Loot History',
-                        name: 'loot-history',
-                        children: <LootHistory lootHistory={lootHistory}/>
-                    }
-                ]}
-            />
-        </div>
+        </>
     )
 }

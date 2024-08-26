@@ -1,6 +1,4 @@
-import {Card, Image, CardFooter} from "@nextui-org/react";
-import {faVolcano} from "@fortawesome/free-solid-svg-icons";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {Card, CardFooter} from "@nextui-org/react";
 import {BlackrockEruptionBanner} from "@/app/components/BlackrockEruptionBanner";
 
 
