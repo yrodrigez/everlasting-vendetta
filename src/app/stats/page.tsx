@@ -7,7 +7,7 @@ import {CardFooter, CardHeader} from "@nextui-org/card";
 import Image from "next/image";
 import moment from "moment";
 import Link from "next/link";
-import {GUILD_REALM_SLUG} from "@/app/util/constants";
+import {CURRENT_MAX_LEVEL, GUILD_REALM_SLUG} from "@/app/util/constants";
 
 export const dynamic = 'force-dynamic'
 
@@ -309,7 +309,7 @@ export default async function Page() {
             <div
                 className="flex flex-col w-full h-full"
             >
-                <Chart members={latestMembers.filter((x: MemberWithStatistics) => x.level >= 50)}/>
+                <Chart members={latestMembers.filter((x: MemberWithStatistics) => x.level >= CURRENT_MAX_LEVEL)}/>
             </div>
         </div>
     )
