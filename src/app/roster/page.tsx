@@ -49,19 +49,19 @@ export default async function Page() {
 
     const supabase = createServerComponentClient({cookies})
     const {data, error} = await supabase.from('ev_member')
-        .select('character')
+        .select('updated_at, character')
         .filter('character->>level', 'gte', CURRENT_MAX_LEVEL - 10)
         .filter('character->guild->>name', 'eq', GUILD_NAME)
-        .filter('updated_at', 'gte', new Date(Date.now() - 1000 * 60 * 60 * 24 * 60).toISOString()) // 30 days
+        .filter('updated_at', 'gte', new Date(Date.now() - 1000 * 60 * 60 * 24 * 45).toISOString()) // 30 days
         .order('updated_at', {ascending: false})
-        .returns<{ character: Character }[]>()
+        .returns<{ updated_at: string, character: Character }[]>()
 
     if (error) {
         console.error(error)
         return <div>Error {error.message}</div>
     }
 
-    const guildRoster = getGuildRosterFromGuildInfo(data.map(({character}) => character))
+    const guildRoster = getGuildRosterFromGuildInfo(data.map(({character, updated_at}) => ({...character, updated_at})))
     const groupByRank = guildRoster.reduce((acc, member) => {
         if (!acc[member.rankName]) {
             acc[member.rankName] = []

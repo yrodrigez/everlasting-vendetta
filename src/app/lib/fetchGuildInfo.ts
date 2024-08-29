@@ -62,7 +62,7 @@ const rankComparator = (a: any, b: any) => {
     return a.character.level - b.character.level
 }
 
-export function getGuildRosterFromGuildInfo(guildInfo: Character[]): (Character & {
+export function getGuildRosterFromGuildInfo(guildInfo: (Character & { updated_at: string })[]): (Character & {
     rankName: string;
     className: string;
     icon: string;
@@ -78,22 +78,29 @@ export function getGuildRosterFromGuildInfo(guildInfo: Character[]): (Character 
         'Porco',
         'Tacy',
         'Felsargon',
-        'Speeps'
+        'Speeps',
+        'Rimefang',
     ]
 
     const raiders = [
-        'Rimefang',
-        'Dvayse',
-        'Lebiatan',
-        'Tjaak',
-        'Llara',
         'Compounded',
+        'Dvayse',
+        'Gizmogon',
+        'Harpsichord',
+        'Lebiatan',
+        'Llara',
+        'Mario',
+        'Neffertiri',
+        'Templaari',
+        'Tjaak',
+        'Ruzki',
     ]
 
     const vipMembers = guildInfo?.filter((member: any) => {
         return vipMembersNames.includes(member.name)
     }).sort(rankComparator).sort((a: any, b: any) => {
-        return vipMembersNames.indexOf(a.name) - vipMembersNames.indexOf(b.name);
+        // sort by last updated
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
     }).map(function (member: Character) {
         return {
             ...member,
@@ -114,6 +121,9 @@ export function getGuildRosterFromGuildInfo(guildInfo: Character[]): (Character 
                 rank: 3
             }
         }
+    }).sort((a: any, b: any) => {
+        // sort by last updated
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
     });
 
     const maxLevelMembers = (guildInfo || []).filter((member: any) => {
@@ -126,7 +136,10 @@ export function getGuildRosterFromGuildInfo(guildInfo: Character[]): (Character 
                 rank: member.guild.rank ?? 6
             }
         }
-    }).sort(rankComparator);
+    }).sort((a: any, b: any) => {
+        // sort by last updated
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+    })
 
 
     return [...vipMembers, ...raidersMembers, ...maxLevelMembers].map(rosterMapper)
