@@ -4,7 +4,7 @@ import {useSession} from "@/app/hooks/useSession";
 import {Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Spinner, Tooltip} from "@nextui-org/react";
 import {useAssistanceStore} from "@/app/raid/components/assistanceStore";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faCheck, faPersonCircleQuestion, faPlus, faUserPlus} from "@fortawesome/free-solid-svg-icons";
+import {faArrowDown, faCheck, faPersonCircleQuestion, faPlus, faUserPlus} from "@fortawesome/free-solid-svg-icons";
 import {ConfirmAssistance} from "@/app/raid/components/ConfirmAssistance";
 import {LateAssistance} from "@/app/raid/components/LateAssistance";
 import {TentativeAssistance} from "@/app/raid/components/TentativeAssistance";
@@ -14,18 +14,34 @@ import {useEffect} from "react";
 import useScreenSize from "@/app/hooks/useScreenSize";
 import {BnetLoginButton} from "@/app/components/BnetLoginButton";
 
-const days = ['Wed', /*'Thur', 'Fri', 'Sat', */'Sun', /*''Mon', Tue'*/]
+export const WEEK_DAYS = {
+    MONDAY: 'Mon',
+    TUESDAY: 'Tue',
+    WEDNESDAY: 'Wed',
+    THURSDAY: 'Thu',
+    FRIDAY: 'Fri',
+    SATURDAY: 'Sat',
+    SUNDAY: 'Sun',
+}
 
 export const CheckIcon = ({className}: { className?: string }) => {
     return <FontAwesomeIcon icon={faCheck} className={className}/>
 }
 
-export default function AssistActions({raidId, minLvl, endDate, participants, hasLootReservations = false}: {
+export default function AssistActions({
+                                          raidId,
+                                          minLvl,
+                                          endDate,
+                                          participants,
+                                          hasLootReservations = false,
+                                          days = [WEEK_DAYS.WEDNESDAY, WEEK_DAYS.SATURDAY]
+                                      }: {
     raidId: string,
     minLvl: number,
     endDate: string,
     participants: any[]
     hasLootReservations?: boolean
+    days?: string[]
 }) {
     const {selectedCharacter, session, loading: isSessionLoading} = useSession()
     const selectedRole = selectedCharacter?.selectedRole
@@ -35,8 +51,11 @@ export default function AssistActions({raidId, minLvl, endDate, participants, ha
         const currentParticipant = (participants ?? []).find((p: any) => p?.member?.character?.name === selectedCharacter?.name)
         if (currentParticipant && currentParticipant.details?.days) {
             (selectedDays ?? []).forEach((day: string) => removeDay(day));
-            (currentParticipant?.details?.days ?? []).forEach((day: string) => addDay(day));
+            (currentParticipant?.details?.days ?? []).forEach((day: string) => {
+                if (days.indexOf(day) !== -1) addDay(day)
+            });
         }
+
     }, [selectedCharacter]);
 
     const {isMobile} = useScreenSize()
@@ -63,6 +82,7 @@ export default function AssistActions({raidId, minLvl, endDate, participants, ha
     if ((selectedCharacter?.level ?? 0) < minLvl) {
         return <div className="text-red-500">You must be at least level {minLvl} to assist</div>
     }
+
 
     return (
         <div className={
@@ -118,21 +138,21 @@ export default function AssistActions({raidId, minLvl, endDate, participants, ha
             </div>
 
             <Tooltip
+                className="animate-blink-and-glow border-gold border rounded-lg p-4"
                 content={
-                    <div
-                        className="animate-blink-and-glow border-gold border rounded-lg p-4"
-                    >
+                    <div className="flex flex-col items-center justify-center gap-2 text-2xl">
                         <div>Select the days you can assist before continue</div>
+                        <FontAwesomeIcon icon={faArrowDown} bounce className="" />
                     </div>
                 }
-                showArrow
-                placement={'top-end'}
+
+                placement={'top-start'}
                 isOpen={selectedDays?.length === 0}
             >
                 <div
                     className={
-                        'grid gap-2 grid-cols-7'
-
+                        'grid gap-2 grid-cols-7 border-2 border-transparent rounded-lg p-1'
+                        + ` ${selectedDays?.length === 0 ? ' border-red-500' : ''}`
                     }
                 >
                     {days.map(day => {

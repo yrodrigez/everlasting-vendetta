@@ -1,5 +1,5 @@
 import moment from "moment/moment";
-import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
+import {createServerComponentClient, SupabaseClient} from "@supabase/auth-helpers-nextjs";
 import {cookies, headers} from "next/headers";
 import React from "react";
 
@@ -17,7 +17,17 @@ import {getLoggedInUserFromAccessToken} from "@/app/util";
 import {faDiscord} from "@fortawesome/free-brands-svg-icons";
 import {Metadata} from "next";
 
-const raidResetAttr = 'raid_date, id, raid:ev_raid(name, min_level, image), time, end_date'
+const raidResetAttr = 'raid_date, id, raid:ev_raid(name, min_level, image), time, end_date, end_time, days'
+export const dynamic = 'force-dynamic'
+export type RaidResetFetch = {
+    raid_date: string,
+    id: string,
+    raid: { name: string, min_level: number, image: string },
+    time: string,
+    end_date: string,
+    end_time: string,
+    days: string[]
+}
 
 function findNextWednesday() {
     if (moment().day() === 3) {
@@ -61,7 +71,7 @@ async function fetchResetFromId(supabase: any, id: string) {
         .single()
 }
 
-function findPreviousAndNextReset(supabase: any, resetDate: any) {
+function findPreviousAndNextReset(supabase: SupabaseClient, resetDate: string) {
 
     return Promise.all([
         supabase.from('raid_resets')
@@ -80,11 +90,14 @@ function findPreviousAndNextReset(supabase: any, resetDate: any) {
     ])
 }
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-    const supabase = createServerComponentClient({ cookies });
+export async function generateMetadata({params}: { params: { id: string } }): Promise<Metadata> {
+    const supabase = createServerComponentClient({cookies});
 
     // Fetch the raid data based on the ID
-    const { data, error } = params.id === 'next' ? (await fetchNextReset(supabase)) : params.id === 'current' ? (await fetchCurrentReset(supabase)) : (await fetchResetFromId(supabase, params.id));
+    const {
+        data,
+        error
+    } = params.id === 'next' ? (await fetchNextReset(supabase)) : params.id === 'current' ? (await fetchCurrentReset(supabase)) : (await fetchResetFromId(supabase, params.id));
 
     if (error) {
         return {
@@ -93,8 +106,8 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
         };
     }
 
-    const { raid, raid_date: raidDate, time: raidTime, end_date } = data;
-    const { name: raidName } = raid;
+    const {raid, raid_date: raidDate, time: raidTime, end_date} = data;
+    const {name: raidName} = raid;
 
     const raidStartDate = moment(raidDate).format('MMMM D, YYYY');
     const raidEndDate = moment(end_date).format('MMMM D, YYYY');
@@ -154,7 +167,7 @@ export default async function ({params}: { params: { id: string } }) {
         </div>
     }
 
-    const {id, raid_date: raidDate, raid, time: raidTime, end_date} = data
+    const {id, raid_date: raidDate, raid, time: raidTime, end_date, end_time: endTime, days} = data
     const {name: raidName, min_level: min_lvl} = raid
     const raidStartDate = moment(raidDate)
     const raidEndDate = moment(end_date)
@@ -163,7 +176,7 @@ export default async function ({params}: { params: { id: string } }) {
     const hasLoot = await supabase.from('ev_loot_history').select('id').eq('raid_id', id).limit(1)
 
     let hasLootReservations = false
-    if(isLoggedInUser) {
+    if (isLoggedInUser) {
         const loggedInUser = getLoggedInUserFromAccessToken(isLoggedInUser.value)
         hasLootReservations = !!(await supabase.from('raid_loot_reservation')
             .select('id')
@@ -173,15 +186,13 @@ export default async function ({params}: { params: { id: string } }) {
     }
 
     const [previousReset, nextReset] = await findPreviousAndNextReset(supabase, raidDate)
-
     const raidStarted = moment().isAfter(raidStartDate)
 
     return (
         <div className="w-full h-full flex flex-col relative">
             <h4 className="font-bold text-large text-gold">{raidName}</h4>
-            <small className="text-primary">Start {raidDate} - {raidTime} to {'00:00:00'}</small>
+            <small className="text-primary">Start {raidDate} - {raidTime} to {endTime}</small>
             <small className="text-primary">End: {end_date}</small>
-
             <KpisView
                 raidInProgress={raidInProgress}
                 participants={participants}
@@ -198,6 +209,7 @@ export default async function ({params}: { params: { id: string } }) {
                 minLvl={min_lvl}
                 endDate={end_date}
                 participants={participants}
+                days={days}
             />
             <RaidParticipants
                 raidInProgress={raidInProgress}

@@ -6,6 +6,7 @@ import {type RaidItem, type Reservation, type Character} from "@/app/raid/[id]/s
 import useReservationsStore from "@/app/raid/[id]/soft-reserv/reservationsStore";
 import {toast} from "sonner";
 import {SupabaseClient} from "@supabase/auth-helpers-nextjs";
+import {useRouter} from "next/navigation";
 
 const groupByItem = (reservations: Reservation[]) => {
     // @ts-ignore
@@ -100,28 +101,6 @@ const fetchReservationsOpen = async (supabase: SupabaseClient, reset_id: string)
     return !data?.reservations_closed
 }
 
-const fetchRaidData = async (supabase: SupabaseClient, reset_id: string) => {
-    const {data, error} = await supabase
-        .from('raid_resets')
-        .select('raid:ev_raid(name, min_level, image, reservation_amount)')
-        .eq('id', reset_id)
-        .single<{
-            raid: {
-                name: string;
-                min_level: number;
-                image: string;
-                reservation_amount: number;
-            }
-        }>()
-
-    if (error) {
-        console.error(error)
-        return undefined
-    }
-
-    return data?.raid
-}
-
 
 const fetchTotalReservations = async (supabase: SupabaseClient, reset_id: string, characterId: number) => {
     const {data, error} = await supabase
@@ -157,7 +136,7 @@ export const useReservations = (resetId: string, initialItems: Reservation[] = [
         setReservationsByItem([...groupByItem(items)])
         setYourReservations([...items?.filter((item) => item.member?.id === selectedCharacter?.id)])
     }, [items, loading, selectedCharacter]);
-
+    const router = useRouter()
     useEffect(() => {
         if (!selectedCharacter?.id || !supabase || !resetId) return
         (async () => {
@@ -176,7 +155,7 @@ export const useReservations = (resetId: string, initialItems: Reservation[] = [
                 event: '*',
                 schema: 'public',
                 table: 'raid_loot_reservation',
-                filter: `reset_id=eq.${resetId}`
+                // filter: `reset_id=eq.${resetId}` this is failing for a reason, investigate later
             }, async () => {
                 const items = await fetchItems(supabase, resetId)
                 setItems(items)
