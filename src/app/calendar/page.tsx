@@ -26,18 +26,19 @@ async function fetchRaidMembers(id: string, supabase: SupabaseClient) {
 async function fetchMaxRaidResets(supabase: SupabaseClient) {
     const raidResets = await supabase.from('raid_resets')
         .select('raid_date, id, raid:ev_raid(name, min_level, image), time, end_date')
-        .gte('end_date', moment().format('YYYY-MM-DD'))
+        .gt('end_date', moment().format('YYYY-MM-DD'))
         .order('raid_date', {ascending: true})
         .order('raid_id', {ascending: false})
         .limit(MAX_RAID_RESETS)
 
     if (raidResets.error) {
-        console.error(moment().format('YYYY-MM-DD') + ' - Error fetching raid resets: ' + JSON.stringify(raidResets) + ', on date: ' + new Date().toLocaleString())
+        console.error('Error fetching raid resets: ' + JSON.stringify(raidResets))
         return []
     }
 
     return raidResets.data ?? []
 }
+
 export async function generateMetadata(): Promise<Metadata> {
     const metadataBase = new URL(process.env.NEXT_PUBLIC_BASE_URL!);
 

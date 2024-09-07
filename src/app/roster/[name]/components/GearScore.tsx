@@ -1,7 +1,7 @@
 'use client'
 import {calculateTotalGearScore, getColorForGearScoreText} from "@/app/roster/[name]/ilvl";
 import {useCharacterItemsStore} from "@/app/roster/[name]/characterItemsStore";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {Skeleton} from "@nextui-org/react";
 
 function getQualityTypeNumber(quality: string) {
@@ -22,19 +22,22 @@ export default function GearScore({character}: { character: string }) {
     const [gearScoreColorName, setGearScoreColorName] = useState('text-common')
     const [isLoading, setIsLoading] = useState(true)
     const items = useCharacterItemsStore(state => state.items)
+    const currentHookState = useRef<{status: string}>({status: 'none'})
     useEffect(() => {
         const effectiveItems = items.filter((item: any) => item?.slot?.type !== 'SHIRT' && item?.slot?.type !== 'TABARD')
         const isLoading = !effectiveItems.length || effectiveItems.some((item: any) => item.loading)
         setIsLoading(isLoading)
-
+        if (isLoading) return
+        if (currentHookState.current.status === 'loaded') return
         const gearForGearScore = effectiveItems.map((item: any) => {
             return {
                 ilvl: item.details?.level || 0,
-                type: `INVTYPE_${item.inventory_type?.type}`,
+                type: `INVTYPE_${item.inventory_type?.type ?? ''}`,
                 rarity: getQualityTypeNumber(item.quality?.type),
                 isEnchanted: !!(item.enchantments?.length)
             }
         }).filter(item => item.ilvl !== 0 || item.type !== 'INVTYPE_')
+        currentHookState.current.status = isLoading ? 'loading' : 'loaded'
         const gearScore = calculateTotalGearScore(gearForGearScore)
         const gearScoreColorName = `text-${getColorForGearScoreText(gearScore)}`
         setGearScore(gearScore)

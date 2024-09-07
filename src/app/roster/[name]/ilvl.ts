@@ -49,7 +49,7 @@ function calculateItemScore(item: Item): number {
     let enchantModifier = isEnchantable && item.isEnchanted ? ENCHANTMENT_MODIFIER : 1;
     let adjustedItemLevel = item.ilvl;
 
-    if (item.type === "INVTYPE_2HWEAPON") {
+    if (item.type === "INVTYPE_2HWEAPON" || item.type === "INVTYPE_TWOHWEAPON") {
         adjustedItemLevel = item.ilvl * 2;
     }
 
