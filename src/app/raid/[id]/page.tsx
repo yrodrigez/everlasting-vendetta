@@ -215,6 +215,7 @@ export default async function ({params}: { params: { id: string } }) {
                 raidInProgress={raidInProgress}
                 participants={participants}
                 raidId={id}
+                days={days}
             />
             <div className="absolute top-4 right-4 z-50 flex flex-col items-center gap-2">
                 <RaidOptions

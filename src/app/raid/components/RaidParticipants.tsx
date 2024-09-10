@@ -19,9 +19,6 @@ import moment from "moment";
 import {useParticipants} from "@/app/raid/components/useParticipants";
 import {GUILD_NAME} from "@/app/util/constants";
 
-//const days = ['Wed', 'Thur', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue'];
-const days = ['Wed', 'Sun'];
-
 const GuildMemberIndicator = (character: any) => {
 
     const isGuildie = character.guild?.name === GUILD_NAME;
@@ -35,10 +32,11 @@ const GuildMemberIndicator = (character: any) => {
     )
 }
 
-export default function RaidParticipants({participants, raidId, raidInProgress}: {
+export default function RaidParticipants({participants, raidId, raidInProgress, days}: {
     participants: any[],
     raidId: string,
     raidInProgress: boolean
+    days: string[]
 }) {
     const {supabase, selectedCharacter} = useSession()
     const stateParticipants = useParticipants(raidId, participants)
