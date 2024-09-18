@@ -3,7 +3,6 @@ import {Button} from "@nextui-org/react";
 import Link from "next/link";
 import {usePathname, useRouter} from "next/navigation";
 import useScreenSize from "@/app/hooks/useScreenSize";
-import {BNET_COOKIE_NAME} from "@/app/util/constants";
 import {createHandleAuthMessage, openAuthWindow} from "@/app/util/blizzard/loginOnWindow";
 
 const LoginButton = ({onClick}: { onClick?: Function }) => {

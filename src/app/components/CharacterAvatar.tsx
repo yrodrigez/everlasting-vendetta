@@ -21,7 +21,7 @@ const CharacterAvatar = ({
     width?: number,
     height?: number,
     className?: string,
-    role?: 'tank' | 'dps' | 'healer' | null
+    role?: 'tank' | 'dps' | 'healer' | 'tank-healer' | 'tank-dps' | 'healer-dps'
 }) => {
     const tokenFromCookie = getCookie(BNET_COOKIE_NAME)
     const currentToken = !token && tokenFromCookie ? {

@@ -117,7 +117,7 @@ export default function ProfileManager() {
                         icon={faRightLeft}
                     />
                     <MenuItem
-                        text={'Select your role'}
+                        text="Select your role"
                         onClick={() => {
                             setIsRoleSelectWindowOpen(true)
                             setPopoverOpen(false)
@@ -150,13 +150,29 @@ export default function ProfileManager() {
                 <ModalHeader>
                     <h1>Select your role</h1>
                 </ModalHeader>
-                <ModalBody>
+                <ModalBody
+                    className="max-h-96 overflow-auto scrollbar-pill"
+                >
                     {isSessionLoading ? <div>Loading...</div> :
-                        <div className="flex flex-col gap-4">
+                        <div className="flex flex-col gap-2 scrollbar-pill overflow-auto">
                             {['Tank', 'Healer', 'Dps'].filter((role) => {
                                 return isRoleAssignable(role.toLowerCase() as any, selectedCharacter.playable_class?.name?.toLowerCase())
-                            }).map((role) => {
-                                const roleKey = role.toLowerCase() as 'tank' | 'healer' | 'dps'
+                            })/*.reduce(
+                                (acc, role) => {
+                                    const newCombos = acc.map((combo) => [...combo, role]);
+                                    return acc.concat(newCombos);
+                                },
+                                [[]] as string[][]
+                            ).filter(
+                                (combo) => {
+                                    return combo.length <= 2
+                                }
+                            ).sort((a,b)=>{
+                                return a.length - b.length
+                            }).map(x => {
+                                return x.join('-')
+                            })*/.filter(Boolean).map((role) => {
+                                const roleKey = role.toLowerCase() as 'tank' | 'healer' | 'dps' | 'tank-healer' | 'tank-dps' | 'healer-dps'
                                 return (
                                     <div
                                         onClick={() => {

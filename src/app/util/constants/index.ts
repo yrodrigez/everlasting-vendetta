@@ -1,6 +1,6 @@
-export const GUILD_REALM_SLUG = 'lone-wolf'
-export const REALM_ID = 5826
-export const GUILD_REALM_NAME = 'Lone Wolf'
+export const GUILD_REALM_SLUG = 'living-flame'
+export const REALM_ID = 5827
+export const GUILD_REALM_NAME = 'Living Flame'
 export const EV_COOKIE_NAME = 'evToken'
 export const BNET_COOKIE_NAME = 'bnetToken'
 export const GUILD_ID = 2239011

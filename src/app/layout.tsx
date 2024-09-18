@@ -18,8 +18,8 @@ config.autoAddCss = false;
 const inter = Inter({subsets: ["latin"]});
 
 export const metadata: Metadata = {
-    title: "Everlasting Vendetta - Raids on Lone Wolf",
-    description: "Everlasting Vendetta is an active guild seeking raiders to join on the Lone Wolf server. Join us to conquer the greatest WoW challenges!",
+    title: "Everlasting Vendetta - Raids on Living Flame",
+    description: "Everlasting Vendetta is an active guild seeking raiders to join on the Living Flame server. Join us to conquer the greatest WoW challenges!",
     keywords: "wow, world of warcraft, guild recruitment, raiding, pve, pvp, classic, tbc, burning crusade, shadowlands, lone wolf, everlasting vendetta, guild events, guild forum, season of discovery, sod",
 };
 
