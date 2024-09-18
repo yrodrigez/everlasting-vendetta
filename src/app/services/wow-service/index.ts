@@ -140,6 +140,7 @@ export default class WoWService_Impl implements WoWService {
             fetchGuildInfo(token)
         ])
 
+        if (availableCharacters?.length > 0) return true
         if (!guild || !guild.members || !availableCharacters) {
             return false
         }
