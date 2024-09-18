@@ -61,7 +61,17 @@ export default async function Page() {
         return <div>Error {error.message}</div>
     }
 
-    const guildRoster = getGuildRosterFromGuildInfo(data.map(({character, updated_at}) => ({...character, updated_at})))
+    const guildRoster = getGuildRosterFromGuildInfo(data.map(({character, updated_at}) => ({...character, updated_at})).reduce((acc, character) => {
+        // should add the character if doesn't exist or if the character is more recent
+        const existingCharacter = acc.find((c) => c.name === character.name)
+        if (!existingCharacter) {
+            return [...acc, character]
+        }
+        if (new Date(existingCharacter.updated_at) < new Date(character.updated_at)) {
+            return acc.map((c) => c.id === character.id ? character : c)
+        }
+        return acc
+    }, [] as (Character & {updated_at: string})[]))
     const groupByRank = guildRoster.reduce((acc, member) => {
         if (!acc[member.rankName]) {
             acc[member.rankName] = []
