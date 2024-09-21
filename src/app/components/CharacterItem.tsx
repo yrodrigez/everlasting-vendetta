@@ -1,9 +1,12 @@
 'use client'
-import axios from "axios";
 import {ItemImageWithRune} from "@/app/roster/[name]/components/ItemImageWithRune";
 import {useEffect, useState} from "react";
 import {useCharacterItemsStore} from "@/app/roster/[name]/characterItemsStore";
-import {Skeleton} from "@nextui-org/react";
+import {Skeleton, Tooltip} from "@nextui-org/react";
+import {itemTypeInfo} from "@/app/roster/[name]/ilvl";
+import {useQuery} from "@tanstack/react-query";
+import {faWandMagic, faWandMagicSparkles} from "@fortawesome/free-solid-svg-icons";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 
 interface APIReference {
@@ -156,38 +159,32 @@ function getItemRarityHexColor(quality: string) {
     return rarityColors[quality] || '#ffffff';
 }
 
-export default function ({item: _item, token, reverse, bottom, characterName}: {
-    item: ItemDetails,
-    token: string,
-    reverse?: boolean,
-    bottom?: boolean,
-    characterName: string
+export default function ({item: _item, token, reverse, bottom}: {
+    item: ItemDetails
+    token: string
+    reverse?: boolean
+    bottom?: boolean
 }) {
     if (!_item) return null;
     const items = useCharacterItemsStore(state => state.items)
-    const [item, setItem] = useState<any>(items.find((i: any) => i.item?.id === _item.item.id) || _item)
-    const [loading, setLoading] = useState<boolean>(true)
+    const [item] = useState<any>(items.find((i: any) => i.item?.id === _item.item.id) || _item)
     const {id,} = item?.item || {} as any
     const {name, quality, slot} = item || {};
-    const [itemIconUrl, setItemIconUrl] = useState<string>('');
-    const [itemDetails, setItemDetails] = useState<any>({level: '??'});
+    const [itemIconUrl, setItemIconUrl] = useState<string>(item?.itemIconUrl ?? '');
+    const [itemDetails, setItemDetails] = useState<any>(item?.details ?? {level: '??'});
     const updateItem = useCharacterItemsStore(state => state.updateItem)
-    useEffect(() => {
-        if (item.details) {
-            setItemDetails(item.details)
-            setItemIconUrl(item.itemIconUrl)
-            setLoading(false)
-            return;
-        }
-        updateItem({...item, loading: true});
-        ((async () => {
+
+    const [_, isEnchantable] = itemTypeInfo[`INVTYPE_${item.inventory_type?.type}`] ?? [0, false];
+    const isEnchanted = item.enchantments?.filter((enchant: any) => enchant.enchantment_slot.type !== 'TEMPORARY').length && isEnchantable
+    const {isLoading: loading} = useQuery({
+        queryKey: ['item', id],
+        queryFn: async () => {
             const url = `${window.location.origin}/api/v1/services/wow/fetchItem?itemId=${id}&token=${token}`
             const response = await fetch(
                 url
             );
             if (!response.ok) {
-                setLoading(false)
-                return;
+                throw new Error('Failed to fetch item')
             }
             const {itemIconUrl, itemDetails, displayId} = await response.json()
             setItemIconUrl(itemIconUrl);
@@ -199,13 +196,17 @@ export default function ({item: _item, token, reverse, bottom, characterName}: {
                 itemIconUrl,
                 details: itemDetails
             })
-            setLoading(false)
-        })())
-    }, [id])
+
+            return {itemIconUrl, itemDetails, displayId}
+        },
+        enabled: !!id,
+        staleTime: 1000 * 60 * 5, // 5 minutes
+        retry: 3
+    })
 
     return (
         <div className={`flex items-center gap-4 ${reverse ? 'flex-row-reverse' : ''}`}>
-            <Skeleton isLoaded={!loading} className={`w-12 h-12  bg-wood ${loading ? 'rounded-lg' : ''}`}>
+            <Skeleton isLoaded={!loading} className={`w-12 h-12 relative  bg-wood ${loading ? 'rounded-lg' : ''}`}>
                 <ItemImageWithRune
                     item={item}
                     itemIconUrl={itemIconUrl}
@@ -213,8 +214,19 @@ export default function ({item: _item, token, reverse, bottom, characterName}: {
                     bottom={bottom}
                     borderColor={getItemRarityHexColor(quality.name.toUpperCase())}
                 />
+                <div
+                    className={`hidden lg:flex absolute ${bottom ?  '-top-5 right-4' : !reverse?  '-left-6 bottom-4': '-right-6 bottom-4' }  flex items-center gap-1`}>
+                    <Tooltip
+                        content={<p>{isEnchanted ? 'Enchanted' : 'Not Enchanted'}</p>}
+                        placement={bottom ? 'top' : 'right'}
+                    >
+                    {!isEnchantable ? null : isEnchanted ?
+                        <FontAwesomeIcon className={`text-gold`} icon={faWandMagicSparkles}/> :
+                        <FontAwesomeIcon className="text-gray-500" icon={faWandMagic}/>}
+                    </Tooltip>
+                </div>
             </Skeleton>
-            <div className={`flex-col gap-10 ${reverse ? 'text-right' : 'text-left'} break-all`}>
+            <div className={`flex-col gap-10 ${reverse ? 'text-right' : 'text-left'} break-all relative`}>
                 <Skeleton isLoaded={!loading} className={`h-4 bg-wood ${loading ? 'rounded-full' : ''}`}>
                     <h3 className="font-semibold text-sm hidden md:flex">{name}</h3>
                     <h3 className="font-semibold text-sm md:hidden">{slot.name}</h3>

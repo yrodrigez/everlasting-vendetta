@@ -3,9 +3,9 @@ import {ItemDetails} from "@/app/components/CharacterItem";
 import {Button, Modal, ModalBody, ModalContent, Tooltip, useDisclosure} from "@nextui-org/react";
 
 import {ItemDetailedView} from "@/app/roster/[name]/components/ItemDetailedView";
-import {useSharedTooltipStore} from "@/app/roster/[name]/components/sharedTooltipstore";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faClose, faPersonCircleQuestion} from "@fortawesome/free-solid-svg-icons";
+import {faClose} from "@fortawesome/free-solid-svg-icons";
+import {itemTypeInfo} from "@/app/roster/[name]/ilvl";
 
 export function ItemImageWithRune({
                                       item, itemIconUrl, borderColor, reverse = false, bottom = false
@@ -23,8 +23,11 @@ export function ItemImageWithRune({
         .replace(/[-']/g, '_')
         .toLowerCase() || ''
 
-    const {isOpen, onOpen, onClose, onOpenChange} = useDisclosure()
 
+    const [_, isEnchantable] = itemTypeInfo[`INVTYPE_${item.inventory_type?.type}`] ?? [0, false];
+    const isEnchanted = item.enchantments?.filter((enchant: any) => enchant.enchantment_slot.type !== 'TEMPORARY').length && isEnchantable
+
+    const {isOpen, onOpen, onClose, onOpenChange} = useDisclosure()
     return (
         <>
             <Tooltip

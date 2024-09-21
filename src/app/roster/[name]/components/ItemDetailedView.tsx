@@ -72,13 +72,14 @@ export function ItemDetailedView({item}: { item: any }) {
                         )
                     })}
                 </div>
-                  <div className="mt-unit-lg">
-                  {set.effects.sort((x: any, y: any)=> {
-                      return x?.required_count - y?.required_count
-                  }).map((x: any, i: number) => (
-                      <p key={i} className={`${x.is_active? 'text-uncommon': 'text-gray-300'}`}>{x.display_string}</p>
-                  ))}
-                  </div>
+                <div className="mt-unit-lg">
+                    {set.effects.sort((x: any, y: any) => {
+                        return x?.required_count - y?.required_count
+                    }).map((x: any, i: number) => (
+                        <p key={i}
+                           className={`${x.is_active ? 'text-uncommon' : 'text-gray-300'}`}>{x.display_string}</p>
+                    ))}
+                </div>
               </div>
             }
         </div>

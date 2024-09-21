@@ -5,7 +5,7 @@ type Item = {
     isEnchanted: boolean;
 };
 
-const itemTypeInfo: { [key: string]: [number, boolean] } = {
+export const itemTypeInfo: { [key: string]: [number, boolean] } = {
     "INVTYPE_HEAD": [1.0000, true],
     "INVTYPE_NECK": [0.5625, false],
     "INVTYPE_SHOULDER": [0.7500, true],
@@ -22,6 +22,7 @@ const itemTypeInfo: { [key: string]: [number, boolean] } = {
     "INVTYPE_WEAPON": [1.0000, true],
     "INVTYPE_SHIELD": [1.0000, true],
     "INVTYPE_2HWEAPON": [2.000, true],
+    "INVTYPE_TWOHWEAPON": [2.000, true],
     "INVTYPE_WEAPONMAINHAND": [1.0000, true],
     "INVTYPE_WEAPONOFFHAND": [1.0000, true],
     "INVTYPE_HOLDABLE": [1.0000, false],
