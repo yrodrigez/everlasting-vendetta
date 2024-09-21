@@ -4,11 +4,13 @@ import {RaidResetCard} from "@/app/calendar/components/RaidResetCard";
 import {cookies} from "next/headers";
 import {createServerComponentClient, type SupabaseClient} from "@supabase/auth-helpers-nextjs";
 import {Metadata} from "next";
+import {redirect} from "next/navigation";
+import {Button} from "@/app/components/Button";
+import Link from "next/link";
 
 export const dynamic = 'force-dynamic'
 
 const MAX_RAID_RESETS = 9
-
 
 async function fetchRaidMembers(id: string, supabase: SupabaseClient) {
     const {data, error} = await supabase.from('ev_raid_participant')
@@ -23,11 +25,16 @@ async function fetchRaidMembers(id: string, supabase: SupabaseClient) {
     return data;
 }
 
-async function fetchMaxRaidResets(supabase: SupabaseClient) {
+async function fetchMaxRaidResets(supabase: SupabaseClient, date: string | undefined, options: {
+    isCurrent: boolean;
+    isPrevious: boolean;
+    isNext: boolean
+}) {
     const raidResets = await supabase.from('raid_resets')
-        .select('raid_date, id, raid:ev_raid(name, min_level, image), time, end_date')
-        .gt('end_date', moment().format('YYYY-MM-DD'))
-        .order('raid_date', {ascending: true})
+        .select('raid_date, id, raid:ev_raid(name, min_level, image), time, end_date')[
+            options.isPrevious ? 'lt' : 'gt'
+        ](options.isPrevious ? 'raid_date' : 'end_date', moment(date).format('YYYY-MM-DD'))
+        .order('raid_date', {ascending: !options.isPrevious})
         .order('raid_id', {ascending: false})
         .limit(MAX_RAID_RESETS)
 
@@ -36,7 +43,9 @@ async function fetchMaxRaidResets(supabase: SupabaseClient) {
         return []
     }
 
-    return raidResets.data ?? []
+    return (raidResets.data ?? []).sort((a: any, b: any) => {
+        return moment(a.raid_date).diff(moment(b.raid_date))
+    })
 }
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -71,28 +80,79 @@ export async function generateMetadata(): Promise<Metadata> {
     };
 }
 
+const getPreviousWeeks = (date: string, previousTo: string) => {
 
-export default async function Page() {
+    return (`/calendar?d=${date}&p=${previousTo}`)
+}
+
+const getNextWeeks = (date: string, nextTo: string) => {
+
+    return (`/calendar?d=${date}&n=${nextTo}`)
+}
+
+function dateIsValid(date: string) {
+
+    return /\d{4}-\d{2}-\d{2}/.test(date) && moment(date, 'YYYY-MM-DD').isValid()
+}
+
+export default async function Page({searchParams}: { searchParams: { d?: string, p?: string, n?: string } }) {
+    const currentDate = moment().format('YYYY-MM-DD')
+    if (!searchParams.d || !dateIsValid(searchParams.d) || (searchParams.p && searchParams.n)) {
+        redirect(`/calendar?d=${currentDate}`)
+    }
+
+    if(searchParams.p && !dateIsValid(searchParams.p) || searchParams.n && !dateIsValid(searchParams.n)) {
+        redirect(`/calendar?d=${currentDate}`)
+    }
 
     const supabase = createServerComponentClient({cookies})
-
-    const raidResets = await Promise.all((await fetchMaxRaidResets(supabase)).map(async (raidReset: any) => {
+    const {p: previous, n: next, d: current} = searchParams
+    const raidResets = await Promise.all((await fetchMaxRaidResets(supabase, (previous || next || current), {
+        isPrevious: !!previous,
+        isNext: !!next,
+        isCurrent: !!current
+    })).map(async (raidReset: any) => {
         const raidRegistrations = await fetchRaidMembers(raidReset.id, supabase)
         return {...raidReset, raidRegistrations}
     }))
 
-    return <main className="flex gap-3 flex-col justify-center items-center md:flex-wrap md:flex-row">
-        {raidResets.map((raidReset: any, index: number) => {
-
-            return <RaidResetCard
-                raidEndDate={raidReset.end_date}
-                id={raidReset.id}
-                key={index}
-                raidName={raidReset.raid.name}
-                raidImage={`/${raidReset.raid.image}`}
-                raidDate={raidReset.raid_date}
-                raidTime={raidReset.time}
-                raidRegistrations={raidReset.raidRegistrations}/>
-        })}
+    return <main className="flex justify-center items-center relative">
+        <div
+            className="absolute top-0 -left-16"
+        >
+            <Link
+                href={getPreviousWeeks(currentDate, raidResets[0]?.raid_date)}
+            >
+                <Button>
+                    Previous
+                </Button>
+            </Link>
+        </div>
+        <div className="flex gap-3 flex-col justify-center items-center md:flex-wrap md:flex-row w-full">
+            {raidResets.map((raidReset: any, index: number) => {
+                return <RaidResetCard
+                    raidEndDate={raidReset.end_date}
+                    id={raidReset.id}
+                    key={index}
+                    raidName={raidReset.raid.name}
+                    raidImage={`/${raidReset.raid.image}`}
+                    raidDate={raidReset.raid_date}
+                    raidTime={raidReset.time}
+                    raidRegistrations={raidReset.raidRegistrations}/>
+            })}
+        </div>
+        {
+            // visible only if the current date is displaying a current or future raid
+            !moment().isBefore(moment(raidResets[0]?.end_date)) &&
+            <div
+            className="absolute top-0 -right-16"
+        >
+            <Link
+                href={getNextWeeks(currentDate, raidResets[raidResets.length - 1]?.end_date)}>
+                <Button>
+                    Next
+                </Button>
+            </Link>
+        </div>}
     </main>
 }
