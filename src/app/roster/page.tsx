@@ -85,7 +85,10 @@ export default async function Page() {
             return <div key={rankName} className="flex flex-col w-full items-center">
                 <h1 className="text-gold text-2xl font-bold">{rankName}</h1>
                 <div className="flex flex-wrap gap-4 w-full justify-center items-center">
-                    {members.map((member) => {
+                    {members.sort((a,b)=>{
+                        // @ts-ignore
+                        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+                    }).map((member) => {
                         return <MemberView key={member.id} member={member}/>
                     })}
                 </div>
