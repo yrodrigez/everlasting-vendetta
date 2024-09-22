@@ -1,6 +1,6 @@
 'use client'
 import {ItemImageWithRune} from "@/app/roster/[name]/components/ItemImageWithRune";
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {useCharacterItemsStore} from "@/app/roster/[name]/characterItemsStore";
 import {Skeleton, Tooltip} from "@nextui-org/react";
 import {itemTypeInfo} from "@/app/roster/[name]/ilvl";
