@@ -18,6 +18,9 @@ import useScreenSize from "@/app/hooks/useScreenSize";
 import moment from "moment";
 import {useParticipants} from "@/app/raid/components/useParticipants";
 import {GUILD_NAME} from "@/app/util/constants";
+import {Button} from "@/app/components/Button";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faTrash} from "@fortawesome/free-solid-svg-icons";
 
 const GuildMemberIndicator = (character: any) => {
 
@@ -38,7 +41,8 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
     raidInProgress: boolean
     days: string[]
 }) {
-    const {supabase, selectedCharacter} = useSession()
+    const {supabase, selectedCharacter, session: {isAdmin} = {}} = useSession()
+
     const stateParticipants = useParticipants(raidId, participants)
     const {isMobile} = useScreenSize()
     const initialColumns = [
@@ -54,8 +58,14 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
             setColumns([
                 ...initialColumns,
                 {name: "DAYS", uid: "days"},
-                {name: "GUILDIE", uid: "is_guildie"}
+                {name: "GUILDIE", uid: "is_guildie"},
             ])
+            if (isAdmin) {
+                setColumns(cols => [
+                    ...cols,
+                    {name: "ADMIN", uid: "admin"},
+                ])
+            }
         }
     }, [isMobile]);
 
@@ -73,7 +83,9 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
                         <div className="flex flex-row items-center gap-2">
                             <Tooltip
                                 content={`Confirmed at: ${moment(registration.created_at).format('MMM Do, h:mm:ss a')}`}>
-                                <span>{registration.position}</span>
+                                <span
+                                    className="w-4 flex flex-row-reverse"
+                                >{registration.position}</span>
                             </Tooltip>
                             <Image
                                 alt="User avatar"
@@ -174,6 +186,39 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
 
             case "is_guildie":
                 return <GuildMemberIndicator {...registration.member.character}/>
+
+            case "admin":
+                return (
+                    <div
+                        className="w-full flex items-center gap-2"
+                    >
+                        <Button
+                            size="sm"
+                            isIconOnly
+                            icon="trash"
+                            onClick={() => {
+                                const memberId = registration.member.character.id
+                                const raidId = registration.raid_id
+                                const confirm = window.confirm(`Are you sure you want to delete ${registration.member.character.name} from this raid?`)
+                                if (!confirm) return
+                                supabase?.from('ev_raid_participant')
+                                    .delete()
+                                    .eq('member_id', memberId)
+                                    .eq('raid_id', raidId)
+                                    .then((response) => {
+                                        const {data, error: err} = response
+                                        if (err) {
+                                            console.error('Error deleting participant', err)
+                                            return
+                                        }
+                                        console.log('Deleted participant', data)
+                                    })
+                            }}
+                        >
+                            <FontAwesomeIcon icon={faTrash}/>
+                        </Button>
+                    </div>
+                )
 
             default:
                 return <></>;

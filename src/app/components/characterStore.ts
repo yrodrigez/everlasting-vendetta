@@ -16,6 +16,7 @@ export interface Character {
         name?: string
     },
     isTemporal?: boolean
+    isAdmin?: boolean
 }
 
 interface CharacterStore {
@@ -33,6 +34,7 @@ const initialState = {
     selectedCharacter: null,
     lastUpdated: 0,
     isTemporal: false,
+    isAdmin: false
 }
 
 export const useCharacterStore = createStore<CharacterStore>()(persist((set) => ({

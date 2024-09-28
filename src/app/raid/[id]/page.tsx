@@ -157,6 +157,7 @@ export default async function ({params}: { params: { id: string } }) {
         .select('member:ev_member(character), is_confirmed, details, raid_id, created_at')
         .eq('raid_id', data.id)
 
+
     if (participantsError) {
         if (participantsError.message.indexOf('Not valid base64url') > -1) {
             const host = headers().get('Referer')
