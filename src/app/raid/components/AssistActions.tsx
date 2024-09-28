@@ -160,8 +160,7 @@ export function TemporalLogin() {
                                 You can login withouth a Battle.net account, just type the character name and select a
                                 role.
                                 <br/>
-                                However, we recommend you to login with Battle.net to get the most of the features and
-                                security provided by <Link href={'https://develop.battle.net/'} target={'_blank'}
+                                However, we recommend you to login with Battle.net to get the security provided by <Link href={'https://develop.battle.net/documentation/guides/using-oauth'} target={'_blank'}
                                                            className="text-battlenet">battle.net API</Link>.
                             </div>
                             <Input
