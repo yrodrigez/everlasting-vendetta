@@ -13,8 +13,10 @@ function getEruptionDuration() {
 export function BlackrockEruptionBanner() {
     const [isLive, setIsLive] = useState(false);
     const [timeRemaining, setTimeRemaining] = useState(getEruptionDuration());
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
+        setMounted(true);
         const interval = setInterval(() => {
             const spanishTime = moment.tz("Europe/Madrid");
             // is live if the current hour is pair
@@ -28,6 +30,9 @@ export function BlackrockEruptionBanner() {
         return () => clearInterval(interval);
     }, []);
 
+    if (!mounted) {
+        return null;
+    }
     return (
         <div
             className="flex items-center justify-center px-4 h-14 bg-orange-800 z-50 rounded-lg border border-orange-500 shadow-lg shadow-orange-700">
@@ -36,9 +41,9 @@ export function BlackrockEruptionBanner() {
             />
             <div className="flex flex-col items-center justify-center">
                 <span className="text-white font-bold ml-2">Blackrock Eruption</span>
-                <span className="text-white flex items-center gap-2 text-xs">
+                <div className="text-white flex items-center gap-2 text-xs">
                     {isLive ? 'Remaining' : 'Next'}: {timeRemaining?.hours()}h {timeRemaining?.minutes()}m {timeRemaining?.seconds()}s
-                </span>
+                </div>
             </div>
         </div>
     )

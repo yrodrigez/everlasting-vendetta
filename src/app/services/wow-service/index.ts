@@ -44,8 +44,8 @@ export default class WoWService_Impl implements WoWService {
     headers: Headers;
     namespace: string;
 
-    constructor() {
-        this.token = cookies().get(BNET_COOKIE_NAME)?.value
+    constructor({token}: { token?: { value: string } } = {}) {
+        this.token = token?.value || cookies().get(BNET_COOKIE_NAME)?.value
         this.guild = GUILD_NAME!
         this.guildId = GUILD_ID
         this.region = BLIZZARD_API_REGION

@@ -1,5 +1,7 @@
+import {toast} from "sonner";
+
 export async function assistRaid(raidId: string, selectedDays: any = [], selectedCharacter: any, selectedRole: any, status: string, hasLootReservations: boolean = false, onOpen: any) {
-    await fetch('/api/v1/services/calendar/raid/assist', {
+    const response = await fetch('/api/v1/services/calendar/raid/assist', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -15,6 +17,18 @@ export async function assistRaid(raidId: string, selectedDays: any = [], selecte
             }
         })
     })
+
+    if (!response.ok) {
+        const error = await response.json()
+        toast.error(`Failed to assist raid ${error.error}`, {
+            duration: 2500
+        })
+
+        console.error('Error assisting raid', response)
+        return
+    }
+
+    console.log('Assisted raid', response)
 
     if (!hasLootReservations) {
         onOpen()

@@ -1,10 +1,7 @@
 import {NextRequest, NextResponse} from "next/server";
 import {cookies} from "next/headers";
 import {redirect} from "next/navigation";
-
-const IS_PRODUCTION = process.env.NODE_ENV === 'production'
-const FUNCTION_BASE_URL = IS_PRODUCTION ? process.env.NEXT_PUBLIC_SUPABASE_URL : process.env.DEV_FUNCTION_BASE_URL
-const ANON_KEY = IS_PRODUCTION ? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY : process.env.DEV_SUPABASE_ANON_KEY
+import {ANON_KEY, FUNCTION_BASE_URL} from "@/app/api/v1/supabase/util";
 
 export async function POST(request: NextRequest) {
     const bnetToken = cookies().get(process.env.BNET_COOKIE_NAME!)
@@ -18,7 +15,9 @@ export async function POST(request: NextRequest) {
 
     const {character} = await request.json()
     if (!character) {
-        return NextResponse.json({error: 'Error - character is mandatory!'})
+        return NextResponse.json({error: 'Error - character is mandatory!'}, {
+            status: 400
+        })
     }
 
     const evToken = await fetch(`${FUNCTION_BASE_URL}/functions/v1/ev_token_generate`, {
@@ -31,14 +30,18 @@ export async function POST(request: NextRequest) {
 
     if (!evToken.ok) {
         cookies().delete(process.env.BNET_COOKIE_NAME!)
-        return NextResponse.json({error: 'Error fetching EV token: ' + evToken.statusText})
+        return NextResponse.json({error: 'Error fetching EV token: ' + evToken.statusText},{
+            status: 500
+        })
     }
 
 
     const evTokenData = await evToken.json()
     if (evTokenData.error) {
         cookies().delete(process.env.BNET_COOKIE_NAME!)
-        return NextResponse.json({error: 'Error fetching EV token: ' + evTokenData.error})
+        return NextResponse.json({error: 'Error fetching EV token: ' + evTokenData.error}, {
+            status: 500
+        })
     }
 
     if (cookies().get(process.env.EV_COOKIE_NAME!)) {

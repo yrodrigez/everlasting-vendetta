@@ -8,7 +8,7 @@ import AssistActions from "@/app/raid/components/AssistActions";
 import RaidTimeInfo from "@/app/raid/components/RaidTimeInfo";
 import {KpisView} from "@/app/raid/components/KpisView";
 import {redirect} from "next/navigation";
-import {faCartPlus, faChevronLeft, faChevronRight, faGift} from "@fortawesome/free-solid-svg-icons";
+import {faCartPlus, faGift} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 import {RaidOptions} from "@/app/raid/components/RaidOptions";

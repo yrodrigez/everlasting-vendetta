@@ -15,7 +15,7 @@ export interface Character {
     playable_class?: {
         name?: string
     },
-
+    isTemporal?: boolean
 }
 
 interface CharacterStore {
@@ -32,6 +32,7 @@ const initialState = {
     characters: [],
     selectedCharacter: null,
     lastUpdated: 0,
+    isTemporal: false,
 }
 
 export const useCharacterStore = createStore<CharacterStore>()(persist((set) => ({

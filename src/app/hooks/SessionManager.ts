@@ -2,8 +2,27 @@
 import {createClientComponentClient, SupabaseClient} from "@supabase/auth-helpers-nextjs";
 import {getCookie, getLoggedInUserFromAccessToken, logout} from "@/app/util";
 import {toast} from "sonner";
-import {BNET_COOKIE_NAME, EV_COOKIE_NAME, LOGIN_URL} from "@/app/util/constants";
+import {BNET_COOKIE_NAME, EV_COOKIE_NAME, LOGIN_URL, LOGIN_URL_TEMPORAL} from "@/app/util/constants";
 import {Character} from "@/app/components/characterStore";
+import {AppRouterInstance} from "next/dist/shared/lib/app-router-context.shared-runtime";
+
+export async function performTemporalLogin(selectedCharacter: Character): Promise<{ error?: string, ok: boolean }> {
+    const temporalAuthResponse = await fetch(LOGIN_URL_TEMPORAL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({character: selectedCharacter})
+    });
+
+    if (!temporalAuthResponse.ok) {
+        const {error} = await temporalAuthResponse.json();
+        console.error('Error while installing session:', error);
+        return {error: error, ok: temporalAuthResponse.ok};
+    }
+
+    return {ok: temporalAuthResponse.ok};
+}
 
 
 class SessionManager {
@@ -64,7 +83,7 @@ class SessionManager {
 
     async initializeSession(
         selectedCharacter: Character,
-        router: any,
+        router: AppRouterInstance,
         pathName: string,
         clearSession: () => void,
         setSupabase: (client: SupabaseClient) => void,
@@ -78,6 +97,21 @@ class SessionManager {
         try {
             const bnetToken = getCookie(BNET_COOKIE_NAME);
             const access_token = getCookie(EV_COOKIE_NAME);
+
+            if (!bnetToken && !access_token && selectedCharacter.isTemporal) {
+                const {error, ok} = await performTemporalLogin(selectedCharacter);
+                if (!ok) {
+                    console.error('Error while installing session:', error);
+                    toast.error(`Failed to install session: ${error}`, {
+                        duration: 2500,
+                        onDismiss: clearSession,
+                        onAutoClose: clearSession,
+                    });
+                    return;
+                }
+
+                return router.refresh();
+            }
 
             if (!bnetToken && !access_token) {
                 router.replace(`${LOGIN_URL}?redirectedFrom=${pathName}`);

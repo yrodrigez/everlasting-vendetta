@@ -4,10 +4,17 @@ import {NextRequest, NextResponse} from "next/server";
 import {BNET_COOKIE_NAME, GUILD_REALM_SLUG} from "@/app/util/constants";
 import WoWService from "@/app/services/wow-service";
 import {fetchCharacterAvatar} from "@/app/lib/fetchCharacterAvatar";
+import {getBlizzardToken} from "@/app/lib/getBlizzardToken";
 
 export async function GET(request: NextRequest) {
+    let token: any = cookies().get(BNET_COOKIE_NAME)
 
-    const token = cookies().get(BNET_COOKIE_NAME)
+    if (new URL(request.url).searchParams.get('temporal') === 'true') {
+        const {token: _token} = await getBlizzardToken()
+        token = {value: _token}
+        console.log('token', token)
+    }
+
     if (!token?.value) {
         return new NextResponse('Token is required', {
             status: 400
@@ -22,7 +29,7 @@ export async function GET(request: NextRequest) {
         })
     }
 
-    const wowService = new WoWService()
+    const wowService = new WoWService({token})
     const character = await wowService.fetchMemberInfo(characterName)
     if (!character) {
         return new NextResponse('Character not found', {

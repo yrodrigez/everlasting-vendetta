@@ -11,7 +11,7 @@ import {
     Popover,
     PopoverContent,
     PopoverTrigger,
-    Spinner
+    Spinner, Tooltip
 } from "@nextui-org/react";
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 
@@ -82,11 +82,49 @@ export default function ProfileManager() {
         router.refresh()
     }, [selectedCharacter, session])
 
-    if (isSessionLoading || !selectedCharacter || !supabase) {
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            if (isSessionLoading || !selectedCharacter?.name || !supabase) {
+                toast.error('Failed to load session', {
+                    duration: 2500,
+                    onDismiss: () => {
+                        localStorage.clear();
+                        sessionStorage.clear();
+                        clearAllCookies()
+                        setTimeout(() => {
+                            window.location.href = '/'
+                        }, 1000)
+                    },
+                    onAutoClose: () => {
+                        localStorage.clear();
+                        sessionStorage.clear();
+                        clearAllCookies()
+                        setTimeout(() => {
+                            window.location.href = '/'
+                        }, 1000)
+                    }
+                })
+                clearAllCookies();
+            } else {
+                console.log('No longer loading, clearing timeout');
+                clearTimeout(timeout);
+            }
+        }, 15000);
+        return () => clearTimeout(timeout);
+    }, [isSessionLoading, selectedCharacter, supabase]);
+
+    if (isSessionLoading || !selectedCharacter?.name || !supabase) {
         return <div
-            className="px-1 py-2 lg:px-2 lg:py-1 flex flex-col items-center rounded-xl hover:cursor-pointer hover:bg-white hover:bg-opacity-20 hover:backdrop-filter hover:backdrop-blur-md h-[68px] w-[68px]"
+            className="px-1 py-2 lg:px-2 lg:py-1 flex flex-col items-center justify-center rounded-xl hover:cursor-pointer hover:bg-white hover:bg-opacity-20 hover:backdrop-filter hover:backdrop-blur-md h-[68px] w-[68px]"
         >
             <Spinner color={'success'}/>
+            <Tooltip
+                content={isSessionLoading ? 'login in...' : !supabase ? 'Installation...' : 'Selecting character...'}
+            >
+                <div className="w-full h-full overflow-hidden">
+                    {isSessionLoading ? 'login in...' : !supabase ? 'Installation...' : 'Selecting character...'}
+                </div>
+            </Tooltip>
         </div>
     }
 

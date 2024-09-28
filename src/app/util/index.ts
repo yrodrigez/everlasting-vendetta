@@ -87,6 +87,7 @@ export function clearAllCookies() {
  */
 export function logout(force: any = false) {
     sessionStorage?.clear()
+    localStorage?.clear()
     clearAllCookies()
     if (typeof force !== 'boolean') window.location.href = '/'
 

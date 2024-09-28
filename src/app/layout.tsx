@@ -30,7 +30,8 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     const battleNetRedirectUrl = `${process.env.BNET_LOGIN_URI}`;
-    const battleNetToken = cookies().get('bnetToken');
+    const battleNetToken = cookies().get(process.env.BNET_COOKIE_NAME!);
+    const evToken = cookies().get(process.env.EV_COOKIE_NAME!);
 
     return (
         <html lang="en" className="light">
@@ -67,10 +68,10 @@ export default function RootLayout({
                     </div>
                 </div>
             </div>
-            {battleNetToken && <BattleNetAuthManagerWindow token={battleNetToken}/>}
+            {(battleNetToken) && <BattleNetAuthManagerWindow token={battleNetToken}/>}
             <ResizeManager/>
             <div className="absolute right-2 bottom-6 md:top-2.5 md:bottom-full">
-                {!battleNetToken ? <LoginButton battleNetRedirectUrl={battleNetRedirectUrl}/> : <ProfileManager/>}
+                {(!battleNetToken) ? <LoginButton battleNetRedirectUrl={battleNetRedirectUrl}/> : <ProfileManager/>}
             </div>
             <Toaster richColors position="top-center"/>
         </Providers>

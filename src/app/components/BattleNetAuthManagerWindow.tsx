@@ -1,5 +1,5 @@
 'use client'
-import {useEffect, useRef} from "react";
+import {useCallback, useEffect, useRef} from "react";
 import {Modal, ModalBody, ModalContent, ModalHeader, useDisclosure} from "@nextui-org/react";
 import AvailableCharactersList from "@/app/components/AvailableCharactersList";
 import {useCharacterStore} from "@/app/components/characterStore";
@@ -10,28 +10,22 @@ import {GUILD_REALM_NAME} from "@/app/util/constants";
 import {useQuery} from "@tanstack/react-query";
 
 async function fetchBattleNetProfile(): Promise<{ characters: Character[] }> {
-    const response = await fetch(window.location.origin + '/api/v1/services/wow/getUserCharacters')
+    const response = await fetch('/api/v1/services/wow/getUserCharacters')
     return await response.json();
 }
 
 async function getBnetCharacters(): Promise<Character[] | null> {
-    try {
-        const profile = await fetchBattleNetProfile();
-        const {characters} = profile;
-        const validCharacters = characters?.filter((character: Character) => character.level >= 10) ?? [];
-        return validCharacters.sort((a: Character, b: Character) => b.level - a.level);
-    } catch (e) {
-        toast.error('Failed to fetch profile from Battle.net', {
-            duration: 2500,
-            onDismiss: logout,
-            onAutoClose: logout
-        });
-        return null;
-    }
+
+    const profile = await fetchBattleNetProfile();
+    const {characters} = profile;
+    const validCharacters = characters?.filter((character: Character) => character.level >= 10) ?? [];
+    return validCharacters.sort((a: Character, b: Character) => b.level - a.level);
+
 }
 
 const useFetchCharacters = (token: { value: string }, onOpen: () => void, logout: (force: any) => void) => {
     const setCharacters = useCharacterStore(state => state.setCharacters);
+    const characters = useCharacterStore(state => state.characters);
     const selectedCharacter = useCharacterStore(state => state.selectedCharacter);
     const setSelectedCharacter = useCharacterStore(state => state.setSelectedCharacter);
     const lastUpdated = useCharacterStore(state => state.lastUpdated);
@@ -41,7 +35,7 @@ const useFetchCharacters = (token: { value: string }, onOpen: () => void, logout
     const hasFetchedData = useRef(false);
     const errorOccurred = useRef(false);
 
-    const handleError = (message: string) => {
+    const handleError = useCallback((message: string) => {
         toast.error(message, {
             duration: 3500,
             onDismiss: () => logout(true),
@@ -50,9 +44,9 @@ const useFetchCharacters = (token: { value: string }, onOpen: () => void, logout
         errorOccurred.current = true;
         clearCharacterStore();
         errorOccurred.current = false;
-    };
+    }, [clearCharacterStore, logout]);
 
-    const updateCharacters = (heroes: Character[], shouldOpen: boolean) => {
+    const updateCharacters = useCallback((heroes: any[], shouldOpen: boolean) => {
         setCharacters(
             heroes.map(character => ({
                 ...character,
@@ -69,15 +63,33 @@ const useFetchCharacters = (token: { value: string }, onOpen: () => void, logout
 
         setLastUpdated(Date.now());
         if (shouldOpen) onOpen();
-    };
+    }, [onOpen, selectedCharacter, setCharacters, setLastUpdated, setSelectedCharacter]);
 
-    const {data: heroes, error, isFetching} = useQuery(
-        {
-            queryKey: ['bnetCharacters', token?.value],
-            enabled: !!token?.value && !hasFetchedData.current && lastUpdated < Date.now() - 60000,
-            queryFn: getBnetCharacters,
+    const {data: heroes, error, isFetching, refetch} = useQuery({
+        queryKey: ['bnetCharacters', token?.value],
+        enabled: !!token?.value,
+        queryFn: async ()=> {
+            console.log('fetching characters')
+            if(selectedCharacter && selectedCharacter.isTemporal) {
+                return [{...selectedCharacter}]
+            }
 
-        });
+            return await getBnetCharacters();
+        },
+        retry: (failureCount, error) => {
+            const MAX_COUNT = 8;
+            console.error('Error fetching data:', error);
+            if(failureCount > MAX_COUNT) {
+                toast.error('Failed to fetch profile from Battle.net', {
+                    duration: 2500,
+                    onDismiss: logout,
+                    onAutoClose: logout
+                });
+                return false;
+            }
+            return failureCount < MAX_COUNT;
+        },
+    });
 
     useEffect(() => {
         if (!token?.value || isFetching || errorOccurred.current || hasFetchedData.current) return;
@@ -92,6 +104,7 @@ const useFetchCharacters = (token: { value: string }, onOpen: () => void, logout
             updateCharacters(heroes, shouldOpen);
             hasFetchedData.current = false;
         } else if (error) {
+            console.error('Error fetching data:', error);
             toast.error('Error fetching data');
             hasFetchedData.current = false;
         }

@@ -21,9 +21,10 @@ import {insertCharacterIfNotExists} from "@/app/lib/database/ev_member/insertCha
 import {fetchItems} from "@/app/lib/database/raid_loot_item/fetchItems";
 import {getRaidIdByResetId} from "@/app/lib/database/raid_resets/getRaidIdByResetId";
 import {Item} from "@/app/components/item/Item";
+import {BnetCharacterResponse} from "@/app/types/BnetCharacterResponse";
 
-async function fetchCharacterByName(characterName: string) {
-    const url = `/api/v1/services/wow/getCharacterByName?name=${characterName}`
+export async function fetchCharacterByName(characterName: string, source: string | undefined = undefined) : Promise<BnetCharacterResponse> {
+    const url = `/api/v1/services/wow/getCharacterByName?name=${characterName}${source ? `&temporal=true` : ''}`
     const response = await fetch(url)
 
     if (!response.ok) {

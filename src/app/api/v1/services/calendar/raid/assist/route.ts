@@ -7,7 +7,7 @@ import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
 async function registerOnRaid(characterId: string, raidId: string, details: any, supabase: any) {
 
     let wasDeclined = false
-    if(details?.status !== 'declined') {
+    if (details?.status !== 'declined') {
         const {data: declinedParticipants, error} = await supabase.from('ev_raid_participant')
             .select('member_id')
             .eq('raid_id', raidId)
@@ -65,19 +65,24 @@ export async function POST(request: NextRequest) {
             }
         }
     })
-
-    const currentUserCharacters = await fetchBattleNetWoWAccounts(token.value)
-    if (!currentUserCharacters) {
-        return NextResponse.json({error: 'Error fetching wow characters'})
-    }
-
-    const isCharacterOwned = currentUserCharacters.some((character: any) => {
-        if (character.id === currentCharacter.id) {
-            return true
+    if(!currentCharacter.isTemporal) {
+        const currentUserCharacters = await fetchBattleNetWoWAccounts(token.value)
+        if (!currentUserCharacters) {
+            return NextResponse.json({error: 'Error fetching wow characters'}, {
+                status: 500
+            })
         }
-    })
-    if (!isCharacterOwned) {
-        return NextResponse.json({error: 'Error - character not owned!'})
+
+        const isCharacterOwned = currentUserCharacters.some((character: any) => {
+            if (character.id === currentCharacter.id) {
+                return true
+            }
+        })
+        if (!isCharacterOwned) {
+            return NextResponse.json({error: 'Error - character not owned!'}, {
+                status: 403
+            })
+        }
     }
 
     const {
@@ -86,7 +91,9 @@ export async function POST(request: NextRequest) {
     } = await registerOnRaid(currentCharacter.id, raidId, details, supabase)
     if (errorOnRegister) {
         console.error('Error registering on raid', errorOnRegister)
-        return NextResponse.json({error: 'Error registering on raid'})
+        return NextResponse.json({error: `Error registering on raid ${errorOnRegister.message}`}, {
+            status: 500
+        })
     }
 
     return NextResponse.json({
