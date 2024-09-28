@@ -39,6 +39,7 @@ import {Character, useCharacterStore} from "@/app/components/characterStore";
 import {CharacterRoleType} from "@/app/types/CharacterRole";
 import {useRouter} from "next/navigation";
 import {performTemporalLogin} from "@/app/hooks/SessionManager";
+import {toast} from "sonner";
 
 export const WEEK_DAYS = {
     MONDAY: 'Mon',
@@ -116,6 +117,17 @@ export function TemporalLogin() {
             setIsLogging(true)
             const {error, ok} = await performTemporalLogin(character)
             if (!ok) {
+                toast.error(`Failed to install session: ${error}`, {
+                    duration: 2500,
+                    onDismiss: () => {
+                        setCharacterName('')
+                        setRole('dps')
+                    },
+                    onAutoClose: () => {
+                        setCharacterName('')
+                        setRole('dps')
+                    },
+                })
                 console.error(error)
                 setIsLogging(false)
                 return
