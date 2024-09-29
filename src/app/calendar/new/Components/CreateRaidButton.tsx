@@ -1,11 +1,11 @@
 'use client'
 
-
 import useCreateRaidStore from "@/app/calendar/new/Components/useCreateRaidStore";
 import {Button} from "@/app/components/Button";
 import {useSession} from "@/app/hooks/useSession";
 import {useCallback} from "react";
 import {useRouter} from "next/navigation";
+import moment from "moment";
 
 export function CreateRaidButton() {
     const {raid, endTime, startTime, startDate, endDate, days} = useCreateRaidStore(state => state)
@@ -14,21 +14,25 @@ export function CreateRaidButton() {
 
     const createReset = useCallback(async () => {
         if (!raid || !startTime || !endTime || !startDate || !endDate || !days?.length || !supabase) return
-        const {data, error} = await supabase.from('raid_resets').insert({
+
+        const payload = {
             raid_id: raid.id,
             time: startTime,
             end_time: endTime,
-            raid_date: startDate,
-            end_date: endDate,
+            raid_date: moment(startDate).format('YYYY-MM-DD'),
+            end_date: moment(endDate).format('YYYY-MM-DD'),
             min_lvl: raid.min_level,
             days
-        })
+        }
+
+        const {data, error} = await supabase.from('raid_resets').insert(payload)
 
         if (error) {
             console.error('Error creating raid', error)
+            alert('Error creating raid: ' + error.message)
         }
 
-        console.log('Raid created', data)
+        alert('Raid created successfully')
 
         router.push('/calendar')
 
