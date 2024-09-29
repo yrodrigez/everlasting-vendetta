@@ -79,14 +79,13 @@ export function getGuildRosterFromGuildInfo(guildInfo: (Character & { updated_at
         'Tacy',
         'Felsargon',
         'Speeps',
-        'Rimefang',
+        'Rímefang',
     ]
 
     const raiders = [
-        'Compounded',
-        'Dvayse',
-        'Gizmogon',
-        'Harpsichord',
+        'Mephius',
+        'Deadflowers',
+        'Tuneless',
         'Lebiatan',
         'Llarra',
         'Mariomario',

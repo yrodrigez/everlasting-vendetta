@@ -3,6 +3,7 @@ import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
 import {cookies} from "next/headers";
 import {type Character, getGuildRosterFromGuildInfo} from "@/app/lib/fetchGuildInfo";
 import {CURRENT_MAX_LEVEL, GUILD_NAME, GUILD_REALM_NAME} from "@/app/util/constants";
+import moment from "moment";
 
 export const dynamic = 'force-dynamic'
 
@@ -59,7 +60,7 @@ export default async function Page() {
         .select('updated_at, character')
         .filter('character->>level', 'gte', CURRENT_MAX_LEVEL - 10)
         .filter('character->guild->>name', 'eq', GUILD_NAME)
-        .filter('updated_at', 'gte', new Date(Date.now() - 1000 * 60 * 60 * 24 * 45).toISOString()) // 30 days
+        .filter('updated_at', 'gte', moment('2024-09-19').format('YYYY-MM-DD')) // 30 days
         .order('updated_at', {ascending: false})
         .returns<{ updated_at: string, character: Character }[]>()
 
@@ -82,6 +83,7 @@ export default async function Page() {
         }
         return acc
     }, [] as (Character & { updated_at: string })[]))
+
     const groupByRank = guildRoster.reduce((acc, member) => {
         if (!acc[member.rankName]) {
             acc[member.rankName] = []
