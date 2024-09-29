@@ -1,4 +1,3 @@
-import {ApplyFormStore} from "@/app/apply/components/store";
 import {BLIZZARD_LOGOUT_URL} from "@/app/util/constants";
 import {toast} from "sonner";
 

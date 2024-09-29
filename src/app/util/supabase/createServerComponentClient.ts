@@ -1,6 +1,6 @@
-import {createServerComponentClient as createSupabase} from "@supabase/auth-helpers-nextjs";
+import {createServerComponentClient as createSupabase, type SupabaseClient} from "@supabase/auth-helpers-nextjs";
 
-function createServerComponentClient({cookies}: { cookies: any }) {
+export function createServerComponentClient({cookies}: { cookies: any }) {
     if (!cookies) {
         throw new Error('cookies is required')
     }
@@ -17,5 +17,5 @@ function createServerComponentClient({cookies}: { cookies: any }) {
         }
     }
 
-    return createSupabase({cookies}, options)
+    return createSupabase({cookies}, options) as  SupabaseClient
 }

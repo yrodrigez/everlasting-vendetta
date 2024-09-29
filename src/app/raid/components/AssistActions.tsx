@@ -172,8 +172,9 @@ export function TemporalLogin() {
                                 You can login withouth a Battle.net account, just type the character name and select a
                                 role.
                                 <br/>
-                                However, we recommend you to login with Battle.net to get the security provided by <Link href={'https://develop.battle.net/documentation/guides/using-oauth'} target={'_blank'}
-                                                           className="text-battlenet">battle.net API</Link>.
+                                However, we recommend you to login with Battle.net to get the security provided by <Link
+                                href={'https://develop.battle.net/documentation/guides/using-oauth'} target={'_blank'}
+                                className="text-battlenet">battle.net API</Link>.
                             </div>
                             <Input
                                 label="Character name"
@@ -265,17 +266,17 @@ export default function AssistActions({
 }) {
     const {selectedCharacter, session, loading: isSessionLoading} = useSession()
     const selectedRole = selectedCharacter?.selectedRole
-    const {addDay, removeDay, selectedDays} = useAssistanceStore(state => state)
+    const {addDay, removeDay, selectedDays, clearDays,setDays} = useAssistanceStore(state => state)
 
     useEffect(() => {
         const currentParticipant = (participants ?? []).find((p: any) => p?.member?.character?.name === selectedCharacter?.name)
         if (currentParticipant && currentParticipant.details?.days) {
-            (selectedDays ?? []).forEach((day: string) => removeDay(day));
-            (currentParticipant?.details?.days ?? []).forEach((day: string) => {
-                if (days.indexOf(day) !== -1) addDay(day)
-            });
+            const selectedDays = currentParticipant.details.days
+            clearDays()
+            setDays(selectedDays)
+        } else if (selectedDays.some((day: string) => days.indexOf(day) === -1)) {
+            clearDays()
         }
-
     }, [selectedCharacter]);
 
     const {isMobile} = useScreenSize()
@@ -373,7 +374,7 @@ export default function AssistActions({
                 }
 
                 placement={'top-start'}
-                isOpen={selectedDays?.length === 0}
+                isOpen={!selectedDays || !selectedDays.length}
             >
                 <div
                     className={

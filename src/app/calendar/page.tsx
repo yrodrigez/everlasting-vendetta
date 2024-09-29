@@ -2,11 +2,15 @@ import moment from "moment";
 
 import {RaidResetCard} from "@/app/calendar/components/RaidResetCard";
 import {cookies} from "next/headers";
-import {createServerComponentClient, type SupabaseClient} from "@supabase/auth-helpers-nextjs";
+
 import {Metadata} from "next";
 import {redirect} from "next/navigation";
 import {Button} from "@/app/components/Button";
 import Link from "next/link";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faAdd, faArrowLeft, faArrowRight} from "@fortawesome/free-solid-svg-icons";
+import {createServerComponentClient} from "@/app/util/supabase/createServerComponentClient";
+import {type SupabaseClient} from "@supabase/auth-helpers-nextjs";
 
 export const dynamic = 'force-dynamic'
 
@@ -118,13 +122,15 @@ export default async function Page({searchParams}: { searchParams: { d?: string,
 
     return <main className="flex justify-center items-center relative">
         <div
-            className="absolute top-0 -left-16"
+            className="absolute top-0 -left-8"
         >
             <Link
                 href={getPreviousWeeks(currentDate, raidResets[0]?.raid_date)}
             >
-                <Button>
-                    Previous
+                <Button
+                    isIconOnly
+                >
+                    <FontAwesomeIcon icon={faArrowLeft} />
                 </Button>
             </Link>
         </div>
@@ -143,14 +149,23 @@ export default async function Page({searchParams}: { searchParams: { d?: string,
         </div>
         {
             // visible only if the current date is displaying a current or future raid
-            !moment().isBefore(moment(raidResets[0]?.end_date)) &&
+
             <div
-            className="absolute top-0 -right-16"
-        >
+            className="absolute top-0 -right-8 flex flex-col gap-2"
+        >{
+                !moment().isBefore(moment(raidResets[0]?.end_date)) &&
             <Link
                 href={getNextWeeks(currentDate, raidResets[raidResets.length - 1]?.end_date)}>
-                <Button>
-                    Next
+                <Button
+                  isIconOnly
+                >
+                  <FontAwesomeIcon icon={faArrowRight} />
+                </Button>
+            </Link>
+            }
+            <Link href={'/calendar/new'}>
+                <Button isIconOnly>
+                    <FontAwesomeIcon icon={faAdd}/>
                 </Button>
             </Link>
         </div>}

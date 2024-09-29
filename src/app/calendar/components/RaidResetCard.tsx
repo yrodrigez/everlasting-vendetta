@@ -16,7 +16,7 @@ export function RaidResetCard({
                                   raidDate, raidName, raidImage, raidTime = '20:30', id, raidRegistrations,
                                   raidEndDate
                               }: {
-    id: string,
+    id?: string,
     raidDate: string,
     raidName: string,
     raidImage: string,
@@ -25,13 +25,13 @@ export function RaidResetCard({
     raidEndDate: string
 }) {
     const router = useRouter()
-    const participants = useParticipants(id, raidRegistrations)
+    const participants = id ? useParticipants(id, raidRegistrations) : []
     const isRaidCurrent = moment().isBetween(moment(raidDate), moment(raidEndDate))
 
     return (
         <Card
             isFooterBlurred
-            className={`w-[300px] relative text-default bg-[rgba(0,0,0,.6)] ${
+            className={`w-[300px] relative text-default bg-[rgba(0,0,0,.6)] min-h-56 ${
             isRaidCurrent ? 'border-2 border-gold shadow-2xl shadow-gold glow-animation ' : 'border-1 border-[rgba(255,255,255,.2)]'    
         }`} radius="lg">
             <Image
@@ -51,21 +51,21 @@ export function RaidResetCard({
                     raidDate={raidDate}
                     raidTime={raidTime}
                 />
-                <KpisView
+                {id && <KpisView
                     participants={participants}
                     raidId={id}
                     raidInProgress={moment().isBetween(moment(raidDate), moment(raidDate).add(1, 'days'))}
-                />
+                /> }
             </CardBody>
             <CardFooter className="bg-[rgba(0,0,0,.60)]">
-                <Button
+                {id && <Button
                     onClick={() => {
                         router.push(`/raid/${id}`)
                     }}
                     className="w-full bg-moss hover:bg-moss-600 text-gold font-bold"
                 >
                     Open
-                </Button>
+                </Button>}
             </CardFooter>
         </Card>
     );

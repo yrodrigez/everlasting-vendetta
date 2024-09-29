@@ -134,7 +134,6 @@ export default async function ({params}: { params: { id: string } }) {
 
     const supabase = createServerComponentClient({cookies}, supabaseOptions)
 
-
     const {
         data,
         error

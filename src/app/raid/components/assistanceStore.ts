@@ -5,6 +5,8 @@ interface AssistanceStore {
     selectedDays: Array<string>,
     addDay: (day: string) => void,
     removeDay: (day: string) => void
+    clearDays: () => void
+    setDays: (days: string[]) => void
 }
 
 const initialState = {
@@ -21,5 +23,7 @@ export const useAssistanceStore = createStore<AssistanceStore>()(persist((set, g
     removeDay: (day) => {
         const selectedDays = get().selectedDays
         set({selectedDays: selectedDays.filter(d => d !== day)})
-    }
+    },
+    clearDays: () => set({selectedDays: []}),
+    setDays: (days) => set({selectedDays: days})
 }), {name: 'assistance-store'}))
