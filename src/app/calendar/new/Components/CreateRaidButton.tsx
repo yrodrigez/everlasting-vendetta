@@ -26,6 +26,7 @@ export function CreateRaidButton() {
         }
 
         const {data, error} = await supabase.from('raid_resets').insert(payload)
+            .select('id')
 
         if (error) {
             console.error('Error creating raid', error)
@@ -34,7 +35,7 @@ export function CreateRaidButton() {
 
         alert('Raid created successfully')
 
-        router.push('/calendar')
+        router.push('/raid/' + data?.[0].id)
 
     }, [raid, endTime, startTime, startDate, endDate, days])
 
