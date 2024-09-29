@@ -1,13 +1,13 @@
 import createServerSession from "@/app/util/supabase/createServerSession";
 import {cookies} from "next/headers";
 import NotLoggedInView from "@/app/components/NotLoggedInView";
-import {Select, SelectItem} from "@nextui-org/react";
 import RaidsSelector from "@/app/calendar/new/Components/RaidsSelector";
 import {RaidCard} from "@/app/calendar/new/Components/RaidCard";
 import {DaysSelection} from "@/app/calendar/new/Components/DaysSelection";
 import StartDate from "@/app/calendar/new/Components/StartDate";
 import TimeManager from "@/app/calendar/new/Components/TimeManager";
 import {CreateRaidButton} from "@/app/calendar/new/Components/CreateRaidButton";
+export const dynamic = 'force-dynamic'
 
 const MANDATORY_PERMISSION = 'reset.create'
 export default async function Page() {
