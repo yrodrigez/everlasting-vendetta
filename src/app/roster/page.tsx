@@ -45,6 +45,13 @@ export async function generateMetadata() {
     };
 }
 
+const RANKS = {
+    'Glorious Leader': 1,
+    'Respected Comrade': 2,
+    'Respected Raider': 3,
+    'Member': 4,
+}
+
 export default async function Page() {
 
     const supabase = createServerComponentClient({cookies})
@@ -61,7 +68,10 @@ export default async function Page() {
         return <div>Error {error.message}</div>
     }
 
-    const guildRoster = getGuildRosterFromGuildInfo(data.map(({character, updated_at}) => ({...character, updated_at})).reduce((acc, character) => {
+    const guildRoster = getGuildRosterFromGuildInfo(data.map(({character, updated_at}) => ({
+        ...character,
+        updated_at
+    })).reduce((acc, character) => {
         // should add the character if doesn't exist or if the character is more recent
         const existingCharacter = acc.find((c) => c.name === character.name)
         if (!existingCharacter) {
@@ -71,7 +81,7 @@ export default async function Page() {
             return acc.map((c) => c.id === character.id ? character : c)
         }
         return acc
-    }, [] as (Character & {updated_at: string})[]))
+    }, [] as (Character & { updated_at: string })[]))
     const groupByRank = guildRoster.reduce((acc, member) => {
         if (!acc[member.rankName]) {
             acc[member.rankName] = []
@@ -80,12 +90,13 @@ export default async function Page() {
         return acc
     }, {} as Record<string, (Character & { icon: string, className: string, rankName: string })[]>)
 
+
     return <main className="flex w-full h-full flex-col items-center">
-        {Object.entries(groupByRank).map(([rankName, members]) => {
+        {Object.entries(groupByRank).sort(([rankA], [rankB]) => RANKS[rankA as keyof typeof RANKS] - RANKS[rankB as keyof typeof RANKS]).map(([rankName, members]) => {
             return <div key={rankName} className="flex flex-col w-full items-center">
                 <h1 className="text-gold text-2xl font-bold">{rankName}</h1>
                 <div className="flex flex-wrap gap-4 w-full justify-center items-center">
-                    {members.sort((a,b)=>{
+                    {members.sort((a, b) => {
                         // @ts-ignore
                         return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
                     }).map((member) => {
