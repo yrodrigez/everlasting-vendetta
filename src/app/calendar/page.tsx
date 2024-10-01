@@ -36,7 +36,7 @@ async function fetchMaxRaidResets(supabase: SupabaseClient, date: string | undef
 }) {
     const raidResets = await supabase.from('raid_resets')
         .select('raid_date, id, raid:ev_raid(name, min_level, image), time, end_date')[
-            options.isPrevious ? 'lt' : 'gt'
+        options.isPrevious ? 'lt' : 'gt'
         ](options.isPrevious ? 'raid_date' : 'end_date', moment(date).format('YYYY-MM-DD'))
         .order('raid_date', {ascending: !options.isPrevious})
         .order('raid_id', {ascending: false})
@@ -105,7 +105,7 @@ export default async function Page({searchParams}: { searchParams: { d?: string,
         redirect(`/calendar?d=${currentDate}`)
     }
 
-    if(searchParams.p && !dateIsValid(searchParams.p) || searchParams.n && !dateIsValid(searchParams.n)) {
+    if (searchParams.p && !dateIsValid(searchParams.p) || searchParams.n && !dateIsValid(searchParams.n)) {
         redirect(`/calendar?d=${currentDate}`)
     }
 
@@ -130,7 +130,7 @@ export default async function Page({searchParams}: { searchParams: { d?: string,
                 <Button
                     isIconOnly
                 >
-                    <FontAwesomeIcon icon={faArrowLeft} />
+                    <FontAwesomeIcon icon={faArrowLeft}/>
                 </Button>
             </Link>
         </div>
@@ -147,27 +147,21 @@ export default async function Page({searchParams}: { searchParams: { d?: string,
                     raidRegistrations={raidReset.raidRegistrations}/>
             })}
         </div>
-        {
-            // visible only if the current date is displaying a current or future raid
-
-            <div
-            className="absolute top-0 -right-8 flex flex-col gap-2"
-        >{
-                !moment().isBefore(moment(raidResets[0]?.end_date)) &&
+        <div className="absolute top-0 -right-8 flex flex-col gap-2">
             <Link
                 href={getNextWeeks(currentDate, raidResets[raidResets.length - 1]?.end_date)}>
                 <Button
-                  isIconOnly
+                    isDisabled={moment().isAfter(raidResets[raidResets.length - 1]?.end_date)}
+                    isIconOnly
                 >
-                  <FontAwesomeIcon icon={faArrowRight} />
+                    <FontAwesomeIcon icon={faArrowRight}/>
                 </Button>
             </Link>
-            }
             <Link href={'/calendar/new'}>
                 <Button isIconOnly>
                     <FontAwesomeIcon icon={faAdd}/>
                 </Button>
             </Link>
-        </div>}
+        </div>
     </main>
 }

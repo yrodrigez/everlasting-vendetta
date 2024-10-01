@@ -64,9 +64,15 @@ async function fetchCurrentReset(supabase: any) {
 
 
 async function fetchResetFromId(supabase: any, id: string) {
+    const {data, error} = await supabase.rpc('reset_id_starts_with', { id_prefix: `${id}%` })
+
+    if(error) {
+        return {error}
+    }
+
     return supabase.from('raid_resets')
         .select(raidResetAttr)
-        .eq('id', id)
+        .eq('id', data[0]?.id)
         .limit(1)
         .single()
 }
