@@ -31,7 +31,6 @@ export default function RootLayout({
 }>) {
     const battleNetRedirectUrl = `${process.env.BNET_LOGIN_URI}`;
     const battleNetToken = cookies().get(process.env.BNET_COOKIE_NAME!);
-    const evToken = cookies().get(process.env.EV_COOKIE_NAME!);
 
     return (
         <html lang="en" className="light">

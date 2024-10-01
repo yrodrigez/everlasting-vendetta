@@ -27,8 +27,8 @@ type RaidQueryResult = {
     end_date: string;
 };
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-    const supabase = createServerComponentClient({ cookies });
+export async function generateMetadata({params}: { params: { id: string } }): Promise<Metadata> {
+    const supabase = createServerComponentClient({cookies});
 
     // Fetch the raid reset data
     const resetData = await supabase
@@ -49,8 +49,8 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
         };
     }
 
-    const { raid, raid_date: raidDate, time: raidTime, end_date: raidEndDate } = resetData.data;
-    const { name: raidName } = raid;
+    const {raid, raid_date: raidDate, time: raidTime, end_date: raidEndDate} = resetData.data;
+    const {name: raidName} = raid;
 
     const raidStartDateFormatted = moment(raidDate).format('MMMM D, YYYY');
     const raidEndDateFormatted = moment(raidEndDate).format('MMMM D, YYYY');
@@ -100,7 +100,15 @@ export default async function Page({params}: { params: { id: string } }) {
         }
     })
 
-    const resetId = params.id
+
+    const {data: resetIdData, error: resetIdError} = await database.rpc('reset_id_starts_with', { id_prefix: `${params.id}%` })
+
+    if(resetIdError) {
+        return <div>Reset not found</div>
+    }
+
+    const resetId = resetIdData[0]?.id
+
     const resetData = await database
         .from('raid_resets')
         .select('raid_id, raid:ev_raid(min_level, name, image, reservation_amount), raid_date, time, end_date')
@@ -139,7 +147,12 @@ export default async function Page({params}: { params: { id: string } }) {
 
     const items = (databaseItems.data ?? []).map(function (x) {
         return x.item
-    })
+    }).reduce(function (acc, item) {
+        if (!acc.find(i => i.id === item.id)) {
+            acc.push(item)
+        }
+        return acc
+    }, [] as RaidItem[])
 
     const dataBaseReservations = await database.from('raid_loot_reservation')
         .select(raidLootReservationsColumns)

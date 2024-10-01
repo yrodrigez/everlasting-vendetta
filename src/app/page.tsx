@@ -1,5 +1,7 @@
 import {Card, CardFooter} from "@nextui-org/react";
 import {BlackrockEruptionBanner} from "@/app/components/BlackrockEruptionBanner";
+import {Metadata} from "next";
+import WoWService from "@/app/services/wow-service";
 
 
 const intro = [
@@ -44,6 +46,37 @@ const CustomSection = ({header, paragraphs, img}: { header: string, paragraphs: 
 
         </Card>
     )
+}
+
+export async function generateMetadata({ params }: { params: { name: string } }): Promise<Metadata> {
+    const metadataBase = new URL('https://www.everlastingvendetta.com/');
+
+    return {
+        title: `Everlasting Vendetta - Raids on Living Flame`,
+        description: `Everlasting Vendetta is an active guild seeking raiders to join on the Living Flame server. Join us to conquer the greatest WoW challenges!`,
+        keywords:
+            'wow, world of warcraft, raids, upcoming raids, raiding, pve, guild events, Everlasting Vendetta',
+        openGraph: {
+            title: 'Upcoming Raids | Everlasting Vendetta',
+            description:
+                'Join Everlasting Vendetta in our upcoming raids. Prepare for epic encounters and secure your place in the battle!',
+            images: [
+                {
+                    url: new URL('/banner.png', metadataBase).toString(),
+                    width: 800,
+                    height: 600,
+                    alt: 'Everlasting Vendetta Raid',
+                },
+            ],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: 'Upcoming Raids | Everlasting Vendetta',
+            description:
+                'Get ready for the upcoming raids organized by Everlasting Vendetta. Don’t miss out on the action!',
+            images: new URL('/banner.png', metadataBase).toString(),
+        },
+    };
 }
 
 export default async function Home() {

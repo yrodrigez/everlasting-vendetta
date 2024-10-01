@@ -122,7 +122,8 @@ async function fetchLootHistory(characterName: string) {
 export async function generateMetadata({ params }: { params: { name: string } }): Promise<Metadata> {
     // Fetch or compute character information here
     const { fetchMemberInfo } = new WoWService()
-    const characterInfo = await fetchMemberInfo(params.name);
+    const characterName = decodeURIComponent(params.name.toLowerCase())
+    const characterInfo = await fetchMemberInfo(characterName);
 
     return {
         title: `${characterInfo.name} - ${characterInfo.guild?.name ?? 'No Guild'} | Everlasting Vendetta`,
