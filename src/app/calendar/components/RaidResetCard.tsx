@@ -27,12 +27,13 @@ export function RaidResetCard({
     const router = useRouter()
     const participants = id ? useParticipants(id, raidRegistrations) : []
     const isRaidCurrent = moment().isBetween(moment(raidDate), moment(raidEndDate))
+    const isToday = moment().format('YYYY-MM-DD') === moment(raidDate).format('YYYY-MM-DD')
 
     return (
         <Card
             isFooterBlurred
             className={`w-[300px] relative text-default bg-[rgba(0,0,0,.6)] min-h-56 ${
-            isRaidCurrent ? 'border-2 border-gold shadow-2xl shadow-gold glow-animation ' : 'border-1 border-[rgba(255,255,255,.2)]'    
+                (isToday || isRaidCurrent) ? 'border-2 border-gold shadow-2xl shadow-gold glow-animation ' : 'border-1 border-[rgba(255,255,255,.2)]'    
         }`} radius="lg">
             <Image
                 removeWrapper

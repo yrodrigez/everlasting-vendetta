@@ -19,7 +19,13 @@ const MAX_RAID_RESETS = 9
 async function fetchRaidMembers(id: string, supabase: SupabaseClient) {
     const {data, error} = await supabase.from('ev_raid_participant')
         .select('member:ev_member(*), is_confirmed, raid_id, details')
-        .eq('raid_id', id);
+        .eq('raid_id', id)
+        .returns<{
+            member: { id: string, character: { name: string, realm: { slug: string } } },
+            is_confirmed: boolean,
+            raid_id: string,
+            details: string
+        }[]>();
 
     if (error) {
         console.error('Error fetching raid members:', error);
@@ -36,11 +42,20 @@ async function fetchMaxRaidResets(supabase: SupabaseClient, date: string | undef
 }) {
     const raidResets = await supabase.from('raid_resets')
         .select('raid_date, id, raid:ev_raid(name, min_level, image), time, end_date')[
-        options.isPrevious ? 'lt' : 'gt'
+        options.isCurrent && !options.isPrevious && !options.isNext ? 'gte' :
+            options.isPrevious ? 'lt' : 'gt'
         ](options.isPrevious ? 'raid_date' : 'end_date', moment(date).format('YYYY-MM-DD'))
         .order('raid_date', {ascending: !options.isPrevious})
         .order('raid_id', {ascending: false})
         .limit(MAX_RAID_RESETS)
+        .returns<{
+            raid_date: string;
+            id: string;
+            raid: { name: string, min_level: number, image: string };
+            time: string;
+            end_date: string;
+        }[]>();
+
 
     if (raidResets.error) {
         console.error('Error fetching raid resets: ' + JSON.stringify(raidResets))
@@ -90,7 +105,6 @@ const getPreviousWeeks = (date: string, previousTo: string) => {
 }
 
 const getNextWeeks = (date: string, nextTo: string) => {
-
     return (`/calendar?d=${date}&n=${nextTo}`)
 }
 
@@ -105,7 +119,7 @@ export default async function Page({searchParams}: { searchParams: { d?: string,
         redirect(`/calendar?d=${currentDate}`)
     }
 
-    if (searchParams.p && !dateIsValid(searchParams.p) || searchParams.n && !dateIsValid(searchParams.n)) {
+    if (searchParams.p && !dateIsValid(searchParams.p) || (searchParams.n && !dateIsValid(searchParams.n))) {
         redirect(`/calendar?d=${currentDate}`)
     }
 
@@ -120,16 +134,13 @@ export default async function Page({searchParams}: { searchParams: { d?: string,
         return {...raidReset, raidRegistrations}
     }))
 
+    const previousWeeksPath = getPreviousWeeks(currentDate, raidResets[0]?.raid_date)
+    const nextWeeksPath = getNextWeeks(currentDate, raidResets[raidResets.length - 1]?.end_date)
+
     return <main className="flex justify-center items-center relative">
-        <div
-            className="absolute top-0 -left-8"
-        >
-            <Link
-                href={getPreviousWeeks(currentDate, raidResets[0]?.raid_date)}
-            >
-                <Button
-                    isIconOnly
-                >
+        <div className="absolute top-0 -left-8">
+            <Link href={previousWeeksPath}>
+                <Button isIconOnly>
                     <FontAwesomeIcon icon={faArrowLeft}/>
                 </Button>
             </Link>
@@ -148,12 +159,8 @@ export default async function Page({searchParams}: { searchParams: { d?: string,
             })}
         </div>
         <div className="absolute top-0 -right-8 flex flex-col gap-2">
-            <Link
-                href={getNextWeeks(currentDate, raidResets[raidResets.length - 1]?.end_date)}>
-                <Button
-                    isDisabled={moment().isAfter(raidResets[raidResets.length - 1]?.end_date)}
-                    isIconOnly
-                >
+            <Link href={nextWeeksPath}>
+                <Button isIconOnly>
                     <FontAwesomeIcon icon={faArrowRight}/>
                 </Button>
             </Link>

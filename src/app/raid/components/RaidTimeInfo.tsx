@@ -22,7 +22,6 @@ export default function RaidTimeInfo({raidDate, raidTime, raidEndDate}: {
     }
 
     return (
-        isRaidOver ? null :
             <small
                 className={`${timeToGo.inProgress && !isRaidOver ? 'text-yellow-500 blink' : (!timeToGo.isToday && !isRaidOver) ? 'text-green-500' : 'text-red-500'}`}>
                 {

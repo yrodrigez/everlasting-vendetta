@@ -6,7 +6,7 @@ import moment from "moment";
 import {useParticipants} from "@/app/raid/components/useParticipants";
 
 
-const DpsIcon = ({className}: { className: string }) => <svg className={className}
+export const DpsIcon = ({className}: { className: string }) => <svg className={className}
                                                              xmlns="http://www.w3.org/2000/svg"
                                                              fill="currentColor"
                                                              viewBox="0 0 512 512">
@@ -56,7 +56,6 @@ export function KpisView({participants, raidId, raidInProgress}: {
     return (
         <div className="flex flex-col gap-2 text-sm">
             <div className="flex flex-col">
-                {raidInProgress && <span>Raiders for today:</span>}
                 <div className="flex gap-2">
                     <span className="text-green-500">Confirmed: {confirmed}</span>
                     <span className="text-red-500">Declined: {declined}</span>

@@ -170,6 +170,11 @@ export default class WoWService_Impl implements WoWService {
             }
         })
 
+        if(!response.ok) {
+            console.error('Error fetching character talents:', response.status, response.statusText, await response.text())
+            return {}
+        }
+
         return await response.json()
     }
 

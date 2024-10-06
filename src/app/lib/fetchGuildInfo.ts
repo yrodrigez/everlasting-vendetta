@@ -38,19 +38,23 @@ export async function fetchGuildInfo(token: string, guildId: string = `${REALM_I
     const headers = new Headers();
     headers.append('Authorization', 'Bearer ' + token);
 
+    try {
+        const response = await fetch(`${url}?locale=${locale}&namespace=profile-classic1x-eu`, {
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        })
 
-    const response = await fetch(`${url}?locale=${locale}&namespace=profile-classic1x-eu`, {
-        headers: {
-            'Authorization': 'Bearer ' + token
+        if (!response.ok) {
+            console.error('Error fetching guild info:', response.status, response.statusText, await response.text());
+            return null;
         }
-    })
 
-    if (!response.ok) {
-        console.error('Error fetching guild info:', response.status, response.statusText, await response.text());
+        return await response.json();
+    } catch (e) {
+        console.error('Error fetching guild info:', e);
         return null;
     }
-
-    return await response.json();
 }
 
 const rankComparator = (a: any, b: any) => {
