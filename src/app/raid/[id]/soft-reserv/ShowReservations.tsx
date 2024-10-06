@@ -99,17 +99,20 @@ const ReservationByItem = ({item}: { item: { item: RaidItem, reservations: Chara
     )
 }
 
-const ReservationByCharacter = ({item, isAdmin}: { item: { character: Character, reservations: RaidItem[] }, isAdmin?: boolean }) => {
+const ReservationByCharacter = ({item, isAdmin}: {
+    item: { character: Character, reservations: RaidItem[] },
+    isAdmin?: boolean
+}) => {
     return (
         <div className={'flex gap-2 justify-between p-2 items-center'}>
             <div className="flex items-center">
-                {isAdmin? <Button
+                {isAdmin ? <Button
                     size={'sm'}
                     className={'text-default'}
                     isIconOnly
                     variant={'light'}
                     onClick={() => {
-                        (async ()=>{
+                        (async () => {
                             const confirm = window.confirm(`Are you sure you want to remove all reservations for ${item.character.name}?`)
                             if (!confirm) return
                             const origin = window.location.origin
@@ -133,19 +136,19 @@ const ReservationByCharacter = ({item, isAdmin}: { item: { character: Character,
                 >
                     <FontAwesomeIcon icon={faClose}/>
                 </Button> : null}
-            <Link
-                className={'flex gap-2 items-center'}
-                href={`/roster/${encodeURIComponent(item.character.name.toLowerCase())}`} target={'_blank'}>
-                <Image
-                    src={item.character.avatar ?? '/avatar-anon.png'}
-                    alt={item.character.name}
-                    width={40}
-                    height={40}
-                    className={`border-gold border rounded-md`}
-                />
-                <span>{item.character.name}</span>
-            </Link>
-                </div>
+                <Link
+                    className={'flex gap-2 items-center'}
+                    href={`/roster/${encodeURIComponent(item.character.name.toLowerCase())}`} target={'_blank'}>
+                    <Image
+                        src={item.character.avatar ?? '/avatar-anon.png'}
+                        alt={item.character.name}
+                        width={40}
+                        height={40}
+                        className={`border-gold border rounded-md`}
+                    />
+                    <span>{item.character.name}</span>
+                </Link>
+            </div>
             <div className="flex gap-2">
                 {item.reservations.map((item, i) => {
                     return (
@@ -186,7 +189,7 @@ const ReservationByCharacter = ({item, isAdmin}: { item: { character: Character,
     )
 }
 
-export function ShowReservations({items = [], isAdmin}: { items: Reservation[], isAdmin?: boolean}) {
+export function ShowReservations({items = [], isAdmin}: { items: Reservation[], isAdmin?: boolean }) {
     const {isOpen, onOpen, onClose, onOpenChange} = useDisclosure()
     const [reservationsByCharacter, setReservationsByCharacter] = useState<{
         character: Character,
@@ -207,15 +210,29 @@ export function ShowReservations({items = [], isAdmin}: { items: Reservation[], 
 
     return (
         <>
-            <Button
-                size={'lg'}
-                className={'bg-moss text-gold shadow-none rounded'}
-                onClick={onOpen}
-                isIconOnly
-                isDisabled={items.length === 0}
-            >
-                <FontAwesomeIcon icon={faUserGroup}/>
-            </Button>
+            <div className="relative">
+                <Tooltip
+                    content={'Show reservations'}
+                    placement={'right'}
+                    showArrow
+                >
+                    <Button
+                        size={'lg'}
+                        className={'bg-moss text-gold shadow-none rounded'}
+                        onClick={onOpen}
+                        isIconOnly
+                        isDisabled={items.length === 0}
+                    >
+                        <FontAwesomeIcon icon={faUserGroup}/>
+                    </Button>
+                </Tooltip>
+                {items?.length ? (
+                    <span
+                        className="absolute -top-2 -right-4 bg-dark text-gold text-xs px-2 py-1 rounded-full border border-gold">
+                        {items.length}
+                    </span>
+                ): null}
+            </div>
             <Modal
                 isOpen={isOpen}
                 onClose={onClose}
