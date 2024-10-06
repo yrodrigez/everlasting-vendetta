@@ -14,7 +14,7 @@ export default function RaidsSelector({raids}: {
         items={raids ?? []}
         label="Select a raid"
         placeholder="Select a raid"
-        className="max-w-xs"
+        className="max-w-[400px]"
         radius="md"
         selectionMode="single"
         onChange={({target}) => {

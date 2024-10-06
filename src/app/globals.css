@@ -26,6 +26,43 @@
     --warlock-rgb: 135, 135, 237;
     --shaman-rgb: 0, 112, 222;
     --druid-rgb: 255, 125, 10;
+    --dark: 3, 17, 17;
+    --ligth-dark: 3, 17, 17;
+}
+
+span.data-\[selected\=true\]\:data-\[selection-end\=true\]\:data-\[range-selection\=true\]\:bg-primary[data-range-selection="true"][data-selection-end="true"][data-selected="true"] {
+    --tw-bg-opacity: 1;
+    background-color: rgb(var(--gold-rgb));
+    color: rgb(var(--dark));
+    font-weight: bold;
+}
+
+span.data-\[selected\=true\]\:bg-primary[data-selected="true"], span.data-\[selected\=true\]\:data-\[selection-start\=true\]\:data-\[range-selection\=true\]\:bg-primary[data-range-selection="true"][data-selection-start="true"][data-selected="true"] {
+    --tw-bg-opacity: 1;
+    background-color: rgb(var(--gold-rgb));
+    color: rgb(var(--dark));
+    font-weight: bold;
+}
+
+span.data-\[hover\=true\]\:bg-primary-50[data-hover="true"] {
+    --tw-bg-opacity: 1;
+    background-color: rgb(var(--gold-rgb));
+    color: rgb(var(--dark));
+    font-weight: bold;
+}
+
+td>span.text-foreground {
+    color: rgb(var(--gold-rgb));
+}
+span.data-\[disabled\=true\]\:text-default-300[data-disabled="true"] {
+    color: rgb(var(--moss-rgb));
+}
+span.data-\[selected\=true\]\:data-\[range-selection\=true\]\:before\:bg-primary-50[data-range-selection="true"][data-selected="true"]::before {
+    content: '';
+    color: rgb(var(--gold-rgb));
+    background: rgb(var(--wood-rgb));
+    border-bottom: 1px solid rgb(var(--gold-rgb));
+    border-top: 1px solid rgb(var(--gold-rgb));
 }
 
 body > div[data-overlay-container="true"]:first-of-type {

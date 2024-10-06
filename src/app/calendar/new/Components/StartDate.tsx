@@ -1,30 +1,31 @@
 'use client'
-import {Calendar} from "@nextui-org/react";
-import {getLocalTimeZone, today, toCalendar, CalendarDate as InterCalendar} from "@internationalized/date";
+import {DatePicker} from "@nextui-org/react";
+import {getLocalTimeZone, today, CalendarDate as InterCalendar} from "@internationalized/date";
 import useCreateRaidStore from "@/app/calendar/new/Components/useCreateRaidStore";
 
 export default function StartDate() {
-    const { startDate, setStartDate, raid } = useCreateRaidStore(state => state)
+    const {startDate, setStartDate, raid} = useCreateRaidStore(state => state)
     return (
-        <Calendar
-            isDisabled={!raid}
-            className={'bg-dark text-default'}
+        <DatePicker
             classNames={{
-                cellButton: 'text-default',
-                pickerHighlight: 'bg-primary',
-                title: 'text-default',
-                gridHeaderCell: 'text-default',
-
+                calendar: 'bg-dark',
+                calendarContent: 'text-default',
             }}
-            value={startDate && new InterCalendar(startDate.getFullYear(), startDate.getMonth()+1, startDate.getDate())}
+            value={startDate && new InterCalendar(startDate.getFullYear(), startDate.getMonth() + 1, startDate.getDate())}
             onChange={(date) => {
+                const datedDate = date.toDate('Europe/Madrid')
+                const current = new Date()
+                current.setHours(0, 0, 0, 0)
+                if (datedDate.getTime() < current.getTime()) return
+
                 setStartDate(
                     date.toDate('Europe/Madrid')
                 )
             }}
-            aria-label="Date (Min Date Value)"
+            isDisabled={!raid}
             defaultValue={today(getLocalTimeZone())}
             minValue={today(getLocalTimeZone())}
-        />
+            label="Raid date" className="max-w-[400px]"/>
+
     )
 }

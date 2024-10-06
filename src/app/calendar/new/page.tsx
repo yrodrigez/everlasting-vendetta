@@ -35,14 +35,12 @@ export default async function Page() {
         }[]>()
 
 
-    return <div
-        className="flex flex-col gap-8 w-full h-full p-2"
-    >
-        <div className="flex flex-col lg:flex-row gap-2 w-full">
+    return <div className="flex flex-col gap-8 w-full h-full p-2 scrollbar-pill">
+        <div className="flex flex-col lg:flex-row gap-2 w-full overflow-auto">
             <div
                 className="flex w-full gap-2 items-center lg:items-start flex-col">
                 <RaidsSelector raids={raids || []}/>
-                <div className="flex w-full justify-between max-w-[400px]">
+                <div className="flex w-full justify-between max-w-[400px] gap-2 flex-col">
                     <StartDate/>
                     <TimeManager/>
                 </div>

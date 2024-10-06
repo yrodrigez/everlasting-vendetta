@@ -13,12 +13,14 @@ export default function TimeManager() {
             className="flex flex-col gap-2 min-w-32"
         >
             <TimeInput
+                className="max-w-[400px]"
                 isDisabled={!raid}
                 hourCycle={24}
                 value={timeStart}
                 onChange={(time) => setStartTime(moment(time).format('HH:mm'))}
                 label="Start Time" defaultValue={new Time(20, 30)}/>
             <TimeInput
+                className="max-w-[400px]"
                 isDisabled={!raid}
                 hourCycle={24}
                 onChange={(time) => setEndTime(moment(time).format('HH:mm'))}
