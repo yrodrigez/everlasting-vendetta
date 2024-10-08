@@ -10,6 +10,7 @@ import {RaidCard} from "@/app/calendar/new/Components/RaidCard";
 import getAvailableRaids from "@/app/calendar/api/getAvailableRaids";
 import {ResetCRUDStoreManager} from "@/app/calendar/[id]/edit/ResetCRUDStoreManager";
 import {EditRaidButton} from "@/app/calendar/[id]/edit/EditRaidButton";
+import moment from "moment";
 
 export const dynamic = 'force-dynamic'
 
@@ -26,6 +27,10 @@ export default async function Page({params}: { params: { id: string } }) {
 
     const reset = await getResetById(params.id, supabase)
     const raids = await getAvailableRaids(supabase)
+
+    if (moment(reset.raid_date).isBefore(moment())) {
+        return <div>Cannot edit past resets</div>
+    }
 
     return (
         <ResetCRUDStoreManager reset={reset}>
