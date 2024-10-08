@@ -15,7 +15,10 @@ function getLoggedInUserFromAccessToken(accessToken: string) {
 }
 
 
-export default function createServerSession({cookies}: { cookies: any }): {supabase: SupabaseClient, auth: { getSession: () => Promise<void | UserProfile> }} {
+export default function createServerSession({cookies}: { cookies: any }): {
+    supabase: SupabaseClient,
+    auth: { getSession: () => Promise<void | UserProfile> }
+} {
     if (!cookies) {
         throw new Error('cookies is required')
     }
@@ -61,8 +64,8 @@ export default function createServerSession({cookies}: { cookies: any }): {supab
 
         return {
             ...user,
-            roles: Array.from(new Set(roles.map((role: any) => role.role)).values()),
-            permissions: Array.from(new Set(rolePermissions.map((rolePermission: any) => rolePermission.id)).values())
+            roles: roles ? Array.from(new Set(roles.map((role: any) => role.role)).values()) : [],
+            permissions: rolePermissions ? Array.from(new Set(rolePermissions.map((rolePermission: any) => rolePermission.id)).values()) : []
         }
     }
 

@@ -19,6 +19,7 @@ interface RaidStore {
     setEndTime: (date: string) => void
     days?: Day[],
     setDays: (days: Day[]) => void
+    loading?: boolean
 }
 
 const initialState = {
@@ -27,7 +28,8 @@ const initialState = {
     endDate: undefined,
     startTime: '20:30',
     endTime: '00:00',
-    days: undefined
+    days: undefined,
+    loading: false
 }
 
 export default createStore<RaidStore>(((set) => ({

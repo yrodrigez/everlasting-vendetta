@@ -11,6 +11,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faAdd, faArrowLeft, faArrowRight} from "@fortawesome/free-solid-svg-icons";
 import {createServerComponentClient} from "@/app/util/supabase/createServerComponentClient";
 import {type SupabaseClient} from "@supabase/auth-helpers-nextjs";
+import createServerSession from "@/app/util/supabase/createServerSession";
 
 export const dynamic = 'force-dynamic'
 
@@ -41,7 +42,7 @@ async function fetchMaxRaidResets(supabase: SupabaseClient, date: string | undef
     isNext: boolean
 }) {
     const raidResets = await supabase.from('raid_resets')
-        .select('raid_date, id, raid:ev_raid(name, min_level, image), time, end_date')[
+        .select('raid_date, id, raid:ev_raid(name, min_level, image), time, end_date, modifiedBy:ev_member!modified_by(character), modified_at')[
         options.isCurrent && !options.isPrevious && !options.isNext ? 'gte' :
             options.isPrevious ? 'lt' : 'gt'
         ](options.isPrevious ? 'raid_date' : 'end_date', moment(date).format('YYYY-MM-DD'))
@@ -54,6 +55,8 @@ async function fetchMaxRaidResets(supabase: SupabaseClient, date: string | undef
             raid: { name: string, min_level: number, image: string };
             time: string;
             end_date: string;
+            modifiedBy: { character: { name: string } }
+            modified_at: string
         }[]>();
 
 
@@ -123,7 +126,8 @@ export default async function Page({searchParams}: { searchParams: { d?: string,
         redirect(`/calendar?d=${currentDate}`)
     }
 
-    const supabase = createServerComponentClient({cookies})
+    const {supabase, auth} = createServerSession({cookies})
+    const user = await auth.getSession()
     const {p: previous, n: next, d: current} = searchParams
     const raidResets = await Promise.all((await fetchMaxRaidResets(supabase, (previous || next || current), {
         isPrevious: !!previous,
@@ -149,13 +153,17 @@ export default async function Page({searchParams}: { searchParams: { d?: string,
             {raidResets.map((raidReset: any, index: number) => {
                 return <RaidResetCard
                     raidEndDate={raidReset.end_date}
+                    isEditable={user?.permissions?.some(p => p === 'reset.edit') && moment(raidReset.raid_date).isAfter(moment())}
                     id={raidReset.id}
                     key={index}
                     raidName={raidReset.raid.name}
                     raidImage={`/${raidReset.raid.image}`}
                     raidDate={raidReset.raid_date}
                     raidTime={raidReset.time}
-                    raidRegistrations={raidReset.raidRegistrations}/>
+                    raidRegistrations={raidReset.raidRegistrations}
+                    modifiedBy={raidReset.modifiedBy?.character?.name}
+                    lastModified={raidReset.modified_at}
+                />
             })}
         </div>
         <div className="absolute top-0 -right-8 flex flex-col gap-2">

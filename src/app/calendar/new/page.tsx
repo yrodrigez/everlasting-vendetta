@@ -7,6 +7,8 @@ import {DaysSelection} from "@/app/calendar/new/Components/DaysSelection";
 import StartDate from "@/app/calendar/new/Components/StartDate";
 import TimeManager from "@/app/calendar/new/Components/TimeManager";
 import {CreateRaidButton} from "@/app/calendar/new/Components/CreateRaidButton";
+import getAvailableRaids from "@/app/calendar/api/getAvailableRaids";
+
 export const dynamic = 'force-dynamic'
 
 const MANDATORY_PERMISSION = 'reset.create'
@@ -22,35 +24,27 @@ export default async function Page() {
         return <div>Not enough permissions</div>
 
 
-    const {data: raids, error: raidsError} = await supabase.from('ev_raid')
-        .select('*')
-        .order('min_level', {ascending: false})
-        .order('created_at', {ascending: false})
-        .returns<{
-            id: string,
-            name: string,
-            min_level: number,
-            image: string,
-            reservation_amount: number,
-        }[]>()
+    const raids = await getAvailableRaids(supabase)
 
 
-    return <div className="flex flex-col gap-8 w-full h-full p-2 scrollbar-pill">
-        <div className="flex flex-col lg:flex-row gap-2 w-full overflow-auto">
-            <div
-                className="flex w-full gap-2 items-center lg:items-start flex-col">
-                <RaidsSelector raids={raids || []}/>
-                <div className="flex w-full justify-between max-w-[400px] gap-2 flex-col">
-                    <StartDate/>
-                    <TimeManager/>
+    return (
+        <div className="flex flex-col gap-8 w-full h-full p-2 scrollbar-pill">
+            <div className="flex flex-col lg:flex-row gap-2 w-full overflow-auto">
+                <div
+                    className="flex w-full gap-2 items-center lg:items-start flex-col">
+                    <RaidsSelector raids={raids || []}/>
+                    <div className="flex w-full justify-between max-w-[400px] gap-2 flex-col">
+                        <StartDate/>
+                        <TimeManager/>
+                    </div>
+                    <DaysSelection/>
                 </div>
-                <DaysSelection/>
+                <div
+                    className="flex  justify-between gap-2 items-center lg:items-start lg:justify-end flex-col lg:flex-row">
+                    <RaidCard/>
+                </div>
             </div>
-            <div
-                className="flex  justify-between gap-2 items-center lg:items-start lg:justify-end flex-col lg:flex-row">
-                <RaidCard/>
-            </div>
+            <CreateRaidButton/>
         </div>
-        <CreateRaidButton/>
-    </div>
+    )
 }

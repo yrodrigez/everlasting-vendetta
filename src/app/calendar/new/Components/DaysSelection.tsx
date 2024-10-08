@@ -40,7 +40,6 @@ export function DaysSelection() {
 
     useEffect(() => {
         calculateEndDate()
-        console.log('endDate', endDate)
     }, [selectedDays, startDate]);
 
     useEffect(() => {
@@ -49,7 +48,8 @@ export function DaysSelection() {
         }
 
         const weekDay = moment(startDate).format('ddd') as Day
-        setDays([weekDay])
+        if (!selectedDays.includes(weekDay)) setDays([weekDay])
+        calculateEndDate()
     }, [startDate])
 
     return (

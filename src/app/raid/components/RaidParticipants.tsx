@@ -28,7 +28,9 @@ const GuildMemberIndicator = (character: any) => {
     const guildName = character.guild?.name || 'Not guilded';
     return (
         <Tooltip content={guildName} placement={'top'}>
-            <Chip color={isGuildie ? 'success' : 'warning'} size="sm" variant="flat">
+            <Chip
+                className={`text-${isGuildie ? 'success' : 'warning'}`}
+                color={isGuildie ? 'success' : 'warning'} size="sm" variant="flat">
                 {isGuildie ? 'Yes' : 'No'}
             </Chip>
         </Tooltip>
@@ -67,7 +69,7 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
                 ])
             }
         }
-    }, [isMobile]);
+    }, [isMobile, isAdmin, selectedCharacter]);
 
     const renderCell = useCallback((registration: any, columnKey: React.Key) => {
         const {name, avatar, playable_class} = registration.member?.character
@@ -144,20 +146,17 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
                         }
                     })(registrationDetails?.status);
                     return (
-                        <Chip className="capitalize" color={color}
+                        <Chip className={`capitalize text-${color || 'default'}`} color={color}
                               size="sm"
                               variant="flat">
                             {registrationDetails.status}
                         </Chip>
                     );
                 }
-
                 return (
-                    name === 'Aoriad' ? <Chip color={'warning'} size="sm" variant="flat">Late</Chip> :
-                        <Chip className="capitalize" color={registration.is_confirmed ? 'success' : 'danger'} size="sm"
-                              variant="flat">
-                            {registration.is_confirmed ? 'Confirmed' : 'Declined'}
-                        </Chip>
+                    <Chip color={'warning'} size="sm" variant="flat" className="text-warning">
+                        Pending
+                    </Chip>
                 );
 
             case "days":
@@ -173,7 +172,7 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
                             return (
                                 <Chip
                                     key={day}
-                                    className={(raidInProgress && isToday) ? 'border-2 border-gold' : ''}
+                                    className={`text-${isDayRegistered ? 'success' : 'danger'}` + ((raidInProgress && isToday) ? 'border-2 border-gold' : '')}
                                     color={isDayRegistered ? 'success' : 'danger'}
                                     size="sm"
                                     variant="flat">

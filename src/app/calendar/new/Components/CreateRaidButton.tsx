@@ -9,11 +9,11 @@ import moment from "moment";
 
 export function CreateRaidButton() {
     const {raid, endTime, startTime, startDate, endDate, days} = useCreateRaidStore(state => state)
-    const {supabase} = useSession()
+    const {supabase, selectedCharacter} = useSession()
     const router = useRouter()
 
     const createReset = useCallback(async () => {
-        if (!raid || !startTime || !endTime || !startDate || !endDate || !days?.length || !supabase) return
+        if (!raid || !startTime || !endTime || !startDate || !endDate || !days?.length || !supabase || !selectedCharacter) return
 
         const payload = {
             raid_id: raid.id,
@@ -22,6 +22,8 @@ export function CreateRaidButton() {
             raid_date: moment(startDate).format('YYYY-MM-DD'),
             end_date: moment(endDate).format('YYYY-MM-DD'),
             min_lvl: raid.min_level,
+            created_by: selectedCharacter?.id,
+            modified_by: selectedCharacter?.id,
             days
         }
 
@@ -37,11 +39,11 @@ export function CreateRaidButton() {
 
         router.push('/raid/' + data?.[0].id)
 
-    }, [raid, endTime, startTime, startDate, endDate, days])
+    }, [raid, endTime, startTime, startDate, endDate, days, selectedCharacter])
 
     return (
         <Button
-            isDisabled={!raid || !startTime || !endTime || !startDate || !endDate || !days?.length}
+            isDisabled={!raid || !startTime || !endTime || !startDate || !endDate || !days?.length || !selectedCharacter}
             onClick={createReset}
         >
             Create Raid
