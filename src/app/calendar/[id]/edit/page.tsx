@@ -7,10 +7,11 @@ import StartDate from "@/app/calendar/new/Components/StartDate";
 import TimeManager from "@/app/calendar/new/Components/TimeManager";
 import {DaysSelection} from "@/app/calendar/new/Components/DaysSelection";
 import {RaidCard} from "@/app/calendar/new/Components/RaidCard";
-import {CreateRaidButton} from "@/app/calendar/new/Components/CreateRaidButton";
 import getAvailableRaids from "@/app/calendar/api/getAvailableRaids";
 import {ResetCRUDStoreManager} from "@/app/calendar/[id]/edit/ResetCRUDStoreManager";
 import {EditRaidButton} from "@/app/calendar/[id]/edit/EditRaidButton";
+
+export const dynamic = 'force-dynamic'
 
 export default async function Page({params}: { params: { id: string } }) {
     const {supabase, auth} = createServerSession({cookies})
