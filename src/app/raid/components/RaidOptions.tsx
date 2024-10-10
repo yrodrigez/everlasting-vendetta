@@ -8,7 +8,8 @@ import {
     faGear,
     faGift,
     faCartPlus,
-    faShareNodes
+    faShareNodes,
+    faUpload
 } from "@fortawesome/free-solid-svg-icons";
 import {useRouter} from "next/navigation";
 
@@ -18,7 +19,8 @@ const KEYS = {
     CURRENT: 'current',
     LOOT: 'loot',
     SOFT_RESERV: 'soft-reserv',
-    SHARE: 'share'
+    SHARE: 'share',
+    upload_loot: 'upload_loot'
 }
 
 export function RaidOptions({
@@ -35,96 +37,108 @@ export function RaidOptions({
 }) {
     const router = useRouter()
     return (
-        <Dropdown>
-            <DropdownTrigger>
-                <Button
-                    className={'rounded bg-transparent text-default hover:bg-wood bg-moss'}
-                    isIconOnly>
-                    <FontAwesomeIcon icon={faGear}/>
-                </Button>
-            </DropdownTrigger>
-            <DropdownMenu
-                onAction={(key) => {
-                    if (key === KEYS.LOOT) {
-                        router.push(`/raid/${currentResetId}/loot`, {
-                            scroll: false
-                        })
-                    }
-                    if (key === KEYS.CURRENT) {
-                        router.push(`/raid/current`)
-                    }
-
-                    if (key === KEYS.NEXT) {
-                        router.push(`/raid/${nextResetId}`)
-                    }
-
-                    if (key === KEYS.PREVIOUS) {
-                        router.push(`/raid/${previousResetId}`)
-                    }
-                    if(key === KEYS.SOFT_RESERV) {
-                        router.push(`/raid/${currentResetId}/soft-reserv`)
-                    }
-                    if(key === KEYS.SHARE) {
-                        const url = window.location.href
-                        if(!navigator?.clipboard?.writeText) {
-                            alert('Could not copy link to clipboard')
-                            return
+        <>
+            <Dropdown>
+                <DropdownTrigger>
+                    <Button
+                        className={'rounded bg-transparent text-default hover:bg-wood bg-moss'}
+                        isIconOnly>
+                        <FontAwesomeIcon icon={faGear}/>
+                    </Button>
+                </DropdownTrigger>
+                <DropdownMenu
+                    onAction={(key) => {
+                        if (key === KEYS.LOOT) {
+                            router.push(`/raid/${currentResetId}/loot`, {
+                                scroll: false
+                            })
                         }
-                        navigator.clipboard.writeText(url.substring(
-                            0,
-                            url.indexOf('-') - 1
-                        )).then(() => {
-                            alert('Link copied to clipboard')
-                        }).catch(() => {
-                            alert('Could not copy link to clipboard')
-                        })
-                    }
-                }}
-                aria-label="Raid actions">
-                <DropdownItem
-                    isDisabled={!nextResetId}
-                    key={KEYS.NEXT}
-                    className="flex items-center gap-2 justify-between"
-                >
-                    <div className="flex items-center gap-2 justify-between">
-                        Next <FontAwesomeIcon icon={faForward}/>
-                    </div>
-                </DropdownItem>
-                <DropdownItem
-                    key={KEYS.PREVIOUS}
-                    isDisabled={!previousResetId}
-                >
-                    <div className="flex items-center gap-2 justify-between">
-                        Previous <FontAwesomeIcon icon={faBackward}/>
-                    </div>
-                </DropdownItem>
-                <DropdownItem key={KEYS.CURRENT}>
-                    <div className="flex items-center gap-2 justify-between">
-                        Current <FontAwesomeIcon icon={faCalendarDay}/>
-                    </div>
-                </DropdownItem>
-                <DropdownItem
-                    key={KEYS.LOOT}
-                    isDisabled={!hasLoot}>
-                    <div className="flex items-center gap-2 justify-between">
-                        Loot <FontAwesomeIcon icon={faGift}/>
-                    </div>
-                </DropdownItem>
-                <DropdownItem
-                    key={KEYS.SOFT_RESERV}
+                        if (key === KEYS.CURRENT) {
+                            router.push(`/raid/current`)
+                        }
+
+                        if (key === KEYS.NEXT) {
+                            router.push(`/raid/${nextResetId}`)
+                        }
+
+                        if (key === KEYS.PREVIOUS) {
+                            router.push(`/raid/${previousResetId}`)
+                        }
+                        if (key === KEYS.SOFT_RESERV) {
+                            router.push(`/raid/${currentResetId}/soft-reserv`)
+                        }
+                        if (key === KEYS.SHARE) {
+                            const url = window.location.href
+                            if (!navigator?.clipboard?.writeText) {
+                                alert('Could not copy link to clipboard')
+                                return
+                            }
+                            navigator.clipboard.writeText(url.substring(
+                                0,
+                                url.indexOf('-') - 1
+                            )).then(() => {
+                                alert('Link copied to clipboard')
+                            }).catch(() => {
+                                alert('Could not copy link to clipboard')
+                            })
+                        }
+                        if (key === KEYS.upload_loot) {
+                            router.push(`/raid/${currentResetId}/loot/upload`)
+                        }
+                    }}
+                    aria-label="Raid actions">
+                    <DropdownItem
+                        isDisabled={!nextResetId}
+                        key={KEYS.NEXT}
+                        className="flex items-center gap-2 justify-between"
                     >
-                    <div className="flex items-center gap-2 justify-between">
-                        Soft Reserv <FontAwesomeIcon icon={faCartPlus}/>
-                    </div>
-                </DropdownItem>
-                <DropdownItem
-                    key={KEYS.SHARE}
-                >
-                    <div className="flex items-center gap-2 justify-between">
-                        Share link <FontAwesomeIcon icon={faShareNodes} />
-                    </div>
-                </DropdownItem>
-            </DropdownMenu>
-        </Dropdown>
+                        <div className="flex items-center gap-2 justify-between">
+                            Next <FontAwesomeIcon icon={faForward}/>
+                        </div>
+                    </DropdownItem>
+                    <DropdownItem
+                        key={KEYS.PREVIOUS}
+                        isDisabled={!previousResetId}
+                    >
+                        <div className="flex items-center gap-2 justify-between">
+                            Previous <FontAwesomeIcon icon={faBackward}/>
+                        </div>
+                    </DropdownItem>
+                    <DropdownItem key={KEYS.CURRENT}>
+                        <div className="flex items-center gap-2 justify-between">
+                            Current <FontAwesomeIcon icon={faCalendarDay}/>
+                        </div>
+                    </DropdownItem>
+                    <DropdownItem
+                        key={KEYS.LOOT}
+                        isDisabled={!hasLoot}>
+                        <div className="flex items-center gap-2 justify-between">
+                            Loot <FontAwesomeIcon icon={faGift}/>
+                        </div>
+                    </DropdownItem>
+                    <DropdownItem
+                        key={KEYS.SOFT_RESERV}
+                    >
+                        <div className="flex items-center gap-2 justify-between">
+                            Soft Reserv <FontAwesomeIcon icon={faCartPlus}/>
+                        </div>
+                    </DropdownItem>
+                    <DropdownItem
+                        key={KEYS.SHARE}
+                    >
+                        <div className="flex items-center gap-2 justify-between">
+                            Share link <FontAwesomeIcon icon={faShareNodes}/>
+                        </div>
+                    </DropdownItem>
+                    <DropdownItem
+                        key={KEYS.upload_loot}
+                    >
+                        <div className="flex items-center gap-2 justify-between">
+                            Upload loot <FontAwesomeIcon icon={faUpload}/>
+                        </div>
+                    </DropdownItem>
+                </DropdownMenu>
+            </Dropdown>
+        </>
     )
 }

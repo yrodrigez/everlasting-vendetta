@@ -11,6 +11,8 @@ import {Button} from "@/app/components/Button";
 import createServerSession from "@utils/supabase/createServerSession";
 import {GUILD_REALM_SLUG} from "@utils/constants";
 import {LootHistory} from "@/app/raid/[id]/loot/components/LootHistory";
+import {fetchItemDataFromWoWHead, groupByCharacter} from "@/app/raid/[id]/loot/util";
+
 
 async function fetchLootHistory(supabase: SupabaseClient, raidId: string): Promise<RaidLoot[]> {
     const {error, data} = await supabase
@@ -22,29 +24,7 @@ async function fetchLootHistory(supabase: SupabaseClient, raidId: string): Promi
         return []
     }
 
-    const foundItemData: any[] = []
-    return Promise.all(data.map(async (loot: any) => {
-        let itemData = foundItemData.find((item) => item.itemID === loot.itemID)
-        if (itemData) {
-            return {
-                ...loot,
-                item: {
-                    ...itemData
-                }
-            }
-        }
-        const fetchItem = await fetch(`https://nether.wowhead.com/tooltip/item/${loot.itemID}?dataEnv=4&locale=0`)
-        const item = await fetchItem.json()
-        item.icon = `https://wow.zamimg.com/images/wow/icons/medium/${item.icon}.jpg`
-        foundItemData.push(item)
-        return {
-            ...loot,
-
-            item: {
-                ...item
-            }
-        }
-    }))
+    return Promise.all(data.map(fetchItemDataFromWoWHead))
 }
 
 async function fetchParticipants(supabase: SupabaseClient, raidId: string): Promise<CharacterWithLoot[]> {
@@ -106,16 +86,24 @@ function fetchCharactersIds(supabase: SupabaseClient, characters: CharacterWithL
 const fetchResetInfo = async (supabase: SupabaseClient, resetId: string) => {
     const {data, error} = await supabase
         .from('raid_resets')
-        .select('raid_date, name')
+        .select('raid_date, raid:ev_raid(*)')
         .eq('id', resetId)
-        .single()
+        .single<{
+            raid_date: string,
+            raid: {
+                name: string
+            }
+        }>()
 
     if (error) {
         console.error('Error fetching reset info', error)
         return null
     }
 
-    return data
+    return {
+        name: data.raid.name,
+        raid_date: data.raid_date
+    }
 }
 
 
@@ -133,19 +121,7 @@ export default async function ({params}: { params: { id: string } }) {
         return <div>Could not find loot history</div>
     }
 
-    const charactersWithLoot: CharacterWithLoot[] = (lootHistory ?? []).reduce((acc: CharacterWithLoot[], loot) => {
-        const character = acc.find((c) => c.character === loot.character)
-        if (!character) {
-            acc.push({
-                character: loot.character,
-                loot: [loot],
-                plusses: 0
-            })
-        } else {
-            character.loot.push(loot)
-        }
-        return acc
-    }, [])
+    const charactersWithLoot: CharacterWithLoot[] = groupByCharacter(lootHistory)
 
     const charactersWithIds = await fetchCharactersIds(supabase, charactersWithLoot)
 
@@ -183,6 +159,9 @@ export default async function ({params}: { params: { id: string } }) {
     const charactersWithNoLoot = participants.filter((p) => !sortedCharactersWithLoot.find((c) => c.character === p.character))
     const disenchanted = charactersWithLoot.filter((c) => c.character === '_disenchanted')
     const resetInfo = await fetchResetInfo(supabase, params.id)
+    if(!resetInfo) {
+        return <div>Could not find reset info</div>
+    }
 
     return (
         <div className="flex flex-col w-full h-full scrollbar-pill">
