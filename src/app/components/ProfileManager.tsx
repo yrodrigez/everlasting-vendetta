@@ -106,7 +106,6 @@ export default function ProfileManager() {
                 })
                 clearAllCookies();
             } else {
-                console.log('No longer loading, clearing timeout');
                 clearTimeout(timeout);
             }
         }, 15000);

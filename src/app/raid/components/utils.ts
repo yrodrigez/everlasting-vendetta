@@ -28,8 +28,6 @@ export async function assistRaid(raidId: string, selectedDays: any = [], selecte
         return
     }
 
-    console.log('Assisted raid', response)
-
     if (!hasLootReservations) {
         onOpen()
         const noLootAudio = new Audio('/sounds/levelup2.ogg')

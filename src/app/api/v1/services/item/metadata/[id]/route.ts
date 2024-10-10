@@ -58,7 +58,6 @@ const fetchItemMetadata = async (itemId: number) => {
 
 export async function GET(request: NextRequest, context: any) {
     const { id } = context.params;
-    console.log(`Fetching item metadata for item with id: ${id}`);
 
     return NextResponse.json((await fetchItemMetadata(parseInt(id))));
 }

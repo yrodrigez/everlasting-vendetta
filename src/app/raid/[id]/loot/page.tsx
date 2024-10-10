@@ -1,21 +1,27 @@
 import {cookies} from "next/headers";
 import React from "react";
-import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
+import {type SupabaseClient} from "@supabase/auth-helpers-nextjs";
 import {CharacterWithLoot, RaidLoot} from "@/app/raid/[id]/loot/components/types";
 import {LootItem} from "@/app/raid/[id]/loot/components/LootItem";
 import Link from "next/link";
 import {faArrowLeft} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import NotLoggedInView from "@/app/components/NotLoggedInView";
+import {Button} from "@/app/components/Button";
+import createServerSession from "@utils/supabase/createServerSession";
+import {GUILD_REALM_SLUG} from "@utils/constants";
+import {LootHistory} from "@/app/raid/[id]/loot/components/LootHistory";
 
-async function fetchLootHistory(supabase: any, raidId: string): Promise<RaidLoot[]> {
-    const {error, data} = await supabase.from('ev_loot_history')
+async function fetchLootHistory(supabase: SupabaseClient, raidId: string): Promise<RaidLoot[]> {
+    const {error, data} = await supabase
+        .from('ev_loot_history')
         .select('*')
         .eq('raid_id', raidId)
 
     if (error) {
         return []
     }
+
     const foundItemData: any[] = []
     return Promise.all(data.map(async (loot: any) => {
         let itemData = foundItemData.find((item) => item.itemID === loot.itemID)
@@ -41,23 +47,86 @@ async function fetchLootHistory(supabase: any, raidId: string): Promise<RaidLoot
     }))
 }
 
-export default async function ({params}: { params: { id: string } }) {
+async function fetchParticipants(supabase: SupabaseClient, raidId: string): Promise<CharacterWithLoot[]> {
+    const {error, data} = await supabase
+        .from('ev_raid_participant')
+        .select('character:ev_member(*)')
+        .eq('raid_id', raidId)
 
-    const isLoggedInUser = cookies().get('evToken')
-    if (!isLoggedInUser) {
-        return <NotLoggedInView/>
+    if (error) {
+        return []
     }
 
-
-    const supabase = createServerComponentClient({cookies}, {
-        options: {
-            global: {
-                headers: {
-                    Authorization: `Bearer ${isLoggedInUser.value}`
-                }
-            }
+    return data.map((d: any) => {
+        return {
+            character: d.character.character.name,
+            character_id: d.character.id,
+            loot: [],
+            plusses: 0
         }
     })
+}
+
+async function isItemPlus(supabase: SupabaseClient, itemID: number, resetId: string, characterId: number): Promise<boolean> {
+    const {error, data} = await supabase
+        .from('raid_loot_reservation')
+        .select('*')
+        .eq('item_id', itemID)
+        .eq('reset_id', resetId)
+        .eq('member_id', characterId)
+
+    if (error) {
+        console.error('Error checking if item is plus', error)
+        return false
+    }
+
+    // item is a plus if it's not reserved
+    return data?.length === 0
+}
+
+function fetchCharactersIds(supabase: SupabaseClient, characters: CharacterWithLoot[]): Promise<CharacterWithLoot[]> {
+    return Promise.all(characters.map(async (c) => {
+        const {error, data} = await supabase
+            .from('ev_member')
+            .select('id')
+            .eq('character->>name', c.character)
+            .eq('character->realm->>slug', GUILD_REALM_SLUG)
+
+        if (error) {
+            return c
+        }
+
+        return {
+            ...c,
+            character_id: data?.[0]?.id
+        }
+    }))
+}
+
+const fetchResetInfo = async (supabase: SupabaseClient, resetId: string) => {
+    const {data, error} = await supabase
+        .from('raid_resets')
+        .select('raid_date, name')
+        .eq('id', resetId)
+        .single()
+
+    if (error) {
+        console.error('Error fetching reset info', error)
+        return null
+    }
+
+    return data
+}
+
+
+export default async function ({params}: { params: { id: string } }) {
+
+    const {supabase, auth} = createServerSession({cookies})
+    const user = await auth.getSession()
+
+    if (!user) {
+        return <NotLoggedInView/>
+    }
 
     const lootHistory = await fetchLootHistory(supabase, params.id)
     if (!lootHistory?.length) {
@@ -69,7 +138,8 @@ export default async function ({params}: { params: { id: string } }) {
         if (!character) {
             acc.push({
                 character: loot.character,
-                loot: [loot]
+                loot: [loot],
+                plusses: 0
             })
         } else {
             character.loot.push(loot)
@@ -77,24 +147,62 @@ export default async function ({params}: { params: { id: string } }) {
         return acc
     }, [])
 
-    const sortedCharactersWithLoot = charactersWithLoot.sort((a, b) => {
+    const charactersWithIds = await fetchCharactersIds(supabase, charactersWithLoot)
+
+    const characterPlusses = await Promise.all(charactersWithIds.map(async (c) => {
+        const lootWithPlus = await Promise.all(c.loot.map(async (loot) => {
+            if (!c.character_id) {
+                return {
+                    ...loot,
+                    isPlus: false
+                }
+            }
+            const isPlus = await isItemPlus(supabase, loot.itemID, loot.raid_id, c.character_id)
+            return {
+                ...loot,
+                isPlus
+            }
+        }))
+
+        return {
+            ...c,
+            loot: lootWithPlus,
+            plusses: lootWithPlus.filter((l) => l.isPlus).length
+        }
+    }))
+
+    const sortedCharactersWithLoot = characterPlusses.sort((a, b) => {
         return a.character.localeCompare(b.character)
     }).filter((c) => c.character !== '_disenchanted')
+        .sort((a, b) => {
+            return b.loot.length - a.loot.length
+        })
 
+
+    const participants = await fetchParticipants(supabase, params.id)
+    const charactersWithNoLoot = participants.filter((p) => !sortedCharactersWithLoot.find((c) => c.character === p.character))
     const disenchanted = charactersWithLoot.filter((c) => c.character === '_disenchanted')
+    const resetInfo = await fetchResetInfo(supabase, params.id)
 
     return (
-        <div>
-            <Link
-                href={`/raid/${params.id}`} className={`mt-2 
-                    px-2 py-3 text-white hover:text-gold 
-                `}>
-                <FontAwesomeIcon icon={faArrowLeft} className={'mr-2'}/>
-                Back to raid
-            </Link>
-            {[...sortedCharactersWithLoot, ...disenchanted].map((loot, i) => {
-                return <LootItem key={i} loot={loot}/>
-            })}
+        <div className="flex flex-col w-full h-full scrollbar-pill">
+            <div className="flex gap-4 items-center justify-between w-full text-gold rounded-lg bg-dark p-2">
+                <Link href={`/raid/${params.id}`}>
+                    <Button
+                        variant="light"
+                        isIconOnly
+                    >
+                        <FontAwesomeIcon icon={faArrowLeft}/>
+                    </Button>
+                </Link>
+                <h1 className="text-2xl font-bold">Loot History</h1>
+                <div
+                    className="flex flex-col gap-4 items-center">
+                    {resetInfo && <><span>{resetInfo.name} </span><span> {resetInfo.raid_date}</span></>}
+                </div>
+            </div>
+            <LootHistory charactersWithLoot={[...sortedCharactersWithLoot, ...disenchanted]}
+                         charactersWithoutLoot={charactersWithNoLoot}/>
         </div>
     )
 }

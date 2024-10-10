@@ -14,7 +14,6 @@ export async function GET() {
         throw new Error('No guild info found')
     }
 
-    console.log('guildInfo', guildInfo)
 
     const guildRoster = getGuildRosterFromGuildInfo(guildInfo)
 

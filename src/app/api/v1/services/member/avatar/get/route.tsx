@@ -3,12 +3,12 @@ import {cookies} from "next/headers";
 import {fetchCharacterAvatar} from "@/app/lib/fetchCharacterAvatar";
 import {getBlizzardToken} from "@/app/lib/getBlizzardToken";
 import {BNET_COOKIE_NAME} from "@/app/util/constants";
-
+import {GUILD_REALM_SLUG} from "@utils/constants";
 
 export async function GET(request: NextRequest) {
     const url = new URL(request.url)
     let tokenString = url.searchParams.get('tokenString')
-    const realm = url.searchParams.get('realm') ?? process.env.GUILD_REALM_SLUG!
+    const realm = GUILD_REALM_SLUG
     const characterName = url.searchParams.get('characterName')
     if (!realm || !characterName) {
         return NextResponse.json({error: 'Error - realm and characterName are mandatory!'})

@@ -3,13 +3,15 @@ import {type CharacterWithLoot, type Item} from "@/app/raid/[id]/loot/components
 import {useWoWZamingCss} from "@/app/hooks/useWoWZamingCss";
 import Image from "next/image";
 import Link from "next/link";
-import {Tooltip} from "@nextui-org/react";
-import {faArrowRightLong} from "@fortawesome/free-solid-svg-icons";
+import {Modal, ModalContent, Tooltip, useDisclosure} from "@nextui-org/react";
+import {faCheck, faPlus} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {useEffect, useState} from "react";
+import {useQuery} from "@tanstack/react-query";
 
 
 export const ItemWithTooltip = ({item}: { item: Item }) => {
+    const {isOpen, onOpen, onOpenChange, onClose} = useDisclosure()
     const qualityColor = [
         'poor',
         'common',
@@ -19,43 +21,80 @@ export const ItemWithTooltip = ({item}: { item: Item }) => {
         'legendary',
     ][item.quality]
     return (
-        <Tooltip
-            className={`bg-black border border-${qualityColor} rounded-lg max-w-64`}
-            content={
-                <div
-                    dangerouslySetInnerHTML={{__html: item.tooltip || ''}}
-                />
-            }
-            placement="top"
-            showArrow
-        >
-            <Image
-                className={`rounded-lg border border-${qualityColor} block bg-cover relative min-h-10 min-w-10`}
-                src={item.icon} width={36} height={36} alt={item.name}
-            />
-        </Tooltip>
+        <>
+            <Tooltip
+                className={`bg-black border border-${qualityColor} rounded-lg max-w-64`}
+                isDisabled={!item.isPlus}
+                content={
+                    'Plus'
+                }
+                placement="top"
+                showArrow
+            >
+                <div className="relative cursor-pointer"
+                     onClick={onOpen}
+                >
+                    <Image
+                        className={`rounded-lg border border-${qualityColor} block bg-cover  min-h-10 min-w-10`}
+                        src={item.icon} width={36} height={36} alt={item.name}
+                    />
+                    {item.isPlus && <div
+                      className={`absolute -top-1 -right-1 text-gold border-gold border px-1 rounded-full text-xs bg-dark`}>
+                      <FontAwesomeIcon icon={item.isPlus ? faPlus : faCheck}/>
+                    </div>
+                    }
+                </div>
+            </Tooltip>
+            <Modal
+                isOpen={isOpen}
+                onClose={onClose}
+                className={`bg-transparent`}
+            >
+                <ModalContent>
+                    {() =>
+                        <div className={`flex gap-2 p-2`}>
+                            <Image
+                                className={`rounded-lg border border-${qualityColor} block bg-cover max-h-10 max-w-10 min-h-10 min-w-10 `}
+                                src={item.icon} width={36} height={36} alt={item.name}
+                            />
+                            <div
+                                className={`w-96 border border-${qualityColor} rounded-lg p-2 bg-dark bg-blend-color select-none`}
+                                dangerouslySetInnerHTML={{__html: item.tooltip.replaceAll(/<a/g, '<span').replaceAll(/<\/a>/g, '</span>') || ''}}
+                            />
+                        </div>
+                    }
+                </ModalContent>
+            </Modal>
+        </>
     )
 }
 
 export function LootItem({loot}: { loot: CharacterWithLoot }) {
     useWoWZamingCss() // This is a custom hook that loads the WoW Zaming CSS
 
-    const [characterAvatar, setCharacterAvatar] = useState<string | null | undefined>('/avatar-anon.png')
-    useEffect(() => {
-        if (loot.character === '_disenchanted') {
-            return
-        }
+    const {data: characterAvatar, isLoading} = useQuery({
+        queryKey: ['characterAvatar', loot.character],
+        queryFn: async () => {
+            if (loot.character === '_disenchanted') {
+                return 'unknown'
+            }
 
-        fetch(`${window.location.origin}/api/v1/services/member/avatar/get?characterName=${encodeURIComponent(loot.character.toLowerCase())}`)
-            .then(response => response.json())
-            .then(data => {
-                setCharacterAvatar(data.avatar)
-            })
-
+            const data = await fetch(`${window.location.origin}/api/v1/services/member/avatar/get?characterName=${encodeURIComponent(loot.character.toLowerCase())}`)
+            const response = await data.json()
+            return response.avatar
+        },
+        enabled: loot.character !== '_disenchanted',
+        staleTime: 1000 * 60 * 60 * 24,
     })
 
     return (
-        <div className={`rounded-lg grid grid-cols-3 items-center gap-2 justify-center mb-1`}>
+        <div className={`rounded-lg flex flex-col gap-2 items-center border border-gold w-64 bg-dark relative`}>
+            {loot.plusses > 0 && (
+                <div
+                    className={`absolute top-1 right-1 bg-transparent text-gold border-gold border py-1 px-2 rounded-full text-xs`}>
+                    {loot.plusses}
+                </div>
+            )}
             {
                 loot.character === '_disenchanted' ? (
                     <Tooltip
@@ -78,25 +117,19 @@ export function LootItem({loot}: { loot: CharacterWithLoot }) {
                             `flex flex-col items-center p-2`
                         }
                         href={`/roster/${encodeURIComponent(loot.character.toLowerCase())}`}>
-                        {characterAvatar && <Image
-                          className={`rounded-lg border border-gold block bg-cover relative`}
-                          src={characterAvatar === 'unknown' ? '/avatar-anon.png' : characterAvatar} width={36}
-                          height={36} alt={loot.character}
+                        {<Image
+                            className={`rounded-full border border-gold block bg-cover relative`}
+                            src={(characterAvatar === 'unknown' || isLoading) ? '/avatar-anon.png' : characterAvatar}
+                            width={64}
+                            height={64} alt={loot.character}
                         />}
                         <div className={`whitespace-pre p-1`}>{loot.character}</div>
                     </Link>
                 )
             }
-            <div className={
-                `flex items-center gap-2 p-2 justify-center`
-            }>
-                <FontAwesomeIcon icon={faArrowRightLong}/>
-            </div>
-            <div className={
-                `flex gap-2 p-2 overflow-auto scrollbar-pill`
-            }>
+            <div className={`flex gap-2 p-2 overflow-auto scrollbar-pill w-full justify-around`}>
                 {loot.loot.map((item, i) => {
-                    return <ItemWithTooltip key={i} item={{...item.item, id: item.itemID}}/>
+                    return <ItemWithTooltip key={i} item={{...item.item, id: item.itemID, isPlus: item.isPlus}}/>
                 })}
             </div>
         </div>

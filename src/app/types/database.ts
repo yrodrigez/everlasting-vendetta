@@ -396,32 +396,32 @@ export type Database = {
         Row: {
           created_at: string
           id: string
-          member_id: number
-          role_id: string
+          member_id: number | null
+          role: string | null
         }
         Insert: {
           created_at?: string
           id?: string
-          member_id: number
-          role_id: string
+          member_id?: number | null
+          role?: string | null
         }
         Update: {
           created_at?: string
           id?: string
-          member_id?: number
-          role_id?: string
+          member_id?: number | null
+          role?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "public_ev_member_role_member_id_fkey"
+            foreignKeyName: "ev_member_role_member_id_fkey"
             columns: ["member_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "ev_member"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "public_ev_member_role_role_id_fkey"
-            columns: ["role_id"]
+            foreignKeyName: "ev_member_role_role_fkey"
+            columns: ["role"]
             isOneToOne: false
             referencedRelation: "ev_role"
             referencedColumns: ["id"]
@@ -501,17 +501,14 @@ export type Database = {
         Row: {
           created_at: string
           id: string
-          name: string
         }
         Insert: {
           created_at?: string
-          id?: string
-          name: string
+          id: string
         }
         Update: {
           created_at?: string
           id?: string
-          name?: string
         }
         Relationships: []
       }
@@ -519,25 +516,29 @@ export type Database = {
         Row: {
           created_at: string
           id: string
-          permission: string
-          role_id: string
+          role: string | null
         }
         Insert: {
           created_at?: string
-          id?: string
-          permission: string
-          role_id: string
+          id: string
+          role?: string | null
         }
         Update: {
           created_at?: string
           id?: string
-          permission?: string
-          role_id?: string
+          role?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "public_ev_role_permissions_role_id_fkey"
-            columns: ["role_id"]
+            foreignKeyName: "ev_role_permissions_role_fkey"
+            columns: ["role"]
+            isOneToOne: false
+            referencedRelation: "ev_role"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ev_role_permissions_role_fkey1"
+            columns: ["role"]
             isOneToOne: false
             referencedRelation: "ev_role"
             referencedColumns: ["id"]
@@ -678,6 +679,35 @@ export type Database = {
           message?: string | null
         }
         Relationships: []
+      }
+      member_rank: {
+        Row: {
+          created_at: string
+          id: number
+          member_id: number | null
+          rank_number: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          member_id?: number | null
+          rank_number?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          member_id?: number | null
+          rank_number?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_rank_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "ev_member"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       posts: {
         Row: {
@@ -850,12 +880,16 @@ export type Database = {
       raid_resets: {
         Row: {
           created_at: string
+          created_by: number | null
+          days: Json
           end_date: string | null
+          end_time: string | null
           id: string
           image_url: string | null
           max_delay_days: number | null
           min_lvl: number | null
           modified_at: string | null
+          modified_by: number | null
           name: string | null
           raid_date: string
           raid_id: string | null
@@ -865,12 +899,16 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          created_by?: number | null
+          days?: Json
           end_date?: string | null
+          end_time?: string | null
           id?: string
           image_url?: string | null
           max_delay_days?: number | null
           min_lvl?: number | null
           modified_at?: string | null
+          modified_by?: number | null
           name?: string | null
           raid_date: string
           raid_id?: string | null
@@ -880,12 +918,16 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          created_by?: number | null
+          days?: Json
           end_date?: string | null
+          end_time?: string | null
           id?: string
           image_url?: string | null
           max_delay_days?: number | null
           min_lvl?: number | null
           modified_at?: string | null
+          modified_by?: number | null
           name?: string | null
           raid_date?: string
           raid_id?: string | null
@@ -894,6 +936,20 @@ export type Database = {
           time?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "raid_resets_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "ev_member"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "raid_resets_modified_by_fkey"
+            columns: ["modified_by"]
+            isOneToOne: false
+            referencedRelation: "ev_member"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "raid_resets_raid_id_fkey"
             columns: ["raid_id"]
@@ -1046,6 +1102,12 @@ export type Database = {
         }
         Returns: string
       }
+      id_text: {
+        Args: {
+          id_column: string
+        }
+        Returns: string
+      }
       is_user_alloed_to_see_members: {
         Args: {
           tu_puta_madre_id: boolean
@@ -1064,6 +1126,30 @@ export type Database = {
           room_id: string
         }
         Returns: boolean
+      }
+      reset_id_starts_with: {
+        Args: {
+          id_prefix: string
+        }
+        Returns: {
+          created_at: string
+          created_by: number | null
+          days: Json
+          end_date: string | null
+          end_time: string | null
+          id: string
+          image_url: string | null
+          max_delay_days: number | null
+          min_lvl: number | null
+          modified_at: string | null
+          modified_by: number | null
+          name: string | null
+          raid_date: string
+          raid_id: string | null
+          reservations_closed: boolean | null
+          status: string | null
+          time: string | null
+        }[]
       }
       run_weekly_raids: {
         Args: Record<PropertyKey, never>

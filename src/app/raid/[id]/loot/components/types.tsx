@@ -6,6 +6,7 @@ export type RaidLoot = {
     character: string;
     offspec: number;
     item: Item;
+    isPlus?: boolean;
 }
 export type Item = {
     name: string;
@@ -14,8 +15,11 @@ export type Item = {
     tooltip: string;
     spells: any[];
     id: number;
+    isPlus?: boolean;
 }
 export type CharacterWithLoot = {
     character: string;
+    character_id?: number;
     loot: RaidLoot[];
+    plusses: number;
 }

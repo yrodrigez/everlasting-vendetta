@@ -51,7 +51,6 @@ export async function getRealmCharacters({token}: {
     token: string
 }) {
     if (!token) {
-        console.log('NO token')
         throw new Error('fetchBattleNetWoWAccounts - token parameter is required')
     }
 
