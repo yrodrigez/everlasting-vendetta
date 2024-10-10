@@ -20,23 +20,26 @@ async function handleSubmit(formData: FormData) {
     if (!raid_id) {
         return
     }
+    try {
+        const csv = parseLootCsv(loot as string)
+        const lootObjects = convertLootCsvToObjects(csv)
 
-    const csv = parseLootCsv(loot as string)
-    const lootObjects = convertLootCsvToObjects(csv)
+        const {supabase} = createServerSession({cookies})
 
-    const {supabase} = createServerSession({cookies})
+        const {error} = await supabase
+            .from('ev_loot_history')
+            .insert(lootObjects.map((loot) => ({
+                ...loot,
+                raid_id
+            })))
 
-    const {error} = await supabase
-        .from('ev_loot_history')
-        .insert(lootObjects.map((loot) => ({
-            ...loot,
-            raid_id
-        })))
-
-    if (error) {
-        console.error(error)
-    } else {
-        redirect(`/raid/${raid_id}/loot`)
+        if (error) {
+            console.error(error)
+        } else {
+            redirect(`/raid/${raid_id}/loot`)
+        }
+    } catch (error) {
+        console.error('Error parsing loot csv', error)
     }
 }
 
