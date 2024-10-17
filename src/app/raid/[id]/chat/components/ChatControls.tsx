@@ -16,7 +16,7 @@ export function ChatControls({onSubmit, showRedirect}: {
             <Input placeholder="What's on your mind!?"
                    size={showRedirect ? 'sm' : 'md'}
                    value={currentMessage}
-                   onChange={(e) => setCurrentMessage(e.target.value)}
+                   onChange={(e) => setCurrentMessage(e.target?.value?.trim() ?? '')}
                    onKeyDown={(e) => {
                        if (e.key === 'Enter') {
                            if(!currentMessage) return
