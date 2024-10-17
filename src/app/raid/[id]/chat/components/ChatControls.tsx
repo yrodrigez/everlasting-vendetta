@@ -19,6 +19,7 @@ export function ChatControls({onSubmit, showRedirect}: {
                    onChange={(e) => setCurrentMessage(e.target.value)}
                    onKeyDown={(e) => {
                        if (e.key === 'Enter') {
+                           if(!currentMessage) return
                            onSubmit(currentMessage)
                            setCurrentMessage('')
                        }
@@ -31,7 +32,7 @@ export function ChatControls({onSubmit, showRedirect}: {
             >
                 <div>
                     <Button
-                        isDisabled={selectedCharacter?.isTemporal}
+                        isDisabled={selectedCharacter?.isTemporal || !currentMessage}
                         onClick={() => {
                             onSubmit(currentMessage)
                             setCurrentMessage('')
