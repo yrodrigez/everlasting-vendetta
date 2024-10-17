@@ -70,7 +70,7 @@ export function ChatContainer({resetId: id, showRedirect = false}: { resetId: st
                 },
                 async (payload: any) => {
                     const messageId = parseInt(payload.new.id)
-                    if(!messageId || isNaN(messageId)) return
+                    if (!messageId || isNaN(messageId)) return
 
                     if (messages.find(m => m.id === messageId)) {
                         return
@@ -104,9 +104,10 @@ export function ChatContainer({resetId: id, showRedirect = false}: { resetId: st
 
     const insertMessage = useCallback((message: string) => {
         if (!supabase || !selectedCharacter) return
+        if (!message?.trim()) return
         supabase.from(table).insert([
             {
-                content: message,
+                content: message.trim(),
                 reset_id: id,
                 character_id: selectedCharacter.id,
                 created_at: new Date()
