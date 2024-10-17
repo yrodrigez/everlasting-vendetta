@@ -16,6 +16,7 @@ export type Item = {
     spells: any[];
     id: number;
     isPlus?: boolean;
+    offspec?: boolean;
 }
 export type CharacterWithLoot = {
     character: string;

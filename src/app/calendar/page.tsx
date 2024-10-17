@@ -42,7 +42,7 @@ async function fetchMaxRaidResets(supabase: SupabaseClient, date: string | undef
     isNext: boolean
 }) {
     const raidResets = await supabase.from('raid_resets')
-        .select('raid_date, id, raid:ev_raid(name, min_level, image), time, end_date, modifiedBy:ev_member!modified_by(character), modified_at')[
+        .select('raid_date, id, raid:ev_raid(name, min_level, image), time, end_date, modifiedBy:ev_member!modified_by(character), modified_at, end_time')[
         options.isCurrent && !options.isPrevious && !options.isNext ? 'gte' :
             options.isPrevious ? 'lt' : 'gt'
         ](options.isPrevious ? 'raid_date' : 'end_date', moment(date).format('YYYY-MM-DD'))
@@ -57,6 +57,7 @@ async function fetchMaxRaidResets(supabase: SupabaseClient, date: string | undef
             end_date: string;
             modifiedBy: { character: { name: string } }
             modified_at: string
+            end_time: string
         }[]>();
 
 
@@ -133,7 +134,7 @@ export default async function Page({searchParams}: { searchParams: { d?: string,
         isPrevious: !!previous,
         isNext: !!next,
         isCurrent: !!current
-    })).map(async (raidReset: any) => {
+    })).map(async (raidReset) => {
         const raidRegistrations = await fetchRaidMembers(raidReset.id, supabase)
         return {...raidReset, raidRegistrations}
     }))
@@ -150,7 +151,7 @@ export default async function Page({searchParams}: { searchParams: { d?: string,
             </Link>
         </div>
         <div className="flex gap-3 flex-col justify-center items-center md:flex-wrap md:flex-row w-full">
-            {raidResets.map((raidReset: any, index: number) => {
+            {raidResets.map((raidReset, index: number) => {
                 return <RaidResetCard
                     raidEndDate={raidReset.end_date}
                     isEditable={user?.permissions?.some(p => p === 'reset.edit') && moment(raidReset.raid_date).isAfter(moment())}
@@ -163,6 +164,7 @@ export default async function Page({searchParams}: { searchParams: { d?: string,
                     raidRegistrations={raidReset.raidRegistrations}
                     modifiedBy={raidReset.modifiedBy?.character?.name}
                     lastModified={raidReset.modified_at}
+                    endTime={raidReset.end_time}
                 />
             })}
         </div>

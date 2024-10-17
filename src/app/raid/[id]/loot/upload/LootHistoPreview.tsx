@@ -51,6 +51,11 @@ export default function LootHistoPreview({reset_id}: { reset_id: string }) {
                 onBlur={(e) => {
                     mutate(e.target.value)
                 }}
+                onChange={(e) => {
+                    if (!data?.length) {
+                        mutate(e.target.value)
+                    }
+                }}
                 className="bg-wood text-default w-full p-2 rounded h-full"
                 name="loot" id="loot" cols={30} rows={10}></textarea>
             <div className="flex relative w-full h-full">

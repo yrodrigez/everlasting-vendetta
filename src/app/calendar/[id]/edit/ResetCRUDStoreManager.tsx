@@ -9,8 +9,8 @@ export function ResetCRUDStoreManager({reset, children}: { reset: any, children:
         setRaid(reset.raid)
         setStartDate(new Date(reset.raid_date))
         setEndDate(new Date(reset.end_date))
-        setStartTime(reset.time)
-        setEndTime(reset.end_time)
+        setStartTime(reset.time ?? '20:30')
+        setEndTime(reset.end_time ?? '00:00')
         setDays(reset.days)
     }, []);
 

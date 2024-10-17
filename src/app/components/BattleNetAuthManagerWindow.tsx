@@ -25,10 +25,8 @@ async function getBnetCharacters(): Promise<Character[] | null> {
 
 const useFetchCharacters = (token: { value: string }, onOpen: () => void, logout: (force: any) => void) => {
     const setCharacters = useCharacterStore(state => state.setCharacters);
-    const characters = useCharacterStore(state => state.characters);
     const selectedCharacter = useCharacterStore(state => state.selectedCharacter);
     const setSelectedCharacter = useCharacterStore(state => state.setSelectedCharacter);
-    const lastUpdated = useCharacterStore(state => state.lastUpdated);
     const setLastUpdated = useCharacterStore(state => state.setLastUpdated);
     const clearCharacterStore = useCharacterStore(state => state.clear);
 
@@ -58,7 +56,12 @@ const useFetchCharacters = (token: { value: string }, onOpen: () => void, logout
         const selectedRole = selectedCharacter?.selectedRole;
 
         if (updatedSelectedCharacter) {
-            setSelectedCharacter({...updatedSelectedCharacter, avatar: '/avatar-anon.png', selectedRole});
+            setSelectedCharacter({
+                ...updatedSelectedCharacter,
+                avatar: '/avatar-anon.png',
+                selectedRole,
+                isAdmin: selectedCharacter?.isAdmin
+            });
         }
 
         setLastUpdated(Date.now());
@@ -68,18 +71,21 @@ const useFetchCharacters = (token: { value: string }, onOpen: () => void, logout
     const {data: heroes, error, isFetching, refetch} = useQuery({
         queryKey: ['bnetCharacters', token?.value],
         enabled: !!token?.value,
-        queryFn: async ()=> {
+        queryFn: async () => {
             console.log('fetching characters')
-            if(selectedCharacter && selectedCharacter.isTemporal) {
+            if (selectedCharacter && selectedCharacter.isTemporal) {
                 return [{...selectedCharacter}]
             }
 
-            return await getBnetCharacters();
+            return (await getBnetCharacters())?.map(character => ({
+                ...character,
+                isAdmin: selectedCharacter?.isAdmin && selectedCharacter.id === character.id,
+            }));
         },
         retry: (failureCount, error) => {
             const MAX_COUNT = 8;
             console.error('Error fetching data:', error);
-            if(failureCount > MAX_COUNT) {
+            if (failureCount > MAX_COUNT) {
                 toast.error('Failed to fetch profile from Battle.net', {
                     duration: 2500,
                     onDismiss: logout,

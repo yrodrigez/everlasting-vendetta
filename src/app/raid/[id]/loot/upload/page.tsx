@@ -56,10 +56,7 @@ export default async function Page({params}: { params: { id: string } }) {
     }
 
     return (
-        <form
-            className="flex flex-col gap-4 w-full h-full"
-            action={handleSubmit}
-        >
+        <form className="flex flex-col gap-4 w-full h-full" action={handleSubmit}>
             <input type="hidden" name="raid_id" value={params.id}/>
             <div className="flex h-[90%] w-full">
                 <LootHistoPreview reset_id={params.id}/>

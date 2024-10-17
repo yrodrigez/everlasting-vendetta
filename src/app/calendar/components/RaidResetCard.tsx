@@ -24,7 +24,8 @@ export function RaidResetCard({
                                   raidEndDate,
                                   isEditable = false,
                                   modifiedBy,
-                                  lastModified
+                                  lastModified,
+                                  endTime
                               }: {
     id?: string,
     raidDate: string,
@@ -36,6 +37,7 @@ export function RaidResetCard({
     isEditable?: boolean
     modifiedBy?: string
     lastModified?: string
+    endTime: string
 }) {
     const router = useRouter()
     const participants = id ? useParticipants(id, raidRegistrations) : []
@@ -59,13 +61,14 @@ export function RaidResetCard({
             <CardHeader className="flex flex-col  shadow-xl bg-[rgba(0,0,0,.60)]">
                 <h4 className="font-bold text-large text-gold">{raidName}</h4>
                 <small
-                    className="text-primary">{moment(raidDate).format('dddd, MMMM D')} - {raidTime.substring(0, 5)} to {'00:00'}</small>
+                    className="text-primary">{moment(raidDate).format('dddd, MMMM D')} - {raidTime.substring(0, 5)} to {endTime?.substring(0, 5)}</small>
             </CardHeader>
             <CardBody className="py-1 bg-[rgba(0,0,0,.60)] flex flex-col relative">
                 <RaidTimeInfo
                     raidEndDate={raidEndDate}
                     raidDate={raidDate}
                     raidTime={raidTime}
+                    raidEndTime={endTime}
                 />
                 {id && <KpisView
                   participants={participants}
@@ -73,8 +76,8 @@ export function RaidResetCard({
                   raidInProgress={moment().isBetween(moment(raidDate), moment(raidDate).add(1, 'days'))}
                 />}
                 {modifiedBy && <Tooltip
-                    isDisabled={!lastModified}
-                    content={lastModified && `Last modified: ${moment(lastModified).format('dddd, MMMM D, YYYY - HH:mm:ss')}`}>
+                  isDisabled={!lastModified}
+                  content={lastModified && `Last modified: ${moment(lastModified).format('dddd, MMMM D, YYYY - HH:mm:ss')}`}>
                   <small className="text-primary absolute bottom-1 right-4 select-none">Modified
                     by: {modifiedBy}</small>
                 </Tooltip>}

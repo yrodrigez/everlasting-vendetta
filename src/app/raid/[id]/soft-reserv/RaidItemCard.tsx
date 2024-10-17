@@ -18,9 +18,9 @@ export const ItemTooltip = ({item, qualityColor}: {
         <Image src={item.description.icon} alt={item.name} width={40} height={40}
                className={`max-h-[40px] max-w-[40px] w-[40px] h-[40px] border border-${qualityColor} rounded absolute top-0 -left-10`}/>
         <div
-            className={`bg-black border border-${qualityColor} rounded max-w-64 p-2`}
+            className={`bg-black border border-${qualityColor} rounded max-w-64 p-2 select-none`}
             dangerouslySetInnerHTML={{
-                __html: item.description.tooltip
+                __html: item.description.tooltip.replaceAll(/<a/g,'<span').replaceAll(/<\/a/g,'</span')
             }}/>
     </div>
 }
@@ -74,20 +74,6 @@ export function RaidItemCard({item, reserve, remove, reservedBy, isClicked, setI
     const {isDesktop} = useScreenSize()
 
     useEffect(() => {
-        if (ref.current) {
-            if (widthAndHeight.width === ref.current.clientWidth && widthAndHeight.height === ref.current.clientHeight) return
-            const currentHeight = ref.current.clientHeight + 20
-            const currentWidth = ref.current.clientWidth
-            if (currentHeight > widthAndHeight.height || currentWidth > widthAndHeight.width) {
-                setWidthAndHeight({
-                    width: currentWidth,
-                    height: currentHeight + 20
-                })
-            }
-        }
-    }, [ref.current, isClicked]);
-
-    useEffect(() => {
         if (!isClicked) {
             setShowReservedBy(false)
         }
@@ -96,13 +82,7 @@ export function RaidItemCard({item, reserve, remove, reservedBy, isClicked, setI
     const TooltipContent = () => {
         return (<div
             ref={ref}
-            className={`flex items-center justify-center gap-2 bg-gradient-${qualityColor} border-${qualityColor} p-2 rounded h-full min-h-64 ${isDesktop ? '' : 'w-full h-full'}`}
-            style={
-                isDesktop && widthAndHeight.width && widthAndHeight.height ?
-                    {
-                        width: widthAndHeight.width,
-                        height: widthAndHeight.height
-                    } : {}}
+            className={`flex items-center justify-center gap-2 bg-gradient-${qualityColor} border-${qualityColor} p-2 rounded min-h-64 w-full h-full`}
         >
             {showReservedBy ? <ReservedByList reservedBy={reservedBy ?? []}/> : <>
                 <div className="w-8"/>
@@ -133,17 +113,6 @@ export function RaidItemCard({item, reserve, remove, reservedBy, isClicked, setI
                     </Button>
                 </div>
                 <div className="flex flex-col gap-2 h-fit">
-                    {reserve ? (<Button
-                            onClick={() => {
-                                reserve(item.id).then(() => {
-                                })
-                            }}
-                            isIconOnly
-                            className={`bg-moss text-default rounded border border-moss`}
-                        >
-                            <FontAwesomeIcon icon={faCartPlus}/>
-                        </Button>)
-                        : null}
                     {remove ? (<Button
                         onClick={() => {
                             remove(item.id).then(() => {
@@ -155,6 +124,18 @@ export function RaidItemCard({item, reserve, remove, reservedBy, isClicked, setI
                     >
                         <FontAwesomeIcon icon={faTrash}/>
                     </Button>) : null}
+                    {reserve ? (<Button
+                            onClick={() => {
+                                reserve(item.id).then(() => {
+                                })
+                            }}
+                            isIconOnly
+                            className={`bg-moss text-default rounded border border-moss`}
+                        >
+                            <FontAwesomeIcon icon={faCartPlus}/>
+                        </Button>)
+                        : null}
+
                 </div>
             </div>
         </div>)
@@ -162,42 +143,30 @@ export function RaidItemCard({item, reserve, remove, reservedBy, isClicked, setI
 
     return (
         <>
-            <Tooltip
-                className={`bg-transparent h-fit shadow-none border-none`}
-                showArrow
-                // @ts-ignore - shadow-none is in the types
-                shadow="none"
-                content={<TooltipContent/>}
-                placement="top"
-                isOpen={isClicked && isDesktop}
-            >
-                <div
-                    onClick={() => {
-                        setIsClicked(item.id)
-                    }}
-                    className={`flex justify-center p-2 mt-4 rounded-md w-24 lg:w-32 h-24 bg-gradient-to-b border-2 border-${qualityColor} transition-all cursor-pointer bg-gradient-${qualityColor}`}>
-                    <div className="relative flex flex-col gap-2 items-center justify-center pt-6">
-                        <Image src={item.description.icon} alt={item.name}
-                               width={46} height={46}
-                               className={`absolute -top-5 rounded-md border border-${qualityColor} min-w-10 max-w-10 min-h-10 max-h-10`}
-                        />
-                        <span className="text-xs font-bold">{item.name}</span>
-                    </div>
+            <div
+                onClick={() => {
+                    setIsClicked(item.id)
+                }}
+                className={`flex justify-center p-2 mt-4 rounded-md w-24 lg:w-32 h-24 bg-gradient-to-b border-2 border-${qualityColor} transition-all cursor-pointer bg-gradient-${qualityColor}`}>
+                <div className="relative flex flex-col gap-2 items-center justify-center pt-6">
+                    <Image src={item.description.icon} alt={item.name}
+                           width={46} height={46}
+                           className={`absolute -top-5 rounded-md border border-${qualityColor} min-w-10 max-w-10 min-h-10 max-h-10`}
+                    />
+                    <span className="text-xs font-bold">{item.name}</span>
                 </div>
-            </Tooltip>
-            {!isDesktop && (
-                <Modal
-                    placement="center"
-                    isOpen={isClicked}
-                    hideCloseButton={true}
-                >
-                    <ModalContent>
-                        {() => {
-                            return <TooltipContent/>
-                        }}
-                    </ModalContent>
-                </Modal>
-            )}
+            </div>
+            <Modal
+                placement="center"
+                isOpen={isClicked}
+                scrollBehavior={'outside'}
+                size={'sm'}
+                hideCloseButton={true}
+            >
+                <ModalContent>
+                    {() => <TooltipContent/>}
+                </ModalContent>
+            </Modal>
         </>
     )
 }

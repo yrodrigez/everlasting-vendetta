@@ -3,7 +3,6 @@ import {useCharacterStore} from "@/app/components/characterStore";
 import {useRouter, usePathname} from "next/navigation";
 import {useSessionStore} from "@/app/hooks/useSessionStore";
 import sessionManager from "@/app/hooks/SessionManager";
-import {clearAllCookies} from "@/app/util";
 
 
 export function useSession() {

@@ -1,15 +1,17 @@
 'use client'
-import moment from "moment/moment";
+import moment from "moment-timezone";
 import {RaidTimer} from "@/app/raid/components/RaidTimer";
 
 
-export default function RaidTimeInfo({raidDate, raidTime, raidEndDate}: {
+export default function RaidTimeInfo({raidDate, raidTime, raidEndDate, raidEndTime}: {
     raidDate: string,
     raidTime: string,
     raidEndDate: string
+    raidEndTime: string
 }) {
-    const raidDateTime = moment(`${raidDate} ${raidTime}`, 'YYYY-MM-DD HH:mm')
-    const isRaidOver = moment().isAfter(moment(`${raidEndDate} ${raidTime}`, 'YYYY-MM-DD HH:mm'))
+    const raidDateTime = moment(`${raidDate} ${raidTime}`, 'YYYY-MM-DD HH:mm:ss')
+
+    const isRaidOver = moment.tz('Europe/Madrid').clone().isAfter(moment(`${raidEndDate} ${raidEndTime === '00:00:00' ? '23:59:59' : raidEndTime}`, 'YYYY-MM-DD HH:mm:ss').tz('Europe/Madrid'))
     const diff = raidDateTime.diff(moment())
     const duration = moment.duration(diff)
     const dayOfRaid = moment(raidDateTime).format('YYYY-MM-DD')

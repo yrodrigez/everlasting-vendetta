@@ -23,6 +23,7 @@ export default function TimeManager() {
                 className="max-w-[400px]"
                 isDisabled={!raid}
                 hourCycle={24}
+                value={timeEnd}
                 onChange={(time) => setEndTime(moment(time).format('HH:mm'))}
                 label="End Time" defaultValue={new Time(0, 0)}/>
         </div>

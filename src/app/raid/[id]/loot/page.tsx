@@ -2,7 +2,6 @@ import {cookies} from "next/headers";
 import React from "react";
 import {type SupabaseClient} from "@supabase/auth-helpers-nextjs";
 import {CharacterWithLoot, RaidLoot} from "@/app/raid/[id]/loot/components/types";
-import {LootItem} from "@/app/raid/[id]/loot/components/LootItem";
 import Link from "next/link";
 import {faArrowLeft} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -12,6 +11,7 @@ import createServerSession from "@utils/supabase/createServerSession";
 import {GUILD_REALM_SLUG} from "@utils/constants";
 import {LootHistory} from "@/app/raid/[id]/loot/components/LootHistory";
 import {fetchItemDataFromWoWHead, groupByCharacter} from "@/app/raid/[id]/loot/util";
+import {RaidParticipant} from "@/app/types/RaidParticipant";
 
 
 async function fetchLootHistory(supabase: SupabaseClient, raidId: string): Promise<RaidLoot[]> {
@@ -30,8 +30,10 @@ async function fetchLootHistory(supabase: SupabaseClient, raidId: string): Promi
 async function fetchParticipants(supabase: SupabaseClient, raidId: string): Promise<CharacterWithLoot[]> {
     const {error, data} = await supabase
         .from('ev_raid_participant')
-        .select('character:ev_member(*)')
+        .select('character:ev_member(*), details')
         .eq('raid_id', raidId)
+        .neq('details->>status', 'declined')
+        .returns<RaidParticipant[]>()
 
     if (error) {
         return []
@@ -42,7 +44,8 @@ async function fetchParticipants(supabase: SupabaseClient, raidId: string): Prom
             character: d.character.character.name,
             character_id: d.character.id,
             loot: [],
-            plusses: 0
+            plusses: 0,
+            status: d.details?.status ?? 'unknown'
         }
     })
 }
@@ -133,7 +136,7 @@ export default async function ({params}: { params: { id: string } }) {
                     isPlus: false
                 }
             }
-            const isPlus = await isItemPlus(supabase, loot.itemID, loot.raid_id, c.character_id)
+            const isPlus = loot.offspec === 0 && await isItemPlus(supabase, loot.itemID, loot.raid_id, c.character_id)
             return {
                 ...loot,
                 isPlus

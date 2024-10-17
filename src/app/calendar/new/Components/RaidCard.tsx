@@ -26,6 +26,7 @@ export function RaidCard() {
                 raidEndDate={moment(endDate).format('YYYY-MM-DD') ?? moment().add(7, 'days').format('YYYY-MM-DD')}
                 raidTime={startTime ? startTime : '20:30'}
                 raidRegistrations={[]}
+                endTime={endTime}
             />
 
             <div className={'flex flex-col'}>

@@ -21,7 +21,6 @@
     "paths": {
       "@/*": ["./src/*"],
       "@utils/*": ["./src/app/util/*"],
-      "@types/*": ["./src/app/types/*"],
       "@services/*": ["./src/app/services/*"],
       "@hooks/*": ["./src/app/hooks/*"],
     }

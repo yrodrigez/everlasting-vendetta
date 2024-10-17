@@ -86,7 +86,7 @@ export function ExtraReserveButton({resetId}: { resetId: string }) {
             }
         })(status);
         return (
-            <Chip className="capitalize min-w-20" color={color}
+            <Chip className={`capitalize min-w-20 text-${color}`} color={color}
                   size="sm"
                   variant="flat"
 
@@ -144,7 +144,9 @@ export function ExtraReserveButton({resetId}: { resetId: string }) {
                     {() => (
                         <>
                             <ModalHeader>
-                                Add extra reserve
+                                <h1
+                                    className="text-center text-gold text-2xl"
+                                >Add extra reserve</h1>
                             </ModalHeader>
                             <ModalBody>
                                 {members?.map((participation) => {

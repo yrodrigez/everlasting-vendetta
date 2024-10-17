@@ -1,5 +1,4 @@
 import {CharacterWithLoot} from "@/app/raid/[id]/loot/components/types";
-import {LootItem} from "@/app/raid/[id]/loot/components/LootItem";
 import {CharacterViewOptions} from "@/app/roster/[name]/components/CharacterViewOptions";
 import LootHistoryList from "@/app/raid/[id]/loot/components/LootHistoryList";
 

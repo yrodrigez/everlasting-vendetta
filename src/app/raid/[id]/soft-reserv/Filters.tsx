@@ -1,8 +1,9 @@
 import {useFiltersStore} from "@/app/raid/[id]/soft-reserv/filtersStore";
-import {Button, Chip, Input, Tooltip} from "@nextui-org/react";
+import {Button, Chip, Input, Modal, ModalContent, Tooltip} from "@nextui-org/react";
 import React, {useState} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faClose, faFilter} from "@fortawesome/free-solid-svg-icons";
+import useScreenSize from "@hooks/useScreenSize";
 
 const FilterContainer = ({children}: { children: React.ReactNode }) => {
     return <div className="flex w-full gap-2 p-2 flex-wrap">{children}</div>
@@ -113,6 +114,7 @@ export function Filters() {
     const [advancedFiltersOpen, setAdvancedFiltersOpen] = useState(false)
     const {inventoryType, itemSubClass, qualityName, itemClass} = useFiltersStore(state => state)
     const isUsingAdvancedFilters = (((inventoryType?.length ?? 0) > 0) || ((itemSubClass?.length ?? 0) > 0)) || ((qualityName?.length ?? 0) > 0) || ((itemClass?.length ?? 0) > 0)
+    const {isDesktop} = useScreenSize()
     return (
         <div
             className={`flex flex-row gap-2 items-center w-full`}
@@ -121,10 +123,9 @@ export function Filters() {
                 placement="left"
                 isOpen={advancedFiltersOpen}
                 className="bg-dark rounded border border-dark-100"
+                isDisabled={!isDesktop}
                 content={(
-                    <div
-                        className={`flex flex-col gap-2 w-96 relative`}
-                    >
+                    <div className={`flex flex-col gap-2 w-96 relative`}>
                         <Button
                             isIconOnly
                             className="absolute -top-1 -right-2 text-gold"
@@ -183,7 +184,36 @@ export function Filters() {
                     if (name !== e.target.value) setName(e.target.value)
                 }}
                 label="Filter" id="filter" type="filter"/>
-
+            <Modal
+                isOpen={advancedFiltersOpen && !isDesktop}
+                onClose={() => setAdvancedFiltersOpen(false)}
+                className={`bg-transparent border-none shadow-none`}
+                hideCloseButton
+                scrollBehavior="outside"
+            >
+                <ModalContent>
+                    {(onClose) => (
+                        <div className={`flex gap-2 p-2 relative justify-center `}>
+                            <Button
+                                isIconOnly
+                                className="absolute top-2 right-8 text-gold"
+                                onClick={onClose}
+                                variant="light"
+                                size="sm"
+                            >
+                                <FontAwesomeIcon icon={faClose}/>
+                            </Button>
+                            <div
+                                className={`w-96 border border-gold rounded-lg p-2 bg-dark bg-blend-color select-none`}>
+                                <ItemClassFilter/>
+                                <ItemSubClassFilter/>
+                                <InventoryTypeFilter/>
+                                <QualityFilter/>
+                            </div>
+                        </div>
+                    )}
+                </ModalContent>
+            </Modal>
         </div>
     )
 }

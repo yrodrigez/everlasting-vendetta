@@ -1,5 +1,6 @@
 'use client'
-import moment from "moment";
+import moment from "moment-timezone"
+
 import {useSession} from "@/app/hooks/useSession";
 import {
     Dropdown,
@@ -255,6 +256,7 @@ export default function AssistActions({
                                           endDate,
                                           participants,
                                           hasLootReservations = false,
+                                          endTime,
                                           days = [WEEK_DAYS.WEDNESDAY, WEEK_DAYS.SATURDAY]
                                       }: {
     raidId: string,
@@ -263,10 +265,11 @@ export default function AssistActions({
     participants: any[]
     hasLootReservations?: boolean
     days?: string[]
+    endTime: string
 }) {
     const {selectedCharacter, session, loading: isSessionLoading} = useSession()
     const selectedRole = selectedCharacter?.selectedRole
-    const {addDay, removeDay, selectedDays, clearDays,setDays} = useAssistanceStore(state => state)
+    const {addDay, removeDay, selectedDays, clearDays, setDays} = useAssistanceStore(state => state)
 
     useEffect(() => {
         const currentParticipant = (participants ?? []).find((p: any) => p?.member?.character?.name === selectedCharacter?.name)
@@ -281,8 +284,8 @@ export default function AssistActions({
 
     const {isMobile} = useScreenSize()
 
-    if (moment().isAfter(moment(endDate).endOf('day'))) {
-        return <div className="text-red-500 flex items-center min-h-20">Raid has ended</div>
+    if (moment.tz('Europe/Madrid').isAfter(moment(`${endDate} ${endTime === '00:00:00' ? '23:59:59' : endTime}`, 'YYYY-MM-DD HH:mm:ss').tz('Europe/Madrid'))) {
+        return <div className="text-red-500 flex items-center min-h-20"></div>
     }
 
     if (isSessionLoading) {
@@ -312,21 +315,11 @@ export default function AssistActions({
 
 
     return (
-        <div className={
-            'grid gap-2'
-        }>
-            <div className={'flex gap-2 flex-wrap'}>
-                <Tooltip
-                    content={`Select the days first`}
-                    isDisabled={selectedDays?.length > 0}
-                    placement={'right'}
-                >
-                    <div>
-                        <ConfirmAssistance
-                            hasLootReservations={hasLootReservations}
-                            raidId={raidId}/>
-                    </div>
-                </Tooltip>
+        <div className={'grid gap-2'}>
+            <div className={'flex gap-2 flex-wrap max-w-[500px]'}>
+                <ConfirmAssistance
+                    hasLootReservations={hasLootReservations}
+                    raidId={raidId}/>
                 {isMobile ? (
                     <Dropdown>
                         <DropdownTrigger>
@@ -363,7 +356,6 @@ export default function AssistActions({
                     <DeclineAssistance raidId={raidId}/>
                 </>}
             </div>
-
             <Tooltip
                 className="animate-blink-and-glow border-gold border rounded-lg p-4"
                 content={

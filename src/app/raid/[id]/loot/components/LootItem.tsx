@@ -3,12 +3,10 @@ import {type CharacterWithLoot, type Item} from "@/app/raid/[id]/loot/components
 import {useWoWZamingCss} from "@/app/hooks/useWoWZamingCss";
 import Image from "next/image";
 import Link from "next/link";
-import {Modal, ModalContent, Tooltip, useDisclosure} from "@nextui-org/react";
-import {faCheck, faPlus} from "@fortawesome/free-solid-svg-icons";
+import {Modal, ModalContent, Skeleton, Tooltip, useDisclosure} from "@nextui-org/react";
+import {faCheck, faMasksTheater, faPlus} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {useEffect, useState} from "react";
 import {useQuery} from "@tanstack/react-query";
-
 
 export const ItemWithTooltip = ({item}: { item: Item }) => {
     const {isOpen, onOpen, onOpenChange, onClose} = useDisclosure()
@@ -24,9 +22,11 @@ export const ItemWithTooltip = ({item}: { item: Item }) => {
         <>
             <Tooltip
                 className={`bg-black border border-${qualityColor} rounded-lg max-w-64`}
-                isDisabled={!item.isPlus}
+                isDisabled={!item.isPlus && !item.offspec}
                 content={
-                    'Plus'
+                   item.isPlus ? 'Plus'
+                     : item.offspec ? 'Offspec'
+                        : 'Main spec'
                 }
                 placement="top"
                 showArrow
@@ -38,9 +38,9 @@ export const ItemWithTooltip = ({item}: { item: Item }) => {
                         className={`rounded-lg border border-${qualityColor} block bg-cover  min-h-10 min-w-10`}
                         src={item.icon} width={36} height={36} alt={item.name}
                     />
-                    {item.isPlus && <div
+                    {(item.isPlus || item.offspec) && <div
                       className={`absolute -top-1 -right-1 text-gold border-gold border px-1 rounded-full text-xs bg-dark`}>
-                      <FontAwesomeIcon icon={item.isPlus ? faPlus : faCheck}/>
+                      <FontAwesomeIcon icon={item.isPlus ? faPlus : faMasksTheater}/>
                     </div>
                     }
                 </div>
@@ -48,7 +48,7 @@ export const ItemWithTooltip = ({item}: { item: Item }) => {
             <Modal
                 isOpen={isOpen}
                 onClose={onClose}
-                className={`bg-transparent`}
+                className={`bg-transparent border-none shadow-none`}
             >
                 <ModalContent>
                     {() =>
@@ -69,23 +69,62 @@ export const ItemWithTooltip = ({item}: { item: Item }) => {
     )
 }
 
-export function LootItem({loot}: { loot: CharacterWithLoot }) {
-    useWoWZamingCss() // This is a custom hook that loads the WoW Zaming CSS
+const CharacterAvatar = ({characterName}: { characterName: string }) => {
 
-    const {data: characterAvatar, isLoading} = useQuery({
-        queryKey: ['characterAvatar', loot.character],
+    const {data: characterAvatar, isLoading, error} = useQuery({
+        queryKey: ['characterAvatar', characterName],
         queryFn: async () => {
-            if (loot.character === '_disenchanted') {
+            if (characterName === '_disenchanted') {
                 return 'unknown'
             }
 
-            const data = await fetch(`${window.location.origin}/api/v1/services/member/avatar/get?characterName=${encodeURIComponent(loot.character.toLowerCase())}`)
+            const data = await fetch(`/api/v1/services/member/avatar/get?characterName=${encodeURIComponent(characterName.toLowerCase())}`)
             const response = await data.json()
             return response.avatar
         },
-        enabled: loot.character !== '_disenchanted',
-        staleTime: 1000 * 60 * 60 * 24,
+        enabled: characterName !== '_disenchanted',
+        staleTime: 1000 * 60 * 60 * 24, // 24 hours
     })
+
+    return characterName === '_disenchanted' ? (
+        <Tooltip
+            className={`bg-black border border-gold rounded max-w-64`}
+            content='Disenchanted'
+        >
+            <div
+                className={
+                    `flex flex-col items-center gap-2 p-2`
+                }
+            >
+                <Image className={`rounded-lg border border-gold`} src={'/disenchant.jpg'}
+                       alt={'Disenchanted'} width={64} height={64}/>
+                <div className={`whitespace-pre p-1`}>Disenchanted</div>
+            </div>
+        </Tooltip>
+    ) : (
+        <Link
+            className={
+                `flex flex-col items-center p-2`
+            }
+            href={`/roster/${encodeURIComponent(characterName.toLowerCase())}`}>
+            {error ? <span>Error!</span> : (
+                <Skeleton isLoaded={!isLoading}
+                          className="w-16 h-16 rounded-full border border-gold bg-cover flex items-center justify-center">
+                    <Image
+                        className={`rounded-full border border-gold block bg-cover relative`}
+                        src={(characterName === 'unknown' || !characterName || !characterAvatar) ? '/avatar-anon.png' : characterAvatar}
+                        width={64}
+                        height={64} alt={characterName}
+                    />
+                </Skeleton>
+            )}
+            <div className={`whitespace-pre p-1`}>{characterName}</div>
+        </Link>
+    )
+}
+
+export function LootItem({loot}: { loot: CharacterWithLoot }) {
+    useWoWZamingCss() // This is a custom hook that loads the WoW Zaming CSS
 
     return (
         <div className={`rounded-lg flex flex-col gap-2 items-center border border-gold w-64 bg-dark relative`}>
@@ -95,41 +134,10 @@ export function LootItem({loot}: { loot: CharacterWithLoot }) {
                     {loot.plusses}
                 </div>
             )}
-            {
-                loot.character === '_disenchanted' ? (
-                    <Tooltip
-                        className={`bg-black border border-gold rounded max-w-64`}
-                        content='Disenchanted'
-                    >
-                        <div
-                            className={
-                                `flex flex-col items-center gap-2 p-2`
-                            }
-                        >
-                            <Image className={`rounded-lg border border-gold`} src={'/disenchant.jpg'}
-                                   alt={'Disenchanted'} width={36} height={36}/>
-                            <div className={`whitespace-pre p-1`}>Disenchanted</div>
-                        </div>
-                    </Tooltip>
-                ) : (
-                    <Link
-                        className={
-                            `flex flex-col items-center p-2`
-                        }
-                        href={`/roster/${encodeURIComponent(loot.character.toLowerCase())}`}>
-                        {<Image
-                            className={`rounded-full border border-gold block bg-cover relative`}
-                            src={(characterAvatar === 'unknown' || isLoading) ? '/avatar-anon.png' : characterAvatar}
-                            width={64}
-                            height={64} alt={loot.character}
-                        />}
-                        <div className={`whitespace-pre p-1`}>{loot.character}</div>
-                    </Link>
-                )
-            }
-            <div className={`flex gap-2 p-2 overflow-auto scrollbar-pill w-full justify-around`}>
+            <CharacterAvatar characterName={loot.character}/>
+            <div className={`flex gap-2 p-2 m-2 overflow-auto scrollbar-pill w-full justify-around border-2 border-transparent`}>
                 {loot.loot.map((item, i) => {
-                    return <ItemWithTooltip key={i} item={{...item.item, id: item.itemID, isPlus: item.isPlus}}/>
+                    return <ItemWithTooltip key={item.id} item={{...item.item, id: item.itemID, isPlus: item.isPlus, offspec: item.offspec === 1}}/>
                 })}
             </div>
         </div>

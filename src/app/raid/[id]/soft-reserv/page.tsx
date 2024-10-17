@@ -25,6 +25,7 @@ type RaidQueryResult = {
     raid_date: string;
     time: string;
     end_date: string;
+    end_time: string;
 };
 
 export async function generateMetadata({params}: { params: { id: string } }): Promise<Metadata> {
@@ -33,13 +34,14 @@ export async function generateMetadata({params}: { params: { id: string } }): Pr
     // Fetch the raid reset data
     const resetData = await supabase
         .from('raid_resets')
-        .select('raid:ev_raid(name, image), raid_date, time, end_date')
+        .select('raid:ev_raid(name, image), raid_date, time, end_date, end_time')
         .eq('id', params.id)
         .single<{
             raid: Raid;
             raid_date: string;
             time: string;
             end_date: string;
+            end_time: string;
         }>();
 
     if (!resetData.data) {
@@ -111,7 +113,7 @@ export default async function Page({params}: { params: { id: string } }) {
 
     const resetData = await database
         .from('raid_resets')
-        .select('raid_id, raid:ev_raid(min_level, name, image, reservation_amount), raid_date, time, end_date')
+        .select('raid_id, raid:ev_raid(min_level, name, image, reservation_amount), raid_date, time, end_date, end_time')
         .eq('id', resetId)
         .single<RaidQueryResult>()
 
@@ -183,6 +185,7 @@ export default async function Page({params}: { params: { id: string } }) {
                                 raidDate={resetData.data.raid_date}
                                 raidTime={resetData.data.time}
                                 raidEndDate={resetData.data.end_date}
+                                raidEndTime={resetData.data.end_time}
                             />
                         </div>
                         <YourReservations

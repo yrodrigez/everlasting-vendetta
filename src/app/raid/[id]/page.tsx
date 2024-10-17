@@ -8,14 +8,17 @@ import AssistActions from "@/app/raid/components/AssistActions";
 import RaidTimeInfo from "@/app/raid/components/RaidTimeInfo";
 import {KpisView} from "@/app/raid/components/KpisView";
 import {redirect} from "next/navigation";
-import {faCartPlus, faGift} from "@fortawesome/free-solid-svg-icons";
+import {faArrowUpRightFromSquare, faCartPlus, faGift, faPaperPlane} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 import {RaidOptions} from "@/app/raid/components/RaidOptions";
-import {Button, Tooltip} from "@nextui-org/react";
-import {getLoggedInUserFromAccessToken} from "@/app/util";
+import {Input, Tooltip} from "@nextui-org/react";
 import {faDiscord} from "@fortawesome/free-brands-svg-icons";
 import {Metadata} from "next";
+import createServerSession from "@utils/supabase/createServerSession";
+import {Button} from "@/app/components/Button";
+import {router} from "next/client";
+import {ChatContainer} from "@/app/raid/[id]/chat/components/ChatContainer";
 
 const raidResetAttr = 'raid_date, id, raid:ev_raid(name, min_level, image), time, end_date, end_time, days'
 export const dynamic = 'force-dynamic'
@@ -64,9 +67,9 @@ async function fetchCurrentReset(supabase: any) {
 
 
 async function fetchResetFromId(supabase: any, id: string) {
-    const {data, error} = await supabase.rpc('reset_id_starts_with', { id_prefix: `${id}%` })
+    const {data, error} = await supabase.rpc('reset_id_starts_with', {id_prefix: `${id}%`})
 
-    if(error) {
+    if (error) {
         return {error}
     }
 
@@ -126,25 +129,13 @@ export async function generateMetadata({params}: { params: { id: string } }): Pr
 }
 
 export default async function ({params}: { params: { id: string } }) {
-    const isLoggedInUser = cookies().get('evToken')
-
-    const supabaseOptions = isLoggedInUser ? {
-        options: {
-            global: {
-                headers: {
-                    Authorization: `Bearer ${isLoggedInUser.value}`
-                }
-            }
-        }
-    } : {}
-
-    const supabase = createServerComponentClient({cookies}, supabaseOptions)
+    const {supabase, auth} = createServerSession({cookies})
+    const isLoggedInUser = await auth.getSession()
 
     const {
         data,
         error
     } = params.id === 'next' ? (await fetchNextReset(supabase)) : params.id === 'current' ? (await fetchCurrentReset(supabase)) : (await fetchResetFromId(supabase, params.id))
-
 
     if (error) {
         if (error.message.indexOf('Not valid base64url') > -1) {
@@ -182,11 +173,10 @@ export default async function ({params}: { params: { id: string } }) {
     const hasLoot = await supabase.from('ev_loot_history').select('id').eq('raid_id', id).limit(1)
 
     let hasLootReservations = false
-    if (isLoggedInUser) {
-        const loggedInUser = getLoggedInUserFromAccessToken(isLoggedInUser.value)
+    if (isLoggedInUser?.id) {
         hasLootReservations = !!(await supabase.from('raid_loot_reservation')
             .select('id')
-            .eq('member_id', loggedInUser?.id)
+            .eq('member_id', isLoggedInUser.id)
             .eq('reset_id', id)
             .limit(1))?.data?.length
     }
@@ -196,19 +186,27 @@ export default async function ({params}: { params: { id: string } }) {
 
     return (
         <div className="w-full h-full flex flex-col relative">
-            <h4 className="font-bold text-large text-gold">{raidName}</h4>
-            <small className="text-primary">Start {raidDate} - {raidTime} to {endTime}</small>
-            <small className="text-primary">End: {end_date}</small>
-            <KpisView
-                raidInProgress={raidInProgress}
-                participants={participants}
-                raidId={id}
-            />
-            <RaidTimeInfo
-                raidTime={raidTime}
-                raidDate={raidDate}
-                raidEndDate={end_date}
-            />
+            <div className="w-full h-full flex max-w-[950px]">
+                <div className="w-full h-full flex flex-col">
+                    <h4 className="font-bold text-large text-gold">{raidName}</h4>
+                    <small className="text-primary">Start {raidDate} - {raidTime} to {endTime}</small>
+                    <small className="text-primary">End: {end_date}</small>
+                    <KpisView
+                        raidInProgress={raidInProgress}
+                        participants={participants}
+                        raidId={id}
+                    />
+                    <RaidTimeInfo
+                        raidTime={raidTime}
+                        raidDate={raidDate}
+                        raidEndDate={end_date}
+                        raidEndTime={endTime}
+                    />
+                </div>
+                <div className="w-full h-full flex flex-col p-2 gap-2 max-w-[460px] max-h-[192px]">
+                    <ChatContainer resetId={id} showRedirect={true}/>
+                </div>
+            </div>
             <AssistActions
                 hasLootReservations={hasLootReservations}
                 raidId={id}
@@ -216,6 +214,7 @@ export default async function ({params}: { params: { id: string } }) {
                 endDate={end_date}
                 participants={participants}
                 days={days}
+                endTime={endTime}
             />
             <RaidParticipants
                 raidInProgress={raidInProgress}
@@ -223,7 +222,7 @@ export default async function ({params}: { params: { id: string } }) {
                 raidId={id}
                 days={days}
             />
-            <div className="absolute top-4 right-4 z-50 flex flex-col items-center gap-2">
+            <div className="absolute top-2 right-2 z-50 flex flex-col items-center gap-2 max-h-[200px]">
                 <RaidOptions
                     currentResetId={id}
                     hasLoot={!!hasLoot?.data?.length}
