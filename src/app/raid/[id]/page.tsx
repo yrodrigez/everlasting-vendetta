@@ -186,7 +186,7 @@ export default async function ({params}: { params: { id: string } }) {
 
     return (
         <div className="w-full h-full flex flex-col relative">
-            <div className="w-full h-full flex max-w-[950px]">
+            <div className="w-full  flex max-w-[950px]">
                 <div className="w-full h-full flex flex-col">
                     <h4 className="font-bold text-large text-gold">{raidName}</h4>
                     <small className="text-primary">Start {raidDate} - {raidTime} to {endTime}</small>

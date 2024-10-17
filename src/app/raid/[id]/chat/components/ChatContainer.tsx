@@ -65,22 +65,29 @@ export function ChatContainer({resetId: id, showRedirect = false}: { resetId: st
             .on('postgres_changes', {
                     event: '*',
                     schema: 'public',
-                    table: 'chat_messages',
+                    table: table,
                     filter: `reset_id=eq.${id}`
                 },
                 async (payload: any) => {
-                    const id = payload.new.id
-                    if (messages.find(m => m.id === id)) {
+                    const messageId = parseInt(payload.new.id)
+                    if(!messageId || isNaN(messageId)) return
+
+                    if (messages.find(m => m.id === messageId)) {
                         return
                     }
                     const {data: message, error} = await supabase
                         .from(table)
                         .select(tableFields)
-                        .eq('id', id)
-                        .single()
+                        .eq('id', messageId)
+                        .eq('reset_id', id)
+                        .maybeSingle()
 
                     if (error) {
                         console.error(error)
+                        return
+                    }
+
+                    if (!message) {
                         return
                     }
 

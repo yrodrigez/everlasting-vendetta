@@ -1,7 +1,7 @@
 import {create as createStore} from "zustand";
 
 export type ChatMessage = {
-    id: string;
+    id: number;
     character: {
         id: number;
         name: string;
