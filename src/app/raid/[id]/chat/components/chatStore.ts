@@ -27,7 +27,10 @@ const initialState = {
 
 export const useChatStore = createStore<ChatMessageStore>((set) => ({
     ...initialState,
-    addMessage: (message: ChatMessage) => set((state) => ({messages: [...state.messages, message]})),
+    addMessage: (message: ChatMessage) => set((state) => {
+        if (state.messages.find(m => m.id === message.id)) return state // don't add duplicates
+        return ({messages: [...state.messages, message]})
+    }),
     setMessages: (messages: ChatMessage[]) => set({messages}),
     setCurrentMessage: (currentMessage) => set({currentMessage})
 }));
