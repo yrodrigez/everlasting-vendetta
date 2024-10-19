@@ -1,11 +1,6 @@
 import {getRoleIcon} from "@/app/apply/components/utils";
 import {
     Button,
-    Modal,
-    ModalBody,
-    ModalContent,
-    ModalFooter,
-    ModalHeader,
     Spinner,
     useDisclosure
 } from "@nextui-org/react";
@@ -13,7 +8,6 @@ import {useAssistanceStore} from "@/app/raid/components/assistanceStore";
 import {useSession} from "@/app/hooks/useSession";
 import {useState} from "react";
 import {assistRaid} from "@/app/raid/components/utils";
-import {useRouter} from "next/navigation";
 
 import {ShouldReserveModal} from "@/app/raid/components/ShouldReserveModal";
 

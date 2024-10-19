@@ -73,7 +73,7 @@ export default async function Page() {
         ...character,
         updated_at
     })).reduce((acc, character) => {
-        // should add the character if doesn't exist or if the character is more recent
+        // should add the character if it doesn't exist or if the character is more recent
         const existingCharacter = acc.find((c) => c.name === character.name)
         if (!existingCharacter) {
             return [...acc, character]

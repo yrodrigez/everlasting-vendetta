@@ -2,7 +2,7 @@
 import {Tooltip} from "@nextui-org/react";
 import {useReservations} from "@/app/raid/[id]/soft-reserv/useReservations";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faArrowLeft, faLock, faLockOpen, faUserTie} from "@fortawesome/free-solid-svg-icons";
+import {faArrowLeft, faLock, faLockOpen} from "@fortawesome/free-solid-svg-icons";
 import {ExportToGargul} from "@/app/raid/[id]/soft-reserv/ExportToGargul";
 import {ShowReservations} from "@/app/raid/[id]/soft-reserv/ShowReservations";
 import Link from "next/link";

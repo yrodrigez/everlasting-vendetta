@@ -1,7 +1,6 @@
 import {Button, Spinner} from "@nextui-org/react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faBan} from "@fortawesome/free-solid-svg-icons";
-import {useAssistanceStore} from "@/app/raid/components/assistanceStore";
 import {useSession} from "@/app/hooks/useSession";
 import {useState} from "react";
 import {assistRaid} from "@/app/raid/components/utils";
@@ -17,7 +16,7 @@ export default function DeclineAssistance({raidId}: { raidId: string }) {
     return (
         <Button
             disabled={loading}
-
+            isIconOnly={isMobile}
             isDisabled={loading}
             onClick={() =>
                 (async () => {
@@ -26,13 +25,13 @@ export default function DeclineAssistance({raidId}: { raidId: string }) {
                     setLoading(false)
                 })()
             }
-            className={`bg-red-800 text-white rounded ${isMobile ? 'w-full' : ''}`}
+            className={`bg-red-800 text-white rounded flex-1`}
             endContent={
                 loading ? <Spinner size='sm' color='success'/> :
                     <FontAwesomeIcon icon={faBan}/>
             }
         >
-            Decline
+            {isMobile ? '' : 'Decline'}
         </Button>
     )
 

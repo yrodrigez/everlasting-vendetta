@@ -1,7 +1,6 @@
 'use client'
 import {useEffect, useState} from "react";
 import {type RaidItem} from "@/app/raid/[id]/soft-reserv/types";
-import SimpleListContainer from "@/app/raid/[id]/soft-reserv/SimpleListContainer";
 import {useReservations} from "@/app/raid/[id]/soft-reserv/useReservations";
 import {Reservation} from "@/app/raid/[id]/soft-reserv/types";
 import {RaidItemCard} from "@/app/raid/[id]/soft-reserv/RaidItemCard";
@@ -95,11 +94,10 @@ export default function RaidItemsList({items, initialReservedItems, resetId}: {
     }, []);
 
     return (
-        <div className="flex flex-col gap-3 w-full">
+        <div className="flex flex-col gap-3 w-full h-full">
             <Filters/>
-            <SimpleListContainer
-                minus={100}
-                className="flex gap-2 p-2 flex-wrap w-full"
+            <div
+                className="flex gap-2 p-2 flex-wrap w-full h-full overflow-auto scrollbar-pill"
             >
                 {filteredItems.length === 0 && <div className="text-center w-full h-full flex flex-col items-center ">
                   <span>No items found. Try removing some filters!</span>
@@ -122,7 +120,7 @@ export default function RaidItemsList({items, initialReservedItems, resetId}: {
                         reserve={isReservationsOpen ? reserve : undefined}
                     />
                 ))}
-            </SimpleListContainer>
+            </div>
         </div>
     )
 }

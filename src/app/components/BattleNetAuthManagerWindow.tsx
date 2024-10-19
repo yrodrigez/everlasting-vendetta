@@ -68,7 +68,7 @@ const useFetchCharacters = (token: { value: string }, onOpen: () => void, logout
         if (shouldOpen) onOpen();
     }, [onOpen, selectedCharacter, setCharacters, setLastUpdated, setSelectedCharacter]);
 
-    const {data: heroes, error, isFetching, refetch} = useQuery({
+    const {data: heroes, error, isFetching} = useQuery({
         queryKey: ['bnetCharacters', token?.value],
         enabled: !!token?.value,
         queryFn: async () => {

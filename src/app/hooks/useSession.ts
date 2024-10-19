@@ -12,7 +12,6 @@ export function useSession() {
         supabase,
         setSupabase,
         bnetToken,
-        setBnetToken,
         tokenUser,
         setTokenUser,
         session,

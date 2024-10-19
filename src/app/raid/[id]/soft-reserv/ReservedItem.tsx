@@ -6,7 +6,7 @@ import Image from "next/image";
 
 export function ReservedItem({reservation, belongsToLogged, remove, reservationsOpen, loading, showTooltip = true}: {
     reservation: Reservation,
-    belongsToLogged: boolean,
+    belongsToLogged?: boolean,
     remove?: (itemId: number) => Promise<void>
     reservationsOpen: boolean
     loading: boolean

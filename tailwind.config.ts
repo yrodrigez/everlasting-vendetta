@@ -45,7 +45,6 @@ const config: Config = {
         'bg-mage',
         'bg-warlock',
         'bg-druid',
-
     ],
     theme: {
         extend: {
@@ -78,6 +77,7 @@ const config: Config = {
                 stone: '#797467',
                 ['stone-100']: '#afad9a',
                 moss: '#3E5C4F',
+                ['moss-100']: '#5C7A6A',
                 sky: '#A2B5BB',
                 ivory: '#DBD2C3',
                 gold: '#C9A866',

@@ -1,6 +1,6 @@
 import CharacterItem from "@/app/components/CharacterItem";
 
-export function CharacterGear({gear, token, characterName }: {
+export function CharacterGear({gear, token }: {
     gear: { group1: any[], group2: any[], group3: any[] },
     token: string,
     characterName: string,

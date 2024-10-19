@@ -3,7 +3,7 @@ import {useEffect} from "react";
 
 const ResizeManager = () => {
     useEffect(() => {
-        const resize = () => {
+       /* const resize = () => {
             document.body.style.height = `${innerHeight}px`;
             const container = document.getElementById('content-container');
             container?.style.setProperty('height', `${innerHeight - 85}px`);
@@ -18,8 +18,8 @@ const ResizeManager = () => {
         return () => {
             window.removeEventListener('resize', resize);
             clearInterval(interval);
-        }
-    })
+        }*/
+    }, [])
     return null;
 }
 export default ResizeManager;

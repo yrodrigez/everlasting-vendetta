@@ -1,6 +1,5 @@
 'use client';
 import {useMutation} from "@tanstack/react-query";
-import {useEffect} from "react";
 import {
     convertLootCsvToObjects,
     fetchItemDataFromWoWHead,

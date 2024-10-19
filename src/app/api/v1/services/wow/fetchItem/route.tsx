@@ -3,12 +3,7 @@ import {cookies} from "next/headers";
 import {type NextRequest, NextResponse} from "next/server";
 import {createServerComponentClient, SupabaseClient} from "@supabase/auth-helpers-nextjs";
 import {getItemDisplayId} from "@/app/util/wowhead/getItemDisplayId";
-import {
-    BLIZZARD_API_LOCALE,
-    BLIZZARD_API_NAMESPACE,
-    BLIZZARD_API_BASE_URL,
-    BNET_COOKIE_NAME, BLIZZARD_API_STATIC_NAMESPACE, createBlizzardItemFetchUrl
-} from "@/app/util/constants";
+import {BNET_COOKIE_NAME, createBlizzardItemFetchUrl} from "@/app/util/constants";
 
 function knownItemLevelQuality(itemId: number) {
     const knownItemLevels = {
@@ -27,7 +22,7 @@ function knownItemLevelQuality(itemId: number) {
 
 }
 
-async function fetchItemDetails(token: string, itemId: number, locale: string = 'en_US') {
+async function fetchItemDetails(token: string, itemId: number) {
     const url = createBlizzardItemFetchUrl(itemId);
     let itemDetails = {quality: {}, level: knownItemLevelQuality(itemId)} as any;
 

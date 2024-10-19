@@ -4,7 +4,7 @@ import {useWoWZamingCss} from "@/app/hooks/useWoWZamingCss";
 import Image from "next/image";
 import Link from "next/link";
 import {Modal, ModalContent, Skeleton, Tooltip, useDisclosure} from "@nextui-org/react";
-import {faCheck, faMasksTheater, faPlus} from "@fortawesome/free-solid-svg-icons";
+import {faMasksTheater, faPlus} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {useQuery} from "@tanstack/react-query";
 

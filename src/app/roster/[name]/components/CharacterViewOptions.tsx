@@ -2,7 +2,7 @@
 import {type ReactNode, useState} from "react";
 
 
-const Option = ({label, children, selected, onClick}: {
+const Option = ({label, selected, onClick}: {
     label: string,
     children: ReactNode,
     selected: boolean,

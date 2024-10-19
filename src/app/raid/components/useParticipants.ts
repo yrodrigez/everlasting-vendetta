@@ -1,9 +1,21 @@
-import {useEffect, useState} from "react";
+import {useEffect} from "react";
 import {useSession} from "@/app/hooks/useSession";
+import {fetchResetParticipants} from "@/app/raid/api/fetchParticipants";
+import {useQuery} from "@tanstack/react-query";
+import {RaidParticipant} from "@/app/raid/api/types";
 
-export function useParticipants(raidId: string, initialParticipants: any[]) {
-    const [participants, setParticipants] = useState(initialParticipants)
+export function useParticipants(raidId: string, initialParticipants: RaidParticipant[]) {
     const {supabase} = useSession()
+
+    const {data: participants, refetch,} = useQuery({
+        queryKey: ['raid_participants', raidId],
+        queryFn: () => {
+            if (!supabase) return [] as RaidParticipant[]
+            return fetchResetParticipants(supabase, raidId)
+        },
+        initialData: initialParticipants,
+        enabled: !!supabase
+    })
 
     useEffect(() => {
         if (!supabase) return
@@ -14,14 +26,7 @@ export function useParticipants(raidId: string, initialParticipants: any[]) {
                 table: 'ev_raid_participant',
                 filter: `raid_id=eq.${raidId}`
             }, async ({}) => {
-                const {error, data} = await supabase
-                    .from('ev_raid_participant')
-                    .select('member:ev_member(character), is_confirmed, details, raid_id, created_at')
-                    .eq('raid_id', raidId)
-                if (error) {
-                    console.error(error)
-                }
-                setParticipants(data ?? [])
+                refetch()
             }).subscribe()
         return () => {
             supabase.removeChannel(raidParticipantChannel)

@@ -1,5 +1,5 @@
 'use client'
-import React, {useCallback, useEffect, useRef} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {
     Table,
     TableHeader,
@@ -20,7 +20,7 @@ import {useParticipants} from "@/app/raid/components/useParticipants";
 import {GUILD_NAME} from "@/app/util/constants";
 import {Button} from "@/app/components/Button";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faTrash} from "@fortawesome/free-solid-svg-icons";
+import {faPersonCircleCheck, faPersonCircleXmark, faTrash} from "@fortawesome/free-solid-svg-icons";
 
 const GuildMemberIndicator = (character: any) => {
 
@@ -70,6 +70,8 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
             }
         }
     }, [isMobile, isAdmin, selectedCharacter]);
+
+    const [onlyConfirmed, setOnlyConfirmed] = useState(true)
 
     const renderCell = useCallback((registration: any, columnKey: React.Key) => {
         const {name, avatar, playable_class} = registration.member?.character
@@ -194,7 +196,6 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
                         <Button
                             size="sm"
                             isIconOnly
-                            icon="trash"
                             onClick={() => {
                                 const memberId = registration.member.character.id
                                 const raidId = registration.raid_id
@@ -225,43 +226,64 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
     }, [selectedCharacter, supabase]);
 
     return (
-        <div className={'flex flex-1 mt-2 max-h-[500px]'}>
-            <Table isHeaderSticky>
-                <TableHeader columns={columns}>
-                    {(column) => (
-                        <TableColumn key={column.uid} align={"start"}>
-                            {column.name}
-                        </TableColumn>
-                    )}
-                </TableHeader>
-                <TableBody
-                    className="scrollbar-pill"
-                    emptyContent={"No one signed up yet."}
-                    items={stateParticipants.sort((a: any, b: any) => {
-                        const aCreated = new Date(a.created_at)
-                        const bCreated = new Date(b.created_at)
-                        return aCreated.getTime() - bCreated.getTime()
-                    }).map((x: any, index) => {
-                        return {
-                            ...x,
-                            position: index + 1
-                        }
-                    }).reduce((acc, curr) => {
-                        if (selectedCharacter?.id === curr.member.character.id) {
-                            return [curr, ...acc]
-                        }
-                        return [...acc, curr]
-                    }, [])}>
-                    {(item: any) => {
-                        return (
-                            <TableRow
-                                key={item.member.character.id}>
-                                {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
-                            </TableRow>
-                        )
-                    }}
-                </TableBody>
-            </Table>
-        </div>
+        <Table
+            className="w-full flex flex-col gap-2 scrollbar-pill overflow-auto"
+            isHeaderSticky
+            topContent={<div className="flex flex-row items-center gap-2 justify-center">
+                <Button
+                    className="flex-1"
+                    onClick={() => setOnlyConfirmed(true)}
+                    isDisabled={onlyConfirmed}
+                >
+                    {onlyConfirmed ? 'Showing only confirmed' : 'Show only confirmed '}
+                    <FontAwesomeIcon icon={faPersonCircleCheck}/>
+                </Button>
+                <Button
+                    className="flex-1"
+                    onClick={() => setOnlyConfirmed(false)}
+                    isDisabled={!onlyConfirmed}
+                >
+                    {onlyConfirmed ? 'Show all ' : 'Showing all '}
+                    <FontAwesomeIcon icon={faPersonCircleXmark}/>
+                </Button>
+            </div>}
+            topContentPlacement="outside"
+        >
+            <TableHeader columns={columns}>
+                {(column) => (
+                    <TableColumn key={column.uid} align={"start"}>
+                        {column.name}
+                    </TableColumn>
+                )}
+            </TableHeader>
+            <TableBody
+                className="scrollbar-pill"
+                emptyContent={"No one signed up yet."}
+                items={stateParticipants?.filter((x: any) => !onlyConfirmed || x.details.status === 'confirmed')
+                    .sort((a: any, b: any) => {
+                    const aCreated = new Date(a.created_at)
+                    const bCreated = new Date(b.created_at)
+                    return aCreated.getTime() - bCreated.getTime()
+                }).map((x: any, index) => {
+                    return {
+                        ...x,
+                        position: index + 1
+                    }
+                }).reduce((acc, curr) => {
+                    if (selectedCharacter?.id === curr.member.character.id) {
+                        return [curr, ...acc]
+                    }
+                    return [...acc, curr]
+                }, [])}>
+                {(item: any) => {
+                    return (
+                        <TableRow
+                            key={item.member.character.id}>
+                            {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+                        </TableRow>
+                    )
+                }}
+            </TableBody>
+        </Table>
     );
 }

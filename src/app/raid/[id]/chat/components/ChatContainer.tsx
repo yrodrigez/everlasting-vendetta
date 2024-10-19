@@ -1,8 +1,8 @@
 'use client';
-import {Input} from "@nextui-org/react";
+
 import {Button} from "@/app/components/Button";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faArrowUpRightFromSquare, faPaperPlane} from "@fortawesome/free-solid-svg-icons";
+import {faArrowUpRightFromSquare} from "@fortawesome/free-solid-svg-icons";
 import {useRouter} from "next/navigation";
 import {ChatControls} from "@/app/raid/[id]/chat/components/ChatControls";
 import {ChatMessages} from "@/app/raid/[id]/chat/components/ChatMessages";
@@ -136,7 +136,7 @@ export function ChatContainer({resetId: id, showRedirect = false}: { resetId: st
     </div>
 
     return (
-        <div className={`w-full h-full flex flex-col gap-2 relative ${showRedirect ? '' : 'px-14'} `}>
+        <div className={`w-full h-full flex flex-col gap-2 relative items-center ${showRedirect ? '' : ' max-w-[800px]'} grow`}>
             <ChatMessages messages={messages}/>
             <div className="w-full h-12 flex flex-col gap-2 items-baseline justify-end">
                 <ChatControls showRedirect={showRedirect} onSubmit={insertMessage}/>

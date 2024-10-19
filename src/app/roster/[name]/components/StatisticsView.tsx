@@ -1,7 +1,6 @@
 import {Health} from "@/app/roster/[name]/components/spell-svgs/Health";
 import {Stamina} from "@/app/roster/[name]/components/spell-svgs/Stamina";
 import {FireResistance} from "@/app/roster/[name]/components/spell-svgs/FireResistance";
-import {ShadowResistance} from "@/app/roster/[name]/components/spell-svgs/ShadowResistance";
 import {Defense} from "@/app/roster/[name]/components/spell-svgs/Defense";
 import {Strength} from "@/app/roster/[name]/components/spell-svgs/Strength";
 import {Agility} from "@/app/roster/[name]/components/spell-svgs/Agility";
@@ -9,6 +8,7 @@ import {Intellect} from "@/app/roster/[name]/components/spell-svgs/Intellect";
 import {Rage} from "@/app/roster/[name]/components/spell-svgs/Rage";
 import {Energy} from "@/app/roster/[name]/components/spell-svgs/Energy";
 import {Mana} from "@/app/roster/[name]/components/spell-svgs/Mana";
+
 function Power({amount, name}: { amount: number, name: string }) {
     const text = name === 'Rage' ? 'text-red-500' : name === 'Energy' ? 'text-yellow-500' : 'text-blue-500'
     const Icon = () => {
@@ -32,7 +32,7 @@ function Power({amount, name}: { amount: number, name: string }) {
     )
 }
 
-export function StatisticsView({character, statistics}: { character: any, statistics: any }) {
+export function StatisticsView({statistics}: { statistics: any }) {
     const characterStatistics = {
         health: statistics?.health || 0,
         power: {

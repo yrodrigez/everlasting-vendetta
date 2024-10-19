@@ -6,20 +6,20 @@ import {
     Dropdown,
     DropdownItem,
     DropdownMenu,
-    DropdownTrigger, Input,
-    Modal, ModalBody,
-    ModalContent, ModalFooter, ModalHeader,
+    DropdownTrigger,
+    Input,
+    Modal,
+    ModalBody,
+    ModalContent,
+    ModalFooter,
+    ModalHeader,
     Spinner,
-    Tooltip, useDisclosure
+    Tooltip,
+    useDisclosure
 } from "@nextui-org/react";
 import {useAssistanceStore} from "@/app/raid/components/assistanceStore";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {
-    faArrowDown,
-    faCheck,
-    faClock,
-    faPersonCircleQuestion
-} from "@fortawesome/free-solid-svg-icons";
+import {faArrowDown, faCheck, faClock, faPersonCircleQuestion} from "@fortawesome/free-solid-svg-icons";
 import {ConfirmAssistance} from "@/app/raid/components/ConfirmAssistance";
 import {LateAssistance} from "@/app/raid/components/LateAssistance";
 import {TentativeAssistance} from "@/app/raid/components/TentativeAssistance";
@@ -320,33 +320,6 @@ export default function AssistActions({
                 <ConfirmAssistance
                     hasLootReservations={hasLootReservations}
                     raidId={raidId}/>
-                {isMobile ? (
-                    <Dropdown>
-                        <DropdownTrigger>
-                            <Button
-                                isIconOnly
-                                className={'bg-wood text-default rounded border border-default/30'}
-                            >
-                                <FontAwesomeIcon icon={faPersonCircleQuestion}/>
-                            </Button>
-                        </DropdownTrigger>
-                        <DropdownMenu>
-                            <DropdownItem>
-                                <LateAssistance
-                                    hasLootReservations={hasLootReservations}
-                                    raidId={raidId}/>
-                            </DropdownItem>
-                            <DropdownItem>
-                                <TentativeAssistance
-                                    hasLootReservations={hasLootReservations}
-                                    raidId={raidId}/>
-                            </DropdownItem>
-                            <DropdownItem>
-                                <DeclineAssistance raidId={raidId}/>
-                            </DropdownItem>
-                        </DropdownMenu>
-                    </Dropdown>
-                ) : <>
                     <LateAssistance
                         hasLootReservations={hasLootReservations}
                         raidId={raidId}/>
@@ -354,7 +327,6 @@ export default function AssistActions({
                         hasLootReservations={hasLootReservations}
                         raidId={raidId}/>
                     <DeclineAssistance raidId={raidId}/>
-                </>}
             </div>
             <Tooltip
                 className="animate-blink-and-glow border-gold border rounded-lg p-4"

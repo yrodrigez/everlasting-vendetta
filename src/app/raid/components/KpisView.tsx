@@ -4,6 +4,7 @@ import React, {useEffect, useState} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import moment from "moment";
 import {useParticipants} from "@/app/raid/components/useParticipants";
+import {type RaidParticipant} from "@/app/raid/api/types";
 
 
 export const DpsIcon = ({className}: { className: string }) => <svg className={className}
@@ -15,7 +16,7 @@ export const DpsIcon = ({className}: { className: string }) => <svg className={c
 </svg>
 
 export function KpisView({participants, raidId, raidInProgress}: {
-    participants: any[],
+    participants: RaidParticipant[],
     raidId: string,
     raidInProgress: boolean
 }) {
@@ -27,15 +28,15 @@ export function KpisView({participants, raidId, raidInProgress}: {
         return _participant?.is_confirmed && _participant?.details?.role === role
     }
 
-    function findConfirmedByRole(role: string, _participants: any[], day: string) {
+    function findConfirmedByRole(role: string, _participants: RaidParticipant[], day: string) {
         return _participants.reduce((acc, participant) => acc + +(participant?.is_confirmed && !!findRoleAndDay(participant, role, day)), 0)
     }
 
-    function findConfirmedByDay(day: string, _participants: any[]) {
+    function findConfirmedByDay(day: string, _participants: RaidParticipant[]) {
         return _participants.reduce((acc, participant) => acc + +(participant?.is_confirmed), 0)
     }
 
-    function findNotConfirmed(day: string, _participants: any[]) {
+    function findNotConfirmed(day: string, _participants: RaidParticipant[]) {
         return _participants.reduce((acc, participant) => acc + +(!participant?.is_confirmed), 0)
     }
 
@@ -46,6 +47,7 @@ export function KpisView({participants, raidId, raidInProgress}: {
     const [declined, setDeclined] = useState(0)
 
     useEffect(() => {
+        if(!rtParticipants) return
         setTotalDps(findConfirmedByRole('dps', rtParticipants, currentDay))
         setTotalHealing(findConfirmedByRole('healer', rtParticipants, currentDay))
         setTotalTanking(findConfirmedByRole('tank', rtParticipants, currentDay))

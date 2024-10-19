@@ -24,7 +24,8 @@ export function TentativeAssistance({raidId, hasLootReservations = false}: {
         <>
             <Button
                 color={'secondary'}
-                className={`rounded ${isMobile ? 'w-full' : ''}`}
+                isIconOnly={isMobile}
+                className={`rounded flex-1`}
                 disabled={loading || !selectedDays?.length}
                 isDisabled={loading || !selectedDays?.length}
                 onClick={() =>
@@ -39,7 +40,7 @@ export function TentativeAssistance({raidId, hasLootReservations = false}: {
                         <FontAwesomeIcon icon={faQuestion}/>
                 }
             >
-                Tentative
+                {isMobile ? '' : 'Tentative'}
             </Button>
             <ShouldReserveModal raidId={raidId} isOpen={isOpen} onClose={onClose} onOpenChange={onOpenChange}/>
         </>

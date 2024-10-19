@@ -36,7 +36,7 @@ export default async function ({params}: { params: { id: string } }) {
     }
 
     return (
-        <div className="w-full h-full flex flex-col gap-2 relative">
+        <div className="w-full h-full flex flex-col gap-2 relative items-center justify-center">
             <ChatContainer resetId={params.id}/>
             <div
                 className="absolute top-0 left-0 opacity-20 hover:opacity-100 flex flex-col gap-2">

@@ -213,7 +213,7 @@ export default async function Page({params}: { params: { name: string } }) {
                 </div>
                 <div>
                     <Divider className="my-4 text-gray-500"/>
-                    <StatisticsView character={characterInfo} statistics={characterStatistics}/>
+                    <StatisticsView statistics={characterStatistics}/>
                     <Divider className="my-4"/>
                 </div>
                 <CharacterViewOptions

@@ -1,7 +1,6 @@
 import {Card, CardFooter} from "@nextui-org/react";
 import {BlackrockEruptionBanner} from "@/app/components/BlackrockEruptionBanner";
 import {Metadata} from "next";
-import WoWService from "@/app/services/wow-service";
 
 
 const intro = [

@@ -1,5 +1,5 @@
 import {Button} from "@/app/components/Button";
-import {faCartPlus, faCloudArrowUp} from "@fortawesome/free-solid-svg-icons";
+import {faCloudArrowUp} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {useSession} from "@/app/hooks/useSession";
 import {SupabaseClient} from "@supabase/auth-helpers-nextjs";
@@ -81,7 +81,7 @@ async function addItemToRaid(raidId?: string, item?: any, supabase?: SupabaseCli
 export function AddItem({resetId}: { resetId: string }) {
     const {supabase} = useSession()
     const {isOpen, onOpen, onClose, onOpenChange} = useDisclosure()
-    const [isWriting, setIsWriting] = useState(false)
+    const [_, setIsWriting] = useState(false)
     const timoutRef = useRef<NodeJS.Timeout | null>(null)
     const [itemId, setItemId] = useState<string | undefined>()
     const qualityColors = [
@@ -119,7 +119,7 @@ export function AddItem({resetId}: { resetId: string }) {
             size={'lg'}
             variant={'light'}
             isIconOnly
-            islLoading={isRaidFetching}
+            isLoading={isRaidFetching}
             isDisabled={isRaidFetching}
             onClick={onOpen}
         >

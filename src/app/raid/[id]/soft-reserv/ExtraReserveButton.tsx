@@ -1,10 +1,10 @@
 import {Button} from "@/app/components/Button";
-import {faMinus, faPlus, faSpinner, faUserPlus} from "@fortawesome/free-solid-svg-icons";
+import {faUserPlus} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {ModalBody, ModalContent, Modal, useDisclosure, ModalHeader, ModalFooter, Chip} from "@nextui-org/react";
 import {useSession} from "@/app/hooks/useSession";
 import {SupabaseClient} from "@supabase/auth-helpers-nextjs";
-import {useMutation, useQuery} from "@tanstack/react-query";
+import {useQuery} from "@tanstack/react-query";
 import Image from "next/image";
 import React, {useCallback} from "react";
 import Link from "next/link";

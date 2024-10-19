@@ -9,7 +9,7 @@ import {
     faGift,
     faCartPlus,
     faShareNodes,
-    faUpload, faComments
+    faUpload, faComments, faPersonCircleExclamation
 } from "@fortawesome/free-solid-svg-icons";
 import {useRouter} from "next/navigation";
 
@@ -21,6 +21,7 @@ const KEYS = {
     SOFT_RESERV: 'soft-reserv',
     SHARE: 'share',
     upload_loot: 'upload_loot',
+    otherStatuses: 'otherStatuses',
     chat: 'chat'
 }
 
@@ -140,6 +141,14 @@ export function RaidOptions({
                         Chat <FontAwesomeIcon icon={faComments}/>
                     </div>
                 </DropdownItem>
+                <DropdownItem
+                    key={KEYS.otherStatuses}
+                >
+                    <div className="flex items-center gap-2 justify-between">
+                        Not confirmed<FontAwesomeIcon icon={faPersonCircleExclamation} />
+                    </div>
+                </DropdownItem>
+
                 <DropdownItem
                     key={KEYS.upload_loot}
                 >

@@ -15,7 +15,7 @@ const initialState = {
     itemId: 0,
 }
 
-export const useSharedTooltipStore = create<SharedTooltipStore>((set) => ({
+create<SharedTooltipStore>((set) => ({
     ...initialState,
     setIsClicked: (isClicked: boolean) => set({isClicked}),
     setIsHovered: (isHovered: boolean) => set({isHovered}),

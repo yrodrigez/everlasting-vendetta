@@ -1,10 +1,10 @@
-import { Button as MuiButton } from '@nextui-org/react';
-import {ReactNode} from "react";
+import {Button as MuiButton, type ButtonProps} from '@nextui-org/react';
+import {type ReactNode} from "react";
 
 
-export function Button ({ children, ...props }: { children?: ReactNode, [key: string]: any}) {
+export function Button({children, ...props}: { children?: ReactNode } & ButtonProps) {
 
-    const defaultClassNames = 'bg-moss text-gold rounded'
+    const defaultClassNames = props.color ? '' : 'bg-moss text-gold rounded border border-moss-100'
 
     if (props.className) {
         props.className = `${defaultClassNames} ${props.className}`

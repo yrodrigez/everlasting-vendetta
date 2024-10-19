@@ -2,14 +2,12 @@
 import {Input} from "@nextui-org/react";
 import {useApplyFormStore} from "@/app/apply/components/store";
 import {useEffect, useState} from "react";
-import Link from "next/link";
 
 
 export function CharacterNameInput() {
     const {
         setName,
         setClass,
-        setIsFormDisabled,
         setCharacterExists
     } = useApplyFormStore()
     const name = useApplyFormStore(state => state.name)

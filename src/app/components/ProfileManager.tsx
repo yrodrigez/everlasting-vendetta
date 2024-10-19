@@ -128,7 +128,7 @@ export default function ProfileManager() {
     }
 
     return (<>
-        <Popover isOpen={popoverOpen} onOpenChange={(open) => setPopoverOpen(open)}>
+        <Popover isOpen={popoverOpen} onOpenChange={setPopoverOpen}>
             <PopoverTrigger>
                 <div
                     className="px-1 py-2 lg:px-2 lg:py-1 flex flex-col items-center rounded-xl hover:cursor-pointer hover:bg-white hover:bg-opacity-20 hover:backdrop-filter hover:backdrop-blur-md"
@@ -161,11 +161,9 @@ export default function ProfileManager() {
                         }}
                         icon={selectedCharacter && selectedCharacter.selectedRole ? getRoleIcon(selectedCharacter.selectedRole) : faPersonCircleQuestion}
                     />
-                    <MenuItem text={'My armory'} onClick={
-                        () => {
+                    <MenuItem text={'My armory'} onClick={() => {
                             window.location.href = `/roster/${selectedCharacter.name.toLowerCase()}`
-                        }
-                    } icon={faUser}/>
+                        }} icon={faUser}/>
                     <MenuItem text={'Logout'} onClick={logout} icon={faRightFromBracket}/>
                 </div>
             </PopoverContent>

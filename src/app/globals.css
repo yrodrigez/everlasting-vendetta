@@ -91,7 +91,7 @@ body > div[data-overlay-container="true"]:first-of-type {
 .border-bottom-image {
     border-bottom: 16px;
     border-style: solid;
-    border-image: url('/custom-border.png') 30 round;
+    border-image: url('/custom-border.png') 30 fill round;
 }
 
 body {

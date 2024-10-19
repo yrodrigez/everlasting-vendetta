@@ -20,7 +20,8 @@ export function LateAssistance({raidId, hasLootReservations}: { raidId: string, 
         <>
             <Button
                 color={'warning'}
-                className={`rounded ${isMobile ? 'w-full' : ''}`}
+                isIconOnly={isMobile}
+                className={`rounded flex-1`}
                 disabled={loading || !selectedDays?.length}
                 isDisabled={loading || !selectedDays?.length}
                 onClick={() =>
@@ -35,7 +36,7 @@ export function LateAssistance({raidId, hasLootReservations}: { raidId: string, 
                         <FontAwesomeIcon icon={faClock}/>
                 }
             >
-                Late
+                {isMobile ? '' : 'Late'}
             </Button>
             <ShouldReserveModal
                 raidId={raidId}

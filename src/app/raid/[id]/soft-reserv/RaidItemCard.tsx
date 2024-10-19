@@ -2,7 +2,7 @@ import {Character, RaidItem} from "@/app/raid/[id]/soft-reserv/types";
 import {useWoWZamingCss} from "@/app/hooks/useWoWZamingCss";
 import Image from "next/image";
 import {useEffect, useRef, useState} from "react";
-import {Button, Modal, Tooltip, ModalContent} from "@nextui-org/react";
+import {Button, Modal, ModalContent} from "@nextui-org/react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCartPlus, faClose, faObjectGroup, faTrash, faUserGroup} from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";

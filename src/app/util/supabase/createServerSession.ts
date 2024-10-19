@@ -45,7 +45,7 @@ export default function createServerSession({cookies}: { cookies: any }): {
         }
     }
 
-    async function getSession() {
+    async function getSession(): Promise<UserProfile> {
         const {
             data: roles,
             error: rolesError

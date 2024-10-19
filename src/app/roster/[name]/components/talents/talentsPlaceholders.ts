@@ -65,7 +65,6 @@ export type TalentsPlaceholder = {
     background: string
     talents: Talent[][]
 }
-export type TalentsPlaceholdersKeys = keyof TalentsPlaceholders;
 
 export const talentsPlaceholders: TalentsPlaceholders = {
     Druid: {

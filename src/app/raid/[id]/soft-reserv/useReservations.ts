@@ -1,5 +1,5 @@
 'use client'
-import {useEffect, useState} from "react";
+import {useEffect} from "react";
 import {useSession} from "@/app/hooks/useSession";
 import {raidLootReservationsColumns} from "@/app/raid/[id]/soft-reserv/supabase_config";
 import {type RaidItem, type Reservation, type Character} from "@/app/raid/[id]/soft-reserv/types";

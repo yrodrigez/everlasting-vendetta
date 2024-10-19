@@ -9,7 +9,7 @@ import moment from "moment-timezone";
 
 export function DaysSelection() {
     const availableDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun',] as Day[]
-    const {raid, days: selectedDays = [], setDays, startDate, setEndDate, endDate} = useCreateRaidStore(state => state)
+    const {raid, days: selectedDays = [], setDays, startDate, setEndDate} = useCreateRaidStore(state => state)
     const {isMobile} = useScreenSize()
 
     const calculateEndDate = useCallback(() => {

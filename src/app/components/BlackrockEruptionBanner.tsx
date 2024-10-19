@@ -19,7 +19,7 @@ export function BlackrockEruptionBanner() {
         setMounted(true);
         const interval = setInterval(() => {
             const spanishTime = moment.tz("Europe/Madrid");
-            // is live if the current hour is pair
+            // is live if the current hour is paired
             setIsLive(spanishTime.hour() % 2 === 0);
             // time remaining until the next eruption or to the next hour
 

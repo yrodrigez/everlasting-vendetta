@@ -1,5 +1,5 @@
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faCartPlus, faSpinner, faUserTie} from "@fortawesome/free-solid-svg-icons";
+import {faCartPlus, faUserTie} from "@fortawesome/free-solid-svg-icons";
 import {Button} from "@/app/components/Button";
 import {
     Input,

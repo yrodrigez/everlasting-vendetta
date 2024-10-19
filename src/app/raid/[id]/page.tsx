@@ -1,36 +1,26 @@
 import moment from "moment/moment";
 import {createServerComponentClient, SupabaseClient} from "@supabase/auth-helpers-nextjs";
-import {cookies, headers} from "next/headers";
+import {cookies} from "next/headers";
 import React from "react";
 
 import RaidParticipants from "@/app/raid/components/RaidParticipants";
 import AssistActions from "@/app/raid/components/AssistActions";
 import RaidTimeInfo from "@/app/raid/components/RaidTimeInfo";
 import {KpisView} from "@/app/raid/components/KpisView";
-import {redirect} from "next/navigation";
-import {faArrowUpRightFromSquare, faCartPlus, faGift, faPaperPlane} from "@fortawesome/free-solid-svg-icons";
+import {faCartPlus, faGift} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 import {RaidOptions} from "@/app/raid/components/RaidOptions";
-import {Input, Tooltip} from "@nextui-org/react";
+import {Tooltip} from "@nextui-org/react";
 import {faDiscord} from "@fortawesome/free-brands-svg-icons";
 import {Metadata} from "next";
 import createServerSession from "@utils/supabase/createServerSession";
 import {Button} from "@/app/components/Button";
-import {router} from "next/client";
 import {ChatContainer} from "@/app/raid/[id]/chat/components/ChatContainer";
+import {fetchResetParticipants} from "@/app/raid/api/fetchParticipants";
 
 const raidResetAttr = 'raid_date, id, raid:ev_raid(name, min_level, image), time, end_date, end_time, days'
 export const dynamic = 'force-dynamic'
-export type RaidResetFetch = {
-    raid_date: string,
-    id: string,
-    raid: { name: string, min_level: number, image: string },
-    time: string,
-    end_date: string,
-    end_time: string,
-    days: string[]
-}
 
 function findNextWednesday() {
     if (moment().day() === 3) {
@@ -138,31 +128,11 @@ export default async function ({params}: { params: { id: string } }) {
     } = params.id === 'next' ? (await fetchNextReset(supabase)) : params.id === 'current' ? (await fetchCurrentReset(supabase)) : (await fetchResetFromId(supabase, params.id))
 
     if (error) {
-        if (error.message.indexOf('Not valid base64url') > -1) {
-            const referer = headers().get('Referer')
-            const host = referer?.split('/').slice(0, 3).join('/')
-
-            redirect(host + '/api/v1/oauth/bnet/auth',)
-        }
-        return <div>
-            {JSON.stringify(error)}
-        </div>
+        console.error('Error fetching reset', error)
+        return <div>Could not find reset</div>
     }
-    const {data: participants, error: participantsError} = await supabase
-        .from('ev_raid_participant')
-        .select('member:ev_member(character), is_confirmed, details, raid_id, created_at')
-        .eq('raid_id', data.id)
 
-
-    if (participantsError) {
-        if (participantsError.message.indexOf('Not valid base64url') > -1) {
-            const host = headers().get('Referer')
-            redirect(host + '/api/v1/oauth/bnet/auth',)
-        }
-        return <div>
-            {JSON.stringify(participantsError)}
-        </div>
-    }
+    const participants = await fetchResetParticipants(supabase, data.id)
 
     const {id, raid_date: raidDate, raid, time: raidTime, end_date, end_time: endTime, days} = data
     const {name: raidName, min_level: min_lvl} = raid
@@ -185,8 +155,8 @@ export default async function ({params}: { params: { id: string } }) {
     const raidStarted = moment().isAfter(raidStartDate)
 
     return (
-        <div className="w-full h-full flex flex-col relative">
-            <div className="w-full  flex max-w-[950px]">
+        <div className="w-full h-full flex flex-col relative scrollbar-pill grow-0 overflow-auto">
+            <div className="w-full flex max-w-[950px] grow-0">
                 <div className="w-full h-full flex flex-col">
                     <h4 className="font-bold text-large text-gold">{raidName}</h4>
                     <small className="text-primary">Start {raidDate} - {raidTime} to {endTime}</small>
@@ -207,15 +177,17 @@ export default async function ({params}: { params: { id: string } }) {
                     <ChatContainer resetId={id} showRedirect={true}/>
                 </div>
             </div>
-            <AssistActions
-                hasLootReservations={hasLootReservations}
-                raidId={id}
-                minLvl={min_lvl}
-                endDate={end_date}
-                participants={participants}
-                days={days}
-                endTime={endTime}
-            />
+            <div className="flex grow-0">
+                <AssistActions
+                    hasLootReservations={hasLootReservations}
+                    raidId={id}
+                    minLvl={min_lvl}
+                    endDate={end_date}
+                    participants={participants}
+                    days={days}
+                    endTime={endTime}
+                />
+            </div>
             <RaidParticipants
                 raidInProgress={raidInProgress}
                 participants={participants}

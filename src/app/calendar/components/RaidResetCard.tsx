@@ -3,7 +3,7 @@ import {
     Card,
     CardBody,
     Image,
-    Button, Tooltip,
+    Tooltip
 } from "@nextui-org/react"
 import RaidTimeInfo from "@/app/raid/components/RaidTimeInfo";
 import {useRouter} from "next/navigation";
@@ -11,8 +11,16 @@ import {KpisView} from "@/app/raid/components/KpisView";
 import {CardFooter, CardHeader} from "@nextui-org/card";
 import {useParticipants} from "@/app/raid/components/useParticipants";
 import moment from "moment";
-import {faEdit} from "@fortawesome/free-solid-svg-icons";
+import {
+    faCircleCheck,
+    faCircleQuestion,
+    faCircleXmark,
+    faClock,
+    faEdit
+} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {Button} from "@/app/components/Button";
+import {useCallback} from "react";
 
 export function RaidResetCard({
                                   raidDate,
@@ -25,7 +33,8 @@ export function RaidResetCard({
                                   isEditable = false,
                                   modifiedBy,
                                   lastModified,
-                                  endTime
+                                  endTime,
+                                  registrationStatus
                               }: {
     id?: string,
     raidDate: string,
@@ -38,11 +47,33 @@ export function RaidResetCard({
     modifiedBy?: string
     lastModified?: string
     endTime: string
+    registrationStatus?: string
 }) {
     const router = useRouter()
     const participants = id ? useParticipants(id, raidRegistrations) : []
     const isRaidCurrent = moment().isBetween(moment(raidDate), moment(raidEndDate))
     const isToday = moment().format('YYYY-MM-DD') === moment(raidDate).format('YYYY-MM-DD')
+
+    const registrationStatusIcon = useCallback((registrationStatus: string) => {
+        if (registrationStatus === 'confirmed') {
+            return <FontAwesomeIcon icon={faCircleCheck} className="text-success"/>
+        }
+
+        if (registrationStatus === 'declined') {
+            return <FontAwesomeIcon icon={faCircleXmark} className="text-danger"/>
+        }
+
+        if (registrationStatus === 'tentative') {
+            return <FontAwesomeIcon icon={faCircleQuestion} className="text-secondary"/>
+        }
+
+        if (registrationStatus === 'late') {
+            return <FontAwesomeIcon icon={faClock} className="text-warning"/>
+        }
+
+
+        return null
+    }, [registrationStatus])
 
     return (
         <Card
@@ -71,18 +102,17 @@ export function RaidResetCard({
                     raidEndTime={endTime}
                 />
                 {id && <KpisView
-                  participants={participants}
+                  participants={participants || []}
                   raidId={id}
                   raidInProgress={moment().isBetween(moment(raidDate), moment(raidDate).add(1, 'days'))}
                 />}
                 {modifiedBy && <Tooltip
                   isDisabled={!lastModified}
                   content={lastModified && `Last modified: ${moment(lastModified).format('dddd, MMMM D, YYYY - HH:mm:ss')}`}>
-                  <small className="text-primary absolute bottom-1 right-4 select-none">Modified
-                    by: {modifiedBy}</small>
+                  <small className="text-primary absolute bottom-1 right-4 select-none">By: {modifiedBy}</small>
                 </Tooltip>}
             </CardBody>
-            <CardFooter className="bg-[rgba(0,0,0,.60)]">
+            <CardFooter className="bg-[rgba(0,0,0,.60)] flex gap-1">
                 {id && <Button
                   onClick={() => {
                       router.push(`/raid/${id}`)
@@ -91,21 +121,26 @@ export function RaidResetCard({
                 >
                   Open
                 </Button>}
-            </CardFooter>
-            {isEditable && (
-                <div className="absolute top-0 right-0 z-50">
+                {isEditable && (
                     <Button
                         isIconOnly
-                        className={'rounded bg-transparent text-default hover:bg-wood '}
-                        variant={'light'}
+                        className={`bg-wood border border-wood-100 text-stone-100`}
                         onClick={() => {
                             router.push(`/calendar/${id}/edit`)
                         }}
                     >
                         <FontAwesomeIcon icon={faEdit}/>
                     </Button>
-                </div>
-            )}
+                )}
+            </CardFooter>
+            {!!registrationStatus && <div className="absolute top-2 right-2 flex items-center gap-2 z-50">
+                <Tooltip
+                    content={registrationStatus}
+                    className="text-default capitalize"
+                >
+                {registrationStatusIcon(registrationStatus)}
+                </Tooltip>
+            </div>}
         </Card>
     );
 }

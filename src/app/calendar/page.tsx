@@ -9,20 +9,21 @@ import {Button} from "@/app/components/Button";
 import Link from "next/link";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faAdd, faArrowLeft, faArrowRight} from "@fortawesome/free-solid-svg-icons";
-import {createServerComponentClient} from "@/app/util/supabase/createServerComponentClient";
 import {type SupabaseClient} from "@supabase/auth-helpers-nextjs";
 import createServerSession from "@/app/util/supabase/createServerSession";
+import {fetchResetParticipants} from "@/app/raid/api/fetchParticipants";
 
 export const dynamic = 'force-dynamic'
 
 const MAX_RAID_RESETS = 9
 
+/*
 async function fetchRaidMembers(id: string, supabase: SupabaseClient) {
     const {data, error} = await supabase.from('ev_raid_participant')
         .select('member:ev_member(*), is_confirmed, raid_id, details')
         .eq('raid_id', id)
         .returns<{
-            member: { id: string, character: { name: string, realm: { slug: string } } },
+            member: { id: number, character: { name: string, realm: { slug: string } } },
             is_confirmed: boolean,
             raid_id: string,
             details: string
@@ -34,7 +35,7 @@ async function fetchRaidMembers(id: string, supabase: SupabaseClient) {
     }
 
     return data;
-}
+}*/
 
 async function fetchMaxRaidResets(supabase: SupabaseClient, date: string | undefined, options: {
     isCurrent: boolean;
@@ -135,8 +136,13 @@ export default async function Page({searchParams}: { searchParams: { d?: string,
         isNext: !!next,
         isCurrent: !!current
     })).map(async (raidReset) => {
-        const raidRegistrations = await fetchRaidMembers(raidReset.id, supabase)
-        return {...raidReset, raidRegistrations}
+        const raidRegistrations = await fetchResetParticipants(supabase, raidReset.id)
+
+        return {
+            ...raidReset,
+            raidRegistrations,
+            registrationStatus: raidRegistrations.find(r => r.member.id === user?.id)?.details?.status
+        }
     }))
 
     const previousWeeksPath = getPreviousWeeks(currentDate, raidResets[0]?.raid_date)
@@ -165,6 +171,7 @@ export default async function Page({searchParams}: { searchParams: { d?: string,
                     modifiedBy={raidReset.modifiedBy?.character?.name}
                     lastModified={raidReset.modified_at}
                     endTime={raidReset.end_time}
+                    registrationStatus={raidReset.registrationStatus}
                 />
             })}
         </div>
