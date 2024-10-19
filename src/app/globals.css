@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+.custom-h-full-minus-header {
+    @apply w-full;
+    height: calc(100% - 80px);
+}
+
 :root {
     --foreground-rgb: 219, 210, 195;
     --background-start-rgb: 19, 19, 19;

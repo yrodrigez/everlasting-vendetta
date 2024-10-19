@@ -38,19 +38,7 @@ export default function RootLayout({
               style={{width: '100%', height: '100vh', position: 'relative', display: 'block', flexDirection: 'column'}}>
         <Providers>
             <div className="block w-full h-full">
-
-                <div
-                    id="content-container"
-                    className="flex w-full h-full bg-no-repeat bg-center bg-cover pt-[80px]"
-                    style={{backgroundImage: "url('/banner.png')"}}>
-                    <div
-                        className="p-3 w-full h-full overflow-auto scrollbar-pill bg-[rgba(19,19,19,.78)] backdrop-filter backdrop-blur-sm justify-center items-center flex">
-                        <div className="flex flex-col md:max-w-[1000px] w-full h-full grow-0">
-                            {children}
-                        </div>
-                    </div>
-                </div>
-                <div className="fixed w-full h-[80px] top-0 right-0">
+                <div className="block w-full h-[80px] top-0 right-0">
                     <div
                         className="py-1 h-full w-full flex items-center justify-center border-b border-gold relative bg-[rgba(12,18,18)]">
                         <div className="md:max-w-[900px] flex items-center justify-between h-full">
@@ -65,6 +53,17 @@ export default function RootLayout({
                                 <HeaderMenuButton text="Roster"/>
                                 <HeaderMenuButton text="Calendar"/>
                             </div>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    id="content-container"
+                    className="flex w-full custom-h-full-minus-header bg-no-repeat bg-center bg-cover"
+                    style={{backgroundImage: "url('/banner.png')"}}>
+                    <div
+                        className="p-3 w-full h-full overflow-auto scrollbar-pill bg-[rgba(19,19,19,.78)] backdrop-filter backdrop-blur-sm justify-center items-center flex">
+                        <div className="flex flex-col md:max-w-[1000px] w-full h-full grow-0">
+                            {children}
                         </div>
                     </div>
                 </div>
