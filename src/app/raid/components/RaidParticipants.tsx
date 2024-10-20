@@ -190,9 +190,7 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
 
             case "admin":
                 return (
-                    <div
-                        className="w-full flex items-center gap-2"
-                    >
+                    <div className="w-full flex items-center gap-2">
                         <Button
                             size="sm"
                             isIconOnly
@@ -227,6 +225,11 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
 
     return (
         <Table
+            classNames={{
+                th: 'relative',
+                wrapper: "border border-wood-100 scrollbar-pill",
+
+            }}
             className="w-full flex flex-col gap-2 scrollbar-pill overflow-auto"
             isHeaderSticky
             topContent={<div className="flex flex-row items-center gap-2 justify-center">
@@ -249,9 +252,12 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
             </div>}
             topContentPlacement="outside"
         >
-            <TableHeader columns={columns}>
+            <TableHeader
+                className="shadow-gold shadow"
+                columns={columns}>
                 {(column) => (
                     <TableColumn key={column.uid} align={"start"}>
+                        <div className="border-y border-moss-100 absolute h-full w-full top-0 left-0 inline-block"/>
                         {column.name}
                     </TableColumn>
                 )}
@@ -261,20 +267,20 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
                 emptyContent={"No one signed up yet."}
                 items={stateParticipants?.filter((x: any) => !onlyConfirmed || x.details.status === 'confirmed')
                     .sort((a: any, b: any) => {
-                    const aCreated = new Date(a.created_at)
-                    const bCreated = new Date(b.created_at)
-                    return aCreated.getTime() - bCreated.getTime()
-                }).map((x: any, index) => {
-                    return {
-                        ...x,
-                        position: index + 1
-                    }
-                }).reduce((acc, curr) => {
-                    if (selectedCharacter?.id === curr.member.character.id) {
-                        return [curr, ...acc]
-                    }
-                    return [...acc, curr]
-                }, [])}>
+                        const aCreated = new Date(a.created_at)
+                        const bCreated = new Date(b.created_at)
+                        return aCreated.getTime() - bCreated.getTime()
+                    }).map((x: any, index) => {
+                        return {
+                            ...x,
+                            position: index + 1
+                        }
+                    }).reduce((acc, curr) => {
+                        if (selectedCharacter?.id === curr.member.character.id) {
+                            return [curr, ...acc]
+                        }
+                        return [...acc, curr]
+                    }, [])}>
                 {(item: any) => {
                     return (
                         <TableRow

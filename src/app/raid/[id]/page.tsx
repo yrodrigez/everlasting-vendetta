@@ -156,7 +156,8 @@ export default async function ({params}: { params: { id: string } }) {
 
     return (
         <div className="w-full h-full flex flex-col relative scrollbar-pill grow-0 overflow-auto">
-            <div className="w-full flex max-w-[950px] grow-0">
+            <div className="w-full flex grow-0 gap-4">
+
                 <div className="w-full h-full flex flex-col">
                     <h4 className="font-bold text-large text-gold">{raidName}</h4>
                     <small className="text-primary">Start {raidDate} - {raidTime} to {endTime}</small>
@@ -173,11 +174,8 @@ export default async function ({params}: { params: { id: string } }) {
                         raidEndTime={endTime}
                     />
                 </div>
-                <div className="w-full h-full flex flex-col p-2 gap-2 max-w-[460px] max-h-[192px]">
-                    <ChatContainer resetId={id} showRedirect={true}/>
-                </div>
             </div>
-            <div className="flex grow-0">
+            <div className="flex w-full">
                 <AssistActions
                     hasLootReservations={hasLootReservations}
                     raidId={id}
@@ -188,12 +186,17 @@ export default async function ({params}: { params: { id: string } }) {
                     endTime={endTime}
                 />
             </div>
-            <RaidParticipants
-                raidInProgress={raidInProgress}
-                participants={participants}
-                raidId={id}
-                days={days}
-            />
+            <div className="w-full h-full flex gap-2 lg:flex-row flex-col-reverse overflow-auto">
+                <RaidParticipants
+                    raidInProgress={raidInProgress}
+                    participants={participants}
+                    raidId={id}
+                    days={days}
+                />
+                {!!isLoggedInUser ? (<div className="w-full lg:max-w-80 flex-grow-0 max-h-fit">
+                    <ChatContainer raidName={`${raidName} (${raidDate})`} resetId={id} showRedirect={true}/>
+                </div>) : null}
+            </div>
             <div className="absolute top-2 right-2 z-50 flex flex-col items-center gap-2 max-h-[200px]">
                 <RaidOptions
                     currentResetId={id}

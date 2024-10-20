@@ -7,6 +7,8 @@ import {cookies} from "next/headers";
 import NotLoggedInView from "@/app/components/NotLoggedInView";
 import React from "react";
 import createServerSession from "@utils/supabase/createServerSession";
+import {LoginButton} from "@/app/components/LoginButton";
+import {BnetLoginButton} from "@/app/components/BnetLoginButton";
 
 export const dynamic = 'force-dynamic'
 
@@ -30,7 +32,16 @@ export default async function ({params}: { params: { id: string } }) {
     if (user.source !== 'bnet_oauth') {
         return (
             <div className="w-full h-full flex flex-col gap-2 items-center justify-center">
-                <h1>Only Blizzard OAuth users can access this page</h1>
+                <h1>Only Blizzard OAuth users can access this chat</h1>
+                <BnetLoginButton/>
+                <Link
+                    href={`/raid/${params.id}`}
+                    scroll={false}
+                >
+                    <Button>
+                        <FontAwesomeIcon icon={faArrowLeft}/> Back
+                    </Button>
+                </Link>
             </div>
         )
     }
@@ -39,7 +50,7 @@ export default async function ({params}: { params: { id: string } }) {
         <div className="w-full h-full flex flex-col gap-2 relative items-center justify-center">
             <ChatContainer resetId={params.id}/>
             <div
-                className="absolute top-0 left-0 opacity-20 hover:opacity-100 flex flex-col gap-2">
+                className="absolute top-0 left-0 flex flex-col gap-2">
                 <Link
                     href={`/raid/${params.id}`}
                     scroll={false}

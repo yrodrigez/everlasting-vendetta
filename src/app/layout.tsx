@@ -35,7 +35,7 @@ export default function RootLayout({
     return (
         <html lang="en" className="light">
         <body className={inter.className}
-              style={{width: '100%', height: '100vh', position: 'relative', display: 'block', flexDirection: 'column'}}>
+              style={{width: '100%', height: '100vh', display: 'block', overflow: 'hidden'}}>
         <Providers>
             <div className="block w-full h-full">
                 <div className="block w-full h-[80px] top-0 right-0">

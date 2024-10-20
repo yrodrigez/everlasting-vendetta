@@ -12,14 +12,14 @@ export function ChatControls({onSubmit, showRedirect}: {
     const {currentMessage, setCurrentMessage} = useChatStore(state => state)
     const {selectedCharacter} = useSession()
     return (
-        <div className="w-full flex gap-2">
+        <div className="w-full flex gap-2 relative">
             <Input placeholder="What's on your mind!?"
                    size={showRedirect ? 'sm' : 'md'}
                    value={currentMessage}
                    onChange={(e) => setCurrentMessage(e.target?.value ?? '')}
                    onKeyDown={(e) => {
                        if (e.key === 'Enter') {
-                           if(!currentMessage) return
+                           if (!currentMessage) return
                            onSubmit(currentMessage)
                            setCurrentMessage('')
                        }
@@ -27,9 +27,8 @@ export function ChatControls({onSubmit, showRedirect}: {
                    isDisabled={selectedCharacter?.isTemporal}
             />
             <Tooltip
-                content={'Only available to Blizzard OAuth users'}
-                isDisabled={!selectedCharacter?.isTemporal}
-            >
+                content={'Only available to Battle.net OAuth users'}
+                isDisabled={!selectedCharacter?.isTemporal}>
                 <div>
                     <Button
                         isDisabled={selectedCharacter?.isTemporal || !currentMessage}

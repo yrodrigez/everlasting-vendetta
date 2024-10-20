@@ -143,7 +143,7 @@ export function TemporalLogin() {
         <Button
             onClick={onOpen}
             size="lg"
-            className={`font-bold p-5 border border-transparent hover:border-gold hover:bg-dark`}
+            className={`font-bold p-5 border border-moss-100 hover:border-gold hover:bg-dark`}
             startContent={<FontAwesomeIcon icon={faClock}/>}>
             Temporal login
         </Button>
@@ -281,7 +281,7 @@ export default function AssistActions({
     const {isMobile} = useScreenSize()
 
     if (moment.tz('Europe/Madrid').isAfter(moment(`${endDate} ${endTime === '00:00:00' ? '23:59:59' : endTime}`, 'YYYY-MM-DD HH:mm:ss').tz('Europe/Madrid'))) {
-        return <div className="text-red-500 flex items-center min-h-20"></div>
+        return <div className="text-red-500 flex items-center min-h-7"></div>
     }
 
     if (isSessionLoading) {
@@ -289,8 +289,8 @@ export default function AssistActions({
     }
 
     if (!session) {
-        return <div className="text-red-500 flex flex-col">
-            Login to confirm your assistance
+        return <div className="text-red-500 flex flex-col mb-2">
+            Login to confirm
             <div
                 className="flex gap-2"
             >

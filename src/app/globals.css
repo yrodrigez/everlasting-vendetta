@@ -35,6 +35,15 @@
     --ligth-dark: 3, 17, 17;
 }
 
+th:first-child>div.absolute {
+    @apply rounded-l-lg;
+    @apply border-l;
+}
+th:last-child>div.absolute {
+    @apply rounded-r-lg;
+    @apply border-r;
+}
+
 span.data-\[selected\=true\]\:data-\[selection-end\=true\]\:data-\[range-selection\=true\]\:bg-primary[data-range-selection="true"][data-selection-end="true"][data-selected="true"] {
     --tw-bg-opacity: 1;
     background-color: rgb(var(--gold-rgb));
@@ -56,6 +65,8 @@ span.data-\[hover\=true\]\:bg-primary-50[data-hover="true"] {
     font-weight: bold;
 }
 
+
+
 td>span.text-foreground {
     color: rgb(var(--gold-rgb));
 }
@@ -70,8 +81,9 @@ span.data-\[selected\=true\]\:data-\[range-selection\=true\]\:before\:bg-primary
     border-top: 1px solid rgb(var(--gold-rgb));
 }
 
-body > div[data-overlay-container="true"]:first-of-type {
+body div[data-overlay-container="true"] {
     height: 100%;
+    display: flex;
 }
 
 @keyframes blink {

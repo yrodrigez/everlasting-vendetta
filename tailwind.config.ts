@@ -73,6 +73,7 @@ const config: Config = {
                 ['dark-100']: '#1d383b',
                 ocean: '#1D4851',
                 wood: '#423B35',
+                ['wood-50']: '#7d6e67',
                 ['wood-100']: '#5f5a53',
                 stone: '#797467',
                 ['stone-100']: '#afad9a',

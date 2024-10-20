@@ -2,16 +2,18 @@
 
 import {Button} from "@/app/components/Button";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faArrowUpRightFromSquare} from "@fortawesome/free-solid-svg-icons";
+import {faArrowUpRightFromSquare, faEye, faEyeSlash} from "@fortawesome/free-solid-svg-icons";
 import {useRouter} from "next/navigation";
 import {ChatControls} from "@/app/raid/[id]/chat/components/ChatControls";
 import {ChatMessages} from "@/app/raid/[id]/chat/components/ChatMessages";
 import {useSession} from "@hooks/useSession";
 import {SupabaseClient} from "@supabase/auth-helpers-nextjs";
-import {useCallback, useEffect} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {useChatStore} from "@/app/raid/[id]/chat/components/chatStore";
 import moment from "moment/moment";
+import {Spinner} from "@nextui-org/react";
 import useScreenSize from "@hooks/useScreenSize";
+import {useQuery} from "@tanstack/react-query";
 
 const tableFields = `*, character:ev_member(id,character)`;
 const table = 'reset_messages';
@@ -48,19 +50,36 @@ async function fetchMessages(supabase: SupabaseClient, resetId: string) {
 }
 
 
-export function ChatContainer({resetId: id, showRedirect = false}: { resetId: string, showRedirect?: boolean }) {
+export function ChatContainer({resetId: id, showRedirect = false, raidName}: {
+    resetId: string,
+    showRedirect?: boolean,
+    raidName?: string
+}) {
     const router = useRouter()
     const {supabase, selectedCharacter} = useSession()
     const {messages, addMessage, setMessages} = useChatStore()
+    const [shouldHide, setShouldHide] = useState(false)
 
     const {isDesktop} = useScreenSize()
+    useEffect(() => {
+        if (isDesktop) {
+            setShouldHide(!isDesktop)
+        }
+    }, [isDesktop]);
+
+    const {} = useQuery({
+        queryKey: ['chat', id],
+        queryFn: async () => {
+            if (!supabase) return []
+            const messages = await fetchMessages(supabase, id)
+            setMessages(messages)
+            return messages
+        },
+        enabled: !!supabase
+    })
 
     useEffect(() => {
         if (!supabase) return
-        fetchMessages(supabase, id).then((data) => {
-            setMessages(data)
-        })
-
         const channel = supabase.channel(`raid_chat:${id}`)
             .on('postgres_changes', {
                     event: '*',
@@ -123,34 +142,39 @@ export function ChatContainer({resetId: id, showRedirect = false}: { resetId: st
         })
     }, [supabase, id, selectedCharacter])
 
-    if (!isDesktop && showRedirect) {
-        return null
-    }
-
-    if (!supabase) return <div>
-        Loading...
-    </div>
-
-    if (!selectedCharacter) return <div>
-        Select a character
-    </div>
+    if (!supabase) return null
 
     return (
-        <div className={`w-full h-full flex flex-col gap-2 relative items-center ${showRedirect ? '' : ' max-w-[800px]'} grow`}>
-            <ChatMessages messages={messages}/>
-            <div className="w-full h-12 flex flex-col gap-2 items-baseline justify-end">
-                <ChatControls showRedirect={showRedirect} onSubmit={insertMessage}/>
-            </div>
-            {showRedirect && <div className="absolute top-0 right-0 opacity-20 hover:opacity-100">
-              <Button isIconOnly size="sm" className="text-default bg-transparent" variant="light"
-                      onClick={() => {
-                          router.push(`/raid/${id}/chat`)
-                      }}
-              >
-                <FontAwesomeIcon icon={faArrowUpRightFromSquare}/>
-              </Button>
-            </div>
-            }
+        <div
+            className={`w-full h-full flex flex-col gap-2 relative items-center grow transition-all ${showRedirect && !shouldHide ? 'max-h-40 lg:max-h-full bg-[rgba(66,59,53,.5)] rounded-xl border border-wood-100 p-1' : ''} ${showRedirect && shouldHide ? 'min-h-8' : ''}`}>
+            {!shouldHide ? (
+                <>
+                    <ChatMessages messages={messages}/>
+                    <div className="w-full h-12 flex flex-col gap-2 items-baseline justify-end">
+                        <ChatControls showRedirect={showRedirect} onSubmit={insertMessage}/>
+                    </div>
+                </>
+            ) : null}
+            {showRedirect && (<div className="absolute top-0 right-0 opacity-20 hover:opacity-100 flex gap-2">
+                <Button
+                    isIconOnly
+                    size="sm"
+                    className="text-default bg-transparent lg:hidden"
+                    variant="light"
+                    onClick={() => {
+                        setShouldHide(!shouldHide)
+                    }}
+                >
+                    <FontAwesomeIcon icon={shouldHide ? faEye : faEyeSlash}/>
+                </Button>
+                <Button isIconOnly size="sm" className="text-default bg-transparent rounded-tr-xl" variant="light"
+                        onClick={() => {
+                            router.push(`/raid/${id}/chat`)
+                        }}
+                >
+                    <FontAwesomeIcon icon={faArrowUpRightFromSquare}/>
+                </Button>
+            </div>)}
         </div>
     )
 }
