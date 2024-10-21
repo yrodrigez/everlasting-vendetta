@@ -36,7 +36,7 @@ export function ChatControls({onSubmit, showRedirect}: {
                             onSubmit(currentMessage)
                             setCurrentMessage('')
                         }}
-                        isIconOnly size={showRedirect ? 'sm' : 'md'} className="text-default">
+                        isIconOnly size={showRedirect ? 'sm' : 'md'} className="text-default rounded-lg">
                         <FontAwesomeIcon icon={faPaperPlane}/>
                     </Button>
                 </div>

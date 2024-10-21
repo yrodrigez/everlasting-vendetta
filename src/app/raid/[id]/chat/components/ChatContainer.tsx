@@ -11,7 +11,6 @@ import {SupabaseClient} from "@supabase/auth-helpers-nextjs";
 import {useCallback, useEffect, useState} from "react";
 import {useChatStore} from "@/app/raid/[id]/chat/components/chatStore";
 import moment from "moment/moment";
-import {Spinner} from "@nextui-org/react";
 import useScreenSize from "@hooks/useScreenSize";
 import {useQuery} from "@tanstack/react-query";
 
@@ -24,7 +23,8 @@ function chatMessageMapper(message: any) {
         character: {
             id: message.character.id,
             name: message.character.character.name,
-            avatar: message.character.character.avatar
+            avatar: message.character.character.avatar,
+            className: message?.character?.character?.playable_class?.name ?? message?.character?.character?.character_class?.name ?? 'default',
         },
 
         // Oct 10 12:00

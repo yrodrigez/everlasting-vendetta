@@ -45,6 +45,15 @@ const config: Config = {
         'bg-mage',
         'bg-warlock',
         'bg-druid',
+        'border-warrior',
+        'border-paladin',
+        'border-hunter',
+        'border-rogue',
+        'border-priest',
+        'border-shaman',
+        'border-mage',
+        'border-warlock',
+        'border-druid',
     ],
     theme: {
         extend: {
