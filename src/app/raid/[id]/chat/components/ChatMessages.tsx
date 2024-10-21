@@ -6,7 +6,7 @@ import Link from "next/link";
 
 const ChatMessageContent = ({children}: { children: string | ReactNode }) => {
 
-    if (typeof children !== 'string') return <div>{children}</div>
+    if (typeof children !== 'string') return <div className="break-all">{children}</div>
 
     const findURLs = (text: string) => {
         const urlPattern = /(https?:\/\/\S+)/g;
