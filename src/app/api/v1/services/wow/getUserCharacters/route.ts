@@ -9,9 +9,8 @@ export async function GET(request: NextRequest) {
     const token = cookies().get(BNET_COOKIE_NAME)
     const {auth} = createServerSession({cookies})
     const user = await auth.getSession()
-    if (!user) return NextResponse.redirect('/api/v1/oauth/bnet/auth')
 
-    if (user.isTemporal) {
+    if (user && user.isTemporal) {
         return NextResponse.json({characters: [user]})
     }
 
