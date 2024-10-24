@@ -1,29 +1,138 @@
 import {type ChatMessage} from "./chatStore";
-import {ReactNode, useEffect, useRef, useState} from "react";
+import {ReactNode, useCallback, useEffect, useRef, useState} from "react";
 import {useSessionStore} from "@hooks/useSessionStore";
 import Link from "next/link";
+import {useQuery} from "@tanstack/react-query";
+import {Spinner} from "@nextui-org/react";
 
+const isCharacterAvailable = async (name: string) => {
+    if (!name) return false
+    const response = await fetch(`/api/v1/services/wow/getCharacterByName?name=${encodeURIComponent(name.toLowerCase())}&temporal=true`)
+    return response.ok
+}
+
+const CharacterMention = ({name}: { name: string }) => {
+
+    const capitalize = useCallback((str: string) => {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }, [name]);
+
+    const {data: isAvailable, isLoading} = useQuery({
+        queryKey: ['character', name],
+        queryFn: async () => {
+            return await isCharacterAvailable(name)
+        },
+        refetchOnWindowFocus: false,
+        staleTime: Infinity
+    })
+
+    return isLoading ?
+        <div className="inline-flex items-baseline text-gray-500 whitespace-nowrap"><Spinner size="sm" color="current"/>{capitalize(name)}</div> : isAvailable ? (
+            <Link href={`/roster/${encodeURIComponent(name.toLowerCase())}`} target="_blank" className="text-blue-500">
+                @{capitalize(name)}
+            </Link>
+        ) : (<span>@{name}</span>)
+}
+
+const UrlLink = ({href}: { href: string }) => {
+    //2fbb4cbd6e9fdb2b8ee6b0c53dec03a7
+
+    const {data: linkMetadata, isLoading} = useQuery({
+        queryKey: ['link', href],
+        queryFn: async () => {
+            const response = await fetch(`/api/v1/services/link/preview?url=${encodeURIComponent(href)}`)
+            return response.ok ? await response.json() : {} as {
+                "title": string,
+                "description": string,
+                "image": string,
+                "url": string
+            }
+
+        },
+        refetchOnWindowFocus: false,
+        staleTime: 1000 * 60 * 5 // 5 minutes
+    })
+
+    return linkMetadata?.title ? (
+            <Link
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500"
+            >
+                {linkMetadata.title}
+                {linkMetadata.image &&
+                  <div className="flex w-full items-center justify-center">
+                    <img src={linkMetadata.image} alt={linkMetadata.title} className="max-w-52 max-h-32 rounded-xl border-blue-500 border"/>
+                  </div>}
+            </Link>
+        ) :
+        (
+            <Link
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500"
+            >
+                {href}
+            </Link>
+        )
+}
 
 const ChatMessageContent = ({children}: { children: string | ReactNode }) => {
+    if (typeof children !== 'string') return <div className="break-all">{children}</div>;
 
-    if (typeof children !== 'string') return <div className="break-all">{children}</div>
+    const findURLs = useCallback(
+        (text: string) => {
+            const urlPattern = /(https?:\/\/\S+)/g;
+            return text.split(urlPattern).map((part: string, i: number) => {
+                if (part.match(urlPattern)) {
+                    return (
+                        <UrlLink
+                            key={`url-${i}`}
+                            href={part}
+                        />
+                    );
+                }
+                return part;
+            });
+        },
+        [children]
+    );
 
-    const findURLs = (text: string) => {
-        const urlPattern = /(https?:\/\/\S+)/g;
-        return text.split(urlPattern).map((part: string, i: number) => {
-            if (part.match(urlPattern)) {
-                return (
-                    <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-blue-500 ">
-                        {part}
-                    </a>
-                );
-            }
-            return part;
-        });
-    };
+    const findAtMentions = useCallback(
+        (content: ReactNode[]) => {
+            const atMentionsPattern = /@(\w+)/g;
 
-    return <div className="break-all">{findURLs(children)}</div>
-}
+            return content.flatMap((item, i) => {
+                if (typeof item !== 'string') return item;
+
+                return item.split(' ').map((part: string, j: number) => {
+                    if (part.match(atMentionsPattern)) {
+                        return <CharacterMention key={`mention-${i}-${j}`} name={part.replaceAll('@', '')}/>;
+                    }
+
+                    return part;
+                }).reduce((acc, curr) => {
+                    if (typeof curr === 'string' && typeof acc[acc.length - 1] === 'string') {
+                        acc[acc.length - 1] += ` ${curr}`;
+                    } else {
+                        acc.push(' ')
+                        acc.push(curr);
+                        acc.push(' ')
+                    }
+                    return acc;
+                }, [] as ReactNode[]);
+            });
+        },
+        [children]
+    );
+
+    const processedContent = findAtMentions(findURLs(children));
+
+    return <p className="overflow-auto max-w-60 scrollbar-pill">{processedContent}</p>;
+};
+
 
 const ChatMessageOwner = ({message}: { message: ChatMessage }) => {
     return (

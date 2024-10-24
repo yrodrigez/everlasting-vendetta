@@ -12,7 +12,6 @@ export async function GET(request: NextRequest) {
     if (new URL(request.url).searchParams.get('temporal') === 'true') {
         const {token: _token} = await getBlizzardToken()
         token = {value: _token}
-        console.log('token', token)
     }
 
     if (!token?.value) {
