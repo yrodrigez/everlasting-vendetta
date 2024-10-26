@@ -27,7 +27,9 @@ const CharacterMention = ({name}: { name: string }) => {
     })
 
     return isLoading ?
-        <div className="inline-flex items-baseline text-gray-500 whitespace-nowrap"><Spinner size="sm" color="current"/>{capitalize(name)}</div> : isAvailable ? (
+        <div className="inline-flex items-baseline text-gray-500 whitespace-nowrap"><Spinner size="sm"
+                                                                                             color="current"/>{capitalize(name)}
+        </div> : isAvailable ? (
             <Link href={`/roster/${encodeURIComponent(name.toLowerCase())}`} target="_blank" className="text-blue-500">
                 @{capitalize(name)}
             </Link>
@@ -63,7 +65,8 @@ const UrlLink = ({href}: { href: string }) => {
                 {linkMetadata.title}
                 {linkMetadata.image &&
                   <div className="flex w-full items-center justify-center">
-                    <img src={linkMetadata.image} alt={linkMetadata.title} className="max-w-52 max-h-32 rounded-xl border-blue-500 border"/>
+                    <img src={linkMetadata.image} alt={linkMetadata.title}
+                         className="max-w-52 max-h-32 rounded-xl border-blue-500 border"/>
                   </div>}
             </Link>
         ) :
@@ -79,13 +82,39 @@ const UrlLink = ({href}: { href: string }) => {
         )
 }
 
-const ChatMessageContent = ({children}: { children: string | ReactNode }) => {
+const ImageLink = ({src}: { src: string }) => {
+    return (
+        <Link href={src}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500">
+            <div className="flex w-full items-center justify-center">
+                <img src={src} alt="image" className="max-w-52 max-h-32 rounded-xl border-blue-500 border"/>
+            </div>
+        </Link>
+)
+}
+
+const ChatMessageContent = ({
+    children
+}: {
+    children: string | ReactNode }) => {
     if (typeof children !== 'string') return <div className="break-all">{children}</div>;
 
     const findURLs = useCallback(
         (text: string) => {
             const urlPattern = /(https?:\/\/\S+)/g;
             return text.split(urlPattern).map((part: string, i: number) => {
+
+                if (part.match(/\.(jpeg|jpg|gif|png)$/) && part.match(urlPattern)) {
+                    return (
+                        <ImageLink
+                            key={`image-${i}`}
+                            src={part}
+                        />
+                    );
+                }
+
                 if (part.match(urlPattern)) {
                     return (
                         <UrlLink
@@ -94,6 +123,7 @@ const ChatMessageContent = ({children}: { children: string | ReactNode }) => {
                         />
                     );
                 }
+
                 return part;
             });
         },
