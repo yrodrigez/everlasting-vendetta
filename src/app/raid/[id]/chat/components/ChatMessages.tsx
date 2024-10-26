@@ -35,10 +35,15 @@ const CharacterMention = ({name}: { name: string }) => {
             </Link>
         ) : (<span>@{name}</span>)
 }
+const extractYouTubeID = (url: string) => {
+    const youtubeRegex = /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/;
+    const match = url.match(youtubeRegex);
+    return match ? match[1] : null;
+};
 
 const UrlLink = ({href}: { href: string }) => {
     //2fbb4cbd6e9fdb2b8ee6b0c53dec03a7
-
+    const isYouTubeLink = extractYouTubeID(href);
     const {data: linkMetadata, isLoading} = useQuery({
         queryKey: ['link', href],
         queryFn: async () => {
@@ -52,8 +57,23 @@ const UrlLink = ({href}: { href: string }) => {
 
         },
         refetchOnWindowFocus: false,
-        staleTime: 1000 * 60 * 5 // 5 minutes
+        staleTime: 1000 * 60 * 5, // 5 minutes
+        enabled: !isYouTubeLink
     })
+
+    if (isYouTubeLink) {
+        return (
+            <div className="youtube-embed flex justify-center items-center">
+                <iframe
+                    src={`https://www.youtube.com/embed/${isYouTubeLink}`}
+                    title="YouTube video player"
+                    className="w-full max-w-lg aspect-video rounded-xl border border-blue-500"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                ></iframe>
+            </div>
+        );
+    }
 
     return linkMetadata?.title ? (
             <Link
