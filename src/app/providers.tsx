@@ -12,7 +12,7 @@ import {ThemeProvider as NextThemesProvider} from "next-themes";
 function Providers({children}: { children: ReactNode }) {
     const queryClient = new QueryClient()
     return (
-        <NextUIProvider>
+        <NextUIProvider style={{ height: "100%" }}>
             <QueryClientProvider client={queryClient}>
                 <NextThemesProvider attribute="class" defaultTheme="light">
                     {children}

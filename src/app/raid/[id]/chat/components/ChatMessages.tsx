@@ -42,7 +42,6 @@ const extractYouTubeID = (url: string) => {
 };
 
 const UrlLink = ({href}: { href: string }) => {
-    //2fbb4cbd6e9fdb2b8ee6b0c53dec03a7
     const isYouTubeLink = extractYouTubeID(href);
     const {data: linkMetadata, isLoading} = useQuery({
         queryKey: ['link', href],
@@ -112,13 +111,14 @@ const ImageLink = ({src}: { src: string }) => {
                 <img src={src} alt="image" className="max-w-52 max-h-32 rounded-xl border-blue-500 border"/>
             </div>
         </Link>
-)
+    )
 }
 
 const ChatMessageContent = ({
-    children
-}: {
-    children: string | ReactNode }) => {
+                                children
+                            }: {
+    children: string | ReactNode
+}) => {
     if (typeof children !== 'string') return <div className="break-all">{children}</div>;
 
     const findURLs = useCallback(
