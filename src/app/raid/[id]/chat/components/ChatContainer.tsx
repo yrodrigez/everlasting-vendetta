@@ -12,7 +12,8 @@ import {useCallback, useEffect, useState} from "react";
 import {useChatStore} from "@/app/raid/[id]/chat/components/chatStore";
 import moment from "moment/moment";
 import useScreenSize from "@hooks/useScreenSize";
-import {useQuery} from "@tanstack/react-query";
+import {useQuery, useQueryClient} from "@tanstack/react-query";
+import {useReactions} from "@/app/raid/[id]/chat/components/useReactions";
 
 const tableFields = `*, character:ev_member(id,character)`;
 const table = 'reset_messages';
@@ -67,7 +68,7 @@ export function ChatContainer({resetId: id, showRedirect = false, raidName}: {
         }
     }, [isDesktop]);
 
-    const {} = useQuery({
+    useQuery({
         queryKey: ['chat', id],
         queryFn: async () => {
             if (!supabase) return []
@@ -77,6 +78,21 @@ export function ChatContainer({resetId: id, showRedirect = false, raidName}: {
         },
         enabled: !!supabase
     })
+
+    const {emojis = [], reactions, addReaction} = useReactions(id)
+    useEffect(() => {
+        if (!reactions) return
+        const newMessages = [...messages]
+        reactions.forEach(reaction => {
+            const message = newMessages.find(m => m.id === reaction.message.id)
+            if (!message) return
+            if (!message.reactions) {
+                message.reactions = []
+            }
+            message.reactions.push(reaction)
+        })
+        setMessages(newMessages)
+    }, [reactions, id])
 
     useEffect(() => {
         if (!supabase) return
@@ -121,12 +137,16 @@ export function ChatContainer({resetId: id, showRedirect = false, raidName}: {
         }
     }, [supabase, id, selectedCharacter])
 
+
     const insertMessage = useCallback((message: string) => {
         if (!supabase || !selectedCharacter) return
         if (!message?.trim()) return
         supabase.from(table).insert([
             {
-                content: message.trim(),
+                content: message.trim().replace(/([^\s\r\n]+)/gim, (_, $1) => {
+                    const {emoji} = emojis.find(e => e.shortcut === $1) || {}
+                    return emoji ? `${emoji}` : $1
+                }),
                 reset_id: id,
                 character_id: selectedCharacter.id,
                 created_at: new Date()

@@ -12,7 +12,6 @@ const isCharacterAvailable = async (name: string) => {
 }
 
 const CharacterMention = ({name}: { name: string }) => {
-
     const capitalize = useCallback((str: string) => {
         return str.charAt(0).toUpperCase() + str.slice(1);
     }, [name]);
@@ -27,14 +26,16 @@ const CharacterMention = ({name}: { name: string }) => {
     })
 
     return isLoading ?
-        <div className="inline-flex items-baseline text-gray-500 whitespace-nowrap"><Spinner size="sm"
-                                                                                             color="current"/>{capitalize(name)}
+        <div className="inline-flex items-baseline text-gray-500 whitespace-nowrap">
+            <Spinner size="sm"
+                     color="current"/>{capitalize(name)}
         </div> : isAvailable ? (
             <Link href={`/roster/${encodeURIComponent(name.toLowerCase())}`} target="_blank" className="text-blue-500">
                 @{capitalize(name)}
             </Link>
         ) : (<span>@{name}</span>)
 }
+
 const extractYouTubeID = (url: string) => {
     const youtubeRegex = /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/;
     const match = url.match(youtubeRegex);
@@ -43,7 +44,7 @@ const extractYouTubeID = (url: string) => {
 
 const UrlLink = ({href}: { href: string }) => {
     const isYouTubeLink = extractYouTubeID(href);
-    const {data: linkMetadata, isLoading} = useQuery({
+    const {data: linkMetadata} = useQuery({
         queryKey: ['link', href],
         queryFn: async () => {
             const response = await fetch(`/api/v1/services/link/preview?url=${encodeURIComponent(href)}`)
@@ -82,11 +83,12 @@ const UrlLink = ({href}: { href: string }) => {
                 className="text-blue-500"
             >
                 {linkMetadata.title}
-                {linkMetadata.image &&
-                  <div className="flex w-full items-center justify-center">
-                    <img src={linkMetadata.image} alt={linkMetadata.title}
-                         className="max-w-52 max-h-32 rounded-xl border-blue-500 border"/>
-                  </div>}
+                {linkMetadata.image && (
+                    <div className="flex w-full items-center justify-center">
+                        <img src={linkMetadata.image} alt={linkMetadata.title}
+                             className="max-w-52 max-h-32 rounded-xl border-blue-500 border"/>
+                    </div>
+                )}
             </Link>
         ) :
         (
@@ -260,9 +262,9 @@ export function ChatMessages({messages}: { messages: ChatMessage[] }) {
         !messages?.length ? <div className="flex justify-center items-center w-full h-full">Write something</div> :
             <div ref={chatRef} className="w-full h-full flex flex-col gap-2 overflow-auto scrollbar-pill pb-1"
                  onScroll={handleScroll}>
-                {messages.map((message, index) => (
-                    <ChatMessage key={index} message={message}/>
-                ))}
+                {messages.map((message, index) => {
+                    return <ChatMessage key={index} message={message}/>
+                })}
             </div>
     )
 }

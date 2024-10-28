@@ -1,4 +1,5 @@
 import {create as createStore} from "zustand";
+import {MessageReaction} from "@/app/raid/[id]/chat/components/useReactions";
 
 export type ChatMessage = {
     id: number;
@@ -10,6 +11,7 @@ export type ChatMessage = {
     }
     created: string;
     content: string;
+    reactions?: MessageReaction[]
 }
 
 

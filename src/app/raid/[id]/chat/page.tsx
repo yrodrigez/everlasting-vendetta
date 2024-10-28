@@ -7,7 +7,6 @@ import {cookies} from "next/headers";
 import NotLoggedInView from "@/app/components/NotLoggedInView";
 import React from "react";
 import createServerSession from "@utils/supabase/createServerSession";
-import {LoginButton} from "@/app/components/LoginButton";
 import {BnetLoginButton} from "@/app/components/BnetLoginButton";
 
 export const dynamic = 'force-dynamic'
