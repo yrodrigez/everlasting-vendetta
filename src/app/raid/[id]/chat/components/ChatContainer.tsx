@@ -75,7 +75,7 @@ export function ChatContainer({resetId: id, showRedirect = false, raidName}: {
         const newMessages = messages.map(message => {
             // Find all reactions for this message
             const messageReactions = reactions.filter(
-                reaction => reaction.message.id === message.id
+                reaction => reaction.message?.id === message.id
             );
 
             // Only update the message if its reactions have changed
@@ -101,7 +101,7 @@ export function ChatContainer({resetId: id, showRedirect = false, raidName}: {
             const messages = await fetchMessages(supabase, id)
 
             setMessages(messages.map(m => {
-                const _reactions = reactions?.filter(r => r.message.id === m.id) ?? []
+                const _reactions = reactions?.filter(r => r.message?.id === m.id) ?? []
                 return {...m, reactions: _reactions}
             }))
             return messages
