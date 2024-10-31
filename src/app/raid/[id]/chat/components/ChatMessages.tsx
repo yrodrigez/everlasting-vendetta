@@ -3,7 +3,10 @@ import {ReactNode, useCallback, useEffect, useRef, useState} from "react";
 import {useSessionStore} from "@hooks/useSessionStore";
 import Link from "next/link";
 import {useQuery} from "@tanstack/react-query";
-import {Spinner} from "@nextui-org/react";
+import {Button, Popover, PopoverContent, PopoverTrigger, Spinner, Tooltip, useDisclosure} from "@nextui-org/react";
+
+import {ChevronDown, ChevronUp, SmilePlus} from "lucide-react";
+import {MessageReaction, Reaction} from "@/app/raid/[id]/chat/components/useReactions";
 
 const isCharacterAvailable = async (name: string) => {
     if (!name) return false
@@ -182,11 +185,11 @@ const ChatMessageContent = ({
 
     const processedContent = findAtMentions(findURLs(children));
 
-    return <p className="overflow-auto max-w-60 scrollbar-pill">{processedContent}</p>;
+    return <div className="overflow-auto max-w-60 scrollbar-pill">{processedContent}</div>;
 };
 
 
-const ChatMessageOwner = ({message}: { message: ChatMessage }) => {
+const ChatMessageOwner = ({message, children}: { message: ChatMessage, children?: ReactNode }) => {
     return (
         <div className="flex gap-1 flex-row-reverse mr-3 ">
             <img src={message.character.avatar}
@@ -204,14 +207,14 @@ const ChatMessageOwner = ({message}: { message: ChatMessage }) => {
     )
 }
 
-const ChatMessageOther = ({message}: { message: ChatMessage }) => {
+const ChatMessageOther = ({message, reactionsHandler}: { message: ChatMessage, reactionsHandler: ReactNode }) => {
 
     return (
         <div className="flex gap-1 ml-3">
             <img src={message.character.avatar}
                  className={`w-8 h-8 rounded-full border border-${message.character?.className?.toLowerCase()} self-end`}
                  alt={`${message.character.name}'s avatar`}/>
-            <div className="flex flex-col gap-1 p-2 rounded-r-xl rounded-tl-xl bg-dark border border-dark-100">
+            <div className="flex flex-col gap-1 p-2 rounded-r-xl rounded-tl-xl bg-dark border border-dark-100 relative">
                 <div className="flex gap-1 items-center">
                     <Link href={`/roster/${encodeURIComponent(message.character.name.toLowerCase())}`} target="_blank">
                         <span
@@ -220,21 +223,102 @@ const ChatMessageOther = ({message}: { message: ChatMessage }) => {
                     <span className="text-sm text-gray-500">{message.created}</span>
                 </div>
                 <ChatMessageContent>{message.content}</ChatMessageContent>
+                <div className="absolute -top-3 -right-0">
+                    {reactionsHandler}
+                </div>
             </div>
         </div>
     )
 }
 
-const ChatMessage = ({message}: { message: ChatMessage }) => {
+const ChatMessage = ({message, reactionsHandler}: {
+    message: ChatMessage,
+    reactionsHandler: ReactNode
+}) => {
     const {session} = useSessionStore(state => state)
     const isCurrentUser = session?.id === message.character.id
 
     return (
-        isCurrentUser ? <ChatMessageOwner message={message}/> : <ChatMessageOther message={message}/>
+        isCurrentUser ? <ChatMessageOwner message={message}/> :
+            <ChatMessageOther message={message} reactionsHandler={reactionsHandler}/>
     )
 }
 
-export function ChatMessages({messages}: { messages: ChatMessage[] }) {
+const AddReactionButton = ({messageId, addReaction, emojis}: {
+    messageId: number,
+    emojis: Reaction[],
+    addReaction: ({messageId, reactionId}: { messageId: number, reactionId: number }) => void
+}) => {
+    const [expanded, setExpanded] = useState(false)
+    const {isOpen, onOpenChange, onClose} = useDisclosure()
+
+    const singleAddReaction = useCallback((messageId: number, reaction: number) => {
+        addReaction({messageId, reactionId: reaction})
+        onClose()
+    }, [messageId])
+
+    return (
+        <Popover isOpen={isOpen} onOpenChange={onOpenChange}>
+            <PopoverTrigger>
+                <Button
+                    isIconOnly
+                    radius="full"
+                    variant="light"
+                    size="sm"
+                    className="text-xs border-none rounded-full text-primary"
+                >
+                    <SmilePlus className="w-4 h-4"/>
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className={`bg-dark border border-dark-100 rounded-xl`}>
+                <div className="transition-all">
+                    <div className="flex gap-1">
+                        {emojis.slice(0, 4).map(emoji => {
+                            return <Button
+                                key={emoji.id}
+                                isIconOnly
+                                variant="light"
+                                radius="full"
+                                onClick={() => singleAddReaction(messageId, emoji.id)}
+                            >
+                                {emoji.emoji}
+                            </Button>
+                        })}
+                        <Button
+                            isIconOnly
+                            variant="light"
+                            onClick={() => setExpanded(!expanded)}
+                            radius="full">
+                            {!expanded ? <ChevronDown className="w-4 h-4 text-primary"/> :
+                                <ChevronUp className="w-4 h-4 text-primary"/>}
+                        </Button>
+                    </div>
+                    <div
+                        className={`flex gap-1 pr-5 flex-wrap  scrollbar-pill ${expanded ? 'w-52 h-40 opacity-100 overflow-auto' : 'w-52 h-0 opacity-0 overflow-hidden'} transition-all `}>
+                        {emojis.slice(4).map(emoji => {
+                            return <Button
+                                key={emoji.id}
+                                isIconOnly
+                                variant="light"
+                                radius="full"
+                                onClick={() => singleAddReaction(messageId, emoji.id)}
+                            >
+                                {emoji.emoji}
+                            </Button>
+                        })}
+                    </div>
+                </div>
+            </PopoverContent>
+        </Popover>
+    )
+}
+
+export function ChatMessages({messages, addReaction, emojis, removeReaction}: {
+    messages: ChatMessage[],
+    addReaction: ({messageId, reactionId}: { messageId: number, reactionId: number }) => void
+    removeReaction: ({messageId}: { messageId: number }) => void
+    emojis: { shortcut: string, emoji: string, description: string, id: number }[]
+}) {
 
     const chatRef = useRef<HTMLDivElement>(null)
     const [isUserAtBottom, setIsUserAtBottom] = useState(true);
@@ -257,13 +341,67 @@ export function ChatMessages({messages}: { messages: ChatMessage[] }) {
             chatRef.current.scrollTo(0, chatRef.current.scrollHeight);
         }
     }, [messages, isUserAtBottom]);
+    const {session} = useSessionStore(state => state)
 
     return (
         !messages?.length ? <div className="flex justify-center items-center w-full h-full">Write something</div> :
-            <div ref={chatRef} className="w-full h-full flex flex-col gap-2 overflow-auto scrollbar-pill pb-1"
+            <div ref={chatRef} className="w-full h-full flex flex-col gap-4 overflow-auto scrollbar-pill pb-1"
                  onScroll={handleScroll}>
                 {messages.map((message, index) => {
-                    return <ChatMessage key={index} message={message}/>
+                    const isCurrentUser = message.character.id === session?.id
+                    const userReacted = message.reactions?.find(reaction => reaction.character.id === session?.id)
+                    return <div key={index} className="flex flex-col gap-0.5 relative">
+                        <ChatMessage message={message} reactionsHandler={
+                            <AddReactionButton addReaction={addReaction}
+                                               messageId={message.id}
+                                               emojis={emojis}/>
+                        }/>
+                        <div>
+                            {!!message?.reactions?.length && (
+                                <Tooltip
+                                    content={<div
+                                        className="flex gap-1 flex-wrap flex-col">
+                                        {message.reactions.map(({
+                                                                    reaction,
+                                                                    character
+                                                                }) => {
+                                            return <Link
+                                                href={`/roster/${encodeURIComponent(character.character?.name.toLowerCase())}`}
+                                                key={reaction.id}
+                                                className="text-xs">{reaction.emoji} {character.character?.name}</Link>
+                                        })}
+                                    </div>}
+                                >
+                                    <div
+                                        onClick={() => removeReaction({messageId: message.id})}
+                                        className={`py-2 px-3 bg-wood border border-wood-100 rounded-full inline-flex  ${isCurrentUser ? 'float-right mr-12' : 'ml-12'} gap-1 ${userReacted ? 'cursor-pointer' : ''}`}>
+                                        <div className="inline-flex gap-0.5">
+                                            {message?.reactions?.reduce((acc, next) => {
+                                                if (acc.find(({reaction}) => reaction.id === next.reaction.id)) {
+                                                    return acc
+                                                }
+                                                return [...acc, next]
+                                            }, [] as MessageReaction[]).slice(0, 8)?.map(({reaction}, index) => {
+                                                return <span
+                                                    key={index}
+                                                    onClick={() => {
+                                                        if (userReacted) return removeReaction({messageId: message.id})
+                                                        addReaction({
+                                                            messageId: message.id,
+                                                            reactionId: reaction.id
+                                                        })
+                                                    }}
+                                                    className="text-xs cursor-pointer">{reaction.emoji}</span>
+                                            })}
+                                        </div>
+                                        {message?.reactions?.length ?
+                                            <span
+                                                className="text-xs text-gold">{message.reactions.length}</span> : null}
+                                    </div>
+                                </Tooltip>
+                            )}
+                        </div>
+                    </div>
                 })}
             </div>
     )

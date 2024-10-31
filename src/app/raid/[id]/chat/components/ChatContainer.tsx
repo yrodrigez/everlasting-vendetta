@@ -12,7 +12,7 @@ import {useCallback, useEffect, useState} from "react";
 import {useChatStore} from "@/app/raid/[id]/chat/components/chatStore";
 import moment from "moment/moment";
 import useScreenSize from "@hooks/useScreenSize";
-import {useQuery, useQueryClient} from "@tanstack/react-query";
+import {useQuery} from "@tanstack/react-query";
 import {useReactions} from "@/app/raid/[id]/chat/components/useReactions";
 
 const tableFields = `*, character:ev_member(id,character)`;
@@ -68,31 +68,46 @@ export function ChatContainer({resetId: id, showRedirect = false, raidName}: {
         }
     }, [isDesktop]);
 
+    const {emojis = [], reactions = [], addReaction, removeReaction} = useReactions(id)
+    useEffect(() => {
+        if (!reactions?.length || !messages?.length) return
+
+        const newMessages = messages.map(message => {
+            // Find all reactions for this message
+            const messageReactions = reactions.filter(
+                reaction => reaction.message.id === message.id
+            );
+
+            // Only update the message if its reactions have changed
+            if (messageReactions?.length) {
+                return {
+                    ...message,
+                    reactions: messageReactions,
+                };
+            } else {
+                return {
+                    ...message,
+                    reactions: [],
+                };
+            }
+        });
+        setMessages(newMessages);
+    }, [reactions, id, selectedCharacter, supabase]);
+
     useQuery({
         queryKey: ['chat', id],
         queryFn: async () => {
             if (!supabase) return []
             const messages = await fetchMessages(supabase, id)
-            setMessages(messages)
+
+            setMessages(messages.map(m => {
+                const _reactions = reactions?.filter(r => r.message.id === m.id) ?? []
+                return {...m, reactions: _reactions}
+            }))
             return messages
         },
         enabled: !!supabase
     })
-
-    const {emojis = [], reactions, addReaction} = useReactions(id)
-    useEffect(() => {
-        if (!reactions) return
-        const newMessages = [...messages]
-        reactions.forEach(reaction => {
-            const message = newMessages.find(m => m.id === reaction.message.id)
-            if (!message) return
-            if (!message.reactions) {
-                message.reactions = []
-            }
-            message.reactions.push(reaction)
-        })
-        setMessages(newMessages)
-    }, [reactions, id])
 
     useEffect(() => {
         if (!supabase) return
@@ -137,7 +152,6 @@ export function ChatContainer({resetId: id, showRedirect = false, raidName}: {
         }
     }, [supabase, id, selectedCharacter])
 
-
     const insertMessage = useCallback((message: string) => {
         if (!supabase || !selectedCharacter) return
         if (!message?.trim()) return
@@ -169,7 +183,8 @@ export function ChatContainer({resetId: id, showRedirect = false, raidName}: {
             className={`w-full h-full flex flex-col gap-2 relative items-center grow transition-all ${showRedirect && !shouldHide ? 'max-h-40 lg:max-h-full bg-[rgba(66,59,53,.5)] rounded-xl border border-wood-100 p-1' : ''} ${showRedirect && shouldHide ? 'min-h-8' : ''}`}>
             {!shouldHide ? (
                 <>
-                    <ChatMessages messages={messages}/>
+                    <ChatMessages messages={messages} addReaction={addReaction} emojis={emojis}
+                                  removeReaction={removeReaction}/>
                     <div className="w-full h-12 flex flex-col gap-2 items-baseline justify-end">
                         <ChatControls showRedirect={showRedirect} onSubmit={insertMessage}/>
                     </div>
