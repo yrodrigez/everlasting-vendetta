@@ -61,7 +61,7 @@ export default function ShowReserveRules({shouldAlwaysOpen}: {
         },
         {
             header: 'Plus One System (+1)',
-            content: 'The +1 system is designed to balance loot distribution by tracking and slightly prioritizing those who haven’t won recently, ensuring a fairer spread of items over time. We use a "plus one" system that applies only to Main Spec (MS) rolls. This system does not impact Off Spec (OS) or Self-Reserved (SR) items. If a participant mistakenly rolls for an MS item as OS, the loot master reserves the right to apply a +1 to correct the roll.',
+            content: 'The +1 system is designed to balance loot distribution by tracking and slightly prioritizing those who haven’t won recently, ensuring a fairer spread of items over time. We use a "plus one" system that applies only to Main Spec (MS) rolls. This system does not impact Off Spec (OS) or Reserved (SR) items. If a participant mistakenly rolls for an MS item as OS, the loot master reserves the right to apply a +1 to correct the roll.',
             details: [
                 {
                     header: 'Accumulating +1:',
@@ -139,7 +139,7 @@ export default function ShowReserveRules({shouldAlwaysOpen}: {
                 isDismissable={false}
                 placement="center"
                 scrollBehavior="inside"
-                className="border border-gold"
+                className="border border-wood-100"
                 hideCloseButton
                 onOpenChange={onOpenChange}
             >
@@ -152,7 +152,7 @@ export default function ShowReserveRules({shouldAlwaysOpen}: {
                             <ModalBody className="scrollbar-pill">
                                 <div className="space-y-4">
                                     {terms.map((term, index) => (
-                                        <div key={index} className="p-4 bg-moss rounded">
+                                        <div key={index} className="p-4 bg-moss rounded border-moss-100 border">
                                             <h2 className="font-semibold mb-2">{index + 1}. {term.header}</h2>
                                             <p>{term.content}</p>
                                             {term.details?.map((detail, jindex) => (
@@ -168,7 +168,7 @@ export default function ShowReserveRules({shouldAlwaysOpen}: {
                             <ModalFooter>
                                 <Button
                                     onClick={handleAccept}
-                                    className={'bg-moss text-default rounded'}
+                                    className={'bg-moss text-default rounded border border-moss-100 font-bold'}
                                 >
                                     I understand
                                 </Button>
