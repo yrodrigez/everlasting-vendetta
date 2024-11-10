@@ -2,11 +2,11 @@
 import {useEffect} from "react";
 import {useSession} from "@/app/hooks/useSession";
 import {raidLootReservationsColumns} from "@/app/raid/[id]/soft-reserv/supabase_config";
-import {type RaidItem, type Reservation, type Character} from "@/app/raid/[id]/soft-reserv/types";
+import {type Character, type RaidItem, type Reservation} from "@/app/raid/[id]/soft-reserv/types";
 import useReservationsStore from "@/app/raid/[id]/soft-reserv/reservationsStore";
 import {toast} from "sonner";
 import {SupabaseClient} from "@supabase/auth-helpers-nextjs";
-import {useRouter} from "next/navigation";
+import {useQuery} from "@tanstack/react-query";
 
 const groupByItem = (reservations: Reservation[]) => {
     // @ts-ignore
@@ -112,7 +112,9 @@ const fetchTotalReservations = async (supabase: SupabaseClient, reset_id: string
     return data
 }
 
-export const useReservations = (resetId: string, initialItems: Reservation[] = [], options: { onExtraReserveUpdate?: Array<Function> } = {} ) => {
+export const useReservations = (resetId: string, initialItems: Reservation[] = [], options: {
+    onExtraReserveUpdate?: Array<Function>
+} = {}) => {
     const {selectedCharacter, supabase} = useSession()
     const [
         items,
@@ -136,19 +138,43 @@ export const useReservations = (resetId: string, initialItems: Reservation[] = [
         setReservationsByItem([...groupByItem(items)])
         setYourReservations([...items?.filter((item) => item.member?.id === selectedCharacter?.id)])
     }, [items, loading, selectedCharacter]);
-    const router = useRouter()
-    useEffect(() => {
-        if (!selectedCharacter?.id || !supabase || !resetId) return
-        (async () => {
-            setLoading(true)
+
+    const {isLoading: isLoadingItems, error: errorItems, refetch: reFetchItems} = useQuery({
+        queryKey: ['reservations', 'items', resetId],
+        queryFn: async () => {
             const items = await fetchItems(supabase, resetId)
             setItems(items)
-            const isOpen = await fetchReservationsOpen(supabase, resetId)
-            setIsReservationsOpen(isOpen)
-            setLoading(false)
+        },
+        enabled: !!resetId && !!supabase,
+    })
+
+    const {isLoading: isLoadingReservations, error: errorReservations, refetch: reFetchTotalReservations} = useQuery({
+        queryKey: ['reservations', 'total', resetId],
+        queryFn: async () => {
+            if (!selectedCharacter?.id || !supabase) return setMaxReservations(0)
             const total = await fetchTotalReservations(supabase, resetId, selectedCharacter.id)
             setMaxReservations(total)
-        })();
+        },
+        enabled: !!resetId && !!supabase && !!selectedCharacter?.id,
+    })
+
+    const {isLoading: isLoadingReservationsOpen, error: errorReservationsOpen, refetch: reFetchReservationsOpen} = useQuery({
+        queryKey: ['reservations', 'reservations_open', resetId],
+        queryFn: async () => {
+            if(!supabase) return setIsReservationsOpen(false)
+            const isOpen = await fetchReservationsOpen(supabase, resetId)
+            setIsReservationsOpen(isOpen)
+        },
+        enabled: !!resetId && !!supabase,
+    })
+
+    useEffect(() => {
+        setLoading(isLoadingItems || isLoadingReservations || isLoadingReservationsOpen || !supabase || !selectedCharacter?.id)
+    }, [isLoadingItems, isLoadingReservations, isLoadingReservationsOpen]);
+
+
+    useEffect(() => {
+        if (!selectedCharacter?.id || !supabase || !resetId) return
 
         const reservationsChannel = supabase.channel(`raid_loot_reservation:reset_id=eq.${resetId}`)
             .on('postgres_changes', {
@@ -157,8 +183,9 @@ export const useReservations = (resetId: string, initialItems: Reservation[] = [
                 table: 'raid_loot_reservation',
                 // filter: `reset_id=eq.${resetId}` this is failing for a reason, investigate later
             }, async () => {
-                const items = await fetchItems(supabase, resetId)
-                setItems(items)
+                /*const items = await fetchItems(supabase, resetId)
+                setItems(items)*/
+                await reFetchItems()
             }).subscribe()
 
         const isOpenChannel = supabase.channel(`raid_resets:id=eq.${resetId}`)
@@ -168,8 +195,9 @@ export const useReservations = (resetId: string, initialItems: Reservation[] = [
                 table: 'raid_resets',
                 filter: `id=eq.${resetId}`
             }, async () => {
-                const isOpen = await fetchReservationsOpen(supabase, resetId)
-                setIsReservationsOpen(isOpen)
+                /*const isOpen = await fetchReservationsOpen(supabase, resetId)
+                setIsReservationsOpen(isOpen)*/
+                await reFetchReservationsOpen()
             }).subscribe()
 
         const extraReservationsChannel = supabase.channel(`ev_extra_reservations:reset_id=eq.${resetId}`)
@@ -181,8 +209,9 @@ export const useReservations = (resetId: string, initialItems: Reservation[] = [
             }, () => {
 
                 (async () => {
-                    const total = await fetchTotalReservations(supabase, resetId, selectedCharacter.id)
-                    setMaxReservations(total)
+                    /*const total = await fetchTotalReservations(supabase, resetId, selectedCharacter.id)
+                    setMaxReservations(total)*/
+                    await reFetchTotalReservations()
                     options.onExtraReserveUpdate?.forEach((cb) => cb())
                 })()
             }).subscribe()
@@ -237,7 +266,8 @@ export const useReservations = (resetId: string, initialItems: Reservation[] = [
 
     return {
         items,
-        loading,
+        loading: loading || !supabase,
+        globalLoading: !supabase,
         yourReservations,
         reservationsByItem,
         setItems,

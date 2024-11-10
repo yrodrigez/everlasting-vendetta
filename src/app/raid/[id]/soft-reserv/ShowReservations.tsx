@@ -228,7 +228,7 @@ export function ShowReservations({items = [], isAdmin}: { items: Reservation[], 
                 </Tooltip>
                 {items?.length ? (
                     <span
-                        className="absolute -top-2 -right-4 bg-dark text-gold text-xs px-2 py-1 rounded-full border border-gold">
+                        className="absolute -top-2 -right-4 bg-dark text-gold text-xs px-2 py-1 rounded-full border border-gold z-50">
                         {items.length}
                     </span>
                 ): null}

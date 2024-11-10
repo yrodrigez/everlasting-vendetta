@@ -29,7 +29,7 @@ const initialState = {
     yourReservations: [],
     reservationsByItem: [],
     loading: true,
-    isReservationsOpen: false,
+    isReservationsOpen: true,
     maxReservations: 0,
 }
 

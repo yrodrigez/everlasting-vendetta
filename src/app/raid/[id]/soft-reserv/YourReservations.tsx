@@ -3,6 +3,9 @@ import {Reservation} from "@/app/raid/[id]/soft-reserv/types";
 import {ReservedItem} from "@/app/raid/[id]/soft-reserv/ReservedItem";
 import {useReservations} from "@/app/raid/[id]/soft-reserv/useReservations";
 import {useEffect, useState} from "react";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faLock, faLockOpen} from "@fortawesome/free-solid-svg-icons";
+import {Tooltip} from "@nextui-org/react";
 
 export default function YourReservations({resetId, initialReservedItems}: {
     resetId: string,
@@ -16,7 +19,8 @@ export default function YourReservations({resetId, initialReservedItems}: {
         yourReservations,
         isReservationsOpen,
         items,
-        maxReservations
+        maxReservations,
+        globalLoading,
     } = useReservations(resetId, initialReservedItems)
 
     useEffect(() => {
@@ -25,14 +29,30 @@ export default function YourReservations({resetId, initialReservedItems}: {
     }, [yourReservations, resetId])
 
     return <div className={"flex flex-col gap-2 relative w-full"}>
-        {!isReservationsOpen && (
+        {globalLoading && (
             <div className={
-                `flex flex-col justify-center items-center p-2 rounded-md absolute top-0 left-0 w-full h-full bg-gray-400 bg-opacity-50 z-50`
+                `flex flex-col justify-center items-center p-2 rounded-md absolute top-0 left-0 w-full h-full bg-gray-400 z-50`
             }>
-                <span className="text-gray-500 p-2 bg-white rounded">Reservations are closed</span>
+                <span className="text-gray-500 p-2 bg-white rounded">Loading...</span>
             </div>
-        )
-        }
+        )}
+
+        {!globalLoading && (
+            <div className={
+                `flex flex-col justify-center items-center absolute top-1 right-0 z-50 transition-all duration-300`
+            }>
+                {isReservationsOpen ? (
+                    <FontAwesomeIcon icon={faLockOpen} className={`text-success transition-all`}/>
+                ) : (
+                    <Tooltip
+                        content={'Reservations are closed'}
+                        placement={'right'}
+                    >
+                        <FontAwesomeIcon icon={faLock} className="text-gray-500 transition-all"/>
+                    </Tooltip>
+                )}
+            </div>
+        )}
 
         <div className={
             `flex flex-col justify-between rounded-md`

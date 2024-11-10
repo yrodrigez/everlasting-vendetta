@@ -147,7 +147,7 @@ export function Filters() {
                 >
                     {isUsingAdvancedFilters && !advancedFiltersOpen ? (
                         <div
-                            className={`absolute -top-1 -right-2 bg-gold text-dark text-xs font-bold rounded-full w-2 h-2 p-2 flex justify-center items-center z-50 border border-gold-100`}
+                            className={`absolute -top-1 -right-2 bg-gold text-dark text-xs font-bold rounded-full w-2 h-2 p-2 flex justify-center items-center z-50 border border-gold-100 `}
                         >
                             {(inventoryType?.length ?? 0) + (itemSubClass?.length ?? 0) + (qualityName?.length ?? 0) + (itemClass?.length ?? 0)}
                         </div>
@@ -158,13 +158,13 @@ export function Filters() {
                         size={'lg'}
                         onClick={() => setAdvancedFiltersOpen(!advancedFiltersOpen)}
                     >
-
                         {advancedFiltersOpen ? <FontAwesomeIcon icon={faClose}/> : <FontAwesomeIcon icon={faFilter}/>}
                     </Button>
                 </div>
             </Tooltip>
             <Input
                 value={name}
+                size="sm"
                 endContent={
                     name && <Button
                     onClick={(e) => {

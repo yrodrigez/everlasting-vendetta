@@ -16,7 +16,7 @@ export default function AdminPanel({isAdmin, resetId}: { isAdmin: boolean, reset
     const {isReservationsOpen, setIsReservationsOpen, reservationsByItem, items, loading} = useReservations(resetId)
 
     return (
-        <div className="flex flex-col gap-2">
+        <div className="flex lg:flex-col gap-2 w-full overflow-x-auto lg:overflow-visible pt-2 lg:pt-0">
             <Tooltip
                 content={'Back to raid'}
                 placement={'right'}

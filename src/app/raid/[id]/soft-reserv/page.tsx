@@ -165,9 +165,10 @@ export default async function Page({params}: { params: { id: string } }) {
     const {data, error} = await database.from('ev_admin').select('id').eq('id', loggedInCharacter.id).single()
 
     return (
-        <div className="w-full flex-col flex h-full justify-between relative">
+        <div
+            className="w-full flex-col flex h-full justify-between relative items-center p-2 gap-2 scrollbar-pill lg:overflow-visible flex-1">
             <div
-                className={'absolute -top-0 -left-72 w-64 h-48 z-10 border-gold border rounded-md'}>
+                className={'lg:hidden lg:top-0 lg:-left-72 w-64 h-48 z-50 border-gold border rounded-md inline-flex '}>
                 <div className="relative flex w-full h-full">
                     <div className="absolute flex p-2 rounded-md background-position-center bg-cover w-full h-full"
                          style={{
@@ -193,7 +194,6 @@ export default async function Page({params}: { params: { id: string } }) {
                             initialReservedItems={reservations}
                         />
                     </div>
-
                 </div>
             </div>
             <RaidItemsList
@@ -201,12 +201,42 @@ export default async function Page({params}: { params: { id: string } }) {
                 initialReservedItems={reservations}
                 resetId={resetId}
             />
-            <div className={`absolute -top-0 -right-24 z-10`}>
+            <div className={`self-start lg:self-auto lg:w-fit w-full overflow-visible inline-flex lg:absolute lg:top-0 lg:-right-24 z-50`}>
                 <AdminPanel
                     isAdmin={!!data}
                     resetId={resetId}
                 />
             </div>
+            <div
+                className={'lg:inline-flex hidden lg:absolute lg:top-0 lg:-left-72 w-64 h-48 z-50 border-gold border rounded-md'}>
+                <div className="relative flex w-full h-full">
+                    <div className="absolute flex p-2 rounded-md background-position-center bg-cover w-full h-full"
+                         style={{
+                             backgroundImage: `url('/${resetData.data?.raid?.image}')`,
+                             backgroundSize: 'cover',
+                             backgroundPosition: 'center',
+                             filter: 'brightness(35%)'
+                         }}/>
+                    <div className="flex flex-col w-full h-full justify-between relative p-2">
+                        <div className="flex items-center gap-2">
+                            <span className="text-lg font-bold">{resetData.data?.raid?.name}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <RaidTimeInfo
+                                raidDate={resetData.data.raid_date}
+                                raidTime={resetData.data.time}
+                                raidEndDate={resetData.data.end_date}
+                                raidEndTime={resetData.data.end_time}
+                            />
+                        </div>
+                        <YourReservations
+                            resetId={resetId}
+                            initialReservedItems={reservations}
+                        />
+                    </div>
+                </div>
+            </div>
+
         </div>
     )
 }

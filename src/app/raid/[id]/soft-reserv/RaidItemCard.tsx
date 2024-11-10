@@ -147,7 +147,7 @@ export function RaidItemCard({item, reserve, remove, reservedBy, isClicked, setI
                 onClick={() => {
                     setIsClicked(item.id)
                 }}
-                className={`flex justify-center p-2 mt-4 rounded-md w-24 lg:w-32 h-24 bg-gradient-to-b border-2 border-${qualityColor} transition-all cursor-pointer bg-gradient-${qualityColor}`}>
+                className={`flex justify-center p-2 mt-4 rounded-md w-40 lg:w-32 h-24 bg-gradient-to-b border-2 border-${qualityColor} transition-all cursor-pointer bg-gradient-${qualityColor}`}>
                 <div className="relative flex flex-col gap-2 items-center justify-center pt-6">
                     <Image src={item.description.icon} alt={item.name}
                            width={46} height={46}
