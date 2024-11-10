@@ -84,6 +84,7 @@ export function getGuildRosterFromGuildInfo(guildInfo: (Character & { updated_at
         'Felsargon',
         'Speeps',
         'Rímefang',
+        'Utrivelig',
     ]
 
     const raiders = [
@@ -97,6 +98,8 @@ export function getGuildRosterFromGuildInfo(guildInfo: (Character & { updated_at
         'Templaari',
         'Tjaak',
         'Ruzki',
+        'Cabrero',
+        'Zuzzuk'
     ]
 
     const vipMembers = guildInfo?.filter((member: any) => {
