@@ -1,5 +1,14 @@
 'use client'
-import {Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure} from "@nextui-org/react";
+import {
+    Button,
+    Modal,
+    ModalBody,
+    ModalContent,
+    ModalFooter,
+    ModalHeader,
+    ScrollShadow,
+    useDisclosure
+} from "@nextui-org/react";
 import {faCircleInfo} from "@fortawesome/free-solid-svg-icons";
 import React, {useEffect} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -153,8 +162,8 @@ export default function ShowReserveRules({shouldAlwaysOpen}: {
                             <ModalHeader>
                                 <h1 className="text-2xl font-bold text-center">Reserve Rules</h1>
                             </ModalHeader>
-                            <ModalBody className="scrollbar-pill">
-                                <div className="space-y-4">
+                            <ScrollShadow className="space-y-4 scrollbar-pill">
+                                <ModalBody>
                                     {terms.map((term, index) => (
                                         <div key={index} className="p-4 bg-moss rounded border-moss-100 border">
                                             <h2 className="font-semibold mb-2">{index + 1}. {term.header}</h2>
@@ -167,8 +176,8 @@ export default function ShowReserveRules({shouldAlwaysOpen}: {
                                             ))}
                                         </div>
                                     ))}
-                                </div>
-                            </ModalBody>
+                                </ModalBody>
+                            </ScrollShadow>
                             <ModalFooter>
                                 <Button
                                     onClick={handleAccept}

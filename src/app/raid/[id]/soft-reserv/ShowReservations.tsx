@@ -1,5 +1,14 @@
 import {Character, RaidItem, Reservation} from "@/app/raid/[id]/soft-reserv/types";
-import {Button, Modal, ModalBody, ModalContent, ModalHeader, Tooltip, useDisclosure} from "@nextui-org/react";
+import {
+    Button,
+    Modal,
+    ModalBody,
+    ModalContent,
+    ModalHeader,
+    ScrollShadow,
+    Tooltip,
+    useDisclosure
+} from "@nextui-org/react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faArrowRightLong, faClose, faObjectGroup, faUserGroup} from "@fortawesome/free-solid-svg-icons";
 import {useEffect, useState} from "react";
@@ -267,7 +276,7 @@ export function ShowReservations({items = [], isAdmin}: { items: Reservation[], 
                             </div>
                         </ModalHeader>
                         <ModalBody>
-                            <div className="overflow-auto max-h-[600px] w-full scrollbar-pill">
+                            <ScrollShadow className="overflow-auto max-h-[600px] w-full scrollbar-pill">
                                 {isByCharacter ? reservationsByCharacter.map((item, i) => {
                                     return <ReservationByCharacter key={i} item={item} isAdmin={isAdmin}/>
                                 }) : reservationsByItem.map((item, i) => {
@@ -275,7 +284,7 @@ export function ShowReservations({items = [], isAdmin}: { items: Reservation[], 
                                         <ReservationByItem item={item} key={i}/>
                                     )
                                 })}
-                            </div>
+                            </ScrollShadow>
                         </ModalBody>
                     </>
                 )}

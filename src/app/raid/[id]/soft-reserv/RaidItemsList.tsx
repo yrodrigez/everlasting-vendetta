@@ -1,12 +1,11 @@
 'use client'
 import {useEffect, useState} from "react";
-import {type RaidItem} from "@/app/raid/[id]/soft-reserv/types";
+import {type RaidItem, Reservation} from "@/app/raid/[id]/soft-reserv/types";
 import {useReservations} from "@/app/raid/[id]/soft-reserv/useReservations";
-import {Reservation} from "@/app/raid/[id]/soft-reserv/types";
 import {RaidItemCard} from "@/app/raid/[id]/soft-reserv/RaidItemCard";
 import {Filters} from "@/app/raid/[id]/soft-reserv/Filters";
 import {useFiltersStore} from "@/app/raid/[id]/soft-reserv/filtersStore";
-import {Button} from "@nextui-org/react";
+import {Button, ScrollShadow} from "@nextui-org/react";
 
 export default function RaidItemsList({items, initialReservedItems, resetId}: {
     items: RaidItem[],
@@ -96,7 +95,7 @@ export default function RaidItemsList({items, initialReservedItems, resetId}: {
     return (
         <div className="flex flex-col gap-3 w-full overflow-auto lg:overflow-visible max-h-full flex-1 pt-2 lg:pt-0">
             <Filters/>
-            <div
+            <ScrollShadow
                 className="flex gap-2 p-2 flex-wrap w-full h-full overflow-auto scrollbar-pill items-center justify-center">
 
                 {filteredItems.length === 0 && <div className="text-center w-full h-full flex flex-col items-center ">
@@ -120,7 +119,7 @@ export default function RaidItemsList({items, initialReservedItems, resetId}: {
                         reserve={isReservationsOpen ? reserve : undefined}
                     />
                 ))}
-            </div>
+            </ScrollShadow>
         </div>
     )
 }
