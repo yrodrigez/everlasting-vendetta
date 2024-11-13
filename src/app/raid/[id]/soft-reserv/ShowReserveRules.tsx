@@ -116,6 +116,10 @@ export default function ShowReserveRules({shouldAlwaysOpen}: {
             content: 'The distribution of legendary items will be decided by the loot master, with priority given to long-term members to recognize their contributions and loyalty.'
         },
         {
+            header: 'Special Items and Materials',
+            content: 'All Bind on Equip (BOE) items, farming materials, and quest-related items such as the Head of Broodlord Lashlayer are hard reserved. The distribution of these items will be decided by the loot master, guild master, and raid leader.'
+        },
+        {
             header: 'Exceptional Cases',
             content: 'In exceptional cases, the loot master or raid leader, has the discretion to make changes to loot distribution as deemed necessary.'
         },
