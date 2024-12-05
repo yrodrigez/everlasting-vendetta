@@ -8,6 +8,7 @@ import {Intellect} from "@/app/roster/[name]/components/spell-svgs/Intellect";
 import {Rage} from "@/app/roster/[name]/components/spell-svgs/Rage";
 import {Energy} from "@/app/roster/[name]/components/spell-svgs/Energy";
 import {Mana} from "@/app/roster/[name]/components/spell-svgs/Mana";
+import {NatureResistance} from "@/app/roster/[name]/components/spell-svgs/NatureResistance";
 
 function Power({amount, name}: { amount: number, name: string }) {
     const text = name === 'Rage' ? 'text-red-500' : name === 'Energy' ? 'text-yellow-500' : 'text-blue-500'
@@ -125,10 +126,10 @@ export function StatisticsView({statistics}: { statistics: any }) {
                     </div>
                 </div>
                 <div className="flex flex-row gap-2 w-40">
-                    <Defense className="text-gray-500 w-16 h-16"/>
+                    <NatureResistance className="text-success w-16 h-16"/>
                     <div className="flex-col flex self-end pb-1">
-                        <span className="text-gray-500 font-bold">{characterStatistics.defense}</span>
-                        <span className="text-white">Defense</span>
+                        <span className="text-success font-bold">{characterStatistics?.resistances?.nature}</span>
+                        <span className="text-white">Nature res.</span>
                     </div>
                 </div>
             </div>

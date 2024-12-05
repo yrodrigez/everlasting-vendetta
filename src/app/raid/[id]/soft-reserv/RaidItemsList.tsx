@@ -96,8 +96,7 @@ export default function RaidItemsList({items, initialReservedItems, resetId}: {
         <div className="flex flex-col gap-3 w-full overflow-auto lg:overflow-visible max-h-full flex-1 pt-2 lg:pt-0">
             <Filters/>
             <ScrollShadow
-                className="flex gap-2 p-2 flex-wrap w-full h-full overflow-auto scrollbar-pill items-center justify-center">
-
+                className="flex gap-2 p-2 flex-wrap w-full h-full overflow-auto scrollbar-pill justify-center items-center lg:justify-start lg:items-start">
                 {filteredItems.length === 0 && <div className="text-center w-full h-full flex flex-col items-center ">
                   <span>No items found. Try removing some filters!</span>
                   <Button
