@@ -15,7 +15,7 @@ import {
 } from "@nextui-org/react";
 import {useAssistanceStore} from "@/app/raid/components/assistanceStore";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faArrowDown, faCheck, faClock} from "@fortawesome/free-solid-svg-icons";
+import {faArrowDown, faCheck, faUser} from "@fortawesome/free-solid-svg-icons";
 import {ConfirmAssistance} from "@/app/raid/components/ConfirmAssistance";
 import {LateAssistance} from "@/app/raid/components/LateAssistance";
 import {TentativeAssistance} from "@/app/raid/components/TentativeAssistance";
@@ -143,9 +143,9 @@ export function TemporalLogin() {
         <Button
             onClick={onOpen}
             size="lg"
-            className={`font-bold p-5 border border-moss-100 hover:border-gold hover:bg-dark`}
-            startContent={<FontAwesomeIcon icon={faClock}/>}>
-            Temporal login
+            className={`font-bold p-5 border border-moss-100 hover:border-gold hover:bg-dark rounded-lg`}
+            startContent={<FontAwesomeIcon icon={faUser}/>}>
+            Login with char name
         </Button>
         <Modal
             isOpen={isOpen}
@@ -161,15 +161,16 @@ export function TemporalLogin() {
                     <>
                         <ModalHeader>
                             <h1 className="text-2xl font-bold text-center">
-                                Temporal login
+                                Login with character name
                             </h1>
                         </ModalHeader>
                         <ModalBody>
                             <div>
-                                You can login withouth a Battle.net account, just type the character name and select a
+                                You can login without a Battle.net account, just type the character name and select a
                                 role.
                                 <br/>
-                                However, we recommend you to login with Battle.net to get the security provided by <Link
+                                <br/>
+                                However, we recommend you to login with Battle.net to get the security provided by the <Link
                                 href={'https://develop.battle.net/documentation/guides/using-oauth'} target={'_blank'}
                                 className="text-battlenet">battle.net API</Link>.
                             </div>
@@ -236,7 +237,7 @@ export function TemporalLogin() {
                                 onClick={setIntoStore}
                                 className={'bg-moss text-default rounded'}
                             >
-                                {isFetching ? 'Loading character...' : 'Login'}
+                                {isFetching ? 'Loading character...' : 'Select'}
                             </Button>
                         </ModalFooter>
                     </>
@@ -292,9 +293,10 @@ export default function AssistActions({
         return <div className="text-red-500 flex flex-col mb-2">
             Login to confirm
             <div
-                className="flex gap-2"
+                className="flex gap-2 items-center justify-center"
             >
                 <BnetLoginButton/>
+                <span className="text-default"> - or - </span>
                 <TemporalLogin/>
             </div>
         </div>
