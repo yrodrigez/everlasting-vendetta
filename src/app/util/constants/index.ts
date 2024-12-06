@@ -14,6 +14,11 @@ export const BLIZZARD_LOGOUT_URL = 'https://eu.battle.net/login/en/logout'
 export const LOGIN_URL = '/api/v1/oauth/bnet/auth'
 export const LOGIN_URL_TEMPORAL = '/api/v1/supabase/auth/temporal'
 export const CURRENT_MAX_LEVEL = 60
+export const REGISTRATION_SOURCES = {
+    BNET_OAUTH: 'bnet_oauth',
+    TEMPORAL: 'temporal',
+    MANUAL_RESERVATION: 'manual_reservation'
+}
 /**
  * Default search params for Blizzard API requests
  * @type {URLSearchParams}
