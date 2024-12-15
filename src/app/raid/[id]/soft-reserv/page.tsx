@@ -26,6 +26,7 @@ type RaidQueryResult = {
     time: string;
     end_date: string;
     end_time: string;
+    created_by: number;
 };
 
 export async function generateMetadata({params}: { params: { id: string } }): Promise<Metadata> {
@@ -50,6 +51,7 @@ export async function generateMetadata({params}: { params: { id: string } }): Pr
             description: 'The raid you are looking for does not exist or cannot be found.',
         };
     }
+
 
     const {raid, raid_date: raidDate, time: raidTime, end_date: raidEndDate} = resetData.data;
     const {name: raidName} = raid;
@@ -103,9 +105,12 @@ export default async function Page({params}: { params: { id: string } }) {
     })
 
 
-    const {data: resetIdData, error: resetIdError} = await database.rpc('reset_id_starts_with', { id_prefix: `${params.id}%` })
+    const {
+        data: resetIdData,
+        error: resetIdError
+    } = await database.rpc('reset_id_starts_with', {id_prefix: `${params.id}%`})
 
-    if(resetIdError) {
+    if (resetIdError) {
         return <div>Reset not found</div>
     }
 
@@ -113,7 +118,7 @@ export default async function Page({params}: { params: { id: string } }) {
 
     const resetData = await database
         .from('raid_resets')
-        .select('raid_id, raid:ev_raid(min_level, name, image, reservation_amount), raid_date, time, end_date, end_time')
+        .select('raid_id, raid:ev_raid(min_level, name, image, reservation_amount), raid_date, time, end_date, end_time, created_by')
         .eq('id', resetId)
         .single<RaidQueryResult>()
 
@@ -162,7 +167,13 @@ export default async function Page({params}: { params: { id: string } }) {
 
 
     const reservations = (dataBaseReservations?.data ?? []) as unknown as Reservation[]
-    const {data, error} = await database.from('ev_admin').select('id').eq('id', loggedInCharacter.id).single()
+    let isAdmin = resetData?.data?.created_by === loggedInCharacter?.id
+    if (!isAdmin) {
+        let {data} = await database.from('ev_admin').select('id').eq('id', loggedInCharacter.id).single()
+        if (data) {
+            isAdmin = true
+        }
+    }
 
     return (
         <div
@@ -201,9 +212,10 @@ export default async function Page({params}: { params: { id: string } }) {
                 initialReservedItems={reservations}
                 resetId={resetId}
             />
-            <div className={`self-start lg:self-auto lg:w-fit w-full overflow-visible inline-flex lg:absolute lg:top-0 lg:-right-24 z-50`}>
+            <div
+                className={`self-start lg:self-auto lg:w-fit w-full overflow-visible inline-flex lg:absolute lg:top-0 lg:-right-24 z-50`}>
                 <AdminPanel
-                    isAdmin={!!data}
+                    isAdmin={isAdmin}
                     resetId={resetId}
                 />
             </div>
