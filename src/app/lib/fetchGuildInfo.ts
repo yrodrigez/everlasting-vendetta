@@ -82,7 +82,6 @@ export function getGuildRosterFromGuildInfo(guildInfo: (Character & { updated_at
         'Morcego',
         'Tacy',
         'Felsargon',
-        'Speeps',
         'Rímefang',
         'Utrivelig',
     ]
@@ -90,16 +89,14 @@ export function getGuildRosterFromGuildInfo(guildInfo: (Character & { updated_at
     const raiders = [
         'Mephius',
         'Deadflowers',
-        'Tuneless',
         'Lebiatan',
         'Llarra',
         'Mariomario',
         'Neffertiri',
         'Templaari',
-        'Tjaak',
         'Ruzki',
-        'Cabrero',
-        'Zuzzuk'
+        'Zuzzuk',
+        'Salgo',
     ]
 
     const vipMembers = guildInfo?.filter((member: any) => {
