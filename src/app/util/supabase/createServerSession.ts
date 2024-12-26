@@ -2,7 +2,7 @@ import {createServerComponentClient} from "@/app/util/supabase/createServerCompo
 import {type SupabaseClient} from "@supabase/auth-helpers-nextjs";
 import {UserProfile} from "@/app/util/supabase/types";
 
-function getLoggedInUserFromAccessToken(accessToken: string) {
+export function getLoggedInUserFromAccessToken(accessToken: string) {
     try {
         const parts = accessToken.split('.')
         const payload = JSON.parse(atob(parts[1]))

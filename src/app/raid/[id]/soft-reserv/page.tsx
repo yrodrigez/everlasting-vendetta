@@ -183,7 +183,7 @@ export default async function Page({params}: { params: { id: string } }) {
                 <div className="relative flex w-full h-full">
                     <div className="absolute flex p-2 rounded-md background-position-center bg-cover w-full h-full"
                          style={{
-                             backgroundImage: `url('/${resetData.data?.raid?.image}')`,
+                             backgroundImage: `url("/${resetData.data?.raid?.image}")`,
                              backgroundSize: 'cover',
                              backgroundPosition: 'center',
                              filter: 'brightness(35%)'
@@ -224,7 +224,7 @@ export default async function Page({params}: { params: { id: string } }) {
                 <div className="relative flex w-full h-full">
                     <div className="absolute flex p-2 rounded-md background-position-center bg-cover w-full h-full"
                          style={{
-                             backgroundImage: `url('/${resetData.data?.raid?.image}')`,
+                             backgroundImage: `url("/${resetData.data?.raid?.image}")`,
                              backgroundSize: 'cover',
                              backgroundPosition: 'center',
                              filter: 'brightness(35%)'

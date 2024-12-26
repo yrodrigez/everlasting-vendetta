@@ -19,6 +19,31 @@ export const REGISTRATION_SOURCES = {
     TEMPORAL: 'temporal',
     MANUAL_RESERVATION: 'manual_reservation'
 }
+
+export const ROLE = {
+    GUILD_MASTER: 'GUILD_MASTER',
+    RAID_LEADER: 'RAID_LEADER',
+    ADMIN: 'ADMIN',
+    MODERATOR: 'MODERATOR',
+    COMRADE: 'COMRADE',
+    RAIDER: 'RAIDER',
+    MEMBER: 'MEMBER',
+    GUEST: 'GUEST',
+    ALTER: 'ALTER',
+}
+
+export const ROLE_ORDER = [
+    ROLE.ADMIN,
+    ROLE.GUILD_MASTER,
+    ROLE.RAID_LEADER,
+    ROLE.MODERATOR,
+    ROLE.COMRADE,
+    ROLE.RAIDER,
+    ROLE.MEMBER,
+    ROLE.GUEST,
+    ROLE.ALTER,
+]
+
 /**
  * Default search params for Blizzard API requests
  * @type {URLSearchParams}

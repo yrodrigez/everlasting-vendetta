@@ -7,6 +7,8 @@ import {useCallback} from "react";
 import {useRouter} from "next/navigation";
 import moment from "moment";
 
+
+
 export function CreateRaidButton() {
     const {raid, endTime, startTime, startDate, endDate, days} = useCreateRaidStore(state => state)
     const {supabase, selectedCharacter} = useSession()
@@ -15,12 +17,17 @@ export function CreateRaidButton() {
     const createReset = useCallback(async () => {
         if (!raid || !startTime || !endTime || !startDate || !endDate || !days?.length || !supabase || !selectedCharacter) return
 
+        const shouldAddADay = (
+            moment(`${startDate}T${startTime}`).isAfter(
+            moment(`${endDate}T${endTime}`).toDate())
+        )
+
         const payload = {
             raid_id: raid.id,
             time: startTime,
             end_time: endTime,
             raid_date: moment(startDate).format('YYYY-MM-DD'),
-            end_date: moment(endDate).format('YYYY-MM-DD'),
+            end_date: moment(endDate).add(+shouldAddADay, 'days').format('YYYY-MM-DD'),
             min_lvl: raid.min_level,
             created_by: selectedCharacter?.id,
             modified_by: selectedCharacter?.id,

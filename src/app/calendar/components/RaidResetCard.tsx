@@ -53,7 +53,7 @@ export function RaidResetCard({
     const participants = id ? useParticipants(id, raidRegistrations) : []
     const isRaidCurrent = moment().isBetween(moment(raidDate), moment(raidEndDate))
     const isToday = moment().format('YYYY-MM-DD') === moment(raidDate).format('YYYY-MM-DD')
-    const isRaidPast = moment().isAfter(moment(raidEndDate))
+    const isRaidPast = moment().isAfter(moment(`${raidEndDate}T${endTime}`))
 
     const registrationStatusIcon = useCallback((registrationStatus: string) => {
         if (registrationStatus === 'confirmed') {
