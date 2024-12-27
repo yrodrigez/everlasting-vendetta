@@ -12,6 +12,7 @@ import {faAdd, faArrowLeft, faArrowRight} from "@fortawesome/free-solid-svg-icon
 import {type SupabaseClient} from "@supabase/auth-helpers-nextjs";
 import createServerSession from "@/app/util/supabase/createServerSession";
 import {fetchResetParticipants} from "@/app/raid/api/fetchParticipants";
+import Refresher from "@/app/calendar/components/Refresher";
 
 export const dynamic = 'force-dynamic'
 
@@ -187,5 +188,6 @@ export default async function Page({searchParams}: { searchParams: { d?: string,
                 </Button>
             </Link>
         </div>
+        <Refresher/>
     </main>
 }
