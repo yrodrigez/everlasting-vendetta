@@ -18,6 +18,7 @@ import createServerSession from "@utils/supabase/createServerSession";
 import {Button} from "@/app/components/Button";
 import {ChatContainer} from "@/app/raid/[id]/chat/components/ChatContainer";
 import {fetchResetParticipants} from "@/app/raid/api/fetchParticipants";
+import {ClassSummary} from "@/app/raid/components/ClassSummary";
 
 const raidResetAttr = 'raid_date, id, raid:ev_raid(name, min_level, image), time, end_date, end_time, days'
 export const dynamic = 'force-dynamic'
@@ -157,7 +158,6 @@ export default async function ({params}: { params: { id: string } }) {
     return (
         <div className="w-full h-full flex flex-col relative scrollbar-pill grow-0 overflow-auto">
             <div className="w-full flex grow-0 gap-4">
-
                 <div className="w-full h-full flex flex-col">
                     <h4 className="font-bold text-large text-gold">{raidName}</h4>
                     <small className="text-primary">Start {raidDate} - {raidTime} to {endTime}</small>
@@ -173,6 +173,11 @@ export default async function ({params}: { params: { id: string } }) {
                         raidEndDate={end_date}
                         raidEndTime={endTime}
                     />
+                </div>
+                <div className="flex w-full h-40 mr-14 justify-end">
+                    <div className="h-full flex flex-wrap w-32">
+                        <ClassSummary raidId={id}/>
+                    </div>
                 </div>
             </div>
             <div className="flex w-full">

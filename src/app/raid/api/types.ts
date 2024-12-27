@@ -7,7 +7,7 @@ export type RaidParticipant = {
             id: number;
             name: string;
             avatar: string;
-            playable_class?: string;
+            playable_class?: { name: string };
         }
         registration_source?: string;
     },
