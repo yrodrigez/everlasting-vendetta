@@ -1,8 +1,8 @@
 'use client'
 import {calculateTotalGearScore, getColorForGearScoreText} from "@/app/roster/[name]/ilvl";
 import {useCharacterItemsStore} from "@/app/roster/[name]/characterItemsStore";
-import {useEffect, useRef, useState} from "react";
-import {Skeleton} from "@nextui-org/react";
+import {useCallback, useEffect, useRef, useState} from "react";
+import {Button, Skeleton} from "@nextui-org/react";
 
 function getQualityTypeNumber(quality: string) {
     const qualityTypes = {
@@ -22,7 +22,9 @@ export default function GearScore({character}: { character: string }) {
     const [gearScoreColorName, setGearScoreColorName] = useState('text-common')
     const [isLoading, setIsLoading] = useState(true)
     const items = useCharacterItemsStore(state => state.items)
-    const currentHookState = useRef<{status: string}>({status: 'none'})
+    const characterName = useCharacterItemsStore(state => state.characterName)
+    const currentHookState = useRef<{ status: string }>({status: 'none'})
+
     useEffect(() => {
         const effectiveItems = items.filter((item: any) => item?.slot?.type !== 'SHIRT' && item?.slot?.type !== 'TABARD')
         const isLoading = !effectiveItems.length || effectiveItems.some((item: any) => item.loading)
@@ -42,7 +44,7 @@ export default function GearScore({character}: { character: string }) {
         const gearScoreColorName = `text-${getColorForGearScoreText(gearScore)}`
         setGearScore(gearScore)
         setGearScoreColorName(gearScoreColorName)
-    }, [items, character])
+    }, [items, character, setGearScore, setGearScoreColorName, setIsLoading, characterName])
 
     return (
         <div className="flex gap-1 items-center">
