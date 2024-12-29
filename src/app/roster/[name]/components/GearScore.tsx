@@ -1,59 +1,25 @@
 'use client'
-import {calculateTotalGearScore, getColorForGearScoreText} from "@/app/roster/[name]/ilvl";
-import {useCharacterItemsStore} from "@/app/roster/[name]/characterItemsStore";
-import {useCallback, useEffect, useRef, useState} from "react";
-import {Button, Skeleton} from "@nextui-org/react";
-
-function getQualityTypeNumber(quality: string) {
-    const qualityTypes = {
-        'POOR': 0,
-        'COMMON': 1,
-        'UNCOMMON': 2,
-        'RARE': 3,
-        'EPIC': 4,
-        'LEGENDARY': 5,
-    } as any
-
-    return qualityTypes[quality] || 0
-}
+import {Skeleton} from "@nextui-org/react";
+import {useQuery} from "@tanstack/react-query";
 
 export default function GearScore({character}: { character: string }) {
-    const [gearScore, setGearScore] = useState<string | number>('loading...')
-    const [gearScoreColorName, setGearScoreColorName] = useState('text-common')
-    const [isLoading, setIsLoading] = useState(true)
-    const items = useCharacterItemsStore(state => state.items)
-    const characterName = useCharacterItemsStore(state => state.characterName)
-    const currentHookState = useRef<{ status: string }>({status: 'none'})
-
-    useEffect(() => {
-        const effectiveItems = items.filter((item: any) => item?.slot?.type !== 'SHIRT' && item?.slot?.type !== 'TABARD')
-        const isLoading = !effectiveItems.length || effectiveItems.some((item: any) => item.loading)
-        setIsLoading(isLoading)
-        if (isLoading) return
-        if (currentHookState.current.status === 'loaded') return
-        const gearForGearScore = effectiveItems.map((item: any) => {
-            return {
-                ilvl: item.details?.level || 0,
-                type: `INVTYPE_${item.inventory_type?.type ?? ''}`,
-                rarity: getQualityTypeNumber(item.quality?.type),
-                isEnchanted: !!(item.enchantments?.length)
-            }
-        }).filter(item => item.ilvl !== 0 || item.type !== 'INVTYPE_')
-        currentHookState.current.status = isLoading ? 'loading' : 'loaded'
-        const gearScore = calculateTotalGearScore(gearForGearScore)
-        const gearScoreColorName = `text-${getColorForGearScoreText(gearScore)}`
-        setGearScore(gearScore)
-        setGearScoreColorName(gearScoreColorName)
-    }, [items, character, setGearScore, setGearScoreColorName, setIsLoading, characterName])
+    const {data, isLoading} = useQuery({
+        queryKey: ['gearScore', character],
+        queryFn: async () => {
+            const response = await fetch(`/api/v1/services/member/character/${character}/gs`)
+            return response.json()
+        },
+        enabled: !!character,
+        staleTime: 1000 * 60 * 5, // 5 minutes
+        retry: 3,
+    })
 
     return (
         <div className="flex gap-1 items-center">
             <p className="text-sm text-muted">Gear score: </p>
             <Skeleton isLoaded={!isLoading} className="rounded bg-wood h-6 w-8">
-                <span className={`${gearScoreColorName} font-bold text-sm text-muted`}>{gearScore}</span>
+                <span className={`text-${data?.color ?? 'common'} font-bold text-sm text-muted`}>{data?.gs ?? 0}</span>
             </Skeleton>
         </div>
     )
-
-
 }
