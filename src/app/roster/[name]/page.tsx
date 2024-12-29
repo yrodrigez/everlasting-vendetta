@@ -192,15 +192,14 @@ export default async function Page({params}: { params: { name: string } }) {
                                 {!isGuildMember ? <Tooltip
                                     placement="right"
                                     showArrow
-                                    className="bg-wood text-white p-2 rounded"
-                                    content={'You must be a guild member to see this information'}
+                                    content="You need to be a guild member to see this information"
                                 >
                                 <span className={
                                     `absolute left-0 right-0 -top-1 -bottom-1 rounded backdrop-filter backdrop-blur backdrop-saturate-150 backdrop-contrast-50 bg-gold blur-sm`}/>
                                 </Tooltip> : null}
                         </span>
                             </p>
-                            {isGuildMember ? <GearScore character={characterName}/> : null}
+                            <GearScore character={characterName} isGuildMember={isGuildMember}/>
                         </div>
                     </div>
                     <Image

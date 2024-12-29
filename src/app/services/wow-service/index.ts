@@ -12,6 +12,7 @@ import {
     GUILD_REALM_SLUG,
     REALM_ID
 } from "@/app/util/constants";
+import createServerSession from "@utils/supabase/createServerSession";
 
 interface WoWService {
     token: string | undefined
@@ -130,27 +131,15 @@ export default class WoWService_Impl implements WoWService {
     }
 
     isLoggedUserInGuild = async () => {
-        const token = this.token
-        if (!token) {
+        const {auth} = createServerSession({cookies})
+        const session = await auth.getSession()
+
+        if (!session) {
             return false
         }
 
-        const [availableCharacters, guild] = await Promise.all([
-            this.fetchBattleNetWoWAccounts(),
-            fetchGuildInfo(token)
-        ])
-
-        if (availableCharacters?.length > 0) return true
-        if (!guild || !guild.members || !availableCharacters) {
-            return false
-        }
-
-        const currentRoster = guild.members
-        return availableCharacters.some((character: any) => {
-            if (currentRoster.some((member: any) => member.character.id === character.id)) {
-                return true
-            }
-        })
+        const sessionGuildId = session.guild.id
+        return sessionGuildId === this.guildId
     }
 
     getCharacterTalents = async (characterName: string) => {
