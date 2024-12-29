@@ -119,9 +119,9 @@ async function fetchLootHistory(characterName: string) {
     return loot
 }
 
-export async function generateMetadata({ params }: { params: { name: string } }): Promise<Metadata> {
+export async function generateMetadata({params}: { params: { name: string } }): Promise<Metadata> {
     // Fetch or compute character information here
-    const { fetchMemberInfo } = new WoWService()
+    const {fetchMemberInfo} = new WoWService()
     const characterName = decodeURIComponent(params.name.toLowerCase())
     const characterInfo = await fetchMemberInfo(characterName);
 
@@ -175,7 +175,7 @@ export default async function Page({params}: { params: { name: string } }) {
                     <div className="flex items-center gap-4 mb-4">
                         <div className="w-20 h-20 rounded-full overflow-hidden">
                             <CharacterAvatar token={token} realm={GUILD_REALM_SLUG} characterName={characterInfo.name}
-                                             className="rounded-full border-3 border-gold"/>
+                                             className={`rounded-full border-3 border-${characterInfo?.character_class?.name?.toLowerCase()}`}/>
                         </div>
                         <div className="grid gap-1.5">
                             <h2 className="font-semibold text-lg">{characterInfo?.name}</h2>
@@ -185,7 +185,7 @@ export default async function Page({params}: { params: { name: string } }) {
                                     className="text-sm text-gold">{`<${characterInfo?.guild?.name}>`}</Link>
                             ) : null}
                             <p className="text-sm text-muted">
-                                Level {characterInfo?.level} {characterInfo?.race?.name} {characterInfo?.character_class?.name}
+                                Level {characterInfo?.level} {characterInfo?.race?.name} <span className={`text-${characterInfo?.character_class?.name?.toLowerCase()} font-bold`}>{characterInfo?.character_class?.name}</span>
                             </p>
                             <p className="text-sm text-muted">Last online: <span className={`font-bold relative`}>
                             {isGuildMember ? moment(characterInfo?.last_login_timestamp).format('MMMM D HH:MM') : 'no seas porco'}
@@ -200,8 +200,7 @@ export default async function Page({params}: { params: { name: string } }) {
                                 </Tooltip> : null}
                         </span>
                             </p>
-
-                            <GearScore character={characterName}/>
+                            {isGuildMember ? <GearScore character={characterName}/> : null}
                         </div>
                     </div>
                     <Image
