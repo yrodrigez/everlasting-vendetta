@@ -10,12 +10,15 @@ import {getBlizzardToken} from "@/app/lib/getBlizzardToken";
 import WoWService from "@/app/services/wow-service";
 import GearScore from "@/app/roster/[name]/components/GearScore";
 import Link from "next/link";
-import {GUILD_NAME, GUILD_REALM_SLUG} from "@/app/util/constants";
+import {GUILD_ID, GUILD_NAME, GUILD_REALM_SLUG} from "@/app/util/constants";
 import {LootHistory} from "@/app/roster/[name]/components/LootHistory";
 import {StatisticsView} from "@/app/roster/[name]/components/StatisticsView";
 import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
 import Head from "next/head";
 import {Metadata} from "next";
+import {BnetLoginButton} from "@/app/components/BnetLoginButton";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faBan} from "@fortawesome/free-solid-svg-icons";
 
 const getPlayerClassById = (classId: number) => {
     const classes = {
@@ -165,6 +168,20 @@ export default async function Page({params}: { params: { name: string } }) {
         return <div>Character not found</div>
     }
 
+    if (!isGuildMember && characterInfo.guild?.id !== GUILD_ID) {
+        return <div
+            className="text-2xl text-red-500 font-bold p-4 w-full h-full flex items-center justify-center flex-col gap-2">
+            <FontAwesomeIcon icon={faBan}/>
+            <div>You can only view guild members.</div>
+            <div>Only guild members can view characters from other guilds.</div>
+            <div>You should also login using <span className="text-battlenet">Battle.net</span> to view this page</div>
+            <div className="flex items-center gap-2 text-default">Please <BnetLoginButton/> or <Link href={'/apply'}
+                                                                                                     className="text-default border-moss-100 border px-3 py-2 rounded-lg bg-moss hover:bg-moss-100 hover:border-moss hover:text-gold transition-colors duration-200">Apply</Link> to
+                view this character.
+            </div>
+        </div>
+    }
+
     return (
         <>
             <Head>
@@ -185,7 +202,8 @@ export default async function Page({params}: { params: { name: string } }) {
                                     className="text-sm text-gold">{`<${characterInfo?.guild?.name}>`}</Link>
                             ) : null}
                             <p className="text-sm text-muted">
-                                Level {characterInfo?.level} {characterInfo?.race?.name} <span className={`text-${characterInfo?.character_class?.name?.toLowerCase()} font-bold`}>{characterInfo?.character_class?.name}</span>
+                                Level {characterInfo?.level} {characterInfo?.race?.name} <span
+                                className={`text-${characterInfo?.character_class?.name?.toLowerCase()} font-bold`}>{characterInfo?.character_class?.name}</span>
                             </p>
                             <p className="text-sm text-muted">Last online: <span className={`font-bold relative`}>
                             {isGuildMember ? moment(characterInfo?.last_login_timestamp).format('MMMM D HH:MM') : 'no seas porco'}
