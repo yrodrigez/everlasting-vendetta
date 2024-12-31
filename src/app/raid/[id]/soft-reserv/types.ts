@@ -14,6 +14,7 @@ export type RaidItem = {
         inventoryType: string;
     };
     raid_id: string;
+    isHardReserved?: boolean;
 };
 export type RaidReset = {
     id: string;

@@ -52,6 +52,7 @@ export default function AdminPanel({isAdmin, resetId}: { isAdmin: boolean, reset
                 loading={loading}
                 reservationsByItem={reservationsByItem}
                 isReservationsOpen={isReservationsOpen}
+                resetId={resetId}
             />
             <ShowReservations items={items} isAdmin={isAdmin}/>
             {

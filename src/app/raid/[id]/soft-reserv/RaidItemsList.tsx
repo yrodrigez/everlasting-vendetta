@@ -6,11 +6,13 @@ import {RaidItemCard} from "@/app/raid/[id]/soft-reserv/RaidItemCard";
 import {Filters} from "@/app/raid/[id]/soft-reserv/Filters";
 import {useFiltersStore} from "@/app/raid/[id]/soft-reserv/filtersStore";
 import {Button, ScrollShadow} from "@nextui-org/react";
+import {useRouter} from "next/navigation";
 
-export default function RaidItemsList({items, initialReservedItems, resetId}: {
+export default function RaidItemsList({items, initialReservedItems, resetId, isAdmin}: {
     items: RaidItem[],
     initialReservedItems: Reservation[],
     resetId: string
+    isAdmin: boolean
 }) {
 
     const [filteredItems, setFilteredItems] = useState(items)
@@ -29,7 +31,11 @@ export default function RaidItemsList({items, initialReservedItems, resetId}: {
         remove,
         yourReservations,
         reservationsByItem,
-        isReservationsOpen
+        isReservationsOpen,
+        supabase,
+        hardReserve,
+        removeHardReserve,
+        loading,
     } = useReservations(resetId, initialReservedItems)
 
     const filterItems = (items: RaidItem[]) => {
@@ -92,6 +98,34 @@ export default function RaidItemsList({items, initialReservedItems, resetId}: {
         })
     }, []);
 
+    const router = useRouter()
+    useEffect(() => {
+        if(!supabase) return
+        const isOpenChannel = supabase.channel(`raid_loot:id=eq.${resetId}`)
+            .on('postgres_changes', {
+                event: '*',
+                schema: 'public',
+                table: 'raid_loot',
+            }, async () => {
+                router.refresh()
+            }).subscribe()
+
+        const hardReserveChannel = supabase.channel(`hard_reserve:reset_id=eq.${resetId}`)
+            .on('postgres_changes',{
+                event: '*',
+                schema: 'public',
+                table: 'reset_hard_reserve',
+                filter: 'reset_id=eq.' + resetId
+            }, async () => {
+                router.refresh()
+            }).subscribe()
+
+        return () => {
+            isOpenChannel.unsubscribe()
+            hardReserveChannel.unsubscribe()
+        }
+    }, [supabase, resetId]);
+
     return (
         <div className="flex flex-col gap-3 w-full overflow-auto lg:overflow-visible max-h-full flex-1 pt-2 lg:pt-0">
             <Filters/>
@@ -116,6 +150,9 @@ export default function RaidItemsList({items, initialReservedItems, resetId}: {
                         reservedBy={reservationsByItem.find((r) => r.item.id === item.id)?.reservations}
                         remove={isReservationsOpen && yourReservations.find((r) => r.item.id === item.id) ? remove : undefined}
                         reserve={isReservationsOpen ? reserve : undefined}
+                        hardReserve={isAdmin ? hardReserve : undefined}
+                        removeHardReserve={isAdmin ? removeHardReserve: undefined}
+                        isLoading={loading}
                     />
                 ))}
             </ScrollShadow>

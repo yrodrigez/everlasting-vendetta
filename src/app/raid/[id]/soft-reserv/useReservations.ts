@@ -1,5 +1,5 @@
 'use client'
-import {useEffect} from "react";
+import {useCallback, useEffect} from "react";
 import {useSession} from "@/app/hooks/useSession";
 import {raidLootReservationsColumns} from "@/app/raid/[id]/soft-reserv/supabase_config";
 import {type Character, type RaidItem, type Reservation} from "@/app/raid/[id]/soft-reserv/types";
@@ -7,7 +7,6 @@ import useReservationsStore from "@/app/raid/[id]/soft-reserv/reservationsStore"
 import {toast} from "sonner";
 import {SupabaseClient} from "@supabase/auth-helpers-nextjs";
 import {useQuery} from "@tanstack/react-query";
-import {assistRaid} from "@/app/raid/components/utils";
 import {registerOnRaid} from "@/app/lib/database/raid_resets/registerOnRaid";
 
 const groupByItem = (reservations: Reservation[]) => {
@@ -32,11 +31,13 @@ const fetchItems = async (supabase: any, raidId: string) => {
         .from('raid_loot_reservation')
         .select(raidLootReservationsColumns)
         .eq('reset_id', raidId)
+
     if (error) {
         console.error(error)
         return []
     }
-    return items
+
+    return items as Reservation[]
 }
 
 const reserveItem = async (supabase: any, raidId: string, itemId: number, characterId: number) => {
@@ -165,10 +166,14 @@ export const useReservations = (resetId: string, initialItems: Reservation[] = [
         enabled: !!resetId && !!supabase && !!selectedCharacter?.id,
     })
 
-    const {isLoading: isLoadingReservationsOpen, error: errorReservationsOpen, refetch: reFetchReservationsOpen} = useQuery({
+    const {
+        isLoading: isLoadingReservationsOpen,
+        error: errorReservationsOpen,
+        refetch: reFetchReservationsOpen
+    } = useQuery({
         queryKey: ['reservations', 'reservations_open', resetId],
         queryFn: async () => {
-            if(!supabase) {
+            if (!supabase) {
                 setIsReservationsOpen(false)
                 return false
             }
@@ -182,7 +187,7 @@ export const useReservations = (resetId: string, initialItems: Reservation[] = [
     const {data: isPresent, refetch: refetchIsPresent} = useQuery({
         queryKey: ['reservations', 'is_present', resetId, selectedCharacter],
         queryFn: async () => {
-            if(!supabase || !selectedCharacter) return false
+            if (!supabase || !selectedCharacter) return false
 
             const {data, error} = await supabase
                 .from('ev_raid_participant')
@@ -191,7 +196,7 @@ export const useReservations = (resetId: string, initialItems: Reservation[] = [
                 .eq('raid_id', resetId)
                 .limit(1)
 
-            if(error) {
+            if (error) {
                 console.error(error)
                 return false
             }
@@ -204,7 +209,7 @@ export const useReservations = (resetId: string, initialItems: Reservation[] = [
     const {data: resetDays, refetch: refetchResetDays} = useQuery({
         queryKey: ['reservations', 'reset_info', resetId],
         queryFn: async () => {
-            if(!supabase) return []
+            if (!supabase) return []
 
             const {data, error} = await supabase
                 .from('raid_resets')
@@ -213,7 +218,7 @@ export const useReservations = (resetId: string, initialItems: Reservation[] = [
                 .limit(1)
                 .maybeSingle()
 
-            if(error) {
+            if (error) {
                 console.error(error)
                 return []
             }
@@ -290,13 +295,13 @@ export const useReservations = (resetId: string, initialItems: Reservation[] = [
         if (isError) {
             const audio = new Audio('/sounds/HumanMale_err_itemmaxcount01.ogg');
             audio.play().then().catch(console.error)
-            toast.error(`Only ${maxReservations} reservations per save is allowed.`)
+            toast.error(`Max reservations on reset or item reached`)
         } else {
             const audio = new Audio('/sounds/LootCoinSmall.ogg');
             audio.play().then().catch(console.error)
-            if(!isPresent && selectedCharacter) {
+            if (!isPresent && selectedCharacter) {
                 const className = (selectedCharacter?.playable_class?.name?.toLowerCase() ?? 'mage') as 'warrior' | 'paladin' | 'hunter' | 'rogue' | 'priest' | 'shaman' | 'mage' | 'warlock' | 'druid'
-                if(!resetDays?.length) {
+                if (!resetDays?.length) {
                     await refetchResetDays()
                 }
                 registerOnRaid(selectedCharacter.id, resetId, {
@@ -328,6 +333,43 @@ export const useReservations = (resetId: string, initialItems: Reservation[] = [
         setLoading(false)
     }
 
+    const hardReserve = useCallback(async (itemId: number) => {
+        if (!selectedCharacter?.id || !supabase) return
+        setLoading(true)
+        const {error} = await supabase.from('reset_hard_reserve').insert({
+            reset_id: resetId,
+            item_id: itemId,
+        })
+        setLoading(false)
+        if (error) {
+            console.error(error)
+            toast.error('Error hard reserving item')
+        }
+
+        const{error: itemError} = await supabase.from('raid_loot_reservation')
+            .delete()
+            .eq('reset_id', resetId)
+            .eq('item_id', itemId)
+
+        if (itemError) {
+            console.error(itemError)
+            toast.error('Error removing soft reserve')
+        }
+    }, [resetId, supabase])
+
+    const removeHardReserve = useCallback(async (itemId: number) => {
+
+        if (!selectedCharacter?.id || !supabase) return
+        setLoading(true)
+        const {error} = await supabase.from('reset_hard_reserve').delete().eq('reset_id', resetId).eq('item_id', itemId)
+        setLoading(false)
+        if (error) {
+            console.error(error)
+            toast.error('Error removing hard reserve')
+        }
+
+    }, [resetId, supabase])
+
     return {
         items,
         loading: loading || !supabase,
@@ -339,6 +381,9 @@ export const useReservations = (resetId: string, initialItems: Reservation[] = [
         remove,
         isReservationsOpen,
         setIsReservationsOpen: toggleReservationsOpen,
-        maxReservations
+        maxReservations,
+        supabase,
+        hardReserve,
+        removeHardReserve
     }
 }

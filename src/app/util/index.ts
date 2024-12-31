@@ -19,6 +19,19 @@ export function getCookie(name: string) {
 
 }
 
+export function getQualityColor(quality: number) {
+    const qualityColors = [
+        'poor',
+        'common',
+        'uncommon',
+        'rare',
+        'epic',
+        'legendary',
+    ]
+
+    return qualityColors[quality] as 'poor' | 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary' ?? 'common'
+}
+
 /**
  * Zustand logger
  * Logs the state changes to the console in development mode only

@@ -9,6 +9,32 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      banned_member: {
+        Row: {
+          created_at: string
+          id: number
+          member_id: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          member_id?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          member_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "banned_member_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "ev_member"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blizzard_token: {
         Row: {
           created_at: string
@@ -238,7 +264,9 @@ export type Database = {
           id: number
           message: string | null
           name: string
+          reviewed_by: number | null
           role: string
+          status: string | null
         }
         Insert: {
           class: string
@@ -247,7 +275,9 @@ export type Database = {
           id?: number
           message?: string | null
           name: string
+          reviewed_by?: number | null
           role: string
+          status?: string | null
         }
         Update: {
           class?: string
@@ -256,9 +286,19 @@ export type Database = {
           id?: number
           message?: string | null
           name?: string
+          reviewed_by?: number | null
           role?: string
+          status?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "ev_application_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "ev_member"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ev_extra_reservations: {
         Row: {
@@ -333,6 +373,7 @@ export type Database = {
       ev_loot_history: {
         Row: {
           character: string | null
+          created_at: string | null
           dateTime: string
           id: string
           itemID: number | null
@@ -341,6 +382,7 @@ export type Database = {
         }
         Insert: {
           character?: string | null
+          created_at?: string | null
           dateTime?: string
           id: string
           itemID?: number | null
@@ -349,6 +391,7 @@ export type Database = {
         }
         Update: {
           character?: string | null
+          created_at?: string | null
           dateTime?: string
           id?: string
           itemID?: number | null
@@ -373,6 +416,7 @@ export type Database = {
           registration_source: string | null
           updated_at: string | null
           user_id: string
+          wow_account_id: number | null
         }
         Insert: {
           character?: Json | null
@@ -381,6 +425,7 @@ export type Database = {
           registration_source?: string | null
           updated_at?: string | null
           user_id?: string
+          wow_account_id?: number | null
         }
         Update: {
           character?: Json | null
@@ -389,26 +434,38 @@ export type Database = {
           registration_source?: string | null
           updated_at?: string | null
           user_id?: string
+          wow_account_id?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "ev_member_wow_account_id_fkey"
+            columns: ["wow_account_id"]
+            isOneToOne: false
+            referencedRelation: "wow_account"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ev_member_role: {
         Row: {
           created_at: string
           id: string
           member_id: number | null
+          member_name: string | null
           role: string | null
         }
         Insert: {
           created_at?: string
           id?: string
           member_id?: number | null
+          member_name?: string | null
           role?: string | null
         }
         Update: {
           created_at?: string
           id?: string
           member_id?: number | null
+          member_name?: string | null
           role?: string | null
         }
         Relationships: [
@@ -436,6 +493,7 @@ export type Database = {
           min_level: number | null
           name: string
           reservation_amount: number
+          short_name: string | null
         }
         Insert: {
           created_at?: string
@@ -444,6 +502,7 @@ export type Database = {
           min_level?: number | null
           name?: string
           reservation_amount?: number
+          short_name?: string | null
         }
         Update: {
           created_at?: string
@@ -452,6 +511,7 @@ export type Database = {
           min_level?: number | null
           name?: string
           reservation_amount?: number
+          short_name?: string | null
         }
         Relationships: []
       }
@@ -497,6 +557,21 @@ export type Database = {
           },
         ]
       }
+      ev_right: {
+        Row: {
+          created_at: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
       ev_role: {
         Row: {
           created_at: string
@@ -515,20 +590,30 @@ export type Database = {
       ev_role_permissions: {
         Row: {
           created_at: string
+          hidden_id: number
           id: string
           role: string | null
         }
         Insert: {
           created_at?: string
+          hidden_id?: number
           id: string
           role?: string | null
         }
         Update: {
           created_at?: string
+          hidden_id?: number
           id?: string
           role?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "ev_role_permissions_id_fkey"
+            columns: ["id"]
+            isOneToOne: false
+            referencedRelation: "ev_right"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "ev_role_permissions_role_fkey"
             columns: ["role"]
@@ -541,6 +626,38 @@ export type Database = {
             columns: ["role"]
             isOneToOne: false
             referencedRelation: "ev_role"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_reminder: {
+        Row: {
+          content: string | null
+          event_date: string
+          id: number
+          reminder_type: number | null
+          reset_id: string | null
+        }
+        Insert: {
+          content?: string | null
+          event_date?: string
+          id?: number
+          reminder_type?: number | null
+          reset_id?: string | null
+        }
+        Update: {
+          content?: string | null
+          event_date?: string
+          id?: number
+          reminder_type?: number | null
+          reset_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_reminder_reset_id_fkey"
+            columns: ["reset_id"]
+            isOneToOne: false
+            referencedRelation: "raid_resets"
             referencedColumns: ["id"]
           },
         ]
@@ -705,6 +822,52 @@ export type Database = {
             columns: ["member_id"]
             isOneToOne: false
             referencedRelation: "ev_member"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      message_reaction: {
+        Row: {
+          created_at: string
+          id: number
+          member_id: number
+          message_id: number
+          reaction_id: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          member_id: number
+          message_id: number
+          reaction_id: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          member_id?: number
+          message_id?: number
+          reaction_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_reaction_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "ev_member"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "message_reaction_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "reset_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "message_reaction_reaction_id_fkey"
+            columns: ["reaction_id"]
+            isOneToOne: false
+            referencedRelation: "reaction"
             referencedColumns: ["id"]
           },
         ]
@@ -959,6 +1122,27 @@ export type Database = {
           },
         ]
       }
+      reaction: {
+        Row: {
+          description: string | null
+          emoji: string | null
+          id: number
+          shortcut: string | null
+        }
+        Insert: {
+          description?: string | null
+          emoji?: string | null
+          id?: number
+          shortcut?: string | null
+        }
+        Update: {
+          description?: string | null
+          emoji?: string | null
+          id?: number
+          shortcut?: string | null
+        }
+        Relationships: []
+      }
       recipients: {
         Row: {
           avatar: string
@@ -982,6 +1166,45 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      reset_messages: {
+        Row: {
+          character_id: number | null
+          content: string
+          created_at: string
+          id: number
+          reset_id: string
+        }
+        Insert: {
+          character_id?: number | null
+          content: string
+          created_at?: string
+          id?: number
+          reset_id: string
+        }
+        Update: {
+          character_id?: number | null
+          content?: string
+          created_at?: string
+          id?: number
+          reset_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reset_messages_character_id_fkey"
+            columns: ["character_id"]
+            isOneToOne: false
+            referencedRelation: "ev_member"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reset_messages_reset_id_fkey"
+            columns: ["reset_id"]
+            isOneToOne: false
+            referencedRelation: "raid_resets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       users: {
         Row: {
@@ -1008,15 +1231,22 @@ export type Database = {
           name?: string | null
           user_name?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "users_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
+      }
+      wow_account: {
+        Row: {
+          created_at: string
+          id: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+        }
+        Relationships: []
       }
       wow_items: {
         Row: {
@@ -1086,11 +1316,19 @@ export type Database = {
         }
         Returns: undefined
       }
+      execute_raid_nagger: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       get_accessible_rooms: {
         Args: {
           user_id: string
         }
         Returns: string[]
+      }
+      get_character_id: {
+        Args: Record<PropertyKey, never>
+        Returns: number
       }
       get_guild_roster_history: {
         Args: Record<PropertyKey, never>
@@ -1102,11 +1340,21 @@ export type Database = {
         }
         Returns: string
       }
+      id_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       id_text: {
         Args: {
           id_column: string
         }
         Returns: string
+      }
+      is_role: {
+        Args: {
+          verify_role: string
+        }
+        Returns: boolean
       }
       is_user_alloed_to_see_members: {
         Args: {
@@ -1249,4 +1497,19 @@ export type Enums<
   ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
     ? PublicSchema["Enums"][PublicEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof PublicSchema["CompositeTypes"]
+    | { schema: keyof Database },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
+    ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never

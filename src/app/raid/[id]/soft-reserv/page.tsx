@@ -3,7 +3,7 @@ import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
 import RaidItemsList from "@/app/raid/[id]/soft-reserv/RaidItemsList";
 import {raidLootReservationsColumns} from "@/app/raid/[id]/soft-reserv/supabase_config";
 import {RaidItem, Reservation} from "@/app/raid/[id]/soft-reserv/types";
-import {getLoggedInUserFromAccessToken} from "@/app/util";
+import {getLoggedInUserFromAccessToken, getQualityColor} from "@/app/util";
 import YourReservations from "@/app/raid/[id]/soft-reserv/YourReservations";
 import React from "react";
 import AdminPanel from "@/app/raid/[id]/soft-reserv/AdminPanel";
@@ -11,12 +11,15 @@ import RaidTimeInfo from "@/app/raid/components/RaidTimeInfo";
 import NotLoggedInView from "@/app/components/NotLoggedInView";
 import {Metadata} from "next";
 import moment from "moment";
+import Link from "next/link";
+import {BannedItems} from "@/app/raid/[id]/soft-reserv/BannedItems";
 
 type Raid = {
     min_level: number;
     name: string;
     image: string;
     reservation_amount: number;
+    id: string;
 };
 
 type RaidQueryResult = {
@@ -118,7 +121,7 @@ export default async function Page({params}: { params: { id: string } }) {
 
     const resetData = await database
         .from('raid_resets')
-        .select('raid_id, raid:ev_raid(min_level, name, image, reservation_amount), raid_date, time, end_date, end_time, created_by')
+        .select('raid_id, raid:ev_raid(min_level, name, image, reservation_amount, id), raid_date, time, end_date, end_time, created_by')
         .eq('id', resetId)
         .single<RaidQueryResult>()
 
@@ -146,14 +149,23 @@ export default async function Page({params}: { params: { id: string } }) {
         </div>
     }
 
-    const databaseItems = await database.from('raid_loot')
-        .select('item:raid_loot_item(*)')
-        .eq('raid_id', resetData.data?.raid_id)
-        .eq('is_visible', true)
-        .returns<{ item: RaidItem }[]>()
+    const [hardReservations, databaseItems] = await Promise.all([
+        database.from('reset_hard_reserve')
+            .select('item_id, item:raid_loot_item(*)')
+            .eq('reset_id', resetId)
+            .returns<{ item_id: number, item: any }[]>(),
+        database.from('raid_loot')
+            .select('item:raid_loot_item(*)')
+            .eq('raid_id', resetData.data?.raid_id)
+            .eq('is_visible', true)
+            .returns<{ item: RaidItem }[]>()
+    ])
 
     const items = (databaseItems.data ?? []).map(function (x) {
-        return x.item
+        return {
+            ...x.item,
+            isHardReserved: !!hardReservations?.data?.some(r => r.item_id === x.item.id)
+        }
     }).reduce(function (acc, item) {
         if (!acc.find(i => i.id === item.id)) {
             acc.push(item)
@@ -211,6 +223,7 @@ export default async function Page({params}: { params: { id: string } }) {
                 items={items}
                 initialReservedItems={reservations}
                 resetId={resetId}
+                isAdmin={isAdmin}
             />
             <div
                 className={`self-start lg:self-auto lg:w-fit w-full overflow-visible inline-flex lg:absolute lg:top-0 lg:-right-24 z-50`}>
@@ -221,7 +234,7 @@ export default async function Page({params}: { params: { id: string } }) {
             </div>
             <div
                 className={'lg:inline-flex hidden lg:absolute lg:top-0 lg:-left-72 w-64 h-48 z-50 border-gold border rounded-md'}>
-                <div className="relative flex w-full h-full">
+                <div className="relative flex w-full h-full flex-col gap-4">
                     <div className="absolute flex p-2 rounded-md background-position-center bg-cover w-full h-full"
                          style={{
                              backgroundImage: `url("/${resetData.data?.raid?.image}")`,
@@ -246,9 +259,21 @@ export default async function Page({params}: { params: { id: string } }) {
                             initialReservedItems={reservations}
                         />
                     </div>
+                    <div>
+                        {!!hardReservations?.data?.length && (
+                            <div className="flex flex-col gap-2">
+                                <span className="text-lg font-bold">Banned items</span>
+                                <BannedItems
+                                    hardReservations={hardReservations.data}
+                                    reset_id={resetId}
+                                    isAdmin={isAdmin}
+                                    raid_id={resetData.data.raid_id}
+                                />
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
-
         </div>
     )
 }
