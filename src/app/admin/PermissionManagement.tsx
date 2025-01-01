@@ -151,7 +151,8 @@ export default function PermissionManagement({
                                         </div>
                                         <div className="table-cell p-2 border-b border-stone">
                                             {assignedRoles.length === 0 ? (
-                                                <span className="italic opacity-70 text-default">No assigned roles</span>
+                                                <span
+                                                    className="italic opacity-70 text-default">No assigned roles</span>
                                             ) : (
                                                 assignedRoles
                                                     .sort(
@@ -220,7 +221,7 @@ export default function PermissionManagement({
                 <h2 className="text-2xl font-bold text-gold flex-shrink-0">
                     Roles & Permissions
                 </h2>
-                <div className="flex-1 min-h-0 overflow-auto mt-2 relative">
+                <div className="flex-1 min-h-0 overflow-auto mt-2 relative scrollbar-pill">
                     <div
                         className="table w-full border-collapse"
                         style={{border: "1px solid #3A3A3A", borderRadius: 4}}
@@ -246,50 +247,57 @@ export default function PermissionManagement({
                                 .map(({role, permissions}) => {
                                     const [newPermission, setNewPermission] = useState("")
                                     return (
-                                        <div key={role.id} className="table-row hover:bg-dark-100">
+                                        <div key={role.id} className="table-row hover:bg-dark-100 h-1 max-h-1">
                                             <div className="table-cell p-2 border-b border-stone">
                                                 {role.id}
                                             </div>
                                             <div className="table-cell p-2 border-b border-stone">
-                                                {permissions.length === 0 ? (
-                                                    <span className="italic opacity-70">No permissions</span>
-                                                ) : (
-                                                    permissions.map((p) => (
-                                                        <span
-                                                            key={p.id}
-                                                            className="inline-flex items-center px-2 py-1 mr-2 mb-1 bg-wood text-gold rounded"
-                                                        >
-                              {p.id}
-                                                            <button
-                                                                onClick={() =>
-                                                                    handleRemovePermissionFromRole(p.id, role.id)
-                                                                }
-                                                                className="ml-2 text-red-500 font-bold"
+                                                <div className="overflow-auto h-9 w-full scrollbar-pill">
+                                                    {permissions.length === 0 ? (
+                                                        <span className="italic opacity-70">No permissions</span>
+                                                    ) : (
+                                                        permissions.map((p) => (
+                                                            <span
+                                                                key={p.id}
+                                                                className="inline-flex items-center px-2 py-1 mr-2 mb-1 bg-wood text-gold rounded"
                                                             >
+                              {p.id}
+                                                                <button
+                                                                    onClick={() =>
+                                                                        handleRemovePermissionFromRole(p.id, role.id)
+                                                                    }
+                                                                    className="ml-2 text-red-500 font-bold"
+                                                                >
                                 ✕
                               </button>
                             </span>
-                                                    ))
-                                                )}
+                                                        ))
+                                                    )}
+                                                </div>
                                             </div>
                                             <div className="table-cell p-2 border-b border-stone">
-                                                <input
-                                                    type="text"
-                                                    value={newPermission}
-                                                    onChange={(e) => setNewPermission(e.target.value)}
-                                                    placeholder="Permission ID"
-                                                    className="bg-dark text-gold border border-stone rounded px-2 py-1 mr-2"
-                                                />
-                                                <button
-                                                    onClick={() => {
-                                                        if (!newPermission.trim()) return
-                                                        handleAddPermissionToRole(role.id, newPermission.trim())
-                                                        setNewPermission("")
-                                                    }}
-                                                    className="hover:opacity-90 cursor-pointer px-2 py-1 rounded text-default bg-moss"
+                                                <div
+                                                    className="flex items-center"
+                                                    style={{width: "calc(100% - 2rem)"}}
                                                 >
-                                                    Add
-                                                </button>
+                                                    <input
+                                                        type="text"
+                                                        value={newPermission}
+                                                        onChange={(e) => setNewPermission(e.target.value)}
+                                                        placeholder="Permission ID"
+                                                        className="bg-dark text-gold border border-stone rounded px-2 py-1 mr-2"
+                                                    />
+                                                    <button
+                                                        onClick={() => {
+                                                            if (!newPermission.trim()) return
+                                                            handleAddPermissionToRole(role.id, newPermission.trim())
+                                                            setNewPermission("")
+                                                        }}
+                                                        className="hover:opacity-90 cursor-pointer px-2 py-1 rounded text-default bg-moss"
+                                                    >
+                                                        Add
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     )
