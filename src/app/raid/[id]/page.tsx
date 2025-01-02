@@ -1,5 +1,6 @@
 import moment from "moment/moment";
-import {createServerComponentClient, SupabaseClient} from "@supabase/auth-helpers-nextjs";
+
+import {type SupabaseClient} from "@supabase/supabase-js";
 import {cookies} from "next/headers";
 import React from "react";
 
@@ -91,7 +92,7 @@ function findPreviousAndNextReset(supabase: SupabaseClient, resetDate: string) {
 }
 
 export async function generateMetadata({params}: { params: { id: string } }): Promise<Metadata> {
-    const supabase = createServerComponentClient({cookies});
+    const {supabase} = createServerSession({cookies})
 
     // Fetch the raid data based on the ID
     const {

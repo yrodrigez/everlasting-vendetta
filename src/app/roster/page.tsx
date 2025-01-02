@@ -1,9 +1,9 @@
 import Link from "next/link";
-import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
 import {cookies} from "next/headers";
 import {type Character, getGuildRosterFromGuildInfo} from "@/app/lib/fetchGuildInfo";
 import {CURRENT_MAX_LEVEL, GUILD_NAME, GUILD_REALM_NAME} from "@/app/util/constants";
 import moment from "moment";
+import createServerSession from "@utils/supabase/createServerSession";
 
 export const dynamic = 'force-dynamic'
 
@@ -55,7 +55,7 @@ const RANKS = {
 
 export default async function Page() {
 
-    const supabase = createServerComponentClient({cookies})
+    const {supabase} = createServerSession({cookies})
     const {data, error} = await supabase.from('ev_member')
         .select('updated_at, character')
         .filter('character->>level', 'gte', CURRENT_MAX_LEVEL - 10)

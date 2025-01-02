@@ -115,7 +115,7 @@ export function RaidResetCard({
             </CardBody>
             <CardFooter className="bg-[rgba(0,0,0,.60)] flex gap-1">
                 {id && <Button
-                  onClick={() => {
+                  onPress={() => {
                       router.push(`/raid/${id}`)
                   }}
                   className="w-full bg-moss hover:bg-moss-600 text-gold font-bold"
@@ -126,7 +126,7 @@ export function RaidResetCard({
                     <Button
                         isIconOnly
                         className={`bg-wood border border-wood-100 text-stone-100`}
-                        onClick={() => {
+                        onPress={() => {
                             router.push(`/calendar/${id}/edit`)
                         }}
                     >

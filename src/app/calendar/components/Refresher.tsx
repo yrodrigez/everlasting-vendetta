@@ -1,10 +1,10 @@
 'use client'
-import {createClientComponentClient} from "@supabase/auth-helpers-nextjs";
+import {createBrowserClient as createClientComponentClient} from "@supabase/ssr"
 import {useRouter} from "next/navigation";
 import {useEffect} from "react";
 
-export default function Refresher () {
-    const supabase = createClientComponentClient()
+export default function Refresher() {
+    const supabase = createClientComponentClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
     const router = useRouter()
 
     useEffect(() => {

@@ -3,7 +3,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faMinus, faPlus} from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 import {useMutation} from "@tanstack/react-query";
-import {SupabaseClient} from "@supabase/auth-helpers-nextjs";
+import {type SupabaseClient} from "@supabase/supabase-js";
 import {Spinner} from "@nextui-org/react";
 
 async function updateExtraReserve(resetId: string, characterId: number, amount: number, supabase?: SupabaseClient) {

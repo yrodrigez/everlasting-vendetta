@@ -1,9 +1,9 @@
 import {NextRequest, NextResponse} from "next/server";
-import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
 import {cookies} from "next/headers";
+import createServerSession from "@utils/supabase/createServerSession";
 
 async function fetchRaidStatus(raidId: any) {
-    const supabase = createServerComponentClient({cookies})
+    const {supabase} = createServerSession({cookies})
     const {
         data,
         error

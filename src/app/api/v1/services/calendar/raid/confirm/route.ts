@@ -2,12 +2,12 @@ import {cookies} from "next/headers";
 import {NextResponse, type NextRequest} from "next/server";
 import {fetchCharacterAvatar} from "@/app/lib/fetchCharacterAvatar";
 import {fetchGuildInfo} from "@/app/lib/fetchGuildInfo";
-import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
 import {fetchBattleNetWoWAccounts} from "@/app/lib/fetchBattleNetWoWaccounts";
 import {redirect} from "next/navigation";
+import createServerSession from "@utils/supabase/createServerSession";
 
 async function registerOnRaid(characterId: string, raidId: string, isConfirmed: boolean = false) {
-    const supabase = createServerComponentClient({cookies})
+    const {supabase} = createServerSession({cookies})
     const {data, error} = await supabase.from('ev_raid_participant').upsert({
         raid_id: raidId,
         member_id: characterId,
@@ -22,7 +22,7 @@ async function registerOnRaid(characterId: string, raidId: string, isConfirmed: 
 async function insertOrUpdateRaidParticipant(token: string, character: any) {
     const avatar = await fetchCharacterAvatar(token, character.realm.slug, character.name)
 
-    const supabase = createServerComponentClient({cookies})
+    const {supabase} = createServerSession({cookies})
     const {data, error} = await supabase.from('ev_member').upsert({
         id: character.id,
         character: {

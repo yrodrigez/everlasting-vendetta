@@ -70,7 +70,7 @@ export function EditRaidButton({reset}: { reset: any }) {
     return (
         <Button
             isDisabled={!raid || !startTime || !endTime || !startDate || !endDate || !days?.length}
-            onClick={createReset}
+            onPress={createReset}
         >
             Edit Raid
         </Button>

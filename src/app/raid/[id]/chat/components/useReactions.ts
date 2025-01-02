@@ -1,4 +1,4 @@
-import {type SupabaseClient} from "@supabase/auth-helpers-nextjs";
+import {type SupabaseClient} from "@supabase/supabase-js";
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {useSession} from "@hooks/useSession";
 import {useEffect, useMemo, useState} from "react";

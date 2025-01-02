@@ -1,10 +1,11 @@
 // sessionManager.ts
-import {createClientComponentClient, SupabaseClient} from "@supabase/auth-helpers-nextjs";
+//import {createBrowserClient as createClientComponentClient} from "@supabase/ssr";
 import {getCookie, getLoggedInUserFromAccessToken, logout} from "@/app/util";
 import {toast} from "sonner";
 import {BNET_COOKIE_NAME, EV_COOKIE_NAME, LOGIN_URL, LOGIN_URL_TEMPORAL} from "@/app/util/constants";
-import {Character} from "@/app/components/characterStore";
-import {AppRouterInstance} from "next/dist/shared/lib/app-router-context.shared-runtime";
+import {type Character} from "@/app/components/characterStore";
+import {type AppRouterInstance} from "next/dist/shared/lib/app-router-context.shared-runtime";
+import {type SupabaseClient, createClient as createClientComponentClient} from "@supabase/supabase-js";
 
 export async function performTemporalLogin(selectedCharacter: Character): Promise<{ error?: string, ok: boolean }> {
     const temporalAuthResponse = await fetch(LOGIN_URL_TEMPORAL, {
@@ -22,6 +23,10 @@ export async function performTemporalLogin(selectedCharacter: Character): Promis
     }
 
     return {ok: temporalAuthResponse.ok};
+}
+
+function initializePermissions(supabase: SupabaseClient) {
+    return supabase.rpc('initialize_permissions')
 }
 
 
@@ -123,15 +128,19 @@ class SessionManager {
             if (access_token) {
                 const currentCookieCharacter = getLoggedInUserFromAccessToken(access_token);
                 if (currentCookieCharacter?.id === selectedCharacter.id) {
-                    this.supabase = createClientComponentClient({
-                        options: {
+                    this.supabase = createClientComponentClient(
+                        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+                        {
                             global: {
                                 headers: {
                                     Authorization: `Bearer ${access_token}`
                                 }
+                            },
+                            realtime:{
+                                accessToken: async ()=> access_token
                             }
-                        }
-                    });
+                        });
                     this.session = getLoggedInUserFromAccessToken(access_token);
                     this.tokenUser = currentCookieCharacter;
                     setSupabase(this.supabase);
@@ -146,15 +155,19 @@ class SessionManager {
             this.isInstallingSession = true;
             const {access_token: newAccessToken} = await this.installSession(bnetToken, selectedCharacter);
             if (newAccessToken) {
-                this.supabase = createClientComponentClient({
-                    options: {
+                this.supabase = createClientComponentClient(
+                    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+                    {
                         global: {
                             headers: {
                                 Authorization: `Bearer ${newAccessToken}`
                             }
+                        },
+                        realtime:{
+                            accessToken: async ()=> newAccessToken
                         }
-                    }
-                });
+                    });
                 this.session = getLoggedInUserFromAccessToken(newAccessToken);
                 this.tokenUser = getLoggedInUserFromAccessToken(newAccessToken);
                 setSupabase(this.supabase);

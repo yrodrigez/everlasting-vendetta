@@ -45,11 +45,11 @@ export async function GET(req: NextRequest, context: any) {
     } = new WoWService({token: {value: token}})
     const equipment = await fetchEquipment(name);
 
-    const items_raw = equipment.equipped_items.map((item: any) => ({
+    const items_raw = equipment?.equipped_items?.map((item: any) => ({
         id: item.item.id,
         type: `INVTYPE_${item.inventory_type?.type}`,
         isEnchanted: item.enchantments?.filter((e: any) => e.enchantment_slot?.type === 'PERMANENT').length > 0,
-    }));
+    })) ?? [];
 
     const items = await Promise.all(items_raw.map(async (item: any) => {
         const itemDetails = await fetchItemDetails(token, item.id);

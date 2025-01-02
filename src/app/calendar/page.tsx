@@ -9,7 +9,7 @@ import {Button} from "@/app/components/Button";
 import Link from "next/link";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faAdd, faArrowLeft, faArrowRight} from "@fortawesome/free-solid-svg-icons";
-import {type SupabaseClient} from "@supabase/auth-helpers-nextjs";
+import {type SupabaseClient} from "@supabase/supabase-js";
 import createServerSession from "@/app/util/supabase/createServerSession";
 import {fetchResetParticipants} from "@/app/raid/api/fetchParticipants";
 import Refresher from "@/app/calendar/components/Refresher";

@@ -1,6 +1,9 @@
 import {Card, CardFooter} from "@nextui-org/react";
-import {BlackrockEruptionBanner} from "@/app/components/BlackrockEruptionBanner";
 import {Metadata} from "next";
+import {Button} from "@/app/components/Button";
+import Link from "next/link";
+import createServerSession from "@utils/supabase/createServerSession";
+import {cookies} from "next/headers";
 
 
 const intro = [
@@ -47,7 +50,7 @@ const CustomSection = ({header, paragraphs, img}: { header: string, paragraphs: 
     )
 }
 
-export async function generateMetadata({ params }: { params: { name: string } }): Promise<Metadata> {
+export async function generateMetadata({params}: { params: { name: string } }): Promise<Metadata> {
     const metadataBase = new URL('https://www.everlastingvendetta.com/');
 
     return {
@@ -79,12 +82,15 @@ export async function generateMetadata({ params }: { params: { name: string } })
 }
 
 export default async function Home() {
+    const {auth} = createServerSession({cookies})
+    const session = await auth.getSession()
+
     return (
         <main className="flex w-full h-full justify-evenly flex-col">
             <div className="hidden lg:block h-full w-full">
                 <div
                     className="absolute top-2 right-4 flex flex-col">
-                    <BlackrockEruptionBanner/>
+
                 </div>
                 <div className={
                     "absolute bottom-[51%] left-0 w-full top-0 bg-cover bg-center bg-no-repeat backdrop-filter backdrop-blur-md border-bottom-image"
@@ -92,10 +98,13 @@ export default async function Home() {
                     <div
                         className="flex flex-col items-center justify-center h-full w-full bg-black bg-opacity-50">
                         <div
-                            className="flex flex-col items-center justify-center"
-                        >
+                            className="flex flex-col items-center justify-center bg-opacity-100 opacity-100">
                             <img alt={'center-img'} src={`/center-img.png`}
                                  className="flex-1 rounded-full w-60"/>
+                            {!session && <Link href="/apply">
+                                <Button className="mt-4 glow-animation border-gold bg-opacity-100 hover:bg-opacity-100"
+                                        size="lg">Apply Now</Button>
+                            </Link>}
                         </div>
                     </div>
                 </div>

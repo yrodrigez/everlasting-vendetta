@@ -2,8 +2,8 @@ import {NextRequest, NextResponse} from "next/server";
 import {cookies} from "next/headers";
 import {redirect} from "next/navigation";
 import {fetchBattleNetWoWAccounts} from "@/app/lib/fetchBattleNetWoWaccounts";
-import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
 import {registerOnRaid} from "@/app/lib/database/raid_resets/registerOnRaid";
+import createServerSession from "@utils/supabase/createServerSession";
 
 
 export async function POST(request: NextRequest) {
@@ -24,16 +24,8 @@ export async function POST(request: NextRequest) {
     if (!supabaseToken) {
         return NextResponse.json({error: 'Error - supabase token is mandatory!'})
     }
-    const supabase = createServerComponentClient({cookies}, {
-        options: {
-            global: {
-                headers: {
-                    Authorization: `Bearer ${supabaseToken.value}`
-                }
-            }
-        }
-    })
-    if(!currentCharacter.isTemporal) {
+    const {supabase} = createServerSession({cookies})
+    if (!currentCharacter.isTemporal) {
         const currentUserCharacters = await fetchBattleNetWoWAccounts(token.value)
         if (!currentUserCharacters) {
             return NextResponse.json({error: 'Error fetching wow characters'}, {

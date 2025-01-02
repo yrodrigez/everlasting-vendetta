@@ -13,12 +13,13 @@ import Link from "next/link";
 import {GUILD_ID, GUILD_NAME, GUILD_REALM_SLUG} from "@/app/util/constants";
 import {LootHistory} from "@/app/roster/[name]/components/LootHistory";
 import {StatisticsView} from "@/app/roster/[name]/components/StatisticsView";
-import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
+
 import Head from "next/head";
 import {Metadata} from "next";
 import {BnetLoginButton} from "@/app/components/BnetLoginButton";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faBan} from "@fortawesome/free-solid-svg-icons";
+import createServerSession from "@utils/supabase/createServerSession";
 
 const getPlayerClassById = (classId: number) => {
     const classes = {
@@ -59,19 +60,8 @@ const findEquipmentBySlotTypes = (equipment: any, slots: string[]) => {
 }
 
 async function fetchLootHistory(characterName: string) {
-    const isLoggedInUser = cookies().get('evToken')
 
-    const supabaseOptions = isLoggedInUser ? {
-        options: {
-            global: {
-                headers: {
-                    Authorization: `Bearer ${isLoggedInUser.value}`
-                }
-            }
-        }
-    } : {}
-
-    const supabase = createServerComponentClient({cookies}, supabaseOptions)
+    const {supabase} = createServerSession({cookies})
     const {data, error} = await supabase
         .from('ev_loot_history')
         .select('*')

@@ -13,13 +13,13 @@ export default function StartDate() {
             }}
             value={startDate && new InterCalendar(startDate.getFullYear(), startDate.getMonth() + 1, startDate.getDate())}
             onChange={(date) => {
-                const datedDate = date.toDate('Europe/Madrid')
+                const datedDate = date ? date.toDate('Europe/Madrid') : new InterCalendar(startDate.getFullYear(), startDate.getMonth() + 1, startDate.getDate()).toDate('Europe/Madrid')
                 const current = new Date()
                 current.setHours(0, 0, 0, 0)
                 if (datedDate.getTime() < current.getTime()) return
 
                 setStartDate(
-                    date.toDate('Europe/Madrid')
+                    datedDate
                 )
             }}
             isDisabled={!raid}

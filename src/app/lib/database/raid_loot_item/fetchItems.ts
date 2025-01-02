@@ -1,4 +1,4 @@
-import {type SupabaseClient} from "@supabase/auth-helpers-nextjs";
+import {type SupabaseClient} from "@supabase/supabase-js";
 
 /**
  * Fetches all items for a raid from the database and returns them as an array

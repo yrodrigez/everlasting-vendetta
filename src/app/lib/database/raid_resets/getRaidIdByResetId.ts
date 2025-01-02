@@ -1,4 +1,4 @@
-import type {SupabaseClient} from "@supabase/auth-helpers-nextjs";
+import type {SupabaseClient} from "@supabase/supabase-js";
 
 /**
  * Get the raid_id for a given reset_id

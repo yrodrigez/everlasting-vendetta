@@ -2,7 +2,8 @@ import {NextRequest, NextResponse} from "next/server";
 import {cookies} from "next/headers";
 
 import {ANON_KEY, FUNCTION_BASE_URL} from "@/app/api/v1/supabase/util";
-import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
+import createServerSession from "@utils/supabase/createServerSession";
+
 
 export async function POST(request: NextRequest) {
 
@@ -11,7 +12,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({error: 'Error - character is mandatory!'})
     }
 
-    const supabase = createServerComponentClient({cookies})
+    const {supabase} = createServerSession({cookies})
     const {data} = await supabase.functions.invoke('everlasting-vendetta', {});
     console.log('bnetToken', data)
 

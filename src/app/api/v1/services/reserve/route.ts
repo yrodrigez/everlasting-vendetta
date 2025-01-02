@@ -1,19 +1,9 @@
 import {NextRequest, NextResponse} from "next/server";
 import {cookies} from "next/headers";
-import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
+import createServerSession from "@utils/supabase/createServerSession";
 
 export async function DELETE(request: NextRequest) {
-    const evToken = cookies().get(process.env.EV_COOKIE_NAME!)?.value
-
-    const supabase = createServerComponentClient({cookies}, evToken ? {
-        options: {
-            global: {
-                headers: {
-                    Authorization: `Bearer ${evToken}`
-                }
-            }
-        }
-    } : undefined)
+    const {supabase} = createServerSession({cookies})
     const url = new URL(request.url)
     const memberId = url.searchParams.get('memberId')
     const resetId = url.searchParams.get('resetId')

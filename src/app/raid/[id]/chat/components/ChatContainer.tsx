@@ -7,7 +7,7 @@ import {useRouter} from "next/navigation";
 import {ChatControls} from "@/app/raid/[id]/chat/components/ChatControls";
 import {ChatMessages} from "@/app/raid/[id]/chat/components/ChatMessages";
 import {useSession} from "@hooks/useSession";
-import {SupabaseClient} from "@supabase/auth-helpers-nextjs";
+import {SupabaseClient} from "@supabase/supabase-js";
 import {useCallback, useEffect, useState} from "react";
 import {useChatStore} from "@/app/raid/[id]/chat/components/chatStore";
 import moment from "moment/moment";

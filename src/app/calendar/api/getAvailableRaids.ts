@@ -1,4 +1,4 @@
-import {type SupabaseClient} from "@supabase/auth-helpers-nextjs";
+import {type SupabaseClient} from "@supabase/supabase-js";
 
 export default async function getAvailableRaids(supabase: SupabaseClient) {
     const {data: raids, error: raidsError} = await supabase.from('ev_raid')

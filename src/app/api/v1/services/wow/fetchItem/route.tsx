@@ -1,9 +1,10 @@
 import axios from "axios";
 import {cookies} from "next/headers";
 import {type NextRequest, NextResponse} from "next/server";
-import {createServerComponentClient, SupabaseClient} from "@supabase/auth-helpers-nextjs";
+import {type SupabaseClient} from "@supabase/supabase-js";
 import {getItemDisplayId} from "@/app/util/wowhead/getItemDisplayId";
 import {BNET_COOKIE_NAME, createBlizzardItemFetchUrl} from "@/app/util/constants";
+import createServerSession from "@utils/supabase/createServerSession";
 
 function knownItemLevelQuality(itemId: number) {
     const knownItemLevels = {
@@ -141,7 +142,7 @@ export async function GET(request: NextRequest) {
         })
     }
 
-    const supabase = createServerComponentClient({cookies})
+    const {supabase} = createServerSession({cookies})
     const itemFromDatabase = await getItemFromDatabase(supabase, itemId)
     const itemDetailsFromDatabase = itemFromDatabase?.details
     const lastUpdated = itemFromDatabase?.lastUpdated

@@ -1,11 +1,12 @@
 import {NextRequest, NextResponse} from "next/server";
 
-import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
+
 import {cookies} from "next/headers";
+import createServerSession from "@utils/supabase/createServerSession";
 
 export async function POST(request: NextRequest) {
     const state = await request.json()
-    const supabase = createServerComponentClient({cookies})
+    const {supabase} = createServerSession({cookies})
     try {
         const response = await supabase.from('ev_application').insert({
             name: state.name,

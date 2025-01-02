@@ -1,5 +1,5 @@
 
-import {type SupabaseClient} from "@supabase/auth-helpers-nextjs";
+import {type SupabaseClient} from "@supabase/supabase-js";
 import {RaidParticipant} from "@/app/raid/api/types";
 
 export async function fetchResetParticipants (supabase: SupabaseClient, resetId: string) {

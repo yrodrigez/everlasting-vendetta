@@ -67,8 +67,9 @@ export function Applicants({applicants}: {
     })
     const router = useRouter()
     useEffect(() => {
-        if (!supabase || !selectedCharacter) return;
-        const channel = supabase.channel(`applications:${selectedCharacter.id}`)
+        if (!supabase) return;
+
+        const channel = supabase.channel(`applications_page`)
             .on('postgres_changes', {
                 event: '*',
                 schema: 'public',
@@ -80,21 +81,23 @@ export function Applicants({applicants}: {
         return () => {
             supabase.removeChannel(channel)
         }
-    })
+    }, [supabase])
 
     const review = useCallback(async (id: string, status: string) => {
         if (!supabase || !selectedCharacter) return;
         await supabase.from('ev_application')
-            .update({status,
-                reviewed_by: selectedCharacter.id})
+            .update({
+                status,
+                reviewed_by: selectedCharacter.id
+            })
             .eq('id', id)
 
         router.refresh()
-    },[supabase, selectedCharacter])
+    }, [supabase, selectedCharacter])
 
 
     const renderCell = useCallback((registration: any, columnKey: React.Key) => {
-        const {name, created_at, message, className, role, status, reviewer, avatar, gearScore, id} = registration;
+        const {name, message, className, role, status, reviewer, avatar, gearScore, id} = registration;
 
         switch (columnKey) {
             case "name":
@@ -171,6 +174,8 @@ export function Applicants({applicants}: {
                     <Tooltip
                         content={message}
                         placement="top"
+                        showArrow
+                        className="border border-wood-100 max-w-48"
                     >
                         <div className="truncate w-32">
                             {message}
@@ -207,7 +212,7 @@ export function Applicants({applicants}: {
                 );
 
             case "review":
-                if(!supabase || !selectedCharacter) return <>Loading...</>
+                if (!supabase || !selectedCharacter) return <>Loading...</>
                 return (
                     <div className="flex flex-row items-center gap-2">
                         <Button
@@ -216,7 +221,7 @@ export function Applicants({applicants}: {
                             isDisabled={!!reviewer}
                             color={'success'}
                             size={'sm'}
-                            onClick={() => {
+                            onPress={() => {
                                 review(id, 'accepted')
                             }}
                         >
@@ -228,7 +233,7 @@ export function Applicants({applicants}: {
                             color={'danger'}
                             size={'sm'}
                             isDisabled={!!reviewer}
-                            onClick={() => {
+                            onPress={() => {
                                 review(id, 'declined')
                             }}
                         >

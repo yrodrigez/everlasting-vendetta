@@ -1,6 +1,6 @@
 import {cookies} from "next/headers";
 import React from "react";
-import {type SupabaseClient} from "@supabase/auth-helpers-nextjs";
+import {type SupabaseClient} from "@supabase/supabase-js";
 import {CharacterWithLoot, RaidLoot} from "@/app/raid/[id]/loot/components/types";
 import Link from "next/link";
 import {faArrowLeft} from "@fortawesome/free-solid-svg-icons";

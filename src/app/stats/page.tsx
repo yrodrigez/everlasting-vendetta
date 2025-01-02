@@ -1,4 +1,5 @@
-import {createServerComponentClient, SupabaseClient} from "@supabase/auth-helpers-nextjs";
+
+import {type SupabaseClient} from "@supabase/supabase-js";
 import {cookies} from "next/headers";
 import Chart from "@/app/stats/Chart";
 import {fetchCharacterAvatar} from "@/app/lib/fetchCharacterAvatar";
@@ -8,6 +9,7 @@ import Image from "next/image";
 import moment from "moment";
 import Link from "next/link";
 import {CURRENT_MAX_LEVEL, GUILD_REALM_SLUG} from "@/app/util/constants";
+import createServerSession from "@utils/supabase/createServerSession";
 
 export const dynamic = 'force-dynamic'
 
@@ -130,7 +132,7 @@ async function findMembersAvatars(members: MemberWithStatistics[], token: string
 }
 
 export default async function Page() {
-    const supabase = createServerComponentClient({cookies});
+    const {supabase} = createServerSession({cookies})
     const {
         data,
         error

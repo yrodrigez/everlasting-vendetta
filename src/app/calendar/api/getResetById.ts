@@ -1,4 +1,4 @@
-import {type SupabaseClient} from "@supabase/auth-helpers-nextjs";
+import {type SupabaseClient} from "@supabase/supabase-js";
 import type {Day} from "@/app/calendar/new/Components/useCreateRaidStore";
 
 export default async function getResetById(id: string, supabase: SupabaseClient) {

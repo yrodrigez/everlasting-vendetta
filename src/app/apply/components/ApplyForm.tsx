@@ -99,7 +99,7 @@ export default function ApplyForm() {
                     id="message" placeholder="Enter your message"/>
             </div>
             <div className="flex items-center">
-                <Button isDisabled={isFormDisabled} onClick={() => {
+                <Button isDisabled={isFormDisabled} onPress={() => {
                     onForm({name, email, characterRole, characterClass, message}).then((response) => {
                         if (response?.error) {
                             setModalContent({

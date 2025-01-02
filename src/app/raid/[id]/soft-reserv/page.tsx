@@ -1,9 +1,8 @@
 import {cookies} from "next/headers";
-import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
 import RaidItemsList from "@/app/raid/[id]/soft-reserv/RaidItemsList";
 import {raidLootReservationsColumns} from "@/app/raid/[id]/soft-reserv/supabase_config";
 import {RaidItem, Reservation} from "@/app/raid/[id]/soft-reserv/types";
-import {getLoggedInUserFromAccessToken, getQualityColor} from "@/app/util";
+import {getLoggedInUserFromAccessToken} from "@/app/util";
 import YourReservations from "@/app/raid/[id]/soft-reserv/YourReservations";
 import React from "react";
 import AdminPanel from "@/app/raid/[id]/soft-reserv/AdminPanel";
@@ -11,8 +10,8 @@ import RaidTimeInfo from "@/app/raid/components/RaidTimeInfo";
 import NotLoggedInView from "@/app/components/NotLoggedInView";
 import {Metadata} from "next";
 import moment from "moment";
-import Link from "next/link";
 import {BannedItems} from "@/app/raid/[id]/soft-reserv/BannedItems";
+import createServerSession from "@utils/supabase/createServerSession";
 
 type Raid = {
     min_level: number;
@@ -33,8 +32,7 @@ type RaidQueryResult = {
 };
 
 export async function generateMetadata({params}: { params: { id: string } }): Promise<Metadata> {
-    const supabase = createServerComponentClient({cookies});
-
+    const {supabase} = createServerSession({cookies})
     // Fetch the raid reset data
     const resetData = await supabase
         .from('raid_resets')
@@ -97,15 +95,7 @@ export default async function Page({params}: { params: { id: string } }) {
         return <NotLoggedInView/>
     }
 
-    const database = createServerComponentClient({cookies}, {
-        options: {
-            global: {
-                headers: {
-                    Authorization: `Bearer ${evToken}`
-                }
-            }
-        }
-    })
+    const {supabase: database} = createServerSession({cookies})
 
 
     const {

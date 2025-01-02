@@ -9,7 +9,7 @@ interface RaidStore {
         reservation_amount: number
     },
     setRaid: (raid?: { id: string, name: string, min_level: number, image: string, reservation_amount: number }) => void
-    startDate?: Date,
+    startDate: Date,
     setStartDate: (date: Date) => void
     endDate?: Date,
     setEndDate: (date: Date) => void
@@ -24,7 +24,7 @@ interface RaidStore {
 
 const initialState = {
     raid: undefined,
-    startDate: undefined,
+    startDate: new Date(),
     endDate: undefined,
     startTime: '20:30',
     endTime: '00:00',

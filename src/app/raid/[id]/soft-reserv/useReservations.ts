@@ -5,7 +5,7 @@ import {raidLootReservationsColumns} from "@/app/raid/[id]/soft-reserv/supabase_
 import {type Character, type RaidItem, type Reservation} from "@/app/raid/[id]/soft-reserv/types";
 import useReservationsStore from "@/app/raid/[id]/soft-reserv/reservationsStore";
 import {toast} from "sonner";
-import {SupabaseClient} from "@supabase/auth-helpers-nextjs";
+import {type SupabaseClient} from "@supabase/supabase-js";
 import {useQuery} from "@tanstack/react-query";
 import {registerOnRaid} from "@/app/lib/database/raid_resets/registerOnRaid";
 

@@ -1,5 +1,5 @@
 import {createServerComponentClient} from "@/app/util/supabase/createServerComponentClient";
-import {type SupabaseClient} from "@supabase/auth-helpers-nextjs";
+import {type SupabaseClient} from "@supabase/supabase-js";
 import {UserProfile} from "@/app/util/supabase/types";
 
 export function getLoggedInUserFromAccessToken(accessToken: string) {
@@ -23,7 +23,7 @@ export default function createServerSession({cookies}: { cookies: any }): {
         throw new Error('cookies is required')
     }
 
-    const supabase = createServerComponentClient({cookies})
+    const supabase = createServerComponentClient()
     const supabaseToken = cookies().get('evToken')?.value
 
     if (!supabaseToken) {

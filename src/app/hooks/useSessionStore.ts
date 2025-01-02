@@ -1,7 +1,7 @@
 import {create as createStore} from 'zustand';
 import {zustandLogger} from "@/app/util";
 import type {Character} from "@/app/components/characterStore";
-import type {SupabaseClient} from "@supabase/auth-helpers-nextjs";
+import type {SupabaseClient} from "@supabase/supabase-js";
 
 export type SessionStore = {
     loading: boolean,

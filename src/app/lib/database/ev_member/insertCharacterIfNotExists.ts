@@ -1,4 +1,4 @@
-import {type SupabaseClient} from "@supabase/auth-helpers-nextjs";
+import {type SupabaseClient} from "@supabase/supabase-js";
 
 /**
  * Insert a character if it does not exist in the database

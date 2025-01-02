@@ -5,7 +5,7 @@ import type {Character, RaidItem} from "@/app/raid/[id]/soft-reserv/types";
 import pako from "pako";
 import {toast} from "sonner";
 import {useSession} from "@hooks/useSession";
-import {type SupabaseClient} from "@supabase/auth-helpers-nextjs";
+import {type SupabaseClient} from "@supabase/supabase-js";
 import {useCallback, useEffect, useState} from "react";
 
 function generateID(length: number) {
