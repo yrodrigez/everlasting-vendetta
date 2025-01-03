@@ -1,15 +1,19 @@
 'use client'
 import {useSession} from "@hooks/useSession";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import {toast} from "sonner";
 import Link from "next/link";
 import {Button} from "@/app/components/Button";
 import {useQuery} from "@tanstack/react-query";
 import {useRouter} from "next/navigation";
+import {GUILD_ID} from "@utils/constants";
 
 export default function useApplicants() {
-    const {supabase, selectedCharacter} = useSession();
+    const {supabase, selectedCharacter, tokenUser} = useSession();
     const router = useRouter();
+    const [applyCount, setApplyCount] = useState(0)
+
+
     useEffect(() => {
         if (!supabase) return;
 
@@ -62,6 +66,7 @@ export default function useApplicants() {
             if (error) {
                 throw error
             }
+            setApplyCount(data?.length ?? 0)
             return data
         },
         refetchInterval: 60000,
@@ -92,5 +97,7 @@ export default function useApplicants() {
             new Audio('/sounds/MagicClick.ogg').play()
         }
     }, [applicants]);
+
+    return {applyCount , canReadApplications: (tokenUser?.permissions?.indexOf('applications.read') !== -1 && tokenUser?.guild?.id === GUILD_ID)}
 
 }

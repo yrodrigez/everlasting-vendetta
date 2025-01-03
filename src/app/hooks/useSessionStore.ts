@@ -7,7 +7,7 @@ export type SessionStore = {
     loading: boolean,
     bnetToken?: string,
     session?: Character,
-    tokenUser?: Character,
+    tokenUser?: Character & {permissions?: string[], custom_roles?: string[]},
     supabase?: SupabaseClient,
 }
 

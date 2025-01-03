@@ -17,6 +17,10 @@ export interface Character {
     },
     isTemporal?: boolean
     isAdmin?: boolean
+    guild?: {
+        name?: string
+        id?: number
+    }
 }
 
 interface CharacterStore {

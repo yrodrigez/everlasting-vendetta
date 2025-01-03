@@ -53,7 +53,7 @@ export const zustandLogger = <T extends object, S>(config: (set: (args: Partial<
             get,
             api
         );
-};
+    };
 
 /**
  * Parses the access token and returns the user object
@@ -67,7 +67,10 @@ export function getLoggedInUserFromAccessToken(accessToken: string) {
         const parts = accessToken.split('.')
         const payload = JSON.parse(atob(parts[1]))
 
-        return payload.wow_account
+        return {
+            ...payload.wow_account,
+            permissions: payload.permissions,
+        }
     } catch (e) {
         //console.error('Error parsing access token', e)
         return null
