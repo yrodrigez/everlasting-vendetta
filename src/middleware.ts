@@ -16,7 +16,7 @@ async function isBanned() {
         return false;
     }
 
-    const supabase = createServerComponentClient();
+    const supabase = createServerComponentClient({supabaseToken});
     const {
         data: banned,
         error

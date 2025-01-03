@@ -1,13 +1,6 @@
 import {type SupabaseClient, createClient as createServerClient} from "@supabase/supabase-js";
-//import {createServerClient} from "@supabase/ssr";
-import {cookies} from "next/headers";
 
-export function createServerComponentClient() {
-    if (!cookies) {
-        throw new Error('cookies is required')
-    }
-    const supabaseToken = cookies().get('evToken')?.value ?? null
-
+export function createServerComponentClient({supabaseToken}: { supabaseToken: any }): SupabaseClient {
     const withAuthToken = !supabaseToken ? {} : {
         global: {
             headers: {

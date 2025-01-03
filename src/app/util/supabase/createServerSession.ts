@@ -23,8 +23,8 @@ export default function createServerSession({cookies}: { cookies: any }): {
         throw new Error('cookies is required')
     }
 
-    const supabase = createServerComponentClient()
     const supabaseToken = cookies().get('evToken')?.value
+    const supabase = createServerComponentClient({supabaseToken})
 
     if (!supabaseToken) {
         return {

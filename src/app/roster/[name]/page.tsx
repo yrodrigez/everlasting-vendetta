@@ -1,3 +1,4 @@
+'use server';
 import CharacterAvatar from "@/app/components/CharacterAvatar";
 import {CharacterGear} from "@/app/roster/[name]/components/CharacterGear";
 import {CharacterViewOptions} from "@/app/roster/[name]/components/CharacterViewOptions";
@@ -18,8 +19,10 @@ import Head from "next/head";
 import {Metadata} from "next";
 import {BnetLoginButton} from "@/app/components/BnetLoginButton";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faBan} from "@fortawesome/free-solid-svg-icons";
+import {faBan, faUserXmark} from "@fortawesome/free-solid-svg-icons";
 import createServerSession from "@utils/supabase/createServerSession";
+import {Button} from "@/app/components/Button";
+import {revalidatePath} from "next/cache";
 
 const getPlayerClassById = (classId: number) => {
     const classes = {
@@ -128,6 +131,48 @@ export async function generateMetadata({params}: { params: { name: string } }): 
 }
 
 
+const onSubmit = async ({
+                            characterId,
+                            isCharacterBanned,
+                            canBan,
+                            canUnban,
+                            characterName,
+                        }: {
+    characterId: number,
+    isCharacterBanned: boolean,
+    canBan: boolean,
+    canUnban: boolean,
+    characterName: string,
+
+}) => {
+    'use server';
+    const {supabase} = createServerSession({cookies})
+    if (canBan && !isCharacterBanned) {
+        const {error} = await supabase
+            .from('banned_member')
+            .insert({member_id: characterId})
+        if (error) {
+            console.error(error)
+        } else {
+            console.log('Character banned', characterName, characterId)
+        }
+    } else if (canUnban && isCharacterBanned) {
+        const {error} = await supabase
+            .from('banned_member')
+            .delete({
+                count: 'exact'
+            })
+            .eq('member_id', characterId)
+        if (error) {
+            console.error(error)
+        } else {
+            console.log('Character unbanned', characterName, characterId)
+        }
+    }
+    revalidatePath(`/roster/${characterName}`)
+}
+
+
 export default async function Page({params}: { params: { name: string } }) {
     const cookieToken = cookies().get(process.env.BNET_COOKIE_NAME!)?.value
     const {token} = (cookieToken ? {token: cookieToken} : (await getBlizzardToken()))
@@ -171,13 +216,24 @@ export default async function Page({params}: { params: { name: string } }) {
             </div>
         </div>
     }
+    const {auth, supabase} = createServerSession({cookies})
+    const session = await auth.getSession()
+    const canBan = !!session?.permissions.includes('member.ban') && characterInfo.guild?.id !== GUILD_ID // can ban only if not in the same guild
+    const canUnban = !!session?.permissions.includes('member.unban') && characterInfo.guild?.id !== GUILD_ID // can unban only if not in the same guild
+    const {data: isCharacterBanned} = await supabase
+        .from('banned_member')
+        .select('id')
+        .eq('member_id', characterInfo.id)
+        .maybeSingle()
 
     return (
         <>
             <Head>
                 <title>{characterInfo.name} - {characterInfo.guild?.name ?? 'No Guild'}</title>
             </Head>
-            <div>
+            <div
+                className="relative"
+            >
                 <div className="mx-auto max-w-6xl px-4 flex justify-evenly items-center">
                     <div className="flex items-center gap-4 mb-4">
                         <div className="w-20 h-20 rounded-full overflow-hidden">
@@ -247,6 +303,31 @@ export default async function Page({params}: { params: { name: string } }) {
                         }
                     ]}
                 />
+                <form
+                    className="absolute top-0 right-0"
+                    action={async () => {
+                        'use server';
+                        await onSubmit({
+                            characterId: characterInfo.id,
+                            isCharacterBanned: !!isCharacterBanned,
+                            canBan,
+                            canUnban,
+                            characterName
+                        })
+                    }}
+                >
+                    {(canBan && !isCharacterBanned ? (
+                        <Button className="bg-red-500 text-white px-4 py-2 rounded-md boder border-red-600"
+                                type="submit"
+                                startContent={<FontAwesomeIcon icon={faBan}/>}
+                        >Ban</Button>
+                    ) : (canUnban && isCharacterBanned) ? (
+                        <Button className="bg-green-500 text-white px-4 py-2 rounded-md boder border-green-600"
+                                type="submit"
+                                startContent={<FontAwesomeIcon icon={faUserXmark}/>}
+                        >Unban</Button>
+                    ) : null)}
+                </form>
             </div>
         </>
     )
