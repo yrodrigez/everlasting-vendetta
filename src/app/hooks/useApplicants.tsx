@@ -5,9 +5,11 @@ import {toast} from "sonner";
 import Link from "next/link";
 import {Button} from "@/app/components/Button";
 import {useQuery} from "@tanstack/react-query";
+import {useRouter} from "next/navigation";
 
 export default function useApplicants() {
     const {supabase, selectedCharacter} = useSession();
+    const router = useRouter();
     useEffect(() => {
         if (!supabase) return;
 
@@ -30,6 +32,7 @@ export default function useApplicants() {
                     position: 'bottom-right',
                 })
                 new Audio('/sounds/MagicClick.ogg').play()
+                router.refresh()
             }).subscribe()
 
         return () => {
