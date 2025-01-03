@@ -141,6 +141,7 @@ class SessionManager {
                                 accessToken: async ()=> access_token
                             }
                         });
+                    this.supabase.realtime.accessToken = async ()=> access_token
                     this.session = getLoggedInUserFromAccessToken(access_token);
                     this.tokenUser = currentCookieCharacter;
                     setSupabase(this.supabase);
@@ -170,6 +171,7 @@ class SessionManager {
                     });
                 this.session = getLoggedInUserFromAccessToken(newAccessToken);
                 this.tokenUser = getLoggedInUserFromAccessToken(newAccessToken);
+                this.supabase.realtime.accessToken = async ()=> newAccessToken
                 setSupabase(this.supabase);
                 if (this.session && this.tokenUser) {
                     setSession(this.session);

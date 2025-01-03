@@ -3,10 +3,21 @@ import {getQualityColor} from "@/app/util";
 import Link from "next/link";
 import {useReservations} from "@/app/raid/[id]/soft-reserv/useReservations";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faClose} from "@fortawesome/free-solid-svg-icons";
-import {ScrollShadow} from "@nextui-org/react";
+import {faClose, faCloudArrowDown} from "@fortawesome/free-solid-svg-icons";
+import {
+    Modal,
+    ModalBody,
+    ModalContent,
+    ModalFooter,
+    ModalHeader,
+    ScrollShadow,
+    Tooltip,
+    useDisclosure
+} from "@nextui-org/react";
 import {Button} from "@/app/components/Button";
 import {useCallback, useState} from "react";
+import {useMutation, useQuery} from "@tanstack/react-query";
+import {useRouter} from "next/navigation";
 
 export function BannedItems({hardReservations, reset_id, isAdmin = false, raid_id}: {
     hardReservations: any,
@@ -114,7 +125,7 @@ export function BannedItems({hardReservations, reset_id, isAdmin = false, raid_i
             </ScrollShadow>
             {isAdmin && (
                 <Button
-                    onClick={updateFutureRaids}
+                    onPress={updateFutureRaids}
                     isLoading={updateLoading}
                     isDisabled={updateLoading}
 
@@ -124,4 +135,119 @@ export function BannedItems({hardReservations, reset_id, isAdmin = false, raid_i
             )}
         </>
     );
+}
+
+export function ImportBannedItems({raid_id, reset_id}: { raid_id: string, reset_id: string }) {
+    const {loading, supabase} = useReservations(reset_id, [])
+
+    const {isOpen, onOpenChange, onClose, onOpen} = useDisclosure()
+
+    const {data: currentTemplate, isLoading} = useQuery({
+        queryKey: ['hard_reserve_templates', raid_id],
+        queryFn: async () => {
+            if (!supabase) return []
+            const {data, error} = await supabase.from('hard_reserve_templates').select(
+                'item_id, item:raid_loot_item(*)'
+            ).eq('raid_id', raid_id)
+            if (error) {
+                alert('Error fetching template')
+                return
+            }
+            return data
+        },
+        enabled: !!supabase
+    })
+    const [isPending, setIsPending] = useState(false)
+    const importFromTemplate = useCallback(async () => {
+        if (!supabase || !reset_id || !raid_id) return
+        if (loading || isLoading || !currentTemplate?.length) return
+        setIsPending(true)
+        const {error} = await supabase.from('reset_hard_reserve').upsert(
+            currentTemplate.map((x: any) => {
+                return {
+                    reset_id,
+                    item_id: x.item_id
+                }
+            }), {
+                onConflict: ['reset_id', 'item_id'].join(',')
+            }
+        )
+
+        if (error) {
+            alert('Error importing template')
+            return
+        }
+
+        setTimeout(() => {
+            setIsPending(false)
+            window.location.reload()
+            onClose()
+        }, 3000)
+    }, [currentTemplate, reset_id, raid_id, supabase, loading, isLoading])
+
+    return (
+        <>
+            <Button
+                isLoading={loading || isLoading}
+                isDisabled={loading || isLoading || !currentTemplate?.length}
+                onPress={onOpen}
+                size="lg"
+                startContent={!loading && !isLoading && <FontAwesomeIcon icon={faCloudArrowDown}/>}
+            >
+                {!currentTemplate?.length ? 'No template created' : 'Import from template'}
+            </Button>
+            <Modal
+                isOpen={isOpen}
+                onClose={onClose}
+                placement="center"
+                scrollBehavior="inside"
+                className="scrollbar-pill"
+                onOpenChange={onOpenChange}
+                isDismissable={!isPending}
+            >
+                <ModalContent>
+                    {() => (
+                        <>
+                            <ModalHeader>
+                                <h2 className="text-xl font-bold">Import from template</h2>
+                            </ModalHeader>
+                            <ModalBody>
+                                <div>
+                                    <h3 className="text-lg">The following items will be imported as Hard Reserves (you
+                                        can modify this after import)</h3>
+                                    <ScrollShadow
+                                        className="flex flex-col gap-2 h-full overflow-auto max-h-96 scrollbar-pill">
+                                        {currentTemplate?.map((hr: any) => (
+                                            <div key={hr.item_id}
+                                                 className={`flex gap-2 justify-between items-center text-sm text-${getQualityColor(hr?.item?.description?.quality)} p-2 border border-wood rounded`}>
+                                                <Link href={`https://www.wowhead.com/classic/item=${hr.item_id}`}
+                                                      className="flex gap-2 items-center" target="_blank">
+                                                    <img src={hr.item.description.icon} alt={hr.item.name}
+                                                         className={`w-6 border border-${getQualityColor(hr?.item?.description?.quality)} rounded`}/>
+                                                    <span>[{hr.item.name}]</span>
+                                                </Link>
+                                            </div>
+                                        ))}
+                                    </ScrollShadow>
+                                </div>
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button
+                                    isLoading={isPending}
+                                    isDisabled={isPending}
+                                    onPress={() => importFromTemplate()}>
+                                    Import
+                                </Button>
+                                <Button
+                                    isDisabled={isPending}
+                                    onPress={onClose}>
+                                    Cancel
+                                </Button>
+                            </ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
+        </>
+    )
 }

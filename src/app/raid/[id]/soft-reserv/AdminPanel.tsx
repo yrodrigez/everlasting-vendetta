@@ -25,7 +25,6 @@ export default function AdminPanel({isAdmin, resetId}: { isAdmin: boolean, reset
                     <Button
                         className={'bg-moss text-gold rounded'}
                         size={'lg'}
-                        variant={'light'}
                         isIconOnly>
                         <FontAwesomeIcon icon={faArrowLeft}/>
                     </Button>
@@ -38,11 +37,10 @@ export default function AdminPanel({isAdmin, resetId}: { isAdmin: boolean, reset
             >
                 <div>
                     <Button
-                        onClick={setIsReservationsOpen}
+                        onPress={setIsReservationsOpen}
                         disabled={!isAdmin}
                         isDisabled={!isAdmin}
                         size={'lg'}
-                        variant={'light'}
                         isIconOnly>
                         <FontAwesomeIcon icon={isReservationsOpen ? faLockOpen : faLock}/>
                     </Button>

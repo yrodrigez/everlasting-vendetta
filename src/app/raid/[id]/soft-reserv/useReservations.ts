@@ -242,7 +242,7 @@ export const useReservations = (resetId: string, initialItems: Reservation[] = [
                 event: '*',
                 schema: 'public',
                 table: 'raid_loot_reservation',
-                // filter: `reset_id=eq.${resetId}` this is failing for a reason, investigate later
+                //filter: `reset_id=eq.${resetId}` //this is failing for a reason, investigate later
             }, async () => {
                 await reFetchItems()
             }).subscribe()

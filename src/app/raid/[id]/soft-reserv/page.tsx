@@ -10,7 +10,7 @@ import RaidTimeInfo from "@/app/raid/components/RaidTimeInfo";
 import NotLoggedInView from "@/app/components/NotLoggedInView";
 import {Metadata} from "next";
 import moment from "moment";
-import {BannedItems} from "@/app/raid/[id]/soft-reserv/BannedItems";
+import {BannedItems, ImportBannedItems} from "@/app/raid/[id]/soft-reserv/BannedItems";
 import createServerSession from "@utils/supabase/createServerSession";
 
 type Raid = {
@@ -249,16 +249,22 @@ export default async function Page({params}: { params: { id: string } }) {
                             initialReservedItems={reservations}
                         />
                     </div>
-                    <div>
-                        {!!hardReservations?.data?.length && (
-                            <div className="flex flex-col gap-2">
-                                <span className="text-lg font-bold">Banned items</span>
-                                <BannedItems
-                                    hardReservations={hardReservations.data}
-                                    reset_id={resetId}
-                                    isAdmin={isAdmin}
-                                    raid_id={resetData.data.raid_id}
-                                />
+                    <div className="flex flex-col gap-2 mt-6">
+                        <span className="text-lg font-bold">Banned items</span>
+                        {!!hardReservations?.data?.length ? (<BannedItems
+                            hardReservations={hardReservations.data}
+                            reset_id={resetId}
+                            isAdmin={isAdmin}
+                            raid_id={resetData.data.raid_id}
+                        />) : (
+                            <div className="flex flex-col gap-2 justify-center items-center relative">
+                                <span className={'text-gray-500 text-sm'}>No items are banned for this raid</span>
+                                {isAdmin && (
+                                    <ImportBannedItems
+                                        raid_id={resetData.data.raid_id}
+                                        reset_id={resetId}
+                                    />
+                                )}
                             </div>
                         )}
                     </div>

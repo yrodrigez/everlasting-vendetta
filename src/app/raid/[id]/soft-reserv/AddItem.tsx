@@ -117,11 +117,10 @@ export function AddItem({resetId}: { resetId: string }) {
         <Button
             className={'bg-moss text-gold rounded'}
             size={'lg'}
-            variant={'light'}
             isIconOnly
             isLoading={isRaidFetching}
             isDisabled={isRaidFetching}
-            onClick={onOpen}
+            onPress={onOpen}
         >
             <FontAwesomeIcon icon={faCloudArrowUp}/>
         </Button>
