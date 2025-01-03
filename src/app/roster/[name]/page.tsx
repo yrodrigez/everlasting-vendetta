@@ -218,13 +218,15 @@ export default async function Page({params}: { params: { name: string } }) {
     }
     const {auth, supabase} = createServerSession({cookies})
     const session = await auth.getSession()
-    const canBan = !!session?.permissions.includes('member.ban') && characterInfo.guild?.id !== GUILD_ID // can ban only if not in the same guild
-    const canUnban = !!session?.permissions.includes('member.unban') && characterInfo.guild?.id !== GUILD_ID // can unban only if not in the same guild
+
     const {data: isCharacterBanned} = await supabase
         .from('banned_member')
         .select('id')
         .eq('member_id', characterInfo.id)
         .maybeSingle()
+    const {data: isMemberPresent} = await supabase.from('ev_member').select('id').eq('character', characterInfo.id).maybeSingle()
+    const canBan = !!session?.permissions.includes('member.ban') && characterInfo.guild?.id !== GUILD_ID && !isMemberPresent // can ban only if not in the same guild
+    const canUnban = !!session?.permissions.includes('member.unban') && characterInfo.guild?.id !== GUILD_ID
 
     return (
         <>
