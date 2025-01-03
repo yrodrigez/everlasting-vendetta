@@ -20,14 +20,14 @@ const Children = ({text, imgKey}: { text: string, imgKey: string }) => (
 )
 export const HeaderMenuButton = ({text, url, onClick}: {
     text: string,
-    url: string,
+    url?: string,
     onClick?: (() => void) | undefined
 }) => {
     const key = text.toLowerCase();
     const allowed = ['apply', 'roster', 'calendar', 'stats'];
     const className = "px-2 py-1 flex flex-col items-center rounded hover:cursor-pointer hover:bg-white hover:bg-opacity-20 backdrop-filter backdrop-blur-md min-w-16 max-w-16";
 
-    const [_url, setUrl] = useState<string>(url)
+    const [_url, setUrl] = useState<string | undefined>(url)
     const [_text, setText] = useState<string>(text)
 
 
