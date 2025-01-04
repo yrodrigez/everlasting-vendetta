@@ -1,4 +1,4 @@
-'use server';
+
 import CharacterAvatar from "@/app/components/CharacterAvatar";
 import {CharacterGear} from "@/app/roster/[name]/components/CharacterGear";
 import {CharacterViewOptions} from "@/app/roster/[name]/components/CharacterViewOptions";
@@ -23,6 +23,8 @@ import {faBan, faUserXmark} from "@fortawesome/free-solid-svg-icons";
 import createServerSession from "@utils/supabase/createServerSession";
 import {Button} from "@/app/components/Button";
 import {revalidatePath} from "next/cache";
+
+export const dynamic = 'force-dynamic'
 
 const getPlayerClassById = (classId: number) => {
     const classes = {
@@ -64,7 +66,7 @@ const findEquipmentBySlotTypes = (equipment: any, slots: string[]) => {
 
 async function fetchLootHistory(characterName: string) {
 
-    const {supabase} = createServerSession({cookies})
+    const {supabase} = await createServerSession({cookies})
     const {data, error} = await supabase
         .from('ev_loot_history')
         .select('*')
@@ -115,10 +117,11 @@ async function fetchLootHistory(characterName: string) {
     return loot
 }
 
-export async function generateMetadata({params}: { params: { name: string } }): Promise<Metadata> {
+export async function generateMetadata({params}: { params: Promise<{ name: string }> }): Promise<Metadata> {
     // Fetch or compute character information here
     const {fetchMemberInfo} = new WoWService()
-    const characterName = decodeURIComponent(params.name.toLowerCase())
+    const {name} = await params
+    const characterName = decodeURIComponent(name.toLowerCase())
     const characterInfo = await fetchMemberInfo(characterName);
 
     return {
@@ -146,7 +149,7 @@ const onSubmit = async ({
 
 }) => {
     'use server';
-    const {supabase} = createServerSession({cookies})
+    const {supabase} = await  createServerSession({cookies})
     if (canBan && !isCharacterBanned) {
         const {error} = await supabase
             .from('banned_member')
@@ -173,10 +176,11 @@ const onSubmit = async ({
 }
 
 
-export default async function Page({params}: { params: { name: string } }) {
-    const cookieToken = cookies().get(process.env.BNET_COOKIE_NAME!)?.value
+export default async function Page({params}: { params: Promise<{ name: string }> }) {
+    const cookieToken = (await cookies()).get(process.env.BNET_COOKIE_NAME!)?.value
     const {token} = (cookieToken ? {token: cookieToken} : (await getBlizzardToken()))
-    const characterName = decodeURIComponent(params.name.toLowerCase())
+    const {name} = await params
+    const characterName = decodeURIComponent(name.toLowerCase())
 
     const {
         fetchMemberInfo,
@@ -216,7 +220,7 @@ export default async function Page({params}: { params: { name: string } }) {
             </div>
         </div>
     }
-    const {auth, supabase} = createServerSession({cookies})
+    const {auth, supabase} = await  createServerSession({cookies})
     const session = await auth.getSession()
 
     const {data: isCharacterBanned} = await supabase

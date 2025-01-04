@@ -4,7 +4,7 @@ import {redirect} from "next/navigation";
 import {ANON_KEY, FUNCTION_BASE_URL} from "@/app/api/v1/supabase/util";
 
 export async function POST(request: NextRequest) {
-    const bnetToken = cookies().get(process.env.BNET_COOKIE_NAME!)
+    const bnetToken = (await cookies()).get(process.env.BNET_COOKIE_NAME!)
 
     if (!bnetToken) {
         console.log('No Bnet token found, redirecting to the auth route')
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!evToken.ok) {
-        cookies().delete(process.env.BNET_COOKIE_NAME!)
+        (await cookies()).delete(process.env.BNET_COOKIE_NAME!)
         return NextResponse.json({error: 'Error fetching EV token: ' + evToken.statusText},{
             status: 500
         })
@@ -38,17 +38,17 @@ export async function POST(request: NextRequest) {
 
     const evTokenData = await evToken.json()
     if (evTokenData.error) {
-        cookies().delete(process.env.BNET_COOKIE_NAME!)
+        (await cookies()).delete(process.env.BNET_COOKIE_NAME!)
         return NextResponse.json({error: 'Error fetching EV token: ' + evTokenData.error}, {
             status: 500
         })
     }
 
-    if (cookies().get(process.env.EV_COOKIE_NAME!)) {
-        cookies().delete(process.env.EV_COOKIE_NAME!)
+    if ((await cookies()).get(process.env.EV_COOKIE_NAME!)) {
+        (await cookies()).delete(process.env.EV_COOKIE_NAME!)
     }
 
-    cookies().set(process.env.EV_COOKIE_NAME!, evTokenData.access_token, {
+    (await cookies()).set(process.env.EV_COOKIE_NAME!, evTokenData.access_token, {
         maxAge: 60 * 60 * 23, // 23 hours
         path: '/',
         sameSite: 'lax',

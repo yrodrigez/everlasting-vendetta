@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic'
 
 const MANDATORY_PERMISSION = 'reset.create'
 export default async function Page() {
-    const {supabase, auth} = createServerSession({cookies})
+    const {supabase, auth} = await createServerSession({cookies})
     const user = await auth.getSession()
 
     if (!user) {

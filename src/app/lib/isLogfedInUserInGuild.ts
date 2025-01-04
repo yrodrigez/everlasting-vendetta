@@ -3,7 +3,7 @@ import {fetchBattleNetWoWAccounts} from "@/app/lib/fetchBattleNetWoWaccounts";
 import {fetchGuildInfo} from "@/app/lib/fetchGuildInfo";
 
 export default async function isLoggedUserInGuild() {
-    const token = cookies().get(process.env.BNET_COOKIE_NAME!)?.value
+    const token = (await cookies()).get(process.env.BNET_COOKIE_NAME!)?.value
     if (!token) {
         return false
     }

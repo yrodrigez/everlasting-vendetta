@@ -26,9 +26,10 @@ function getClassName(classId: number) {
     return classes[classId] || 'Unknown'
 }
 
-export default async function Page({params}: { params: { id: string } }) {
-    const token = cookies().get('bnetToken')?.value || (await getBlizzardToken()).token
-    const roster = await fetchGuildInfo(token, params.id)
+export default async function Page({params}: { params: Promise<{ id: string }> }) {
+    const token = (await cookies()).get('bnetToken')?.value || (await getBlizzardToken()).token
+    const {id: guildId} = await params
+    const roster = await fetchGuildInfo(token, guildId)
     const guildRoster = (roster?.members ?? []).map((member: any) => {
         const {character, rank} = member
         const {name, realm, level, playable_class: className, id} = character

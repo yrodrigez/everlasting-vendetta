@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (!tokenString) {
-        tokenString = cookies().get(BNET_COOKIE_NAME)?.value || (await getBlizzardToken()).token
+        tokenString = (await cookies()).get(BNET_COOKIE_NAME)?.value || (await getBlizzardToken()).token
     }
 
     if (!tokenString) {

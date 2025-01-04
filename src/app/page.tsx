@@ -50,7 +50,7 @@ const CustomSection = ({header, paragraphs, img}: { header: string, paragraphs: 
     )
 }
 
-export async function generateMetadata({params}: { params: { name: string } }): Promise<Metadata> {
+export async function generateMetadata(): Promise<Metadata> {
     const metadataBase = new URL('https://www.everlastingvendetta.com/');
 
     return {
@@ -82,7 +82,7 @@ export async function generateMetadata({params}: { params: { name: string } }): 
 }
 
 export default async function Home() {
-    const {auth} = createServerSession({cookies})
+    const {auth} = await createServerSession({cookies})
     const session = await auth.getSession()
 
     return (

@@ -3,7 +3,7 @@ import {cookies} from "next/headers";
 import createServerSession from "@utils/supabase/createServerSession";
 
 export async function DELETE(request: NextRequest) {
-    const {supabase} = createServerSession({cookies})
+    const {supabase} = await createServerSession({cookies})
     const url = new URL(request.url)
     const memberId = url.searchParams.get('memberId')
     const resetId = url.searchParams.get('resetId')

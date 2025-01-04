@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({error: 'Error - character is mandatory!'})
     }
 
-    const {supabase} = createServerSession({cookies})
+    const {supabase} = await createServerSession({cookies})
     const {data} = await supabase.functions.invoke('everlasting-vendetta', {});
     console.log('bnetToken', data)
 
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!evToken.ok) {
-        cookies().delete(process.env.BNET_COOKIE_NAME!)
+        (await cookies()).delete(process.env.BNET_COOKIE_NAME!)
         const {error} = await evToken.json()
         let errorText = 'Error: ' + error || evToken.statusText
         if(error && error.indexOf && error.indexOf('bnet_oauth') > -1) {
@@ -40,28 +40,28 @@ export async function POST(request: NextRequest) {
 
     const evTokenData = await evToken.json()
     if (evTokenData.error) {
-        cookies().delete(process.env.BNET_COOKIE_NAME!)
+        (await cookies()).delete(process.env.BNET_COOKIE_NAME!)
         return NextResponse.json({error: 'Error fetching EV token: ' + evTokenData.error}, {
             status: 500
         })
     }
 
-    if (cookies().get(process.env.EV_COOKIE_NAME!)) {
-        cookies().delete(process.env.EV_COOKIE_NAME!)
+    if ((await cookies()).get(process.env.EV_COOKIE_NAME!)) {
+        (await cookies()).delete(process.env.EV_COOKIE_NAME!)
     }
 
-    if (cookies().get(process.env.BNET_COOKIE_NAME!)) {
-        cookies().delete(process.env.BNET_COOKIE_NAME!)
+    if ((await cookies()).get(process.env.BNET_COOKIE_NAME!)) {
+        (await cookies()).delete(process.env.BNET_COOKIE_NAME!)
     }
 
-    cookies().set(process.env.BNET_COOKIE_NAME!, data.token, {
+    (await cookies()).set(process.env.BNET_COOKIE_NAME!, data.token, {
         maxAge: 60 * 60, // 1 hour
         sameSite: 'lax',
         secure: true,
         path: '/',
-    })
+    });
 
-    cookies().set(process.env.EV_COOKIE_NAME!, evTokenData.access_token, {
+    (await cookies()).set(process.env.EV_COOKIE_NAME!, evTokenData.access_token, {
         maxAge: 60 * 60, // 1 hour
         path: '/',
         sameSite: 'lax',

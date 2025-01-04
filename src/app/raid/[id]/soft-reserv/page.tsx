@@ -31,13 +31,14 @@ type RaidQueryResult = {
     created_by: number;
 };
 
-export async function generateMetadata({params}: { params: { id: string } }): Promise<Metadata> {
-    const {supabase} = createServerSession({cookies})
+export async function generateMetadata({params}: { params: Promise<{ id: string }> }): Promise<Metadata> {
+    const {supabase} = await createServerSession({cookies})
     // Fetch the raid reset data
+    const {id: raidId} = await params
     const resetData = await supabase
         .from('raid_resets')
         .select('raid:ev_raid(name, image), raid_date, time, end_date, end_time')
-        .eq('id', params.id)
+        .eq('id', raidId)
         .single<{
             raid: Raid;
             raid_date: string;
@@ -88,20 +89,20 @@ export async function generateMetadata({params}: { params: { id: string } }): Pr
     };
 }
 
-export default async function Page({params}: { params: { id: string } }) {
-    const token = cookies().get(process.env.BNET_COOKIE_NAME!)?.value
-    const evToken = cookies().get(process.env.EV_COOKIE_NAME!)?.value
+export default async function Page({params}: { params: Promise<{ id: string }> }) {
+    const token = (await cookies()).get(process.env.BNET_COOKIE_NAME!)?.value
+    const evToken = (await cookies()).get(process.env.EV_COOKIE_NAME!)?.value
     if (!token || !evToken) {
         return <NotLoggedInView/>
     }
 
-    const {supabase: database} = createServerSession({cookies})
-
+    const {supabase: database} = await createServerSession({cookies})
+    const {id: raidId} = await params
 
     const {
         data: resetIdData,
         error: resetIdError
-    } = await database.rpc('reset_id_starts_with', {id_prefix: `${params.id}%`})
+    } = await database.rpc('reset_id_starts_with', {id_prefix: `${raidId}%`})
 
     if (resetIdError) {
         return <div>Reset not found</div>

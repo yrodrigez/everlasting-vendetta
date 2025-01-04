@@ -7,7 +7,7 @@ import {redirect} from "next/navigation";
 import createServerSession from "@utils/supabase/createServerSession";
 
 async function registerOnRaid(characterId: string, raidId: string, isConfirmed: boolean = false) {
-    const {supabase} = createServerSession({cookies})
+    const {supabase} = await createServerSession({cookies})
     const {data, error} = await supabase.from('ev_raid_participant').upsert({
         raid_id: raidId,
         member_id: characterId,
@@ -22,7 +22,7 @@ async function registerOnRaid(characterId: string, raidId: string, isConfirmed: 
 async function insertOrUpdateRaidParticipant(token: string, character: any) {
     const avatar = await fetchCharacterAvatar(token, character.realm.slug, character.name)
 
-    const {supabase} = createServerSession({cookies})
+    const {supabase} = await createServerSession({cookies})
     const {data, error} = await supabase.from('ev_member').upsert({
         id: character.id,
         character: {
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({error: 'Error - raidId is mandatory!'})
     }
 
-    const token = cookies().get(process.env.BNET_COOKIE_NAME!)
+    const token = (await cookies()).get(process.env.BNET_COOKIE_NAME!)
     if (!token) {
         const origin = new URL(request.url).origin
         return redirect(origin + '/api/v1/oauth/bnet/auth')

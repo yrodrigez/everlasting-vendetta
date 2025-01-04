@@ -14,8 +14,8 @@ import moment from "moment";
 
 export const dynamic = 'force-dynamic'
 
-export default async function Page({params}: { params: { id: string } }) {
-    const {supabase, auth} = createServerSession({cookies})
+export default async function Page({params}: { params: Promise<{ id: string }> }) {
+    const {supabase, auth} = await createServerSession({cookies})
     const user = await auth.getSession()
     if (!user) {
         return <NotLoggedInView/>
@@ -24,8 +24,9 @@ export default async function Page({params}: { params: { id: string } }) {
     if (!user.permissions.some(p => p === 'reset.edit')) {
         return <div>Not enough permissions</div>
     }
+    const {id: resetId} = await params
 
-    const reset = await getResetById(params.id, supabase)
+    const reset = await getResetById(resetId, supabase)
     const raids = await getAvailableRaids(supabase)
 
     if (moment(reset.raid_date).isBefore(moment())) {

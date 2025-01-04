@@ -11,10 +11,11 @@ import {BnetLoginButton} from "@/app/components/BnetLoginButton";
 
 export const dynamic = 'force-dynamic'
 
-export default async function ({params}: { params: { id: string } }) {
-    if (!params.id) return null
+export default async function ({params}: { params: Promise<{ id: string }> }) {
+    const {id} = await params
+    if (!id) return null
 
-    const {auth} = createServerSession({cookies})
+    const {auth} = await createServerSession({cookies})
     if (!auth) {
         return (
             <NotLoggedInView/>
@@ -34,7 +35,7 @@ export default async function ({params}: { params: { id: string } }) {
                 <h1>Only Blizzard OAuth users can access this chat</h1>
                 <BnetLoginButton/>
                 <Link
-                    href={`/raid/${params.id}`}
+                    href={`/raid/${id}`}
                     scroll={false}
                 >
                     <Button>
@@ -47,11 +48,11 @@ export default async function ({params}: { params: { id: string } }) {
 
     return (
         <div className="w-full h-full flex flex-col gap-2 relative items-center justify-center">
-            <ChatContainer resetId={params.id}/>
+            <ChatContainer resetId={id}/>
             <div
                 className="absolute top-0 left-0 flex flex-col gap-2">
                 <Link
-                    href={`/raid/${params.id}`}
+                    href={`/raid/${id}`}
                     scroll={false}
                 >
                     <Button isIconOnly>

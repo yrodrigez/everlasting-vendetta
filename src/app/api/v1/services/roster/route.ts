@@ -5,7 +5,7 @@ import {fetchGuildInfo, getGuildRosterFromGuildInfo} from "@/app/lib/fetchGuildI
 
 
 export async function GET() {
-    const token = cookies().get('bnetToken')?.value || (await getBlizzardToken()).token
+    const token = (await cookies()).get('bnetToken')?.value || (await getBlizzardToken()).token
     if (!token) {
         throw new Error('No token found')
     }

@@ -46,10 +46,10 @@ export async function GET(request: NextRequest) {
     const windowOpener = stateData?.windowOpener
 
     if (code) {
-        if (cookies().get(BNET_COOKIE_NAME)) {
-            cookies().delete(BNET_COOKIE_NAME)
+        if ((await cookies()).get(BNET_COOKIE_NAME)) {
+            (await cookies()).delete(BNET_COOKIE_NAME)
         }
-        cookies().set(BNET_COOKIE_NAME, tokenData.access_token, {
+        (await cookies()).set(BNET_COOKIE_NAME, tokenData.access_token, {
             maxAge: tokenData.expires_in,
             path: '/',
             sameSite: 'lax',

@@ -2,7 +2,7 @@ import {NextRequest, NextResponse} from "next/server";
 
 export async function GET(request: NextRequest, context: any) {
 
-    const {raceId} = context.params;
+    const {raceId} = await context.params;
     const baseUrl = `https://wow.zamimg.com/modelviewer/live/meta/character/${raceId}.json`;
     const response = await fetch(baseUrl);
     if (!response.ok) {

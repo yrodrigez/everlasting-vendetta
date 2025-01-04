@@ -3,7 +3,7 @@ import {cookies} from "next/headers";
 import createServerSession from "@utils/supabase/createServerSession";
 
 async function fetchRaidStatus(raidId: any) {
-    const {supabase} = createServerSession({cookies})
+    const {supabase} = await createServerSession({cookies})
     const {
         data,
         error

@@ -132,7 +132,7 @@ async function findMembersAvatars(members: MemberWithStatistics[], token: string
 }
 
 export default async function Page() {
-    const {supabase} = createServerSession({cookies})
+    const {supabase} = await  createServerSession({cookies})
     const {
         data,
         error

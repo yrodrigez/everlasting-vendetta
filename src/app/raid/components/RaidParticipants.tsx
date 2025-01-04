@@ -12,6 +12,7 @@ import {Button} from "@/app/components/Button";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPersonCircleCheck, faPersonCircleXmark, faTrash} from "@fortawesome/free-solid-svg-icons";
 import {RaidParticipant} from "@/app/raid/api/types";
+import GearScore from "@/app/components/GearScore";
 
 
 const BadgeCheckIcon = ({className}: { className: string }) => {
@@ -40,11 +41,10 @@ const BadgeCheckIcon = ({className}: { className: string }) => {
 
 
 const GuildMemberIndicator = (character: any) => {
-
     const isGuildie = character.guild?.name === GUILD_NAME;
     const guildName = character.guild?.name || 'Not guilded';
     return (
-        <Tooltip content={guildName} placement={'top'}>
+        <Tooltip content={guildName} placement={'top'} isDisabled={isGuildie}>
             <Chip
                 className={`text-${isGuildie ? 'success' : 'warning'}`}
                 color={isGuildie ? 'success' : 'warning'} size="sm" variant="flat">
@@ -54,11 +54,12 @@ const GuildMemberIndicator = (character: any) => {
     )
 }
 
-export default function RaidParticipants({participants, raidId, raidInProgress, days}: {
+export default function RaidParticipants({participants, raidId, raidInProgress, days, minGs}: {
     participants: RaidParticipant[],
     raidId: string,
     raidInProgress: boolean
-    days: string[]
+    days: string[],
+    minGs: number
 }) {
     const {supabase, selectedCharacter, session: {isAdmin} = {}} = useSession()
 
@@ -76,7 +77,8 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
         } else {
             setColumns([
                 ...initialColumns,
-                {name: "DAYS", uid: "days"},
+                {name: "GEAR SCORE", uid: "gs"},
+                //{name: "DAYS", uid: "days"},
                 {name: "GUILDIE", uid: "is_guildie"},
             ])
             if (isAdmin) {
@@ -96,6 +98,8 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
         const registrationDetails = registration.details
 
         switch (columnKey) {
+            case "gs":
+                return <GearScore characterName={name} min={minGs} allowForce={isAdmin || selectedCharacter?.id === registration?.member?.character?.id}/>
             case "name":
                 return (
                     <Link
@@ -228,7 +232,7 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
                         <Button
                             size="sm"
                             isIconOnly
-                            onClick={() => {
+                            onPress={() => {
                                 const memberId = registration.member.character.id
                                 const raidId = registration.raid_id
                                 const confirm = window.confirm(`Are you sure you want to delete ${registration.member.character.name} from this raid?`)

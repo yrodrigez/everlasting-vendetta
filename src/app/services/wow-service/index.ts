@@ -46,7 +46,7 @@ export default class WoWService_Impl implements WoWService {
     namespace: string;
 
     constructor({token}: { token?: { value: string } } = {}) {
-        this.token = token?.value || cookies().get(BNET_COOKIE_NAME)?.value
+        this.token = token?.value
         this.guild = GUILD_NAME!
         this.guildId = GUILD_ID
         this.region = BLIZZARD_API_REGION
@@ -105,6 +105,7 @@ export default class WoWService_Impl implements WoWService {
     }
 
     fetchBattleNetWoWAccounts = async () => {
+        this.token = this.token || (await getBlizzardToken()).token
         if (!this.token) {
             return []
         }
@@ -131,7 +132,7 @@ export default class WoWService_Impl implements WoWService {
     }
 
     isLoggedUserInGuild = async () => {
-        const {auth} = createServerSession({cookies})
+        const {auth} = await  createServerSession({cookies})
         const session = await auth.getSession()
 
         if (!session) {

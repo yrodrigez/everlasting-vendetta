@@ -15,6 +15,10 @@ export default function GearScore({character, isGuildMember}: { character: strin
         retry: 3,
     })
 
+    if(!isGuildMember) {
+
+    }
+
     return (
         <div className="flex gap-1 items-center">
             <p className="text-sm text-muted">Gear score: </p>

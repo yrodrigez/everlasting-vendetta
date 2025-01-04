@@ -24,16 +24,16 @@ export const metadata: Metadata = {
 };
 
 
-export default function RootLayout({
+export default async function RootLayout({
                                        children,
                                    }: Readonly<{
     children: React.ReactNode;
 }>) {
     const battleNetRedirectUrl = `${process.env.BNET_LOGIN_URI}`;
-    const battleNetToken = cookies().get(process.env.BNET_COOKIE_NAME!);
+    const battleNetToken = (await cookies()).get(process.env.BNET_COOKIE_NAME!);
 
     return (
-        <html lang="en" className="light">
+        <html lang="en" className="light" suppressHydrationWarning>
         <body className={inter.className}
               style={{width: '100%', height: '100vh', overflow: 'auto', display: 'flex', flexDirection: 'column'}}>
         <Providers>

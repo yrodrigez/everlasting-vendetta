@@ -1,7 +1,7 @@
 import {NextRequest, NextResponse} from "next/server";
 
 export async function GET(request: NextRequest, context: any) {
-    const {raceGender} = context.params;
+    const {raceGender} = await context.params;
     const baseUrl = `https://wow.zamimg.com/modelviewer/live/meta/charactercustomization/${raceGender}.json`;
     const response = await fetch(baseUrl);
     if (!response.ok) {

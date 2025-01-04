@@ -118,6 +118,7 @@ export function useReactions(resetId: string) {
 
             const _reactions = await fetchMessageReactions(supabase, resetId)
             setReactions(_reactions)
+            return _reactions
         },
         enabled: !!supabase,
     })

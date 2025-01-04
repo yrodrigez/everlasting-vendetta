@@ -110,16 +110,16 @@ const fetchResetInfo = async (supabase: SupabaseClient, resetId: string) => {
 }
 
 
-export default async function ({params}: { params: { id: string } }) {
+export default async function ({params}: { params: Promise<{ id: string }> }) {
 
-    const {supabase, auth} = createServerSession({cookies})
+    const {supabase, auth} = await  createServerSession({cookies})
     const user = await auth.getSession()
 
     if (!user) {
         return <NotLoggedInView/>
     }
-
-    const lootHistory = await fetchLootHistory(supabase, params.id)
+    const {id: resetId} = await params
+    const lootHistory = await fetchLootHistory(supabase, resetId)
     if (!lootHistory?.length) {
         return <div>Could not find loot history</div>
     }
@@ -158,10 +158,10 @@ export default async function ({params}: { params: { id: string } }) {
         })
 
 
-    const participants = await fetchParticipants(supabase, params.id)
+    const participants = await fetchParticipants(supabase, resetId)
     const charactersWithNoLoot = participants.filter((p) => !sortedCharactersWithLoot.find((c) => c.character === p.character))
     const disenchanted = charactersWithLoot.filter((c) => c.character === '_disenchanted')
-    const resetInfo = await fetchResetInfo(supabase, params.id)
+    const resetInfo = await fetchResetInfo(supabase, resetId)
     if(!resetInfo) {
         return <div>Could not find reset info</div>
     }
@@ -169,7 +169,7 @@ export default async function ({params}: { params: { id: string } }) {
     return (
         <div className="flex flex-col w-full h-full scrollbar-pill">
             <div className="flex gap-4 items-center justify-between w-full text-gold rounded-lg bg-dark p-2">
-                <Link href={`/raid/${params.id}`}>
+                <Link href={`/raid/${resetId}`}>
                     <Button
                         variant="light"
                         isIconOnly

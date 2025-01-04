@@ -119,19 +119,20 @@ function dateIsValid(date: string) {
     return /\d{4}-\d{2}-\d{2}/.test(date) && moment(date, 'YYYY-MM-DD').isValid()
 }
 
-export default async function Page({searchParams}: { searchParams: { d?: string, p?: string, n?: string } }) {
+export default async function Page({searchParams}: { searchParams: Promise<{ d?: string, p?: string, n?: string }> }) {
     const currentDate = moment().format('YYYY-MM-DD')
-    if (!searchParams.d || !dateIsValid(searchParams.d) || (searchParams.p && searchParams.n)) {
+    const {d, p, n} = await searchParams
+    if (!d || !dateIsValid(d) || (p && n)) {
         redirect(`/calendar?d=${currentDate}`)
     }
 
-    if (searchParams.p && !dateIsValid(searchParams.p) || (searchParams.n && !dateIsValid(searchParams.n))) {
+    if (p && !dateIsValid(p) || (n && !dateIsValid(n))) {
         redirect(`/calendar?d=${currentDate}`)
     }
 
-    const {supabase, auth} = createServerSession({cookies})
+    const {supabase, auth} = await createServerSession({cookies})
     const user = await auth.getSession()
-    const {p: previous, n: next, d: current} = searchParams
+    const {p: previous, n: next, d: current} = await searchParams
     const raidResets = await Promise.all((await fetchMaxRaidResets(supabase, (previous || next || current), {
         isPrevious: !!previous,
         isNext: !!next,

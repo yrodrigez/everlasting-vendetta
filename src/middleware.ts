@@ -6,7 +6,7 @@ import {createServerComponentClient} from "@utils/supabase/createServerComponent
 
 async function isBanned() {
 
-    const supabaseToken = cookies().get('evToken')?.value;
+    const supabaseToken = (await cookies()).get('evToken')?.value;
 
     if (!supabaseToken) {
         return false;

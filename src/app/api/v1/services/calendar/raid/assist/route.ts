@@ -14,17 +14,17 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({error: 'Error - raidId is mandatory!'})
     }
 
-    const token = cookies().get(process.env.BNET_COOKIE_NAME!)
+    const token = (await cookies()).get(process.env.BNET_COOKIE_NAME!)
     if (!token) {
         const origin = new URL(request.url).origin
         return redirect(origin + '/api/v1/oauth/bnet/auth')
     }
 
-    const supabaseToken = cookies().get('evToken')
+    const supabaseToken = (await cookies()).get('evToken')
     if (!supabaseToken) {
         return NextResponse.json({error: 'Error - supabase token is mandatory!'})
     }
-    const {supabase} = createServerSession({cookies})
+    const {supabase} = await createServerSession({cookies})
     if (!currentCharacter.isTemporal) {
         const currentUserCharacters = await fetchBattleNetWoWAccounts(token.value)
         if (!currentUserCharacters) {

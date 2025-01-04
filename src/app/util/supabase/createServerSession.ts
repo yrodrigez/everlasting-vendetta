@@ -15,15 +15,15 @@ export function getLoggedInUserFromAccessToken(accessToken: string) {
 }
 
 
-export default function createServerSession({cookies}: { cookies: any }): {
+export default async function createServerSession({cookies}: { cookies: any }): Promise<{
     supabase: SupabaseClient,
     auth: { getSession: () => Promise<void | UserProfile> }
-} {
+}> {
     if (!cookies) {
         throw new Error('cookies is required')
     }
 
-    const supabaseToken = cookies().get('evToken')?.value
+    const supabaseToken = (await cookies()).get('evToken')?.value
     const supabase = createServerComponentClient({supabaseToken})
 
     if (!supabaseToken) {

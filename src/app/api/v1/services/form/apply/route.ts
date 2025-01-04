@@ -6,7 +6,7 @@ import createServerSession from "@utils/supabase/createServerSession";
 
 export async function POST(request: NextRequest) {
     const state = await request.json()
-    const {supabase} = createServerSession({cookies})
+    const {supabase} = await createServerSession({cookies})
     try {
         const response = await supabase.from('ev_application').insert({
             name: state.name,

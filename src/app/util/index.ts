@@ -10,7 +10,7 @@ import {toast} from "sonner";
  * getCookie('cookieName')
  */
 export function getCookie(name: string) {
-    if (typeof window === 'undefined') return
+    if(typeof document === 'undefined') return
     if (!document?.cookie) return
     const value = `; ${document.cookie}`
     const parts = value.split(`; ${name}=`)

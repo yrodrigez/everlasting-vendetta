@@ -3,7 +3,7 @@ import fetch from 'node-fetch';
 import { PassThrough } from 'stream';
 
 export async function GET(request: NextRequest, context: any) {
-    const { id } = context.params;
+    const { id } = await context.params;
     const baseUrl = `https://wow.zamimg.com/modelviewer/live/mo3/${id}`;
 
     try {

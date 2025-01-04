@@ -5,6 +5,7 @@ import {type SupabaseClient} from "@supabase/supabase-js";
 import {getItemDisplayId} from "@/app/util/wowhead/getItemDisplayId";
 import {BNET_COOKIE_NAME, createBlizzardItemFetchUrl} from "@/app/util/constants";
 import createServerSession from "@utils/supabase/createServerSession";
+import {getBlizzardToken} from "@/app/lib/getBlizzardToken";
 
 function knownItemLevelQuality(itemId: number) {
     const knownItemLevels = {
@@ -24,6 +25,10 @@ function knownItemLevelQuality(itemId: number) {
 }
 
 async function fetchItemDetails(token: string, itemId: number) {
+    if (!token) {
+        console.error('No token provided for fetching item details')
+        throw new Error('No token provided for fetching item details')
+    }
     const url = createBlizzardItemFetchUrl(itemId);
     let itemDetails = {quality: {}, level: knownItemLevelQuality(itemId)} as any;
 
@@ -31,9 +36,11 @@ async function fetchItemDetails(token: string, itemId: number) {
         const {data} = await axios.get(`${url}`, {
             headers: {'Authorization': 'Bearer ' + token}
         })
+
         itemDetails = data;
     } catch (e) {
-        //console.error('Error fetching item details:', e)
+        console.error('Error fetching item details:', itemId, e)
+        console.error('try this in postman', url, 'with token', token)
         return itemDetails
     }
     if (itemDetails.quality.level === 0) {
@@ -116,8 +123,8 @@ async function fetchNewItem(supabase: SupabaseClient, token: { value: string, na
     ])
 
     const itemDetails = {
-        ...bnetDetails,
         ...wowHeadItem,
+        ...bnetDetails,
         icon: wowHeadItem.icon,
     }
 
@@ -127,12 +134,20 @@ async function fetchNewItem(supabase: SupabaseClient, token: { value: string, na
 }
 
 export async function GET(request: NextRequest) {
-    const cookieList = cookies()
+    const cookieList = await cookies()
     let token = cookieList.get(BNET_COOKIE_NAME)
     const url = new URL(request.url)
     const itemId = Number(url.searchParams.get('itemId'))
+    const force = url.searchParams.get('force') === 'true'
     if (!token?.value) {
         token = {value: url.searchParams.get('token') ?? '', name: BNET_COOKIE_NAME}
+    }
+
+    const {supabase} = await createServerSession({cookies})
+
+    if (!token?.value) {
+        const data = await getBlizzardToken()
+        token = {value: data.token, name: BNET_COOKIE_NAME}
     }
 
     if (itemId === 999999) {
@@ -142,7 +157,10 @@ export async function GET(request: NextRequest) {
         })
     }
 
-    const {supabase} = createServerSession({cookies})
+    if (force) {
+        return fetchNewItem(supabase, token, itemId)
+    }
+
     const itemFromDatabase = await getItemFromDatabase(supabase, itemId)
     const itemDetailsFromDatabase = itemFromDatabase?.details
     const lastUpdated = itemFromDatabase?.lastUpdated

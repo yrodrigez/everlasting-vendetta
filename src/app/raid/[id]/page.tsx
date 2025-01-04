@@ -8,7 +8,7 @@ import RaidParticipants from "@/app/raid/components/RaidParticipants";
 import AssistActions from "@/app/raid/components/AssistActions";
 import RaidTimeInfo from "@/app/raid/components/RaidTimeInfo";
 import {KpisView} from "@/app/raid/components/KpisView";
-import {faCartPlus, faGift} from "@fortawesome/free-solid-svg-icons";
+import {faCartPlus, faCircleInfo, faGift} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 import {RaidOptions} from "@/app/raid/components/RaidOptions";
@@ -20,8 +20,10 @@ import {Button} from "@/app/components/Button";
 import {ChatContainer} from "@/app/raid/[id]/chat/components/ChatContainer";
 import {fetchResetParticipants} from "@/app/raid/api/fetchParticipants";
 import {ClassSummary} from "@/app/raid/components/ClassSummary";
+import * as process from "node:process";
+import {IsLowGsModal} from "@/app/raid/components/IsLowGsModal";
 
-const raidResetAttr = 'raid_date, id, raid:ev_raid(name, min_level, image), time, end_date, end_time, days'
+const raidResetAttr = 'raid_date, id, raid:ev_raid(name, min_level, image, min_gs), time, end_date, end_time, days'
 export const dynamic = 'force-dynamic'
 
 function findNextWednesday() {
@@ -91,14 +93,15 @@ function findPreviousAndNextReset(supabase: SupabaseClient, resetDate: string) {
     ])
 }
 
-export async function generateMetadata({params}: { params: { id: string } }): Promise<Metadata> {
-    const {supabase} = createServerSession({cookies})
+export async function generateMetadata({params}: { params: Promise<{ id: string }> }): Promise<Metadata> {
+    const {supabase} = await createServerSession({cookies})
 
+    const {id: raidId} = await params
     // Fetch the raid data based on the ID
     const {
         data,
         error
-    } = params.id === 'next' ? (await fetchNextReset(supabase)) : params.id === 'current' ? (await fetchCurrentReset(supabase)) : (await fetchResetFromId(supabase, params.id));
+    } = raidId === 'next' ? (await fetchNextReset(supabase)) : raidId === 'current' ? (await fetchCurrentReset(supabase)) : (await fetchResetFromId(supabase, raidId));
 
     if (error) {
         return {
@@ -120,23 +123,34 @@ export async function generateMetadata({params}: { params: { id: string } }): Pr
     };
 }
 
-export default async function ({params}: { params: { id: string } }) {
-    const {supabase, auth} = createServerSession({cookies})
-    const isLoggedInUser = await auth.getSession()
+async function getCharacterGearScore(characterName: string) {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/services/member/character/${encodeURIComponent(characterName.toLowerCase())}/gs?force=true`)
+    if (!response.ok) {
+        console.error('Error fetching gear score:', response.status, response.statusText)
+        return 99999
+    }
 
+    const data = await response.json()
+    return data.gs
+}
+
+export default async function ({params}: { params: Promise<{ id: string }> }) {
+    const {supabase, auth} = await createServerSession({cookies})
+    const isLoggedInUser = await auth.getSession()
+    const {id: raidId} = await params
     const {
-        data,
+        data: reset,
         error
-    } = params.id === 'next' ? (await fetchNextReset(supabase)) : params.id === 'current' ? (await fetchCurrentReset(supabase)) : (await fetchResetFromId(supabase, params.id))
+    } = raidId === 'next' ? (await fetchNextReset(supabase)) : raidId === 'current' ? (await fetchCurrentReset(supabase)) : (await fetchResetFromId(supabase, raidId))
 
     if (error) {
         console.error('Error fetching reset', error)
         return <div>Could not find reset</div>
     }
 
-    const participants = await fetchResetParticipants(supabase, data.id)
+    const participants = await fetchResetParticipants(supabase, reset.id)
 
-    const {id, raid_date: raidDate, raid, time: raidTime, end_date, end_time: endTime, days} = data
+    const {id, raid_date: raidDate, raid, time: raidTime, end_date, end_time: endTime, days} = reset
     const {name: raidName, min_level: min_lvl} = raid
     const raidStartDate = moment(raidDate)
     const raidEndDate = moment(end_date)
@@ -156,11 +170,27 @@ export default async function ({params}: { params: { id: string } }) {
     const [previousReset, nextReset] = await findPreviousAndNextReset(supabase, raidDate)
     const raidStarted = moment().isAfter(raidStartDate)
 
+    let isLoggedInUserLowGear = false
+    let characterGearScore = 99999
+    if(isLoggedInUser) {
+        characterGearScore = await getCharacterGearScore(isLoggedInUser?.name)
+        isLoggedInUserLowGear = characterGearScore < reset.raid.min_gs
+    }
+
     return (
-        <div className="w-full h-full flex flex-col relative scrollbar-pill grow-0 overflow-auto">
+        <div className="w-full h-full flex flex-col relative scrollbar-pill grow-0 overflow-auto gap-4">
             <div className="w-full flex grow-0 gap-4">
                 <div className="w-full h-full flex flex-col">
-                    <h4 className="font-bold text-large text-gold">{raidName}</h4>
+                    <h4 className="font-bold text-large text-gold flex gap-2 items-center justify-start">{raidName} - {reset?.raid?.min_gs ? <><span>(min gs: {reset?.raid?.min_gs})
+                    </span> <Tooltip
+                        content="Minimum Gear Score"
+                        placement="right"
+                        className="border-wood-100"
+                        showArrow
+                    >
+                        <FontAwesomeIcon icon={faCircleInfo}/>
+                    </Tooltip></> : null}
+                    </h4>
                     <small className="text-primary">Start {raidDate} - {raidTime} to {endTime}</small>
                     <small className="text-primary">End: {end_date}</small>
                     <KpisView
@@ -198,6 +228,7 @@ export default async function ({params}: { params: { id: string } }) {
                     participants={participants}
                     raidId={id}
                     days={days}
+                    minGs={reset.raid.min_gs}
                 />
                 {!!isLoggedInUser ? (<div className="w-full lg:max-w-80 flex-grow-0 max-h-fit">
                     <ChatContainer raidName={`${raidName} (${raidDate})`} resetId={id} showRedirect={true}/>
@@ -250,6 +281,11 @@ export default async function ({params}: { params: { id: string } }) {
                     </Link>
                 )}
             </div>
+            <IsLowGsModal
+                isLowGs={isLoggedInUserLowGear}
+                characterGearScore={characterGearScore}
+                minGs={reset?.raid?.min_gs}
+            />
         </div>
     )
 }

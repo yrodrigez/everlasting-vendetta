@@ -3,12 +3,13 @@ import {Button} from "@/app/components/Button";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCheck, faTrash} from "@fortawesome/free-solid-svg-icons";
 import {Chip, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip} from "@nextui-org/react";
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useCallback, useEffect} from "react";
 import Link from "next/link";
 import {getClassIcon, getRoleIcon} from "@/app/apply/components/utils";
 import {useSession} from "@hooks/useSession";
 import {useQuery} from "@tanstack/react-query";
 import {useRouter} from "next/navigation";
+import GearScore from "@/app/components/GearScore";
 
 export function Applicants({applicants}: {
     applicants: {
@@ -38,30 +39,21 @@ export function Applicants({applicants}: {
         queryKey: ['applications', 'get'],
         queryFn: async () => {
             return await Promise.all(applicants.map(async (x) => {
-
-                const [avatar, gearScore] = await Promise.all([
-                    fetch(`/api/v1/services/member/avatar/get?characterName=${encodeURIComponent(x.name)}`)
-                        .then(res => res.json())
-                        .then(data => data.avatar)
-                        .catch(() => '/avatar-anon.png'),
-                    fetch(`/api/v1/services/member/character/${encodeURIComponent(x.name)}/gs`)
-                        .then(res => res.json())
-                        .then(data => data)
-                        .catch(() => 0),
-                ])
+                const avatar = await fetch(`/api/v1/services/member/avatar/get?characterName=${encodeURIComponent(x.name)}`)
+                    .then(res => res.json())
+                    .then(data => data.avatar)
+                    .catch(() => '/avatar-anon.png')
 
                 return {
                     ...x,
-                    avatar,
-                    gearScore,
+                    avatar
                 }
             }))
         },
         initialData: applicants.map((x) => {
             return {
                 ...x,
-                avatar: '/avatar-anon.png',
-                gearScore: {gs: 'calculating...', color: 'default'},
+                avatar: '/avatar-anon.png'
             }
         })
     })
@@ -206,9 +198,7 @@ export function Applicants({applicants}: {
 
             case "gearScore":
                 return (
-                    <div className="flex items-center gap-2">
-                        <span className={`text-${gearScore.color}`}>{gearScore.gs}</span>
-                    </div>
+                    <GearScore characterName={name}/>
                 );
 
             case "review":

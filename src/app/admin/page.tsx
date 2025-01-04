@@ -5,7 +5,7 @@ import {MemberRole, Role, RolePermission, UserProfile} from "@/app/admin/types";
 import PermissionManagement from "@/app/admin/PermissionManagement";
 
 export default async function Page() {
-    const {auth, supabase} = createServerSession({cookies})
+    const {auth, supabase} = await createServerSession({cookies})
     const session = await auth.getSession()
 
     if (!session || !session.id || !session.roles?.includes(ROLE.ADMIN)) {

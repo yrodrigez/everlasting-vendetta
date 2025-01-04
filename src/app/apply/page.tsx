@@ -1,5 +1,7 @@
 import ApplyForm from "@/app/apply/components/ApplyForm";
 
+export const dynamic = 'force-dynamic';
+
 export default function Page() {
     return (
         <main className="w-full py-6 md:py-12">

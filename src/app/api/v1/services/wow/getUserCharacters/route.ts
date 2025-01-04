@@ -6,8 +6,8 @@ import createServerSession from "@utils/supabase/createServerSession";
 
 
 export async function GET(request: NextRequest) {
-    const token = cookies().get(BNET_COOKIE_NAME)
-    const {auth} = createServerSession({cookies})
+    const token = (await cookies()).get(BNET_COOKIE_NAME)
+    const {auth} = await createServerSession({cookies})
     const user = await auth.getSession()
 
     if (user && user.isTemporal) {

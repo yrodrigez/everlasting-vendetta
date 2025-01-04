@@ -269,17 +269,18 @@ export default function AssistActions({
     const {addDay, removeDay, selectedDays, clearDays, setDays} = useAssistanceStore(state => state)
 
     useEffect(() => {
-        const currentParticipant = (participants ?? []).find((p: any) => p?.member?.character?.name === selectedCharacter?.name)
+        /*const currentParticipant = (participants ?? []).find((p: any) => p?.member?.character?.name === selectedCharacter?.name)
         if (currentParticipant && currentParticipant.details?.days) {
             const selectedDays = currentParticipant.details.days
             clearDays()
             setDays(selectedDays)
         } else if (selectedDays.some((day: string) => days.indexOf(day) === -1)) {
             clearDays()
-        }
+        }*/
+        setDays(days)
     }, [selectedCharacter]);
 
-    const {isMobile} = useScreenSize()
+    //const {isMobile} = useScreenSize()
 
     if (moment.tz('Europe/Madrid').isAfter(moment(`${endDate} ${endTime === '00:00:00' ? '23:59:59' : endTime}`, 'YYYY-MM-DD HH:mm:ss').tz('Europe/Madrid'))) {
         return <div className="text-red-500 flex items-center min-h-7"></div>
@@ -326,7 +327,7 @@ export default function AssistActions({
                         raidId={raidId}/>
                     <DeclineAssistance raidId={raidId}/>
             </div>
-            <Tooltip
+            {/*<Tooltip
                 className="animate-blink-and-glow border-gold border rounded-lg p-4"
                 content={
                     <div className="flex flex-col items-center justify-center gap-2 text-2xl">
@@ -366,7 +367,7 @@ export default function AssistActions({
                         </Button>
                     })}
                 </div>
-            </Tooltip>
+            </Tooltip>*/}
         </div>
     )
 }

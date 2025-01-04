@@ -55,7 +55,7 @@ const RANKS = {
 
 export default async function Page() {
 
-    const {supabase} = createServerSession({cookies})
+    const {supabase} = await createServerSession({cookies})
     const {data, error} = await supabase.from('ev_member')
         .select('updated_at, character')
         .filter('character->>level', 'gte', CURRENT_MAX_LEVEL - 10)

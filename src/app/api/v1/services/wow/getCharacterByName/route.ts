@@ -7,7 +7,7 @@ import {fetchCharacterAvatar} from "@/app/lib/fetchCharacterAvatar";
 import {getBlizzardToken} from "@/app/lib/getBlizzardToken";
 
 export async function GET(request: NextRequest) {
-    let token: any = cookies().get(BNET_COOKIE_NAME)
+    let token: any = (await cookies()).get(BNET_COOKIE_NAME)
 
     if (new URL(request.url).searchParams.get('temporal') === 'true') {
         const {token: _token} = await getBlizzardToken()

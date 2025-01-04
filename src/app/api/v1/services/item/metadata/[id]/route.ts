@@ -57,7 +57,7 @@ const fetchItemMetadata = async (itemId: number) => {
 }
 
 export async function GET(request: NextRequest, context: any) {
-    const { id } = context.params;
+    const { id } = await context.params;
 
     return NextResponse.json((await fetchItemMetadata(parseInt(id))));
 }

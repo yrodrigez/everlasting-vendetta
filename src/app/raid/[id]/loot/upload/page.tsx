@@ -24,7 +24,7 @@ async function handleSubmit(formData: FormData) {
         const csv = parseLootCsv(loot as string)
         const lootObjects = convertLootCsvToObjects(csv)
 
-        const {supabase} = createServerSession({cookies})
+        const {supabase} = await createServerSession({cookies})
 
         const {error} = await supabase
             .from('ev_loot_history')
@@ -43,9 +43,10 @@ async function handleSubmit(formData: FormData) {
     }
 }
 
-export default async function Page({params}: { params: { id: string } }) {
-    const {auth} = createServerSession({cookies})
+export default async function Page({params}: { params: Promise<{ id: string }> }) {
+    const {auth} = await createServerSession({cookies})
     const user = await auth.getSession()
+    const {id: resetId} = await params
 
     if (!user) {
         return <NotLoggedInView/>
@@ -57,9 +58,9 @@ export default async function Page({params}: { params: { id: string } }) {
 
     return (
         <form className="flex flex-col gap-4 w-full h-full" action={handleSubmit}>
-            <input type="hidden" name="raid_id" value={params.id}/>
+            <input type="hidden" name="raid_id" value={resetId}/>
             <div className="flex h-[90%] w-full">
-                <LootHistoPreview reset_id={params.id}/>
+                <LootHistoPreview reset_id={resetId}/>
             </div>
             <Button type="submit" className="mt-4">
                 Submit
