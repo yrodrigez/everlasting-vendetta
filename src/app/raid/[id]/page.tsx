@@ -181,15 +181,12 @@ export default async function ({params}: { params: Promise<{ id: string }> }) {
         <div className="w-full h-full flex flex-col relative scrollbar-pill grow-0 overflow-auto gap-4">
             <div className="w-full flex grow-0 gap-4">
                 <div className="w-full h-full flex flex-col">
-                    <h4 className="font-bold text-large text-gold flex gap-2 items-center justify-start">{raidName} - {reset?.raid?.min_gs ? <><span>(min gs: {reset?.raid?.min_gs})
-                    </span> <Tooltip
-                        content="Minimum Gear Score"
-                        placement="right"
-                        className="border-wood-100"
-                        showArrow
-                    >
-                        <FontAwesomeIcon icon={faCircleInfo}/>
-                    </Tooltip></> : null}
+                    <h4 className="font-bold text-large text-gold flex gap-2 items-center justify-start">{raidName}
+                        {isLoggedInUserLowGear && <IsLowGsModal
+                          isLowGs={isLoggedInUserLowGear}
+                          characterGearScore={characterGearScore}
+                          minGs={reset?.raid?.min_gs}
+                        />}
                     </h4>
                     <small className="text-primary">Start {raidDate} - {raidTime} to {endTime}</small>
                     <small className="text-primary">End: {end_date}</small>
@@ -281,11 +278,7 @@ export default async function ({params}: { params: Promise<{ id: string }> }) {
                     </Link>
                 )}
             </div>
-            <IsLowGsModal
-                isLowGs={isLoggedInUserLowGear}
-                characterGearScore={characterGearScore}
-                minGs={reset?.raid?.min_gs}
-            />
+
         </div>
     )
 }
