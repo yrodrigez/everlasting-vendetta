@@ -152,21 +152,22 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
                                 <img
                                     className="
                                     w-6 h-6
-                                    rounded-full border border-gold
+                                    rounded-full
+                                    border border-wood-100 shadow-sm shadow shadow-wood-100
                                 "
                                     src={getClassIcon(playable_class?.name)}
                                     alt={playable_class?.name}
                                 />
-                                {registrationDetails.role.split('-').map((roleValue: string, i: number) => (
+                                {registrationDetails.role.split('-').map((roleValue: string, i: number, arr: string[]) => (
                                     <img
                                         key={roleValue}
                                         className={`
-                                        absolute top-0 ${i === 0 ? 'left-3' : 'left-6'}
+                                        absolute top-0 ${(i === 0 && arr.length === 1) ? 'left-5' : i === 0 ? 'left-3' : 'left-6'}
                                         w-6 h-6
                                         rounded-full
-                                        border border-gold
                                         transition-all duration-300
-                                        ${i === 0 ? 'group-hover:translate-x-2.5' : 'group-hover:translate-x-5'}
+                                        border border-wood-100 shadow-sm shadow shadow-wood-100
+                                        ${(i === 0 && arr.length === 1) ? '' : (i === 0) ? 'group-hover:translate-x-2.5 group-hover:-translate-y-3' : 'group-hover:-translate-x-0.5 group-hover:translate-y-3'}
                                         
                                     `}
                                         src={getRoleIcon(roleValue)}
