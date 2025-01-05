@@ -148,7 +148,6 @@ export function RaidOptions({
                         Not confirmed<FontAwesomeIcon icon={faPersonCircleExclamation} />
                     </div>
                 </DropdownItem>
-
                 <DropdownItem
                     key={KEYS.upload_loot}
                 >

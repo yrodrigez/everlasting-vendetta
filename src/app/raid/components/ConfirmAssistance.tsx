@@ -47,10 +47,14 @@ export function ConfirmAssistance({raidId, hasLootReservations = false}: {
         }
     }, [isHovering, isOpenRoles, onOpenChangeRoles])
 
-    const confirmRaid = useCallback((async (role = selectedRole) => {
+    const confirmRaid = useCallback(((role = selectedRole) => {
         setLoading(true)
-        await assistRaid(raidId, selectedDays, selectedCharacter, role, 'confirmed', hasLootReservations, onOpen)
-        setLoading(false)
+        assistRaid(raidId, selectedDays, selectedCharacter, role, 'confirmed', hasLootReservations, onOpen).finally(() => {
+            setLoading(false)
+            router.refresh()
+            onOpenChangeRoles()
+        })
+
     }), [raidId, selectedDays, selectedCharacter, selectedRole, hasLootReservations, onOpen])
     const router = useRouter()
 
@@ -77,7 +81,7 @@ export function ConfirmAssistance({raidId, hasLootReservations = false}: {
                         onOpenChange={onOpenChangeRoles}
                     >
                         <PopoverTrigger>
-                            <div className={`relative min-w-6 min-h-6 group `}>
+                            <div className={`relative min-w-6 min-h-6 group`}>
                                 {
                                     selectedRole.split('-').map((roleValue, i) => (
                                         <img
@@ -113,12 +117,7 @@ export function ConfirmAssistance({raidId, hasLootReservations = false}: {
                                                 }
                                                 onPress={() => {
                                                     if (selectedRole !== role.value) setRole(role.value)
-                                                    setTimeout(() =>
-                                                            confirmRaid(role.value).then(() => {
-                                                                router.refresh()
-                                                                onOpenChangeRoles()
-                                                            })
-                                                        , 400)
+                                                    setTimeout(() => confirmRaid(role.value), 400)
                                                 }}
                                             ><span className="relative min-w-6 max-w-12 h-6 group">
                             {role.value.split('-').map((roleValue, i, arr) => (

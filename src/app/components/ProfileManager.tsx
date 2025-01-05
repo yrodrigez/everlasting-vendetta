@@ -1,5 +1,5 @@
 'use client'
-import {useEffect, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import CharacterAvatar from "@/app/components/CharacterAvatar";
 import {BattleNetAuthManagerWindow} from "@/app/components/BattleNetAuthManagerWindow";
 import {useCharacterStore} from "@/app/components/characterStore";
@@ -10,7 +10,7 @@ import {
     ModalHeader,
     Popover,
     PopoverContent,
-    PopoverTrigger,
+    PopoverTrigger, ScrollShadow,
     Spinner, Tooltip
 } from "@nextui-org/react";
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
@@ -27,6 +27,7 @@ import {useSession} from "@/app/hooks/useSession";
 import {clearAllCookies, logout} from "@/app/util";
 import {toast} from "sonner";
 import {useRouter} from "next/navigation";
+import {PLAYABLE_ROLES} from "@utils/constants";
 
 export function isRoleAssignable(role: 'tank' | 'healer' | 'dps' | string, characterClass?: string) {
     if (!characterClass) return false
@@ -112,6 +113,11 @@ export default function ProfileManager() {
         return () => clearTimeout(timeout);
     }, [isSessionLoading, selectedCharacter, supabase]);
 
+    const assignableRoles = useMemo(() => {
+        if(!selectedCharacter) return []
+        return Object.values(PLAYABLE_ROLES).filter(role => role.value.split('-').every((x: string) => isRoleAssignable(x.toLowerCase(), selectedCharacter.playable_class?.name?.toLowerCase())))
+    }, [selectedCharacter])
+
     if (isSessionLoading || !selectedCharacter?.name || !supabase) {
         return <div
             className="px-1 py-2 lg:px-2 lg:py-1 flex flex-col items-center justify-center rounded-xl hover:cursor-pointer hover:bg-white hover:bg-opacity-20 hover:backdrop-filter hover:backdrop-blur-md h-[68px] w-[68px]"
@@ -189,25 +195,9 @@ export default function ProfileManager() {
                     className="max-h-96 overflow-auto scrollbar-pill"
                 >
                     {isSessionLoading ? <div>Loading...</div> :
-                        <div className="flex flex-col gap-2 scrollbar-pill overflow-auto">
-                            {['Tank', 'Healer', 'Dps'].filter((role) => {
-                                return isRoleAssignable(role.toLowerCase() as any, selectedCharacter.playable_class?.name?.toLowerCase())
-                            })/*.reduce(
-                                (acc, role) => {
-                                    const newCombos = acc.map((combo) => [...combo, role]);
-                                    return acc.concat(newCombos);
-                                },
-                                [[]] as string[][]
-                            ).filter(
-                                (combo) => {
-                                    return combo.length <= 2
-                                }
-                            ).sort((a,b)=>{
-                                return a.length - b.length
-                            }).map(x => {
-                                return x.join('-')
-                            })*/.filter(Boolean).map((role) => {
-                                const roleKey = role.toLowerCase() as 'tank' | 'healer' | 'dps' | 'tank-healer' | 'tank-dps' | 'healer-dps'
+                        <ScrollShadow className="flex flex-col gap-2 scrollbar-pill overflow-auto">
+                            {assignableRoles.map(({value: role,label: roleLabel}) => {
+                                const roleKey = role
                                 return (
                                     <div
                                         onClick={() => {
@@ -249,16 +239,30 @@ export default function ProfileManager() {
                                         key={role}
                                         className={`flex gap-4 items-center justify-between hover:bg-gold hover:bg-opacity-20 py-2 px-4 rounded cursor-pointer`}>
                                         <div className={'flex gap-4 items-center'}>
-                                            <img src={getRoleIcon(role)} alt={role}
-                                                 className={`w-14 h-14 rounded-full border-gold border `}/>
+                                            <div className={`relative min-w-14 min-h-14 ${role.split('-').length > 1 ? 'min-w-20': ''} `}>
+                                                {
+                                                    role.split('-').map((roleValue, i) => (
+                                                        <img
+                                                            key={roleValue}
+                                                            className={`
+                                            absolute top-0 ${i === 0 ? 'left-0' : 'left-7'}
+                                            w-14 h-14
+                                            rounded-full
+                                            transition-all duration-300
+                                        `}
+                                                            src={getRoleIcon(roleValue)}
+                                                            alt={roleValue}
+                                                        />
+                                                    ))}
+                                            </div>
                                             <div className={'flex flex-col gap-1'}>
-                                                <h2 className={'text-gold font-bold text-xl'}>{role}</h2>
+                                                <h2 className={'text-gold font-bold text-xl'}>{roleLabel}</h2>
                                             </div>
                                         </div>
                                     </div>
                                 )
                             })}
-                        </div>}
+                        </ScrollShadow>}
                 </ModalBody>
             </ModalContent>
         </Modal>
