@@ -9,6 +9,8 @@ const config: Config = {
         "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}",
     ],
     safelist: [
+        'left-3',
+        'left-6',
         'hover:bg-warrior',
         'hover:bg-paladin',
         'hover:bg-hunter',

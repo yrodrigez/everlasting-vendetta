@@ -18,7 +18,7 @@ export default function DeclineAssistance({raidId}: { raidId: string }) {
             disabled={loading}
             isIconOnly={isMobile}
             isDisabled={loading}
-            onClick={() =>
+            onPress={() =>
                 (async () => {
                     setLoading(true)
                     await assistRaid(raidId, [], selectedCharacter, selectedRole, 'declined', true, () => {}) // TODO: change the logic here

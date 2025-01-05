@@ -1,4 +1,4 @@
-import moment from "moment";
+import moment from "moment-timezone";
 
 import {RaidResetCard} from "@/app/calendar/components/RaidResetCard";
 import {cookies} from "next/headers";
@@ -17,26 +17,6 @@ import Refresher from "@/app/calendar/components/Refresher";
 export const dynamic = 'force-dynamic'
 
 const MAX_RAID_RESETS = 9
-
-/*
-async function fetchRaidMembers(id: string, supabase: SupabaseClient) {
-    const {data, error} = await supabase.from('ev_raid_participant')
-        .select('member:ev_member(*), is_confirmed, raid_id, details')
-        .eq('raid_id', id)
-        .returns<{
-            member: { id: number, character: { name: string, realm: { slug: string } } },
-            is_confirmed: boolean,
-            raid_id: string,
-            details: string
-        }[]>();
-
-    if (error) {
-        console.error('Error fetching raid members:', error);
-        return [];
-    }
-
-    return data;
-}*/
 
 async function fetchMaxRaidResets(supabase: SupabaseClient, date: string | undefined, options: {
     isCurrent: boolean;
@@ -120,7 +100,7 @@ function dateIsValid(date: string) {
 }
 
 export default async function Page({searchParams}: { searchParams: Promise<{ d?: string, p?: string, n?: string }> }) {
-    const currentDate = moment().format('YYYY-MM-DD')
+    const currentDate = moment().tz('Europe/Madrid').format('YYYY-MM-DD')
     const {d, p, n} = await searchParams
     if (!d || !dateIsValid(d) || (p && n)) {
         redirect(`/calendar?d=${currentDate}`)
@@ -162,7 +142,7 @@ export default async function Page({searchParams}: { searchParams: Promise<{ d?:
             {raidResets.map((raidReset, index: number) => {
                 return <RaidResetCard
                     raidEndDate={raidReset.end_date}
-                    isEditable={user?.permissions?.some(p => p === 'reset.edit') && moment(raidReset.raid_date).isAfter(moment())}
+                    isEditable={user?.permissions?.some(p => p === 'reset.edit') && moment(raidReset.raid_date+'T'+raidReset.time).isAfter(moment())}
                     id={raidReset.id}
                     key={index}
                     raidName={raidReset.raid.name}

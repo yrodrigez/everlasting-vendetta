@@ -1,3 +1,5 @@
+import {type Role} from "@/app/components/characterStore";
+
 export const GUILD_REALM_SLUG = 'living-flame'
 export const REALM_ID = 5827
 export const GUILD_REALM_NAME = 'Living Flame'
@@ -19,6 +21,15 @@ export const REGISTRATION_SOURCES = {
     TEMPORAL: 'temporal',
     MANUAL_RESERVATION: 'manual_reservation'
 }
+//'tank' | 'healer' | 'dps' | 'tank-healer' | 'tank-dps' | 'healer-dps'
+export const PLAYABLE_ROLES = {
+    TANK: {value: 'tank', label: 'Tank'},
+    HEALER: {value: 'healer', label: 'Healer'},
+    DPS: {value: 'dps', label: 'DPS'},
+    TANK_HEALER: {value: 'tank-healer', label: 'Tank/Healer'},
+    TANK_DPS: {value: 'tank-dps', label: 'Tank/DPS'},
+    HEALER_DPS: {value: 'healer-dps', label: 'Healer/DPS'},
+} as {[key: string]: {value: Role, label: string}}
 
 export const ROLE = {
     GUILD_MASTER: 'GUILD_MASTER',

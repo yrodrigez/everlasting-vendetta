@@ -10,19 +10,16 @@ import {
     ModalFooter,
     ModalHeader,
     Spinner,
-    Tooltip,
     useDisclosure
 } from "@nextui-org/react";
 import {useAssistanceStore} from "@/app/raid/components/assistanceStore";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faArrowDown, faCheck, faUser} from "@fortawesome/free-solid-svg-icons";
+import {faCheck, faUser} from "@fortawesome/free-solid-svg-icons";
 import {ConfirmAssistance} from "@/app/raid/components/ConfirmAssistance";
 import {LateAssistance} from "@/app/raid/components/LateAssistance";
 import {TentativeAssistance} from "@/app/raid/components/TentativeAssistance";
 import DeclineAssistance from "@/app/raid/components/DeclineAssistance";
 import React, {useCallback, useEffect, useMemo} from "react";
-
-import useScreenSize from "@/app/hooks/useScreenSize";
 import {BnetLoginButton} from "@/app/components/BnetLoginButton";
 import {Button} from "@/app/components/Button";
 
@@ -141,7 +138,7 @@ export function TemporalLogin() {
 
     return <>
         <Button
-            onClick={onOpen}
+            onPress={onOpen}
             size="lg"
             className={`font-bold p-5 border border-moss-100 hover:border-gold hover:bg-dark rounded-lg`}
             startContent={<FontAwesomeIcon icon={faUser}/>}>
@@ -170,7 +167,8 @@ export function TemporalLogin() {
                                 role.
                                 <br/>
                                 <br/>
-                                However, we recommend you to login with Battle.net to get the security provided by the <Link
+                                However, we recommend you to login with Battle.net to get the security provided by
+                                the <Link
                                 href={'https://develop.battle.net/documentation/guides/using-oauth'} target={'_blank'}
                                 className="text-battlenet">battle.net API</Link>.
                             </div>
@@ -266,21 +264,12 @@ export default function AssistActions({
 }) {
     const {selectedCharacter, session, loading: isSessionLoading} = useSession()
     const selectedRole = selectedCharacter?.selectedRole
-    const {addDay, removeDay, selectedDays, clearDays, setDays} = useAssistanceStore(state => state)
+    const {setDays} = useAssistanceStore(state => state)
 
     useEffect(() => {
-        /*const currentParticipant = (participants ?? []).find((p: any) => p?.member?.character?.name === selectedCharacter?.name)
-        if (currentParticipant && currentParticipant.details?.days) {
-            const selectedDays = currentParticipant.details.days
-            clearDays()
-            setDays(selectedDays)
-        } else if (selectedDays.some((day: string) => days.indexOf(day) === -1)) {
-            clearDays()
-        }*/
         setDays(days)
     }, [selectedCharacter]);
 
-    //const {isMobile} = useScreenSize()
 
     if (moment.tz('Europe/Madrid').isAfter(moment(`${endDate} ${endTime === '00:00:00' ? '23:59:59' : endTime}`, 'YYYY-MM-DD HH:mm:ss').tz('Europe/Madrid'))) {
         return <div className="text-red-500 flex items-center min-h-7"></div>
@@ -319,14 +308,15 @@ export default function AssistActions({
                 <ConfirmAssistance
                     hasLootReservations={hasLootReservations}
                     raidId={raidId}/>
-                    <LateAssistance
-                        hasLootReservations={hasLootReservations}
-                        raidId={raidId}/>
-                    <TentativeAssistance
-                        hasLootReservations={hasLootReservations}
-                        raidId={raidId}/>
-                    <DeclineAssistance raidId={raidId}/>
+                <LateAssistance
+                    hasLootReservations={hasLootReservations}
+                    raidId={raidId}/>
+                <TentativeAssistance
+                    hasLootReservations={hasLootReservations}
+                    raidId={raidId}/>
+                <DeclineAssistance raidId={raidId}/>
             </div>
+
             {/*<Tooltip
                 className="animate-blink-and-glow border-gold border rounded-lg p-4"
                 content={

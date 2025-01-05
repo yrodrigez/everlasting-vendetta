@@ -29,8 +29,8 @@ export default async function Page({params}: { params: Promise<{ id: string }> }
     const reset = await getResetById(resetId, supabase)
     const raids = await getAvailableRaids(supabase)
 
-    if (moment(reset.raid_date).isBefore(moment())) {
-        return <div>Cannot edit past resets</div>
+    if (moment(reset.raid_date+'T'+reset.time).isBefore(moment())) {
+        return <div>Cannot edit past/already started resets</div>
     }
 
     return (

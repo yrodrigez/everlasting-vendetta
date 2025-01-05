@@ -124,7 +124,7 @@ export async function generateMetadata({params}: { params: Promise<{ id: string 
 }
 
 async function getCharacterGearScore(characterName: string) {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/services/member/character/${encodeURIComponent(characterName.toLowerCase())}/gs?force=true`)
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/services/member/character/${encodeURIComponent(characterName.toLowerCase())}/gs`)
     if (!response.ok) {
         console.error('Error fetching gear score:', response.status, response.statusText)
         return 99999

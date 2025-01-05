@@ -287,7 +287,7 @@ const AddReactionButton = ({messageId, addReaction, emojis}: {
                         <Button
                             isIconOnly
                             variant="light"
-                            onClick={() => setExpanded(!expanded)}
+                            onPress={() => setExpanded(!expanded)}
                             radius="full">
                             {!expanded ? <ChevronDown className="w-4 h-4 text-primary"/> :
                                 <ChevronUp className="w-4 h-4 text-primary"/>}

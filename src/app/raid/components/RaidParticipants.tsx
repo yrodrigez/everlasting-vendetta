@@ -1,5 +1,5 @@
 'use client'
-import {useCallback, useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {Chip, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip} from "@nextui-org/react";
 import Link from "next/link";
 import {getClassIcon, getRoleIcon} from "@/app/apply/components/utils";
@@ -99,7 +99,8 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
 
         switch (columnKey) {
             case "gs":
-                return <GearScore characterName={name} min={minGs} allowForce={isAdmin || selectedCharacter?.id === registration?.member?.character?.id}/>
+                return <GearScore characterName={name} min={minGs}
+                                  allowForce={isAdmin || selectedCharacter?.id === registration?.member?.character?.id}/>
             case "name":
                 return (
                     <Link
@@ -146,19 +147,33 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
             case "role":
                 if (registrationDetails) {
                     return (
-                        <div className="flex gap-1">
-                            <img
-                                className="w-6 h-6 rounded-full border border-gold"
-                                src={getClassIcon(playable_class?.name)}
-                                alt={playable_class?.name}
-                            />
-                            <Tooltip content={registrationDetails.role} placement={'top'}>
+                        <div className="flex w-12 h-8 gap-0.5">
+                            <div className="relative group">
                                 <img
-                                    className="w-6 h-6 rounded-full border border-gold"
-                                    src={getRoleIcon(registrationDetails.role)}
-                                    alt={registrationDetails.role}
+                                    className="
+                                    w-6 h-6
+                                    rounded-full border border-gold
+                                "
+                                    src={getClassIcon(playable_class?.name)}
+                                    alt={playable_class?.name}
                                 />
-                            </Tooltip>
+                                {registrationDetails.role.split('-').map((roleValue: string, i: number) => (
+                                    <img
+                                        key={roleValue}
+                                        className={`
+                                        absolute top-0 ${i === 0 ? 'left-3' : 'left-6'}
+                                        w-6 h-6
+                                        rounded-full
+                                        border border-gold
+                                        transition-all duration-300
+                                        ${i === 0 ? 'group-hover:translate-x-2.5' : 'group-hover:translate-x-5'}
+                                        
+                                    `}
+                                        src={getRoleIcon(roleValue)}
+                                        alt={roleValue}
+                                    />
+                                ))}
+                            </div>
                         </div>
                     );
                 }

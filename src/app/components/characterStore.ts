@@ -2,6 +2,7 @@ import {create as createStore} from 'zustand'
 import {persist} from 'zustand/middleware';
 
 const storeKey = 'bnetProfile'
+export type Role = 'tank' | 'healer' | 'dps' | 'tank-healer' | 'tank-dps' | 'healer-dps'
 
 export interface Character {
     id: number
@@ -11,7 +12,7 @@ export interface Character {
     realm: {
         slug: string
     },
-    selectedRole?: 'tank' | 'healer' | 'dps' | 'tank-healer' | 'tank-dps' | 'healer-dps' | undefined,
+    selectedRole?: Role
     playable_class?: {
         name?: string
     },
@@ -31,6 +32,7 @@ interface CharacterStore {
     lastUpdated: number
     setLastUpdated: (lastUpdated: number) => void,
     clear: () => void
+    setRole: (role: Role) => void
 }
 
 const initialState = {
@@ -41,10 +43,18 @@ const initialState = {
     isAdmin: false
 }
 
-export const useCharacterStore = createStore<CharacterStore>()(persist((set) => ({
+export const useCharacterStore = createStore<CharacterStore>()(persist((set, get) => ({
     ...initialState,
     setLastUpdated: (lastUpdated: number) => set({lastUpdated}),
     setSelectedCharacter: (character) => set({selectedCharacter: character}),
+    setRole: (role: Role) => {
+        const character = get().selectedCharacter
+        if (!character) {
+            return
+        }
+
+        set({selectedCharacter: {...character, selectedRole: role}})
+    },
     setCharacters: (characters) => set({characters}),
     clear: () => set(initialState)
 }), {name: storeKey}))

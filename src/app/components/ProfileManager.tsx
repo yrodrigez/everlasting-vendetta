@@ -28,7 +28,7 @@ import {clearAllCookies, logout} from "@/app/util";
 import {toast} from "sonner";
 import {useRouter} from "next/navigation";
 
-function isRoleAssignable(role: 'tank' | 'healer' | 'dps', characterClass?: string) {
+export function isRoleAssignable(role: 'tank' | 'healer' | 'dps' | string, characterClass?: string) {
     if (!characterClass) return false
     const healingClasses = ['priest', 'paladin', 'shaman', 'druid', 'mage']
     const tankClasses = ['warrior', 'paladin', 'druid', 'rogue', 'warlock']

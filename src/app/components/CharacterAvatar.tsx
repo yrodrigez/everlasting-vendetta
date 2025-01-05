@@ -6,6 +6,19 @@ import {BNET_COOKIE_NAME} from "@/app/util/constants";
 import {getCookie} from "@/app/util";
 import {useQuery} from "@tanstack/react-query";
 
+const topClassMap = {
+    0: "top-0",
+    2: "top-2",
+    1: "top-4",
+};
+const translateClassMap = {
+    0: "translate-y-0",
+    1: "translate-y-4",
+};
+const translateHoverClassMap = {
+    0: "hover:translate-y-0",
+    1: "hover:translate-y-4",
+};
 const CharacterAvatar = ({
                              token,
                              realm,
@@ -63,10 +76,18 @@ const CharacterAvatar = ({
           alt={characterName}
           className={className}
         />}
-        {role && <Image src={getRoleIcon(role)} alt={role} width={16} height={16}
-                        className="absolute top-0 -right-3 rounded-full border border-gold"/>}
+        {role &&
+          <div className={`absolute top-0 -right-3 w-4 h-8`}>
+              <div className="relative overflow-visible w-full h-full group">
+              {role.split('-').map((r, i) => <Image key={i} src={getRoleIcon(r)} alt={r} width={16} height={16}
+                className={`absolute top-${i * 4} 
+                transition-transform duration-300
+                group-hover:translate-y-${i * 4}
+                right-0 rounded-full border border-gold`}/>)}
+              </div>
+            </div>
+          }
     </div>
-
 }
 
 export default CharacterAvatar

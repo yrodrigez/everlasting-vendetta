@@ -34,7 +34,7 @@ export function KpisView({participants, raidId, raidInProgress}: {
     const rtParticipants = useParticipants(raidId, participants)
 
     function findRoleAndDay(_participant: any, role: string, day: string) {
-        return _participant?.is_confirmed && _participant?.details?.role === role
+        return _participant?.is_confirmed && _participant?.details?.role.indexOf(role) !== -1
     }
 
     function findConfirmedByRole(role: string, _participants: RaidParticipant[], day: string) {

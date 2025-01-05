@@ -78,5 +78,5 @@ export function getRoleIcon(role: string) {
         'off-tank': '/role-icons/tank.png',
         'healer': '/role-icons/healer.png',
         'dps': '/role-icons/dps.png',
-    }[role.toLowerCase()] || '';
+    }[role.split('-')[0].toLowerCase()] || '';
 }
