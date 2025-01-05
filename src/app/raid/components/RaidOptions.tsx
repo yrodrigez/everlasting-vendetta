@@ -9,19 +9,23 @@ import {
     faGift,
     faCartPlus,
     faShareNodes,
-    faUpload, faComments, faPersonCircleExclamation
+    faUpload, faComments, faPersonCircleExclamation, faUsers, faCircleInfo, faTriangleExclamation
 } from "@fortawesome/free-solid-svg-icons";
 import {useRouter} from "next/navigation";
+import {toast} from "sonner";
+import Link from "next/link";
+import {useModal} from "@hooks/useModal";
+import GroupExport from "@/app/raid/components/GroupExport";
 
 const KEYS = {
     NEXT: 'next',
     PREVIOUS: 'previous',
     CURRENT: 'current',
     LOOT: 'loot',
-    SOFT_RESERV: 'soft-reserv',
+    SOFT_RESERVES: 'soft-reserves',
     SHARE: 'share',
     upload_loot: 'upload_loot',
-    otherStatuses: 'otherStatuses',
+    groupExport: 'groupExport',
     chat: 'chat'
 }
 
@@ -38,6 +42,11 @@ export function RaidOptions({
     raidStarted: boolean
 }) {
     const router = useRouter()
+    const {
+        open,
+        setModalHeader,
+        setModalBody,
+    } = useModal()
     return (
         <Dropdown>
             <DropdownTrigger>
@@ -65,7 +74,7 @@ export function RaidOptions({
                     if (key === KEYS.PREVIOUS) {
                         router.push(`/raid/${previousResetId}`)
                     }
-                    if (key === KEYS.SOFT_RESERV) {
+                    if (key === KEYS.SOFT_RESERVES) {
                         router.push(`/raid/${currentResetId}/soft-reserv`)
                     }
                     if (key === KEYS.SHARE) {
@@ -78,21 +87,60 @@ export function RaidOptions({
                             0,
                             url.indexOf('-')
                         )).then(() => {
-                            alert('Link copied to clipboard')
+                            toast.custom(()=> (
+                                <div className="flex gap-2 items-center justify-center bg-wood border border-wood-100 p-4 rounded-lg text-default shadow shadow-wood-100 shadow-lg">
+                                    <FontAwesomeIcon icon={faCircleInfo}/>
+                                    <span>Link copied to clipboard</span>
+                                </div>
+                            ),{
+                                duration: 3000,
+                                position: 'bottom-right'
+                            })
                         }).catch(() => {
-                            alert('Could not copy link to clipboard')
+                            toast.custom(()=> (
+                                <div className="flex gap-2 items-center justify-center bg-red-600 border border-bg-red-500 p-4 rounded-lg text-default shadow shadow-wood-100 shadow-lg">
+                                    <FontAwesomeIcon icon={faTriangleExclamation} />
+                                    <span>An error occurred while copying the link to the clipboard!</span>
+                                </div>
+                            ),{
+                                duration: 3000,
+                                position: 'bottom-right'
+                            })
                         })
                     }
                     if (key === KEYS.upload_loot) {
                         router.push(`/raid/${currentResetId}/loot/upload`)
                     }
-                    if(key === KEYS.chat){
+                    if (key === KEYS.chat){
                         router.push(`/raid/${currentResetId}/chat`)
+                    }
+                    if (key === KEYS.groupExport) {
+                        setModalHeader(
+                            <div>
+                                <h2 className="
+                                    text-2xl
+                                    font-bold
+                                    text-gold
+                                ">Group export</h2>
+                            </div>
+                        )
+                        setModalBody(
+                            <div>
+                                <p>Group export is not yet implemented</p>
+                            </div>
+                        )
+                        setModalBody(
+                            <GroupExport
+                                resetId={currentResetId}
+                            />
+                        )
+                        open()
+
                     }
                 }}
                 aria-label="Raid actions">
                 <DropdownItem
-                    isDisabled={!nextResetId}
+                    isReadOnly={!nextResetId}
                     key={KEYS.NEXT}
                     className="flex items-center gap-2 justify-between"
                 >
@@ -102,7 +150,7 @@ export function RaidOptions({
                 </DropdownItem>
                 <DropdownItem
                     key={KEYS.PREVIOUS}
-                    isDisabled={!previousResetId}
+                    isReadOnly={!previousResetId}
                 >
                     <div className="flex items-center gap-2 justify-between">
                         Previous <FontAwesomeIcon icon={faBackward}/>
@@ -115,16 +163,16 @@ export function RaidOptions({
                 </DropdownItem>
                 <DropdownItem
                     key={KEYS.LOOT}
-                    isDisabled={!hasLoot}>
+                    isReadOnly={!hasLoot}>
                     <div className="flex items-center gap-2 justify-between">
                         Loot <FontAwesomeIcon icon={faGift}/>
                     </div>
                 </DropdownItem>
                 <DropdownItem
-                    key={KEYS.SOFT_RESERV}
+                    key={KEYS.SOFT_RESERVES}
                 >
                     <div className="flex items-center gap-2 justify-between">
-                        Soft Reserv <FontAwesomeIcon icon={faCartPlus}/>
+                        Soft Reserves <FontAwesomeIcon icon={faCartPlus}/>
                     </div>
                 </DropdownItem>
                 <DropdownItem
@@ -142,10 +190,10 @@ export function RaidOptions({
                     </div>
                 </DropdownItem>
                 <DropdownItem
-                    key={KEYS.otherStatuses}
+                    key={KEYS.groupExport}
                 >
                     <div className="flex items-center gap-2 justify-between">
-                        Not confirmed<FontAwesomeIcon icon={faPersonCircleExclamation} />
+                        Group export<FontAwesomeIcon icon={faUsers} />
                     </div>
                 </DropdownItem>
                 <DropdownItem

@@ -5,6 +5,7 @@ import {NextUIProvider} from "@nextui-org/react";
 import {QueryClient, QueryClientProvider,} from '@tanstack/react-query'
 import {ThemeProvider as NextThemesProvider} from "next-themes";
 import ApplicantsContext from "@/app/providers/ApplicantsContext";
+import {ModalProvider} from "@/app/providers/ModalProvider";
 
 
 function Providers({children}: { children: ReactNode }) {
@@ -15,7 +16,9 @@ function Providers({children}: { children: ReactNode }) {
             <QueryClientProvider client={queryClient}>
                 <NextThemesProvider attribute="class" defaultTheme="light">
                     <ApplicantsContext>
-                        {children}
+                        <ModalProvider>
+                            {children}
+                        </ModalProvider>
                     </ApplicantsContext>
                 </NextThemesProvider>
             </QueryClientProvider>
