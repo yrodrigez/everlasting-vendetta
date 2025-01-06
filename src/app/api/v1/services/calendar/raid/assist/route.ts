@@ -50,6 +50,13 @@ export async function POST(request: NextRequest) {
         error: errorOnRegister
     } = await registerOnRaid(currentCharacter.id, raidId, details, supabase)
     if (errorOnRegister) {
+
+        if(errorOnRegister.code === '42501') {
+            return NextResponse.json({error: 'You are currently benched and cannot update your status.'}, {
+                status: 403
+            })
+        }
+
         console.error('Error registering on raid', errorOnRegister)
         return NextResponse.json({error: `Error registering on raid ${errorOnRegister.message}`}, {
             status: 500

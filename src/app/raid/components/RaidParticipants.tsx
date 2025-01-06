@@ -10,9 +10,17 @@ import {useParticipants} from "@/app/raid/components/useParticipants";
 import {GUILD_NAME, REGISTRATION_SOURCES} from "@/app/util/constants";
 import {Button} from "@/app/components/Button";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faPersonCircleCheck, faPersonCircleXmark, faTrash} from "@fortawesome/free-solid-svg-icons";
+import {
+    faChair,
+    faCircleCheck, faCircleQuestion, faCircleXmark, faClock,
+    faPersonCircleCheck,
+    faPersonCircleXmark,
+    faTrash
+} from "@fortawesome/free-solid-svg-icons";
 import {RaidParticipant} from "@/app/raid/api/types";
 import GearScore from "@/app/components/GearScore";
+import BenchParticipant from "@/app/raid/components/BenchParticipant";
+import {RAID_STATUS} from "@/app/raid/components/utils";
 
 
 const BadgeCheckIcon = ({className}: { className: string }) => {
@@ -111,7 +119,7 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
                             <Tooltip
                                 content={`Confirmed at: ${moment(registration.created_at).format('MMM Do, h:mm:ss a')}`}>
                                 <span
-                                    className="w-4 flex flex-row-reverse"
+                                    className="min-w-4 flex flex-row-reverse"
                                 >{registration.position}</span>
                             </Tooltip>
                             <div
@@ -121,7 +129,7 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
                                     alt="User avatar"
                                     width={24}
                                     height={24}
-                                    className={`w-8 h-8 rounded-full ${!registration.is_confirmed && 'grayscale'} border border-gold`}
+                                    className={`min-w-8 min-h-8 max-w-8 max-h-8 rounded-full ${!registration.is_confirmed && 'grayscale'} border border-gold`}
                                     src={avatar}
                                 />
                                 {registration_source === REGISTRATION_SOURCES.BNET_OAUTH && (
@@ -137,7 +145,7 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
                                     </div>
                                 )}
                             </div>
-                            <div className="flex items-center">
+                            <div className="flex items-center break-all">
                                 <h5 className="text-gold font-bold mr-2">{name} {(name === selectedCharacter?.name) ? '(You)' : null}</h5>
                             </div>
                         </div>
@@ -153,7 +161,7 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
                                     className="
                                     w-6 h-6
                                     rounded-full
-                                    border border-wood-100 shadow-sm shadow shadow-wood-100
+                                    border border-wood-100 shadow shadow-wood-100
                                 "
                                     src={getClassIcon(playable_class?.name)}
                                     alt={playable_class?.name}
@@ -166,7 +174,7 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
                                         w-6 h-6
                                         rounded-full
                                         transition-all duration-300
-                                        border border-wood-100 shadow-sm shadow shadow-wood-100
+                                        border border-wood-100 shadow shadow-wood-100
                                         ${(i === 0 && arr.length === 1) ? '' : (i === 0) ? 'group-hover:translate-x-2.5 group-hover:-translate-y-3' : 'group-hover:-translate-x-0.5 group-hover:translate-y-3'}
                                         
                                     `}
@@ -191,20 +199,39 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
                 if (registrationDetails) {
                     const color = ((status: string) => {
                         switch (status) {
-                            case 'confirmed':
+                            case RAID_STATUS.CONFIRMED:
                                 return 'success'
-                            case 'tentative':
+                            case RAID_STATUS.TENTATIVE:
                                 return 'secondary'
-                            case 'declined':
+                            case RAID_STATUS.DECLINED:
                                 return 'danger'
                             default:
                                 return 'warning'
                         }
                     })(registrationDetails?.status);
+
+                    const statusIcon = (status: string) => {
+                        switch (status) {
+                            case RAID_STATUS.CONFIRMED:
+                                return faCircleCheck
+                            case RAID_STATUS.DECLINED:
+                                return faCircleXmark
+                            case RAID_STATUS.LATE:
+                                return faClock
+                            case RAID_STATUS.BENCH:
+                                return faChair
+                            default:
+                                return faCircleQuestion
+                        }
+                    };
+
                     return (
-                        <Chip className={`capitalize text-${color || 'default'}`} color={color}
+                        <Chip className={`capitalize text-${registrationDetails.status === RAID_STATUS.TENTATIVE ? 'default' : color || 'default'}`} color={color}
                               size="sm"
                               variant="flat">
+                            <span
+                                className="mr-1"
+                            ><FontAwesomeIcon icon={statusIcon(registrationDetails.status)}/></span>
                             {registrationDetails.status}
                         </Chip>
                     );
@@ -245,30 +272,13 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
             case "admin":
                 return (
                     <div className="w-full flex items-center gap-2">
-                        <Button
-                            size="sm"
-                            isIconOnly
-                            onPress={() => {
-                                const memberId = registration.member.character.id
-                                const raidId = registration.raid_id
-                                const confirm = window.confirm(`Are you sure you want to delete ${registration.member.character.name} from this raid?`)
-                                if (!confirm) return
-                                supabase?.from('ev_raid_participant')
-                                    .delete()
-                                    .eq('member_id', memberId)
-                                    .eq('raid_id', raidId)
-                                    .then((response) => {
-                                        const {data, error: err} = response
-                                        if (err) {
-                                            console.error('Error deleting participant', err)
-                                            return
-                                        }
-                                        console.log('Deleted participant', data)
-                                    })
-                            }}
-                        >
-                            <FontAwesomeIcon icon={faTrash}/>
-                        </Button>
+                        <BenchParticipant
+                            resetId={raidId}
+                            memberId={registration.member.character.id}
+                            currentStatus={registrationDetails?.status}
+                            supabase={supabase}
+                            currentDetails={registrationDetails}
+                        />
                     </div>
                 )
 

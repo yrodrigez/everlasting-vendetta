@@ -3,6 +3,7 @@ import {useSession} from "@hooks/useSession";
 import {useQuery} from "@tanstack/react-query";
 import {type Role} from "@/app/components/characterStore";
 import {useState, useMemo, useCallback} from "react";
+import {Spinner} from "@nextui-org/react";
 
 export default function GroupExport({resetId}: { resetId: string }) {
     const {supabase} = useSession();
@@ -14,11 +15,13 @@ export default function GroupExport({resetId}: { resetId: string }) {
             if (!supabase) {
                 return [];
             }
+
             const {data, error} = await supabase
                 .from("ev_raid_participant")
                 .select("member:ev_member(character), details, updated_at, created_at")
                 .eq("raid_id", resetId)
                 .neq("details->>status", "declined")
+                .neq("details->>status", "bench")
                 .order("created_at", {ascending: false})
                 .order("updated_at", {ascending: false})
                 .returns<{
@@ -38,13 +41,14 @@ export default function GroupExport({resetId}: { resetId: string }) {
                 throw new Error("Error fetching reset");
             }
 
+
             return data;
         },
         enabled: !!supabase,
     });
 
     const generateRoster = useMemo(() => {
-        if (!participants) return "";
+        if (!participants?.length) return "";
 
         const sortedParticipants = participants.sort((a, b) => {
             const rolePriority = {
@@ -100,6 +104,10 @@ export default function GroupExport({resetId}: { resetId: string }) {
         );
     }, [generateRoster]);
 
+    if(!participants?.length) {
+        return <div className="p-4">No participants found for this reset.</div>
+    }
+
     return (
         <div className="p-4">
             <div className="mb-4 text-sm">
@@ -127,10 +135,17 @@ export default function GroupExport({resetId}: { resetId: string }) {
               onClick={() => copyToClipboard()}
               className="w-full p-2 mb-4 border rounded-md resize-none focus:ring-2 focus:ring-gold bg-wood overflow-hidden text-sm"
           ></textarea>
-                    {copySuccess && <div className="mt-2 text-sm text-green-600">{copySuccess}</div>}
+                    {copySuccess && <div className="mt-1 text-sm text-green-600">{copySuccess}</div>}
                 </>
             ) : (
-                <div>Loading participants...</div>
+                <div
+                    className="w-full h-full flex items-center justify-center"
+                >
+                    <Spinner
+                        color="success"
+                        size="lg"
+                    />
+                </div>
             )}
         </div>
     );

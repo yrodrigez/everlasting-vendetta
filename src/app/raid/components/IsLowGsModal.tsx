@@ -5,6 +5,7 @@ import {Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure}
 import {useEffect, useState} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faTriangleExclamation} from "@fortawesome/free-solid-svg-icons";
+import GearScore from "@/app/components/GearScore";
 
 
 export function IsLowGsModal({isLowGs, characterGearScore, minGs}: {
@@ -62,10 +63,18 @@ export function IsLowGsModal({isLowGs, characterGearScore, minGs}: {
                                 <h2 className="text-xl font-bold">Low Gear Score</h2>
                             </ModalHeader>
                             <ModalBody>
+                                <div
+                                    className="
+                                        flex gap-1
+                                    "
+                                >
                                 <p>
                                     Hey <span className="font-bold">{selectedCharacter?.name}</span>, your gear score is
-                                    currently <span className="text-red-600 font-bold">{characterGearScore}</span>,
-                                    while
+                                    currently</p> {selectedCharacter?.name ? <span><GearScore
+                                    characterName={selectedCharacter?.name}
+                                    min={minGs}
+                                    allowForce={true}
+                                /></span> : characterGearScore} </div> <p>while
                                     the minimum recommended gear score for this raid is <span
                                     className="text-red-600 font-bold">{minGs}</span>.
                                 </p>

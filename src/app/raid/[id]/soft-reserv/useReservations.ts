@@ -8,6 +8,7 @@ import {toast} from "sonner";
 import {type SupabaseClient} from "@supabase/supabase-js";
 import {useQuery} from "@tanstack/react-query";
 import {registerOnRaid} from "@/app/lib/database/raid_resets/registerOnRaid";
+import {RAID_STATUS} from "@/app/raid/components/utils";
 
 const groupByItem = (reservations: Reservation[]) => {
     // @ts-ignore
@@ -31,6 +32,7 @@ const fetchItems = async (supabase: any, raidId: string) => {
         .from('raid_loot_reservation')
         .select(raidLootReservationsColumns)
         .eq('reset_id', raidId)
+        .neq('status', RAID_STATUS.BENCH)
 
     if (error) {
         console.error(error)

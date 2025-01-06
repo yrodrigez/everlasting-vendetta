@@ -14,7 +14,7 @@ import {
 } from "@nextui-org/react";
 import {useAssistanceStore} from "@/app/raid/components/assistanceStore";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faCheck, faUser} from "@fortawesome/free-solid-svg-icons";
+import {faChair, faCheck, faUser} from "@fortawesome/free-solid-svg-icons";
 import {ConfirmAssistance} from "@/app/raid/components/ConfirmAssistance";
 import {LateAssistance} from "@/app/raid/components/LateAssistance";
 import {TentativeAssistance} from "@/app/raid/components/TentativeAssistance";
@@ -34,6 +34,7 @@ import {CharacterRoleType} from "@/app/types/CharacterRole";
 import {useRouter} from "next/navigation";
 import {performTemporalLogin} from "@/app/hooks/SessionManager";
 import {toast} from "sonner";
+import {RAID_STATUS} from "@/app/raid/components/utils";
 
 export const WEEK_DAYS = {
     MONDAY: 'Mon',
@@ -266,8 +267,14 @@ export default function AssistActions({
     const selectedRole = selectedCharacter?.selectedRole
     const {setDays} = useAssistanceStore(state => state)
 
+    const [bounce, setBounce] = React.useState(false)
+
     useEffect(() => {
         setDays(days)
+        setBounce(true)
+        setTimeout(() => {
+            setBounce(false)
+        }, 2300)
     }, [selectedCharacter]);
 
 
@@ -301,6 +308,13 @@ export default function AssistActions({
         return <div className="text-red-500">You must be at least level {minLvl} to assist</div>
     }
 
+    if (participants.find(p => p.member.id === session.id && p.details.status === RAID_STATUS.BENCH)) {
+        return <div className="text-orange-400 flex gap-2">
+            <FontAwesomeIcon icon={faChair}
+                             bounce={bounce}
+            />
+            You are benched</div>
+    }
 
     return (
         <div className={'grid gap-2'}>
@@ -316,48 +330,6 @@ export default function AssistActions({
                     raidId={raidId}/>
                 <DeclineAssistance raidId={raidId}/>
             </div>
-
-            {/*<Tooltip
-                className="animate-blink-and-glow border-gold border rounded-lg p-4"
-                content={
-                    <div className="flex flex-col items-center justify-center gap-2 text-2xl">
-                        <div>Select the days you can assist before continue</div>
-                        <FontAwesomeIcon icon={faArrowDown} bounce className=""/>
-                    </div>
-                }
-
-                placement={'top-start'}
-                isOpen={!selectedDays || !selectedDays.length}
-            >
-                <div
-                    className={
-                        'grid gap-2 grid-cols-7 border-2 border-transparent rounded-lg p-1'
-                        + ` ${selectedDays?.length === 0 ? ' border-red-500' : ''}`
-                    }
-                >
-                    {days.map(day => {
-                        return <Button
-                            key={day}
-                            isIconOnly={isMobile}
-                            className={
-                                'bg-red-400/80 text-red-800 rounded-full border border-red-900'
-                                + ` ${selectedDays?.indexOf(day) !== -1 ? 'bg-green-500/80 text-green-900 border-green-900' : ''}`
-                            }
-                            onClick={() => {
-                                if (selectedDays?.indexOf(day) !== -1) {
-                                    removeDay(day)
-                                } else {
-                                    addDay(day)
-                                }
-                            }}
-                            endContent={
-                                isMobile || selectedDays?.indexOf(day) === -1 ? null : <CheckIcon/>
-                            }
-                        >{day}
-                        </Button>
-                    })}
-                </div>
-            </Tooltip>*/}
         </div>
     )
 }

@@ -22,6 +22,7 @@ import {fetchResetParticipants} from "@/app/raid/api/fetchParticipants";
 import {ClassSummary} from "@/app/raid/components/ClassSummary";
 import * as process from "node:process";
 import {IsLowGsModal} from "@/app/raid/components/IsLowGsModal";
+import ParticipantsManager from "@/app/raid/components/ParticipantsManager";
 
 const raidResetAttr = 'raid_date, id, raid:ev_raid(name, min_level, image, min_gs), time, end_date, end_time, days'
 export const dynamic = 'force-dynamic'
@@ -172,113 +173,114 @@ export default async function ({params}: { params: Promise<{ id: string }> }) {
 
     let isLoggedInUserLowGear = false
     let characterGearScore = 99999
-    if(isLoggedInUser) {
+    if (isLoggedInUser) {
         characterGearScore = await getCharacterGearScore(isLoggedInUser?.name)
         isLoggedInUserLowGear = characterGearScore < reset.raid.min_gs
     }
 
     return (
         <div className="w-full h-full flex flex-col relative scrollbar-pill grow-0 overflow-auto gap-4">
-            <div className="w-full flex grow-0 gap-4">
-                <div className="w-full h-full flex flex-col">
-                    <h4 className="font-bold text-large text-gold flex gap-2 items-center justify-start">{raidName}
-                        {isLoggedInUserLowGear && <IsLowGsModal
-                          isLowGs={isLoggedInUserLowGear}
-                          characterGearScore={characterGearScore}
-                          minGs={reset?.raid?.min_gs}
-                        />}
-                    </h4>
-                    <small className="text-primary">Start {raidDate} - {raidTime} to {endTime}</small>
-                    <small className="text-primary">End: {end_date}</small>
-                    <KpisView
+            <ParticipantsManager resetId={id} initialParticipants={participants}>
+                <div className="w-full flex grow-0 gap-4">
+                    <div className="w-full h-full flex flex-col">
+                        <h4 className="font-bold text-large text-gold flex gap-2 items-center justify-start">{raidName}
+                            {isLoggedInUserLowGear && <IsLowGsModal
+                              isLowGs={isLoggedInUserLowGear}
+                              characterGearScore={characterGearScore}
+                              minGs={reset?.raid?.min_gs}
+                            />}
+                        </h4>
+                        <small className="text-primary">Start {raidDate} - {raidTime} to {endTime}</small>
+                        <small className="text-primary">End: {end_date}</small>
+                        <KpisView
+                            raidInProgress={raidInProgress}
+                            participants={participants}
+                            raidId={id}
+                        />
+                        <RaidTimeInfo
+                            raidTime={raidTime}
+                            raidDate={raidDate}
+                            raidEndDate={end_date}
+                            raidEndTime={endTime}
+                        />
+                    </div>
+                    <div className="flex w-full h-40 mr-14 justify-end">
+                        <div className="h-full flex flex-wrap w-32">
+                            <ClassSummary raidId={id}/>
+                        </div>
+                    </div>
+                </div>
+                <div className="flex w-full">
+                    <AssistActions
+                        hasLootReservations={hasLootReservations}
+                        raidId={id}
+                        minLvl={min_lvl}
+                        endDate={end_date}
+                        participants={participants}
+                        days={days}
+                        endTime={endTime}
+                    />
+                </div>
+                <div className="w-full h-full flex gap-2 lg:flex-row flex-col-reverse overflow-auto">
+                    <RaidParticipants
                         raidInProgress={raidInProgress}
                         participants={participants}
                         raidId={id}
+                        days={days}
+                        minGs={reset.raid.min_gs}
                     />
-                    <RaidTimeInfo
-                        raidTime={raidTime}
-                        raidDate={raidDate}
-                        raidEndDate={end_date}
-                        raidEndTime={endTime}
+                    {!!isLoggedInUser ? (<div className="w-full lg:max-w-80 flex-grow-0 max-h-fit">
+                        <ChatContainer raidName={`${raidName} (${raidDate})`} resetId={id} showRedirect={true}/>
+                    </div>) : null}
+                </div>
+                <div className="absolute top-2 right-2 z-50 flex flex-col items-center gap-2 max-h-[200px]">
+                    <RaidOptions
+                        currentResetId={id}
+                        hasLoot={!!hasLoot?.data?.length}
+                        previousResetId={previousReset?.data?.id}
+                        nextResetId={nextReset?.data?.id}
+                        raidStarted={raidStarted}
                     />
-                </div>
-                <div className="flex w-full h-40 mr-14 justify-end">
-                    <div className="h-full flex flex-wrap w-32">
-                        <ClassSummary raidId={id}/>
-                    </div>
-                </div>
-            </div>
-            <div className="flex w-full">
-                <AssistActions
-                    hasLootReservations={hasLootReservations}
-                    raidId={id}
-                    minLvl={min_lvl}
-                    endDate={end_date}
-                    participants={participants}
-                    days={days}
-                    endTime={endTime}
-                />
-            </div>
-            <div className="w-full h-full flex gap-2 lg:flex-row flex-col-reverse overflow-auto">
-                <RaidParticipants
-                    raidInProgress={raidInProgress}
-                    participants={participants}
-                    raidId={id}
-                    days={days}
-                    minGs={reset.raid.min_gs}
-                />
-                {!!isLoggedInUser ? (<div className="w-full lg:max-w-80 flex-grow-0 max-h-fit">
-                    <ChatContainer raidName={`${raidName} (${raidDate})`} resetId={id} showRedirect={true}/>
-                </div>) : null}
-            </div>
-            <div className="absolute top-2 right-2 z-50 flex flex-col items-center gap-2 max-h-[200px]">
-                <RaidOptions
-                    currentResetId={id}
-                    hasLoot={!!hasLoot?.data?.length}
-                    previousResetId={previousReset?.data?.id}
-                    nextResetId={nextReset?.data?.id}
-                    raidStarted={raidStarted}
-                />
-                <Link
-                    target={'_blank'}
-                    href={`https://discord.gg/fYw9WCNFDU`}>
-                    <Tooltip
-                        content="Discord"
-                        placement="right"
-                    >
-                        <Button className={`bg-moss text-default font-bold rounded`} isIconOnly>
-                            <FontAwesomeIcon icon={faDiscord}/>
-                        </Button>
-                    </Tooltip>
-                </Link>
-                <Link
-                    href={`/raid/${id}/soft-reserv`}>
-                    <Tooltip
-                        content="Soft Reservations"
-                        placement="right"
-                    >
-                        <Button
-                            className={`bg-moss text-default font-bold rounded ${!hasLootReservations && isLoggedInUser ? 'shadow-2xl shadow-gold border-2 animate-blink-and-glow' : ''}`}
-                            isIconOnly>
-                            <FontAwesomeIcon icon={faCartPlus}/>
-                        </Button>
-                    </Tooltip>
-                </Link>
-                {!!hasLoot?.data?.length && (
                     <Link
-                        href={`/raid/${id}/loot`}>
+                        target={'_blank'}
+                        href={`https://discord.gg/fYw9WCNFDU`}>
                         <Tooltip
-                            content="Loot"
+                            content="Discord"
                             placement="right"
                         >
-                            <Button className="bg-moss text-default font-bold rounded" isIconOnly>
-                                <FontAwesomeIcon icon={faGift}/>
+                            <Button className={`bg-moss text-default font-bold rounded`} isIconOnly>
+                                <FontAwesomeIcon icon={faDiscord}/>
                             </Button>
                         </Tooltip>
                     </Link>
-                )}
-            </div>
-
+                    <Link
+                        href={`/raid/${id}/soft-reserv`}>
+                        <Tooltip
+                            content="Soft Reservations"
+                            placement="right"
+                        >
+                            <Button
+                                className={`bg-moss text-default font-bold rounded ${!hasLootReservations && isLoggedInUser ? 'shadow-2xl shadow-gold border-2 animate-blink-and-glow' : ''}`}
+                                isIconOnly>
+                                <FontAwesomeIcon icon={faCartPlus}/>
+                            </Button>
+                        </Tooltip>
+                    </Link>
+                    {!!hasLoot?.data?.length && (
+                        <Link
+                            href={`/raid/${id}/loot`}>
+                            <Tooltip
+                                content="Loot"
+                                placement="right"
+                            >
+                                <Button className="bg-moss text-default font-bold rounded" isIconOnly>
+                                    <FontAwesomeIcon icon={faGift}/>
+                                </Button>
+                            </Tooltip>
+                        </Link>
+                    )}
+                </div>
+            </ParticipantsManager>
         </div>
     )
 }
