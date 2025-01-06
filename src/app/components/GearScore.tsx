@@ -37,7 +37,6 @@ export default function GearScore({characterName, min, allowForce}: {
     const {mutate, isPending} = useMutation({
         mutationKey: ['updateGearScore'],
         mutationFn: async () => {
-            console.log('Forcing gear score update')
             await fetch(`/api/v1/services/member/character/${encodeURIComponent(characterName.toLowerCase())}/gs?force=true`)
             await refetch()
         },

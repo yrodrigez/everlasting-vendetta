@@ -2,8 +2,7 @@
 
 import {Card, CardBody, Skeleton} from "@nextui-org/react";
 import {CardFooter, CardHeader} from "@nextui-org/card";
-import {useTheme} from "next-themes";
-import React, {useEffect} from "react";
+import React from "react";
 import {DpsIcon} from "@/app/raid/components/KpisView";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faHeart, faShield} from "@fortawesome/free-solid-svg-icons";
@@ -37,15 +36,6 @@ export function RaidCardSkeleton() {
 }
 
 export function CalendarSkeleton() {
-    const {setTheme} = useTheme()
-
-    useEffect(() => {
-        setTheme('dark')
-        return () => {
-            setTheme('light')
-        }
-    }, [])
-
     return <div className="flex gap-3 flex-col justify-center items-center md:flex-wrap md:flex-row w-full">
         {Array.from({length: MAX_RAID_RESETS}).map((_, i) => (
             <RaidCardSkeleton key={i}/>

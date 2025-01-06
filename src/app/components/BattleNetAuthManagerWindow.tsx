@@ -72,7 +72,6 @@ const useFetchCharacters = (token: { value: string }, onOpen: () => void, logout
         queryKey: ['bnetCharacters', token?.value],
         enabled: !!token?.value,
         queryFn: async () => {
-            console.log('fetching characters')
             if (selectedCharacter && selectedCharacter.isTemporal) {
                 return [{...selectedCharacter}]
             }

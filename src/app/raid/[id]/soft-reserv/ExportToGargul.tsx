@@ -7,6 +7,7 @@ import {toast} from "sonner";
 import {useSession} from "@hooks/useSession";
 import {type SupabaseClient} from "@supabase/supabase-js";
 import {useCallback, useEffect, useState} from "react";
+import {RAID_STATUS} from "@/app/raid/components/utils";
 
 function generateID(length: number) {
     let result = '';
@@ -22,6 +23,7 @@ async function fetchItems(supabase: SupabaseClient, resetId: string) {
     const {data: items, error} = await supabase.from('raid_loot_reservation')
         .select('member:ev_member(character), item:raid_loot_item(id)')
         .eq('reset_id', resetId)
+        .neq('status', RAID_STATUS.BENCH)
         .returns<{
             member: {
                 character: { name: string, character_class?: { name: string }, playable_class?: { name: string } }
@@ -115,7 +117,6 @@ export function ExportToGargul({isReservationsOpen, reservationsByItem, loading,
         const execute = async () => {
             setInternalLoading(true)
             setBase64(null)
-            console.log('fetching items')
             try {
                 const [items, hrItems] = await Promise.all([
                     fetchItems(supabase, resetId),

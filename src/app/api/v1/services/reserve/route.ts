@@ -7,9 +7,36 @@ export async function DELETE(request: NextRequest) {
     const url = new URL(request.url)
     const memberId = url.searchParams.get('memberId')
     const resetId = url.searchParams.get('resetId')
+    const reservationId = url.searchParams.get('reservationId')
 
-    if (!memberId || !resetId) {
-        return NextResponse.json({error: 'Error - memberId and resetId are mandatory!'}, )
+    if(!reservationId) {
+        if (!memberId || !resetId) {
+            return NextResponse.json({error: 'Error - memberId and resetId are mandatory!'},)
+        }
+    }
+
+    if (reservationId) {
+        const {data: lootData, error: lootError} = await supabase.from('raid_loot_reservation')
+            .delete()
+            .eq('id', reservationId)
+
+        if (lootError) {
+            console.error(lootError)
+            return NextResponse.json({error: `Error deleting loot reservation ${reservationId} for member ${memberId} in reset ${resetId}`}, {
+                status: 500
+            })
+        }
+
+        return NextResponse.json({
+            data: {
+                deleted: lootData,
+                memberId,
+                resetId,
+                reservationId
+            }
+        }, {
+            status: 200
+        })
     }
 
     const {data, error} = await supabase.from('raid_loot_reservation')
@@ -17,8 +44,9 @@ export async function DELETE(request: NextRequest) {
         .eq('member_id', memberId)
         .eq('reset_id', resetId)
 
+
     if (error) {
-        return NextResponse.json({error: `Error deleting reservations for member ${memberId} in reset ${resetId}`}, )
+        return NextResponse.json({error: `Error deleting reservations for member ${memberId} in reset ${resetId}`},)
     }
 
     return NextResponse.json({data})

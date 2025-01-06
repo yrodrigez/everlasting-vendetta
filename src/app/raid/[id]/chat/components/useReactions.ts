@@ -196,7 +196,6 @@ export function useReactions(resetId: string) {
     const {mutate: removeReaction} = useMutation({
         mutationKey: ['removeReaction'],
         mutationFn: async ({messageId}: { messageId: number }) => {
-            console.log('Removing reaction', messageId);
             if (!supabase || !selectedCharacter) return;
 
             const {data: deletedReaction, error} = await supabase.from(MESSAGE_REACTIONS_TABLE).delete()

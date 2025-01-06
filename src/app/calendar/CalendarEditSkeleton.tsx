@@ -1,7 +1,6 @@
 'use client'
 import {Skeleton} from "@nextui-org/react";
-import {useTheme} from "next-themes";
-import React, {useEffect} from "react";
+import React from "react";
 import {RaidCardSkeleton} from "@/app/calendar/CalendarSkeleton";
 
 const CalendarSkeleton = () => {
@@ -30,14 +29,6 @@ const CalendarSkeleton = () => {
 }
 
 export function CalendarEditSkeleton() {
-    const {setTheme} = useTheme()
-
-    useEffect(() => {
-        setTheme('dark')
-        return () => {
-            setTheme('light')
-        }
-    }, [])
 
     return (
         <div className="flex flex-col gap-8 w-full h-full p-2 scrollbar-pill">

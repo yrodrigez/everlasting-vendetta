@@ -10,25 +10,31 @@ import {
     useDisclosure
 } from "@nextui-org/react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faArrowRightLong, faClose, faObjectGroup, faUserGroup} from "@fortawesome/free-solid-svg-icons";
+import {faArrowRightLong, faClose, faObjectGroup, faTrash, faUserGroup} from "@fortawesome/free-solid-svg-icons";
 import {useEffect, useState} from "react";
 import Image from "next/image";
 import {ItemTooltip} from "@/app/raid/[id]/soft-reserv/RaidItemCard";
 import Link from "next/link";
 
-const groupByCharacter = (items: Reservation[]): { character: Character, reservations: RaidItem[] }[] => {
+const groupByCharacter = (items: Reservation[]): {
+    character: Character,
+    reservations: (RaidItem & { reservationId: string })[]
+}[] => {
     return items.reduce((acc, item) => {
         const found = acc.find((i) => i.character.id === item.member.character.id)
         if (found) {
-            found.reservations.push(item.item)
+            found.reservations.push({
+                ...item.item,
+                reservationId: item.id
+            })
         } else {
             acc.push({
                 character: item.member.character,
-                reservations: [item.item]
+                reservations: [{...item.item, reservationId: item.id}]
             })
         }
         return acc
-    }, [] as { character: Character, reservations: RaidItem[] }[])
+    }, [] as { character: Character, reservations: (RaidItem & { reservationId: string })[] }[])
 }
 
 const groupByItem = (items: Reservation[]): { item: RaidItem, reservations: Character[] }[] => {
@@ -109,9 +115,11 @@ const ReservationByItem = ({item}: { item: { item: RaidItem, reservations: Chara
 }
 
 const ReservationByCharacter = ({item, isAdmin}: {
-    item: { character: Character, reservations: RaidItem[] },
+    item: { character: Character, reservations: (RaidItem & { reservationId: string })[] },
     isAdmin?: boolean
 }) => {
+    const {character, reservations} = item
+
     return (
         <div className={'flex gap-2 justify-between p-2 items-center'}>
             <div className="flex items-center">
@@ -120,7 +128,7 @@ const ReservationByCharacter = ({item, isAdmin}: {
                     className={'text-default'}
                     isIconOnly
                     variant={'light'}
-                    onClick={() => {
+                    onPress={() => {
                         (async () => {
                             const confirm = window.confirm(`Are you sure you want to remove all reservations for ${item.character.name}?`)
                             if (!confirm) return
@@ -159,7 +167,7 @@ const ReservationByCharacter = ({item, isAdmin}: {
                 </Link>
             </div>
             <div className="flex gap-2">
-                {item.reservations.map((item, i) => {
+                {reservations.map((item, i) => {
                     return (
                         <Tooltip
                             className={'bg-transparent border-none shadow-none'}
@@ -183,13 +191,35 @@ const ReservationByCharacter = ({item, isAdmin}: {
                                 </div>
                             }
                         >
-                            <Image
-                                src={item.description.icon}
-                                alt={item.name}
-                                width={40}
-                                height={40}
-                                className={`border-gold border rounded-md`}
-                            />
+                            <div className={"relative group flex"}>
+                                <Image
+                                    src={item.description.icon}
+                                    alt={item.name}
+                                    width={40}
+                                    height={40}
+                                    className={`border-gold border rounded-md ${isAdmin ? 'cursor-pointer' : ''}`}
+                                    onClick={async () => {
+                                        if (!isAdmin) return
+                                        if(!item.reservationId) return console.error('No reservation id', item)
+                                        const confirm = window.confirm(`Are you sure you want to remove ${item.name} from ${character.name}?`)
+                                        if (!confirm) return
+
+                                        const response = await fetch(`/api/v1/services/reserve?reservationId=${item.reservationId}`, {
+                                            method: 'DELETE'
+                                        })
+                                        if (!response.ok) {
+                                            alert('Failed to remove reservation')
+                                            return
+                                        }
+                                        const data = await response.json()
+                                        if (data.error) {
+                                            alert(data.error)
+                                        } else {
+                                            alert('Reservation removed')
+                                        }
+                                    }}
+                                />
+                            </div>
                         </Tooltip>
                     )
                 })}
@@ -202,7 +232,7 @@ export function ShowReservations({items = [], isAdmin}: { items: Reservation[], 
     const {isOpen, onOpen, onClose, onOpenChange} = useDisclosure()
     const [reservationsByCharacter, setReservationsByCharacter] = useState<{
         character: Character,
-        reservations: RaidItem[]
+        reservations: (RaidItem & { reservationId: string })[]
     }[]>(groupByCharacter(items))
 
     const [reservationsByItem, setReservationsByItem] = useState<{
@@ -228,7 +258,7 @@ export function ShowReservations({items = [], isAdmin}: { items: Reservation[], 
                     <Button
                         size={'lg'}
                         className={'bg-moss text-gold shadow-none rounded'}
-                        onClick={onOpen}
+                        onPress={onOpen}
                         isIconOnly
                         isDisabled={items.length === 0}
                     >
@@ -240,7 +270,7 @@ export function ShowReservations({items = [], isAdmin}: { items: Reservation[], 
                         className="absolute -top-2 -right-4 bg-dark text-gold text-xs px-2 py-1 rounded-full border border-gold z-50">
                         {items.length}
                     </span>
-                ): null}
+                ) : null}
             </div>
             <Modal
                 isOpen={isOpen}
@@ -259,7 +289,7 @@ export function ShowReservations({items = [], isAdmin}: { items: Reservation[], 
                                         className="text-default"
                                         variant={'light'}
                                         isIconOnly
-                                        onClick={() => setIsByCharacter(true)}
+                                        onPress={() => setIsByCharacter(true)}
                                     >
                                         <FontAwesomeIcon icon={faUserGroup}/>
                                     </Button>
@@ -268,7 +298,7 @@ export function ShowReservations({items = [], isAdmin}: { items: Reservation[], 
                                         className="text-default"
                                         variant={'light'}
                                         isIconOnly
-                                        onClick={() => setIsByCharacter(false)}
+                                        onPress={() => setIsByCharacter(false)}
                                     >
                                         <FontAwesomeIcon icon={faObjectGroup}/>
                                     </Button>

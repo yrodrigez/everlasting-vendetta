@@ -14,7 +14,6 @@ export async function POST(request: NextRequest) {
 
     const {supabase} = await createServerSession({cookies})
     const {data} = await supabase.functions.invoke('everlasting-vendetta', {});
-    console.log('bnetToken', data)
 
     const evToken = await fetch(`${FUNCTION_BASE_URL}/functions/v1/ev_token_generate`, {
         method: 'POST',

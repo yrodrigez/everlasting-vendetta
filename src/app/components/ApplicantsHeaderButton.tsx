@@ -22,8 +22,6 @@ export default function ApplicantsHeaderButton({text, url, onClick}: {
 
     const {applyCount, canReadApplications} = useApplicants()
 
-    console.log(applyCount, canReadApplications)
-
     useEffect(() => {
         if (key === 'apply' && canReadApplications) {
             setUrl('/apply/list')
