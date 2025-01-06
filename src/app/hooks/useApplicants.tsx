@@ -66,7 +66,7 @@ export default function useApplicants() {
             if (error) {
                 throw error
             }
-            setApplyCount(data?.length ?? 0)
+            setApplyCount(() => data?.length ?? 0)
             return data
         },
         refetchInterval: 60000,
@@ -98,6 +98,10 @@ export default function useApplicants() {
         }
     }, [applicants]);
 
-    return {applyCount , canReadApplications: (tokenUser?.permissions?.indexOf('applications.read') !== -1 && tokenUser?.guild?.id === GUILD_ID)}
+    return {
+        applyCount,
+        canReadApplications: (tokenUser?.permissions?.indexOf('applications.read') !== -1 && tokenUser?.guild?.id === GUILD_ID),
+        applicants
+    }
 
 }

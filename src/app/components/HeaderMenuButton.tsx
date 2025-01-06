@@ -1,12 +1,6 @@
-'use client'
 import Link from "next/link";
 import Image from "next/image";
-import createServerSession from "@utils/supabase/createServerSession";
-import {cookies} from "next/headers";
-import {GUILD_ID} from "@utils/constants";
-import {Badge} from "@nextui-org/badge";
-import useApplicants from "@hooks/useApplicants";
-import {useEffect, useState} from "react";
+import ApplicantsHeaderButton from "@/app/components/ApplicantsHeaderButton";
 
 const Children = ({text, imgKey}: { text: string, imgKey: string }) => (
     <>
@@ -27,41 +21,25 @@ export const HeaderMenuButton = ({text, url, onClick}: {
     const allowed = ['apply', 'roster', 'calendar', 'stats'];
     const className = "px-2 py-1 flex flex-col items-center rounded hover:cursor-pointer hover:bg-white hover:bg-opacity-20 backdrop-filter backdrop-blur-md min-w-16 max-w-16";
 
-    const [_url, setUrl] = useState<string | undefined>(url)
-    const [_text, setText] = useState<string>(text)
 
-
-    const {applyCount, canReadApplications} = useApplicants()
-
-    useEffect(() => {
-        if (key === 'apply' && canReadApplications) {
-            setUrl('/apply/list')
-            setText('Applies')
-        }
-    }, [applyCount, canReadApplications])
-
-    return (onClick ? (
-            <div
-                className={className}
-                onClick={onClick}>
-                <Children text={_text} imgKey={key}/>
-            </div>
-        ) : (
-            <Badge
-                content={applyCount}
-                classNames={{
-                    badge: 'mt-1',
-                }}
-                showOutline={false}
-                className="shadow-sm text-gold bg-dark border-gold border-1 shadow-gold"
-                isInvisible={!applyCount}
-            >
-                <Link
-                    className={className}
-                    href={_url || `/${allowed.indexOf(key) === -1 ? '' : key}`}>
-                    <Children text={_text} imgKey={key}/>
-                </Link>
-            </Badge>
-        )
+    return text === 'Apply' ? (
+        <ApplicantsHeaderButton
+            text={text}
+            url={url}
+            onClick={onClick}
+        />
+    ) : onClick ? (
+        <div
+            className={className}
+            onClick={onClick}>
+            <Children text={text} imgKey={key}/>
+        </div>
+    ) : (
+        <Link
+            className={className}
+            href={url || `/${allowed.indexOf(key) === -1 ? '' : key}`}>
+            <Children text={text} imgKey={key}/>
+        </Link>
     )
+
 }
