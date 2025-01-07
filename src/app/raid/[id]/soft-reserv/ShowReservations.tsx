@@ -15,7 +15,7 @@ import {useEffect, useState} from "react";
 import Image from "next/image";
 import {ItemTooltip} from "@/app/raid/[id]/soft-reserv/RaidItemCard";
 import Link from "next/link";
-import {useMessageBox} from "@utils/toast";
+import {useMessageBox} from "@utils/msgBox";
 
 const groupByCharacter = (items: Reservation[]): {
     character: Character,

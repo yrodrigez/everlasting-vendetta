@@ -8,7 +8,7 @@ import {Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ScrollShadow, 
 import {Button} from "@/app/components/Button";
 import {useCallback, useState} from "react";
 import {useQuery} from "@tanstack/react-query";
-import {useMessageBox} from "@utils/toast";
+import {useMessageBox} from "@utils/msgBox";
 
 export function BannedItems({hardReservations, reset_id, isAdmin = false, raid_id}: {
     hardReservations: any,
