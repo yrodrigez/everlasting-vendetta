@@ -15,6 +15,7 @@ import {useEffect, useState} from "react";
 import Image from "next/image";
 import {ItemTooltip} from "@/app/raid/[id]/soft-reserv/RaidItemCard";
 import Link from "next/link";
+import {useMessageBox} from "@utils/toast";
 
 const groupByCharacter = (items: Reservation[]): {
     character: Character,
@@ -120,6 +121,8 @@ const ReservationByCharacter = ({item, isAdmin}: {
 }) => {
     const {character, reservations} = item
 
+    const {yesNo, alert} = useMessageBox()
+
     return (
         <div className={'flex gap-2 justify-between p-2 items-center'}>
             <div className="flex items-center">
@@ -130,22 +133,29 @@ const ReservationByCharacter = ({item, isAdmin}: {
                     variant={'light'}
                     onPress={() => {
                         (async () => {
-                            const confirm = window.confirm(`Are you sure you want to remove all reservations for ${item.character.name}?`)
-                            if (!confirm) return
+                            const confirm = await yesNo({
+                                message: `Are you sure you want to remove all reservations from ${character.name}?`,
+                                title: 'Remove all reservations',
+                                yesText: 'Remove',
+                                noText: 'Cancel',
+                                modYes: 'danger',
+                                modNo: 'default'
+                            })
+                            if (confirm !== 'yes') return
                             const origin = window.location.origin
                             const resetId = window.location.pathname.split('/')[2] // raid id
                             const response = await fetch(`${origin}/api/v1/services/reserve?resetId=${resetId}&memberId=${item.character.id}`, {
                                 method: 'DELETE'
                             })
                             if (!response.ok) {
-                                alert('Failed to remove reservations')
+                                alert({message: 'Failed to remove reservations', type: 'error'})
                                 return
                             }
                             const data = await response.json()
                             if (data.error) {
-                                alert(data.error)
+                                alert({message: data.error, type: 'error'})
                             } else {
-                                alert('Reservations removed')
+                                alert({message: 'Reservations removed'})
                             }
                         })()
 
@@ -200,22 +210,33 @@ const ReservationByCharacter = ({item, isAdmin}: {
                                     className={`border-gold border rounded-md ${isAdmin ? 'cursor-pointer' : ''}`}
                                     onClick={async () => {
                                         if (!isAdmin) return
-                                        if(!item.reservationId) return console.error('No reservation id', item)
-                                        const confirm = window.confirm(`Are you sure you want to remove ${item.name} from ${character.name}?`)
-                                        if (!confirm) return
+                                        if (!item.reservationId) return console.error('No reservation id', item)
+                                        const confirm = await yesNo({
+                                            message: <div>Are you sure you want to remove <span
+                                                className={`font-bold text-gold`}
+                                            >{item.name}</span> from <span
+                                                className={`font-bold text-gold`}>{character.name}</span>?</div>,
+                                            title: 'Remove reservation',
+                                            yesText: 'Remove',
+                                            noText: 'Cancel',
+                                            modYes: 'danger',
+                                            modNo: 'default'
+                                        })
+                                        if (confirm !== 'yes') return
 
                                         const response = await fetch(`/api/v1/services/reserve?reservationId=${item.reservationId}`, {
                                             method: 'DELETE'
                                         })
                                         if (!response.ok) {
-                                            alert('Failed to remove reservation')
+                                            alert({message: 'Failed to remove reservation', type: 'error'})
                                             return
                                         }
                                         const data = await response.json()
                                         if (data.error) {
-                                            alert(data.error)
+                                            alert({message: data.error})
+
                                         } else {
-                                            alert('Reservation removed')
+                                            alert({message: 'Reservation removed'})
                                         }
                                     }}
                                 />

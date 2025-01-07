@@ -4,20 +4,11 @@ import Link from "next/link";
 import {useReservations} from "@/app/raid/[id]/soft-reserv/useReservations";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faClose, faCloudArrowDown} from "@fortawesome/free-solid-svg-icons";
-import {
-    Modal,
-    ModalBody,
-    ModalContent,
-    ModalFooter,
-    ModalHeader,
-    ScrollShadow,
-    Tooltip,
-    useDisclosure
-} from "@nextui-org/react";
+import {Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ScrollShadow, useDisclosure} from "@nextui-org/react";
 import {Button} from "@/app/components/Button";
 import {useCallback, useState} from "react";
-import {useMutation, useQuery} from "@tanstack/react-query";
-import {useRouter} from "next/navigation";
+import {useQuery} from "@tanstack/react-query";
+import {useMessageBox} from "@utils/toast";
 
 export function BannedItems({hardReservations, reset_id, isAdmin = false, raid_id}: {
     hardReservations: any,
@@ -28,13 +19,19 @@ export function BannedItems({hardReservations, reset_id, isAdmin = false, raid_i
     const {removeHardReserve, loading, globalLoading, supabase} = useReservations(reset_id, [])
 
     const [updateLoading, setUpdateLoading] = useState(false)
+    const {alert, yesNo} = useMessageBox()
 
     const updateFutureRaids = useCallback(async () => {
         if (!supabase || !reset_id || !raid_id) return
         if (updateLoading) return
         setUpdateLoading(true)
-        const accept = confirm('Are you sure you want to update future raids? This will update all the future raids with the current banned items and update the template for the future raids.')
-        if (!accept) return
+        const accept = await yesNo({
+            message: 'Are you sure you want to update future raids? This will update all the future raids with the current banned items and update the template for the future raids.',
+            yesText: 'Yes, update future raids',
+            noText: 'No, cancel',
+            title: 'Update future raids',
+        })
+        if (accept === 'no') return setUpdateLoading(false)
 
         const {data: futureResets, error: futureResetsError} = await supabase
             .from('raid_resets')
@@ -45,8 +42,8 @@ export function BannedItems({hardReservations, reset_id, isAdmin = false, raid_i
             .order('id', {ascending: true})
             .limit(100)
         if (futureResetsError) {
-            alert('Error fetching future resets')
-            return
+            alert({message: 'Error fetching future resets', type: 'error'})
+            return setUpdateLoading(false)
         }
 
 
@@ -55,8 +52,8 @@ export function BannedItems({hardReservations, reset_id, isAdmin = false, raid_i
             .eq('raid_id', raid_id)
 
         if (deleteTemplateError) {
-            alert('Error deleting template')
-            return
+            alert({message: 'Error deleting template', type: 'error'})
+            return setUpdateLoading(false)
         }
 
         await Promise.all(futureResets?.map((x: any) => {
@@ -92,8 +89,8 @@ export function BannedItems({hardReservations, reset_id, isAdmin = false, raid_i
         ])
 
         if (future.error || template.error) {
-            alert('Error updating future raids')
-            return
+            alert({message: 'Error updating future raids', type: 'error'})
+            return setUpdateLoading(false)
         }
 
         setUpdateLoading(false)
@@ -142,6 +139,8 @@ export function ImportBannedItems({raid_id, reset_id}: { raid_id: string, reset_
 
     const {isOpen, onOpenChange, onClose, onOpen} = useDisclosure()
 
+    const {alert} = useMessageBox()
+
     const {data: currentTemplate, isLoading} = useQuery({
         queryKey: ['hard_reserve_templates', raid_id],
         queryFn: async () => {
@@ -174,7 +173,7 @@ export function ImportBannedItems({raid_id, reset_id}: { raid_id: string, reset_
         )
 
         if (error) {
-            alert('Error importing template')
+            alert({message: 'Error importing template', type: 'error'})
             return
         }
 

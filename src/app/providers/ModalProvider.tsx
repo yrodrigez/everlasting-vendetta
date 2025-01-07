@@ -8,11 +8,11 @@ export const ModalContext = React.createContext({
     },
     onClose: () => {
     },
-    setHeader: (header: ReactNode) => {
+    setHeader: (header?: ReactNode) => {
     },
-    setBody: (body: ReactNode) => {
+    setBody: (body?: ReactNode) => {
     },
-    setFooter: (footer: ReactNode) => {
+    setFooter: (footer?: ReactNode) => {
     },
     isDismissable: true,
     setIsDismissable: (isDismissable: boolean) => {
@@ -20,14 +20,16 @@ export const ModalContext = React.createContext({
     hideCloseButton: false,
     setHideCloseButton: (hideCloseButton: boolean) => {
     },
-    setTitle: (title: string) => {
+    setTitle: (title?: string) => {
     },
-    setClassName: (className: string) => {
+    setClassName: (className?: string) => {
     },
-    setModalSize: (size: "sm" | "md" | "lg" | "xl" | "2xl" | "xs" | "3xl" | "4xl" | "5xl" | "full" | undefined) => {
+    setModalSize: (size?: "sm" | "md" | "lg" | "xl" | "2xl" | "xs" | "3xl" | "4xl" | "5xl" | "full" | undefined) => {
     },
-    setModalPlacement: (placement: "center" | "auto" | "top" | "top-center" | "bottom" | "bottom-center") => {
+    setModalPlacement: (placement?: "center" | "auto" | "top" | "top-center" | "bottom" | "bottom-center") => {
     },
+    reset: () => {
+    }
 })
 
 export function ModalProvider({children}: { children: ReactNode }) {
@@ -37,10 +39,10 @@ export function ModalProvider({children}: { children: ReactNode }) {
     const [footer, setFooter] = React.useState<ReactNode | null>(null)
     const [isDismissable, setIsDismissable] = React.useState(true)
     const [hideCloseButton, setHideCloseButton] = React.useState(false)
-    const [title, setTitle] = React.useState('')
-    const [className, setClassName] = React.useState('bg-wood border border-wood-100 text-common')
+    const [title, setTitle] = React.useState<string | undefined>('')
+    const [className, setClassName] = React.useState<string | undefined>('bg-wood border border-wood-100 text-common')
     const [size, setModalSize] = React.useState<"sm" | "md" | "lg" | "xl" | "2xl" | "xs" | "3xl" | "4xl" | "5xl" | "full" | undefined>('lg')
-    const [placement, setModalPlacement] = React.useState<"center" | "auto" | "top" | "top-center" | "bottom" | "bottom-center">('center')
+    const [placement, setModalPlacement] = React.useState<"center" | "auto" | "top" | "top-center" | "bottom" | "bottom-center" | undefined>('center')
 
     return (
         <>
@@ -58,7 +60,18 @@ export function ModalProvider({children}: { children: ReactNode }) {
                 setTitle,
                 setClassName,
                 setModalSize,
-                setModalPlacement
+                setModalPlacement,
+                reset: () => {
+                    setHeader(null)
+                    setBody(null)
+                    setFooter(null)
+                    setIsDismissable(true)
+                    setHideCloseButton(false)
+                    setTitle(undefined)
+                    setClassName(undefined)
+                    setModalSize('lg')
+                    setModalPlacement('center')
+                }
             }}>
                 {children}
                 <Modal
@@ -75,19 +88,19 @@ export function ModalProvider({children}: { children: ReactNode }) {
                     <ModalContent>
                         {() => (
                             <>
-                            {header && (
-                                <ModalHeader>
-                                    {header}
-                                </ModalHeader>
-                            )}
+                                {header && (
+                                    <ModalHeader>
+                                        {header}
+                                    </ModalHeader>
+                                )}
                                 <ModalBody>
                                     {body}
                                 </ModalBody>
-                            {footer && (
-                                <ModalFooter>
-                                    {footer}
-                                </ModalFooter>
-                            )}
+                                {footer && (
+                                    <ModalFooter>
+                                        {footer}
+                                    </ModalFooter>
+                                )}
                             </>
                         )}
                     </ModalContent>

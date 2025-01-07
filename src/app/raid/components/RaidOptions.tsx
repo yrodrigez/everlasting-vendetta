@@ -16,6 +16,7 @@ import {toast} from "sonner";
 import Link from "next/link";
 import {useModal} from "@hooks/useModal";
 import GroupExport from "@/app/raid/components/GroupExport";
+import {useMessageBox} from "@utils/toast";
 
 const KEYS = {
     NEXT: 'next',
@@ -47,6 +48,7 @@ export function RaidOptions({
         setModalHeader,
         setModalBody,
     } = useModal()
+    const {alert} = useMessageBox()
     return (
         <Dropdown>
             <DropdownTrigger>
@@ -80,29 +82,31 @@ export function RaidOptions({
                     if (key === KEYS.SHARE) {
                         const url = window.location.href
                         if (!navigator?.clipboard?.writeText) {
-                            alert('Could not copy link to clipboard')
+                            alert({message: 'Could not copy link to clipboard', type: 'error'})
                             return
                         }
                         navigator.clipboard.writeText(url.substring(
                             0,
                             url.indexOf('-')
                         )).then(() => {
-                            toast.custom(()=> (
-                                <div className="flex gap-2 items-center justify-center bg-wood border border-wood-100 p-4 rounded-lg text-default shadow shadow-wood-100 shadow-lg">
+                            toast.custom(() => (
+                                <div
+                                    className="flex gap-2 items-center justify-center bg-wood border border-wood-100 p-4 rounded-lg text-default shadow shadow-wood-100 shadow-lg">
                                     <FontAwesomeIcon icon={faCircleInfo}/>
                                     <span>Link copied to clipboard</span>
                                 </div>
-                            ),{
+                            ), {
                                 duration: 3000,
                                 position: 'bottom-right'
                             })
                         }).catch(() => {
-                            toast.custom(()=> (
-                                <div className="flex gap-2 items-center justify-center bg-red-600 border border-bg-red-500 p-4 rounded-lg text-default shadow shadow-wood-100 shadow-lg">
-                                    <FontAwesomeIcon icon={faTriangleExclamation} />
+                            toast.custom(() => (
+                                <div
+                                    className="flex gap-2 items-center justify-center bg-red-600 border border-bg-red-500 p-4 rounded-lg text-default shadow shadow-wood-100 shadow-lg">
+                                    <FontAwesomeIcon icon={faTriangleExclamation}/>
                                     <span>An error occurred while copying the link to the clipboard!</span>
                                 </div>
-                            ),{
+                            ), {
                                 duration: 3000,
                                 position: 'bottom-right'
                             })
@@ -111,7 +115,7 @@ export function RaidOptions({
                     if (key === KEYS.upload_loot) {
                         router.push(`/raid/${currentResetId}/loot/upload`)
                     }
-                    if (key === KEYS.chat){
+                    if (key === KEYS.chat) {
                         router.push(`/raid/${currentResetId}/chat`)
                     }
                     if (key === KEYS.groupExport) {
@@ -193,7 +197,7 @@ export function RaidOptions({
                     key={KEYS.groupExport}
                 >
                     <div className="flex items-center gap-2 justify-between">
-                        Group export<FontAwesomeIcon icon={faUsers} />
+                        Group export<FontAwesomeIcon icon={faUsers}/>
                     </div>
                 </DropdownItem>
                 <DropdownItem

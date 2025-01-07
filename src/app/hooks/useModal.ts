@@ -15,10 +15,11 @@ export function useModal() {
         setHideCloseButton: setModalHideCloseButton,
         setModalPlacement,
         setModalSize,
+        reset
     } = useContext(ModalContext)
 
     return {
         open: openModal, close: closeModal, isOpen, setModalTitle, setModalHeader, setModalBody, setModalFooter, setModalClassName, setModalIsDismissable, setModalHideCloseButton,
-        setModalPlacement, setModalSize
+        setModalPlacement, setModalSize, reset
     }
 }
