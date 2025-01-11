@@ -6,19 +6,6 @@ import {BNET_COOKIE_NAME} from "@/app/util/constants";
 import {getCookie} from "@/app/util";
 import {useQuery} from "@tanstack/react-query";
 
-const topClassMap = {
-    0: "top-0",
-    2: "top-2",
-    1: "top-4",
-};
-const translateClassMap = {
-    0: "translate-y-0",
-    1: "translate-y-4",
-};
-const translateHoverClassMap = {
-    0: "hover:translate-y-0",
-    1: "hover:translate-y-4",
-};
 const CharacterAvatar = ({
                              token,
                              realm,

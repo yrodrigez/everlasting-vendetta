@@ -33,34 +33,7 @@ function AchievementCard({achievement, isAchieved}: { achievement: Achievement,i
 	)
 }
 
-export default function ({characterId}: { characterId: number }) {
-	const {supabase} = useSession()
-	const {achievements} = useAchievements()
-	const {data: {achieved, notAchieved}} = useQuery({
-		queryKey: ['achievements', characterId],
-		queryFn: async () => {
-			if(!supabase) return {achieved: [], notAchieved: achievements}
-			const {data} = await supabase.from('member_achievements').select('*').eq('member_id', characterId)
-
-			console.log(data)
-
-			const achieved = achievements?.filter((ach) => data?.find((a) => a.achievement_id === ach.id)).map((ach) => ({...ach, earned_at: data?.find((a) => a.achievement_id === ach.id)?.earned_at ?? null}))
-			const notAchieved = achievements?.filter((ach) => !data?.find((a) => a.achievement_id === ach.id))
-
-			console.log(achieved, notAchieved)
-
-			return {
-				achieved,
-				notAchieved
-			}
-		},
-		initialData: {achieved: [], notAchieved: achievements},
-		enabled: !!supabase && !!achievements && !!characterId
-	})
-
-	if(!supabase) {
-		return <NotLoggedInView/>
-	}
+export default function ({achieved, notAchieved, achievedPoints}: { achieved?: Achievement[] & {earned_at?: string}, notAchieved?: Achievement[], achievedPoints?: number }) {
 
 	return (
 		<ScrollShadow className="p-4 w-full max-h-full overflow-auto scrollbar-pill items-center flex justify-center flex-wrap gap-4">
