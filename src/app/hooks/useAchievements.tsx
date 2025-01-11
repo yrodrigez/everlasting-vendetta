@@ -1,13 +1,7 @@
 import {useSession} from "@hooks/useSession";
 import {useQuery} from "@tanstack/react-query";
-import {
-	type Achievement,
-	AchievementCondition,
-	type MemberAchievement,
-	QueryOperator,
-	TableCondition
-} from "@/app/types/Achievements";
-import {useEffect, useRef} from "react";
+import {type Achievement, type AchievementCondition, type MemberAchievement, type TableCondition} from "@/app/types/Achievements";
+import {useEffect} from "react";
 import {type SupabaseClient} from "@supabase/supabase-js";
 import {type Character} from "@/app/components/characterStore";
 import useToast from "@utils/useToast";
@@ -87,28 +81,53 @@ function createQuery(supabase: SupabaseClient, table: string, conditions: TableC
 }
 
 async function canAchieve(supabase: SupabaseClient, achievement: Achievement, selectedCharacter: Character): Promise<boolean> {
-	const template = JSON.stringify(achievement.condition)
-	const condition = JSON.parse(mustache.render(template, selectedCharacter)) as AchievementCondition
+	try {
+		const template = JSON.stringify(achievement.condition)
 
-	const table = condition.table
-	const {conditions} = condition
-	let query = createQuery(supabase, table, conditions)
+		const condition = JSON.parse(mustache.render(template, selectedCharacter)) as AchievementCondition
 
-	// @ts-ignore
-	const {data, error} = await query.limit(1).maybeSingle()
-	if (error) {
-		console.error('Error fetching data:', error)
+		const table = condition.table
+		const {conditions} = condition
+		let query = createQuery(supabase, table, conditions)
+
+		// @ts-ignore
+		const {data, error} = await query
+		if (error) {
+			console.error('Error fetching data:', error)
+			return false
+		}
+
+		if(condition?.count && data?.length !== undefined) {
+			const {countNumber, operator} = condition.count
+			switch (operator) {
+				case 'eq':
+					return data.length === countNumber
+				case 'gt':
+					return data.length > countNumber
+				case 'lt':
+					return data.length < countNumber
+				case 'gte':
+					return data.length >= countNumber
+				case 'lte':
+					return data.length <= countNumber
+				case 'neq':
+					return data.length !== countNumber
+				default:
+					return false
+			}
+
+		}
+
+		return (data && data.length && data[0])
+	} catch (e) {
+		console.error('Error processing condition:', e)
 		return false
 	}
-
-	return !!data;
 }
 
 export default function useAchievements() {
 	const {supabase, selectedCharacter} = useSession()
 	const {epic} = useToast()
-
-	const ref = useRef({isFetching: false})
 
 	const {data: achievements, error, isLoading: loadingAchievements} = useQuery({
 		queryKey: ['achievements', selectedCharacter?.id],

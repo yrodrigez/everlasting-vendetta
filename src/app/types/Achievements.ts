@@ -21,9 +21,15 @@ export type TableCondition = {
 	order?: QueryOrder
 }
 
+export type CountCondition = {
+	countNumber: number,
+	operator: QueryOperator
+}
+
 export type AchievementCondition = {
 	table: string,
 	conditions: TableCondition[]
+	count?: CountCondition
 }
 
 export type MemberAchievement = {
