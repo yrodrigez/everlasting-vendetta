@@ -63,7 +63,7 @@ export default function ({characterId}: { characterId: number }) {
 	}
 
 	return (
-		<ScrollShadow className="p-4 w-full max-h-[410px] overflow-auto scrollbar-pill items-center flex justify-center flex-wrap gap-4">
+		<ScrollShadow className="p-4 w-full max-h-full overflow-auto scrollbar-pill items-center flex justify-center flex-wrap gap-4">
 			{achieved?.map((achievement) => (
 				<AchievementCard key={achievement.id} achievement={achievement} isAchieved/>
 			))}
