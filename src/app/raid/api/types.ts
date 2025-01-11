@@ -10,6 +10,7 @@ export type RaidParticipant = {
             playable_class?: { name: string };
         }
         registration_source?: string;
+        gearScore?: number;
     },
     is_confirmed: boolean;
     details: {

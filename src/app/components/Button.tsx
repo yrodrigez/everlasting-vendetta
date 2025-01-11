@@ -4,13 +4,15 @@ import {type ReactNode} from "react";
 
 export function Button({children, ...props}: { children?: ReactNode } & ButtonProps) {
 
-    const defaultClassNames = props.color ? '' : 'bg-moss text-gold rounded border border-moss-100'
+	const defaultClassNames = props.color ? '' : 'bg-moss text-gold rounded border border-moss-100'
 
-    if (props.className) {
-        props.className = `${defaultClassNames} ${props.className}`
-    } else {
-        props.className = defaultClassNames
-    }
+	if (props.variant) {
+		// do nothing
+	} else if (props.className) {
+		props.className = `${defaultClassNames} ${props.className}`
+	} else {
+		props.className = defaultClassNames
+	}
 
-    return <MuiButton {...props}>{children}</MuiButton>;
+	return <MuiButton {...props}>{children}</MuiButton>;
 }

@@ -1,10 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '5mb',
+    },
+  },
   reactStrictMode: true,
   images: {
     remotePatterns: [
       {hostname: 'render.worldofwarcraft.com',},
-      {hostname: 'wow.zamimg.com'}
+      {hostname: 'wow.zamimg.com'},
+      {hostname:'ijzwizzfjawlixolcuia.supabase.co'}
     ],
   },
   async rewrites() {

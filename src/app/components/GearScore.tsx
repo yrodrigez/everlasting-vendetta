@@ -4,10 +4,11 @@ import {Tooltip} from "@nextui-org/react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faRotate, faTriangleExclamation} from "@fortawesome/free-solid-svg-icons";
 
-export default function GearScore({characterName, min, allowForce}: {
+export default function GearScore({characterName, min, allowForce, updater}: {
     characterName: string,
     min?: number,
     allowForce?: boolean
+    updater?: (gs: number, characterName: string) => void
 }) {
 
     const queryClient = useQueryClient()
@@ -31,7 +32,8 @@ export default function GearScore({characterName, min, allowForce}: {
                 return {gs: 0, color: 'gray'};
             }
         },
-        initialData: {gs: '...', color: 'gray'},
+        placeholderData: {gs: '...', color: 'gray'},
+        staleTime: 60000*2, // 2 minute
     })
 
     const {mutate, isPending} = useMutation({
@@ -40,7 +42,6 @@ export default function GearScore({characterName, min, allowForce}: {
             await fetch(`/api/v1/services/member/character/${encodeURIComponent(characterName.toLowerCase())}/gs?force=true`)
             await refetch()
         },
-
     })
 
     useEffect(() => {
@@ -53,6 +54,9 @@ export default function GearScore({characterName, min, allowForce}: {
             }, 300)
         } else {
             setStateGs(data?.gs)
+            if (updater) {
+                updater(data?.gs, characterName)
+            }
         }
 
         return () => {

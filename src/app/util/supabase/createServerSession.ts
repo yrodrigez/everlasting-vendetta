@@ -4,13 +4,35 @@ import {UserProfile} from "@/app/util/supabase/types";
 
 export function getLoggedInUserFromAccessToken(accessToken: string) {
     try {
-        const parts = accessToken.split('.')
-        const payload = JSON.parse(atob(parts[1]))
+        const parts = accessToken.split('.');
+        if (parts.length < 2) {
+            return null;
+        }
 
-        return payload.wow_account
+        const payloadJson = decodeBase64ToString(parts[1]);
+
+        const payload = JSON.parse(payloadJson);
+
+        return payload.wow_account ?? null;
     } catch (e) {
-        //console.error('Error parsing access token', e)
-        return null
+        return null;
+    }
+}
+
+function decodeBase64ToString(base64: string): string {
+    if (typeof TextDecoder !== 'undefined') {
+        const bytes = Uint8Array.from(atob(base64), (char) => char.charCodeAt(0));
+        return new TextDecoder('utf-8').decode(bytes);
+    } else {
+        const asciiString = atob(base64);
+        return decodeURIComponent(
+            asciiString
+            .split('')
+            .map((char) =>
+                '%' + char.charCodeAt(0).toString(16).padStart(2, '0')
+            )
+            .join('')
+        );
     }
 }
 

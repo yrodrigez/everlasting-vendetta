@@ -8,63 +8,64 @@ import {redirect} from "next/navigation";
 
 export const dynamic = 'force-dynamic'
 const requiredPermissions = 'loot_history.create'
+
 async function handleSubmit(formData: FormData) {
-    'use server'
+	'use server'
 
-    const loot = formData.get('loot')
-    const raid_id = formData.get('raid_id')
-    if (!loot) {
-        return
-    }
+	const loot = formData.get('loot')
+	const raid_id = formData.get('raid_id')
+	if (!loot) {
+		return
+	}
 
-    if (!raid_id) {
-        return
-    }
-    try {
-        const csv = parseLootCsv(loot as string)
-        const lootObjects = convertLootCsvToObjects(csv)
+	if (!raid_id) {
+		return
+	}
+	try {
+		const csv = parseLootCsv(loot as string)
+		const lootObjects = convertLootCsvToObjects(csv)
 
-        const {supabase} = await createServerSession({cookies})
+		const {supabase} = await createServerSession({cookies})
 
-        const {error} = await supabase
-            .from('ev_loot_history')
-            .insert(lootObjects.map((loot) => ({
-                ...loot,
-                raid_id
-            })))
+		const {error} = await supabase
+		.from('ev_loot_history')
+		.insert(lootObjects.map((loot) => ({
+			...loot,
+			raid_id
+		})))
 
-        if (error) {
-            console.error(error)
-        } else {
-            redirect(`/raid/${raid_id}/loot`)
-        }
-    } catch (error) {
-        console.error('Error parsing loot csv', error)
-    }
+		if (error) {
+			console.error(error)
+		}
+
+		redirect(`/raid/${raid_id}/loot`)
+	} catch (error) {
+		console.error('Error parsing loot csv', error)
+	}
 }
 
 export default async function Page({params}: { params: Promise<{ id: string }> }) {
-    const {auth} = await createServerSession({cookies})
-    const user = await auth.getSession()
-    const {id: resetId} = await params
+	const {auth} = await createServerSession({cookies})
+	const user = await auth.getSession()
+	const {id: resetId} = await params
 
-    if (!user) {
-        return <NotLoggedInView/>
-    }
+	if (!user) {
+		return <NotLoggedInView/>
+	}
 
-    if (!user.permissions.includes(requiredPermissions)) {
-        return <div>Not authorized</div>
-    }
+	if (!user.permissions.includes(requiredPermissions)) {
+		return <div>Not authorized</div>
+	}
 
-    return (
-        <form className="flex flex-col gap-4 w-full h-full" action={handleSubmit}>
-            <input type="hidden" name="raid_id" value={resetId}/>
-            <div className="flex h-[90%] w-full">
-                <LootHistoPreview reset_id={resetId}/>
-            </div>
-            <Button type="submit" className="mt-4">
-                Submit
-            </Button>
-        </form>
-    )
+	return (
+		<form className="flex flex-col gap-4 w-full h-full" action={handleSubmit}>
+			<input type="hidden" name="raid_id" value={resetId}/>
+			<div className="flex h-[90%] w-full">
+				<LootHistoPreview reset_id={resetId}/>
+			</div>
+			<Button type="submit" className="mt-4">
+				Submit
+			</Button>
+		</form>
+	)
 }
