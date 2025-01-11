@@ -6,6 +6,7 @@ export type Achievement = {
 	points: number,
 	condition: AchievementCondition[],
 	img: string,
+	earned_at?: string,
 }
 
 export type QueryOperator = 'eq' | 'gt' | 'lt' | 'gte' | 'lte' | 'neq' | 'like' | 'ilike' | 'in' | 'nin'

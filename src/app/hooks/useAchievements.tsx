@@ -159,7 +159,14 @@ export default function useAchievements() {
 				achievements,
 				memberAchievements,
 				notAchieved: achievements.filter(achievement => !memberAchievements.find(memberAchievement => memberAchievement.achievement_id === achievement.id)),
-				achieved: achievements.filter(achievement => memberAchievements.find(memberAchievement => memberAchievement.achievement_id === achievement.id))
+				achieved: achievements.filter(achievement => memberAchievements.find(memberAchievement => memberAchievement.achievement_id === achievement.id)).map(
+					achievement => {
+						return {
+							...achievement,
+							earned_at: memberAchievements.find(memberAchievement => memberAchievement.achievement_id === achievement.id)?.earned_at
+						}
+					}
+				)
 			}
 		},
 		enabled: !!supabase && !!selectedCharacter,
@@ -178,7 +185,7 @@ export default function useAchievements() {
 		})).then(async achievements => {
 			const achievable = achievements.filter(({canAchieve}) => canAchieve)
 			const earnedAchievements = await Promise.all(achievable.map(async ({achievement}) => {
-				const {data, error} = await supabase.from('member_achievements')
+				const {error} = await supabase.from('member_achievements')
 				.insert({
 					member_id: selectedCharacter.id,
 					achievement_id: achievement.id,

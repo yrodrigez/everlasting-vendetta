@@ -23,6 +23,7 @@ import {faBan, faUserXmark} from "@fortawesome/free-solid-svg-icons";
 import createServerSession from "@utils/supabase/createServerSession";
 import {Button} from "@/app/components/Button";
 import {revalidatePath} from "next/cache";
+import CharacterAchievements from "@/app/roster/[name]/components/CharacterAchievements";
 
 export const dynamic = 'force-dynamic'
 
@@ -237,10 +238,8 @@ export default async function Page({params}: { params: Promise<{ name: string }>
             <Head>
                 <title>{characterInfo.name} - {characterInfo.guild?.name ?? 'No Guild'}</title>
             </Head>
-            <div
-                className="relative"
-            >
-                <div className="mx-auto max-w-6xl px-4 flex justify-evenly items-center">
+            <div className="relative w-full h-full">
+                <div className="mx-auto max-w-6xl px-4 flex justify-evenly items-center block h-36">
                     <div className="flex items-center gap-4 mb-4">
                         <div className="w-20 h-20 rounded-full overflow-hidden">
                             <CharacterAvatar token={token} realm={GUILD_REALM_SLUG} characterName={characterInfo.name}
@@ -279,13 +278,11 @@ export default async function Page({params}: { params: Promise<{ name: string }>
                         alt={characterInfo.character_class?.name}
                         src={getPlayerClassById(characterInfo.character_class?.id).icon}/>
                 </div>
-                <div>
-                    <Divider className="my-4 text-gray-500"/>
+                <div className="h-36">
                     <StatisticsView statistics={characterStatistics}/>
-                    <Divider className="my-4"/>
                 </div>
                 <CharacterViewOptions
-                    containerClassName={'mb-6'}
+                    containerClassName={'p-8 mb-6'}
                     items={[
                         {
                             label: 'Gear', name: 'gear', children: <CharacterGear
@@ -301,6 +298,9 @@ export default async function Page({params}: { params: Promise<{ name: string }>
                                 characterInfo={characterInfo}
                                 talents={talents}
                             />
+                        },
+                        {
+                            label: 'Achievements', name: 'achievements', children: <CharacterAchievements characterId={characterInfo.id} />
                         },
                         {
                             label: 'Loot History',
