@@ -135,7 +135,9 @@ export default function ({achieved, notAchieved, achievedPoints}: {
 				if (b.earned_at === undefined) return -1
 				return new Date(b.earned_at).getTime() - new Date(a.earned_at).getTime()
 			})
-		})) ?? []) as {
+		})) ?? []).sort((a, b)=> {
+			return a.category.localeCompare(b.category)
+		}) as {
 			category: string,
 			achievements: Achievement[]
 		}[]
