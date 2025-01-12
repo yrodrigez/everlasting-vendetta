@@ -13,6 +13,7 @@ export function useMessageBox() {
         setModalIsDismissable,
         setModalHideCloseButton,
         setModalClassName,
+        setModalSize,
         close: onClose,
         reset
     } = useModal()
@@ -21,7 +22,7 @@ export function useMessageBox() {
         alert: (data: string | {
             message: string | ReactNode,
             title?: string,
-            type?: 'success' | 'error' | 'epic'
+            type?: 'success' | 'error' | 'epic' | 'window'
         }) => {
             const {message, title, type = 'success'} = typeof data === 'string' ? {message: data} : data
             reset()
@@ -39,14 +40,20 @@ export function useMessageBox() {
             if (type === 'epic') {
                 setModalClassName('border-gold glow-animation')
             }
-            setModalFooter(
-                <div
-                    className="float-right"
-                >
-                    <Button className="bg-moss text-gold border border-moss-100 float-right rounded"
-                            onPress={onClose}>OK</Button>
-                </div>
-            )
+            if(type !== 'window') {
+                setModalFooter(
+                    <div
+                        className="float-right"
+                    >
+                        <Button className="bg-moss text-gold border border-moss-100 float-right rounded"
+                                onPress={onClose}>OK</Button>
+                    </div>
+                )
+            } else {
+                setModalFooter(null)
+                setModalHideCloseButton(false)
+                setModalSize('4xl')
+            }
             openModal()
         },
         yesNo: async ({message, title, yesText = 'Yes', noText = 'No', modYes = 'default', modNo = 'danger'}: {
