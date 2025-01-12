@@ -91,7 +91,19 @@ async function canAchieve(supabase: SupabaseClient, achievement: Achievement, se
 
 		const condition = JSON.parse(mustache.render(template, {
 			...selectedCharacter,
-			now: new Date().toISOString(),
+			now: () => new Date().toISOString(),
+			daysAgo: () => (text: string) => {
+				const days = parseInt(text, 10) || 0;
+				return new Date(
+					Date.now() - days * 24 * 60 * 60 * 1000
+				).toISOString();
+			},
+			hoursAgo : () => (text: string) => {
+				const hours = parseInt(text, 10) || 0;
+				return new Date(
+					Date.now() - hours * 60 * 60 * 1000
+				).toISOString();
+			}
 		})) as AchievementCondition
 
 		const table = condition.table
@@ -99,7 +111,10 @@ async function canAchieve(supabase: SupabaseClient, achievement: Achievement, se
 		const {conditions} = condition
 
 		// @ts-ignore it creates a query based on the conditions
-		const {data, error} = await createQuery(supabase, table, conditions, {select: select ?? '*', operation: 'select'})
+		const {data, error} = await createQuery(supabase, table, conditions, {
+			select: select ?? '*',
+			operation: 'select'
+		})
 		if (error) {
 			console.error('Error fetching data:', error)
 			return false
