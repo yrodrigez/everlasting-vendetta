@@ -1,6 +1,11 @@
 import {useSession} from "@hooks/useSession";
 import {useQuery} from "@tanstack/react-query";
-import {type Achievement, type AchievementCondition, type MemberAchievement, type TableCondition} from "@/app/types/Achievements";
+import {
+	type Achievement,
+	type AchievementCondition,
+	type MemberAchievement,
+	type TableCondition
+} from "@/app/types/Achievements";
 import {useEffect} from "react";
 import {type SupabaseClient} from "@supabase/supabase-js";
 import {type Character} from "@/app/components/characterStore";
@@ -10,7 +15,7 @@ import Image from "next/image";
 import moment from "moment";
 
 
-function createQuery(supabase: SupabaseClient, table: string, conditions: TableCondition[], options: {
+async function createQuery(supabase: SupabaseClient, table: string, conditions: TableCondition[], options: {
 	operation?: 'select' | 'insert',
 	select?: string,
 	payload?: any,
@@ -84,20 +89,23 @@ async function canAchieve(supabase: SupabaseClient, achievement: Achievement, se
 	try {
 		const template = JSON.stringify(achievement.condition)
 
-		const condition = JSON.parse(mustache.render(template, selectedCharacter)) as AchievementCondition
+		const condition = JSON.parse(mustache.render(template, {
+			...selectedCharacter,
+			now: new Date().toISOString(),
+		})) as AchievementCondition
 
 		const table = condition.table
+		const select = condition.select
 		const {conditions} = condition
-		let query = createQuery(supabase, table, conditions)
 
-		// @ts-ignore
-		const {data, error} = await query
+		// @ts-ignore it creates a query based on the conditions
+		const {data, error} = await createQuery(supabase, table, conditions, {select: select ?? '*', operation: 'select'})
 		if (error) {
 			console.error('Error fetching data:', error)
 			return false
 		}
 
-		if(condition?.count && data?.length !== undefined) {
+		if (condition?.count && data?.length !== undefined) {
 			const {countNumber, operator} = condition.count
 			switch (operator) {
 				case 'eq':

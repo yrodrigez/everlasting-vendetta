@@ -6,7 +6,6 @@ import {Achievement} from "@/app/types/Achievements";
 import {Input, Textarea} from "@nextui-org/react";
 import {revalidatePath} from "next/cache"
 import {Button} from "@/app/components/Button";
-import Image from "next/image";
 
 const ALLOWED_ROLES = [ROLE.ADMIN]
 export const dynamic = 'force-dynamic';
@@ -18,12 +17,14 @@ async function createAchievement(formData: FormData) {
 	const description = formData.get('description') as string
 	const points = formData.get('points') ?? 0 as number
 	const condition = formData.get('condition') as string
+	const category = formData.get('category') as string
 
 	const {data: achievement, error} = await supabase.from('achievements')
 	.insert({
 		name,
 		description,
 		points,
+		category,
 		condition: JSON.parse(condition)
 	})
 	.select('id')
@@ -71,6 +72,33 @@ async function createAchievement(formData: FormData) {
 	revalidatePath('/achievements-admin')
 }
 
+async function deleteAchievement(formData: FormData) {
+	'use server'
+	const {supabase} = await createServerSession({cookies});
+	const id = formData.get('id') as string
+	if(!id) {
+		console.error('No id provided')
+		return
+	}
+	const {data, error} = await supabase.from('achievements')
+	.delete()
+	.eq('id', id)
+	.single()
+
+	if (error) {
+		console.error('Error deleting achievement:', error)
+		return
+	}
+
+
+	const {error: removeError} = await supabase.storage.from('achievement-image').remove([id])
+	if (removeError) {
+		console.error('Error removing image:', removeError)
+	}
+
+	revalidatePath('/achievements-admin')
+}
+
 export default async function Page({}: {}) {
 	const {supabase, auth} = await createServerSession({cookies});
 	const user = await auth.getSession();
@@ -95,27 +123,27 @@ export default async function Page({}: {}) {
 
 	const {data: achievements, error: achievementsError} = await supabase.from('achievements')
 	.select('*')
+	.order('created_at', {ascending: false})
 	.returns<Achievement[]>();
 
 	return (
 		<div className="flex flex-col items-center justify-center w-full h-full overflow-auto">
-			<div
-				className={'grid grid-cols-1 w-full h-full gap-4 overflow-auto scrollbar-pill bg-dark border-dark-100 border'}>
+			<div className={'grid grid-cols-1 w-full h-full gap-4 overflow-auto scrollbar-pill bg-dark border-dark-100 border'}>
 				<h1 className={'text-xl self-start ml-6'}>Achievements</h1>
-				<div className={'grid grid-cols-5 gap-4 w-full max-w-6xl p-4'}>
-					{/* Header Row */}
-					<div className={'col-span-full grid grid-cols-5 font-bold text-lg border-b pb-2'}>
+				<div className={'grid grid-cols-6 gap-4 w-full p-4'}>
+					<div className={'col-span-full grid grid-cols-6 font-bold text-lg border-b pb-2'}>
 						<div className={'col-span-1'}>Image</div>
 						<div className={'col-span-1'}>Name</div>
 						<div className={'col-span-1'}>Description</div>
 						<div className={'col-span-1'}>Points</div>
 						<div className={'col-span-1'}>Condition</div>
+						<div className={'col-span-1'}>Actions</div>
 					</div>
 					{/* Achievements Rows */}
 					{achievements?.map(achievement => (
 						<div
 							key={achievement.id}
-							className={'col-span-full grid grid-cols-5'}
+							className={'col-span-full grid grid-cols-6'}
 						>
 							<div className={'col-span-1'}>
 								{achievement.img ? (
@@ -129,13 +157,21 @@ export default async function Page({}: {}) {
 								)}
 							</div>
 							<div className={'col-span-1 text-sm font-semibold'}>{achievement.name}</div>
-							<div className={'col-span-1 text-sm text-gray-600'}>{achievement.description}</div>
+							<div className={'col-span-1 text-sm'}>{achievement.description}</div>
 							<div className={'col-span-1 text-sm font-semibold'}>{achievement.points}</div>
 							<div className={'col-span-1'}>
 								<div
 									className={'text-xs p-1 bg-wood rounded border border-wood-100 scrollbar-pill overflow-auto text-default w-full h-full whitespace-pre'}>
 									{JSON.stringify(achievement.condition, null, 2)}
 								</div>
+							</div>
+							<div className={'col-span-1 flex gap-4 items-center'}>
+								<form action={deleteAchievement}>
+									<input type={'hidden'} name={'id'} value={achievement.id}/>
+									<Button type="submit" className={'ml-3 bg-red-600 border border-red-500 text-white'}>
+										Delete
+									</Button>
+								</form>
 							</div>
 						</div>
 					))}
@@ -155,6 +191,10 @@ export default async function Page({}: {}) {
 					       isRequired
 					       type={'number'}
 					       name={'points'}/>
+					<Input label={'Category'}
+					       isRequired
+					       type={'text'}
+					       name={'category'}/>
 					<Input
 						accept={'image/*'}
 						type="file"

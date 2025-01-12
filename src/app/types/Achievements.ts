@@ -28,7 +28,8 @@ export type CountCondition = {
 }
 
 export type AchievementCondition = {
-	table: string,
+	table: string
+	select: string
 	conditions: TableCondition[]
 	count?: CountCondition
 }
