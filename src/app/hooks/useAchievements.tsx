@@ -166,7 +166,7 @@ async function canAchieve(supabase: SupabaseClient, achievement: Achievement, se
 }
 
 export default function useAchievements() {
-	const {supabase, selectedCharacter} = useSession()
+	const {supabase, selectedCharacter, session} = useSession()
 	const {epic} = useToast()
 
 	const {data: achievements, error, isLoading: loadingAchievements} = useQuery({
@@ -219,7 +219,7 @@ export default function useAchievements() {
 		if (!achievements?.notAchieved?.length || !selectedCharacter || !supabase || loadingAchievements || error) return
 		Promise.all(achievements.notAchieved.map(async achievement => {
 			return {
-				canAchieve: (await canAchieve(supabase, achievement, selectedCharacter)),
+				canAchieve: (await canAchieve(supabase, achievement, {...session, ...selectedCharacter})),
 				achievement
 			}
 		})).then(async achievements => {
