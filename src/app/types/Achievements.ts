@@ -39,7 +39,8 @@ export type Reducer = {
 export type CountCondition = {
 	countNumber: number,
 	operator: QueryOperator,
-	reducer?: Reducer
+	reducer?: Reducer,
+	extractProp?: string
 }
 
 export type AchievementCondition = {

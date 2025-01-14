@@ -77,6 +77,10 @@ async function createQuery(supabase: SupabaseClient, table: string, conditions: 
 				// @ts-ignore
 				query.in(column, value as string[])
 				break
+			case 'nin':
+				// @ts-ignore
+				query.not(column, 'in', `(${value.join(',') as string[]})`)
+				break
 			default:
 				// @ts-ignore
 				return query.eq
@@ -117,18 +121,26 @@ export const executeCondition = async (supabase: SupabaseClient, condition: Achi
 	})
 
 	const {count} = parsedCondition
-	const {reducer} = count ?? {}
-	if (reducer && data && Array.isArray(data)) {
-		return {data: applyReducer(data, reducer), error}
+	const {reducer, extractProp} = count ?? {}
+	let val = extractProp ? data[0] : data
+	const path = extractProp?.split('.')
+	if (path) {
+		for (const p of path) {
+			val = val[p]
+		}
 	}
 
-	return {data, error}
+	if (reducer && data && Array.isArray(data)) {
+		return {data: applyReducer(val, reducer), error}
+	}
+
+	return {data:val, error}
 }
 
 
 async function canAchieve(supabase: SupabaseClient, achievement: Achievement, selectedCharacter: Character): Promise<boolean> {
 	try {
-		if(selectedCharacter.guild?.name !== GUILD_NAME) return false
+		if (selectedCharacter.guild?.name !== GUILD_NAME) return false
 		const {condition} = achievement
 		if (condition.isTest && process.env.NODE_ENV !== 'development') return false // skip test conditions in production
 		const {data, error} = await executeCondition(supabase, condition, selectedCharacter)

@@ -9,38 +9,98 @@ function filterByOperator(
 ): any[] {
 	switch (operator) {
 		case 'eq':
-			return data.filter((item) => item[field] === value)
+			return data.filter((item) => {
+				const path = field.split('.')
+				let val = item
+				for (const p of path) {
+					val = val[p]
+				}
+				return val === value
+			})
 
 		case 'neq':
-			return data.filter((item) => item[field] !== value)
+			return data.filter((item) => {
+				const path = field.split('.')
+				let val = item
+				for (const p of path) {
+					val = val[p]
+				}
+				return val !== value
+			})
 
 		case 'gt':
-			return data.filter((item) => item[field] > (value ?? 0))
+			return data.filter((item) => {
+				const path = field.split('.')
+				let val = item
+				for (const p of path) {
+					val = val[p]
+				}
+				return val > (value ?? 0)
+			})
 
 		case 'gte':
-			return data.filter((item) => item[field] >= (value ?? 0))
+			return data.filter((item) => {
+				const path = field.split('.')
+				let val = item
+				for (const p of path) {
+					val = val[p]
+				}
+				return val >= (value ?? 0)
+			})
 
 		case 'lt':
-			return data.filter((item) => item[field] < (value ?? 0))
+			return data.filter((item) => {
+				const path = field.split('.')
+				let val = item
+				for (const p of path) {
+					val = val[p]
+				}
+				return val < (value ?? 0)
+			})
 
 		case 'lte':
-			return data.filter((item) => item[field] <= (value ?? 0))
+			return data.filter((item) => {
+				const path = field.split('.')
+				let val = item
+				for (const p of path) {
+					val = val[p]
+				}
+				return val <= (value ?? 0)
+			})
 
 		case 'in':
 			if (!Array.isArray(value)) return data
-			return data.filter((item) => value.includes(item[field]))
+			return data.filter((item) => {
+				const path = field.split('.')
+				let val = item
+				for (const p of path) {
+					val = val[p]
+				}
+				return value.includes(val)
+			})
 
 		case 'nin':
 			if (!Array.isArray(value)) return data
-			return data.filter((item) => !value.includes(item[field]))
+			return data.filter((item) => {
+				const path = field.split('.')
+				let val = item
+				for (const p of path) {
+					val = val[p]
+				}
+				return !value.includes(val)
+			})
 
 		case 'like':
 		case 'ilike':
 			// Simple case-insensitive substring match (or however you define 'like').
 			if (typeof value !== 'string') return data
 			return data.filter((item) => {
-				const val = String(item[field] ?? '').toLowerCase()
-				return val.includes(value.toLowerCase())
+				const path = field.split('.')
+				let val = item
+				for (const p of path) {
+					val = val[p]
+				}
+				return String(val ?? '').toLowerCase().includes(value.toLowerCase())
 			})
 
 		default:
@@ -54,7 +114,11 @@ function removeDuplicates(data: any[], field: string): any[] {
 	const result: any[] = []
 
 	for (const item of data) {
-		const val = item[field]
+		const paths = field.split('.')
+		let val = item
+		for (const path of paths) {
+			val = val[path]
+		}
 		if (!seen.has(val)) {
 			seen.add(val)
 			result.push(item)
@@ -99,8 +163,13 @@ function applyStep(data: any[], step: ReducerStep): any[] {
 
 		case 'sum':
 			return [{
-				[step.type]: combined.reduce((acc, row) =>
-					acc + (Number(row[step.field]) || 0), 0
+				[step.type]: combined.reduce((acc, row) =>{
+					const path = step.field.split('.')
+					let val = row
+					for (const p of path) {
+						val = val[p]
+					}
+					return acc + (Number(val) || 0)}, 0
 				)
 			}]
 
@@ -114,9 +183,14 @@ function applyStep(data: any[], step: ReducerStep): any[] {
 				return [{[step.type]: 0}]
 			}
 		{
-			const total = combined.reduce((acc, row) =>
-				acc + (Number(row[step.field]) || 0), 0
-			)
+			const total = combined.reduce((acc, row) =>{
+					const path = step.field.split('.')
+					let val = row
+					for (const p of path) {
+						val = val[p]
+					}
+					return acc + (Number(val) || 0)
+				}, 0)
 			const average = total / combined.length
 			return [{[step.type]: average}]
 		}
@@ -125,7 +199,13 @@ function applyStep(data: any[], step: ReducerStep): any[] {
 			if (combined.length === 0) return [{[step.type]: null}]
 		{
 			const minVal = combined.reduce((acc, row) => {
-				const val = Number(row[step.field]) || 0
+
+				const path = step.field.split('.')
+				let val = row
+				for (const p of path) {
+					val = val[p]
+				}
+				val = Number(val) || 0
 				return val < acc ? val : acc
 			}, Number.POSITIVE_INFINITY)
 			return [{[step.type]: minVal}]
@@ -135,7 +215,13 @@ function applyStep(data: any[], step: ReducerStep): any[] {
 			if (combined.length === 0) return [{[step.type]: null}]
 		{
 			const maxVal = combined.reduce((acc, row) => {
-				const val = Number(row[step.field]) || 0
+
+				const path = step.field.split('.')
+				let val = row
+				for (const p of path) {
+					val = val[p]
+				}
+				val = Number(val) || 0
 				return val > acc ? val : acc
 			}, Number.NEGATIVE_INFINITY)
 			return [{[step.type]: maxVal}]
