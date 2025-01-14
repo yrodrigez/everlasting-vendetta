@@ -2,13 +2,55 @@
 import createServerSession from "@utils/supabase/createServerSession";
 import {cookies} from "next/headers";
 import {ROLE} from "@utils/constants";
-import {Achievement} from "@/app/types/Achievements";
+import {Achievement, AchievementCondition} from "@/app/types/Achievements";
 import {Input, Textarea} from "@nextui-org/react";
 import {revalidatePath} from "next/cache"
+import {redirect} from "next/navigation";
 import {Button} from "@/app/components/Button";
+import {ConditionEditor} from "@/app/achievements-admin/ConditionEditor";
+import DeleteAchievementButton from "@/app/achievements-admin/DeleteAchievementButton";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faPencil} from "@fortawesome/free-solid-svg-icons";
+import {SupabaseClient} from "@supabase/supabase-js";
 
 const ALLOWED_ROLES = [ROLE.ADMIN]
 export const dynamic = 'force-dynamic';
+
+function createOrUpdateAchievement(supabase: SupabaseClient, achievement: Achievement) {
+	if (achievement.id) {
+		return supabase.from('achievements')
+		.update(achievement)
+		.eq('id', achievement.id)
+		.select('id')
+		.maybeSingle()
+	} else {
+		return supabase.from('achievements')
+		.insert(achievement)
+		.select('id')
+		.maybeSingle()
+	}
+}
+
+function createOrUpdateImage(supabase: SupabaseClient, achievement: Achievement, file: File) {
+	const imagePath = achievement.id
+	const fileExtension = file.name.split('.').pop()
+	const fileName = `${imagePath}${fileExtension ? `.${fileExtension}` : ''}`
+	return supabase.storage
+	.from('achievement-image')
+	.upload(fileName, file)
+}
+
+async function updateAchievementImage(supabase: SupabaseClient, achievement: Achievement, file: File) {
+	if (!achievement.id) return {error: 'No achievement id provided'}
+	const {data: {publicUrl}} = supabase.storage.from('achievement-image').getPublicUrl(achievement.id)
+	if (!publicUrl) {
+		console.error('Error getting public url', publicUrl)
+		return {error: 'Error getting public url'}
+	}
+
+	return supabase.from('achievements').update({img: publicUrl})
+	.eq('id', achievement.id)
+}
 
 async function createAchievement(formData: FormData) {
 	'use server'
@@ -76,7 +118,7 @@ async function deleteAchievement(formData: FormData) {
 	'use server'
 	const {supabase} = await createServerSession({cookies});
 	const id = formData.get('id') as string
-	if(!id) {
+	if (!id) {
 		console.error('No id provided')
 		return
 	}
@@ -99,9 +141,26 @@ async function deleteAchievement(formData: FormData) {
 	revalidatePath('/achievements-admin')
 }
 
-export default async function Page({}: {}) {
+async function redirectToEdit(formData: FormData) {
+	'use server'
+	return
+	const id = formData.get('id') as string
+	console.log('Edit achievement:', id)
+	if (!id) {
+		console.error('No id provided')
+		return
+	}
+	redirect(`/achievements-admin?edit=${id}`)
+}
+
+
+export default async function Page({searchParams}: {
+	searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
 	const {supabase, auth} = await createServerSession({cookies});
 	const user = await auth.getSession();
+
+	const id = (await searchParams)?.edit as string | undefined
 
 	if (!user) {
 		return (
@@ -125,10 +184,22 @@ export default async function Page({}: {}) {
 	.select('*')
 	.order('created_at', {ascending: false})
 	.returns<Achievement[]>();
+	let achievement = null
+	if (id) {
+		achievement = achievements?.find(achievement => achievement.id === id)
+		if (!achievement) {
+			return (
+				<div className={'flex flex-col items-center justify-center h-screen'}>
+					<h1 className={'text-4xl'}>Achievement not found</h1>
+				</div>
+			)
+		}
+	}
 
 	return (
 		<div className="flex flex-col items-center justify-center w-full h-full overflow-auto">
-			<div className={'grid grid-cols-1 w-full h-full gap-4 overflow-auto scrollbar-pill bg-dark border-dark-100 border'}>
+			<div
+				className={'grid grid-cols-1 w-full h-full gap-4 overflow-auto scrollbar-pill bg-dark border-dark-100 border'}>
 				<h1 className={'text-xl self-start ml-6'}>Achievements</h1>
 				<div className={'grid grid-cols-6 gap-4 w-full p-4'}>
 					<div className={'col-span-full grid grid-cols-6 font-bold text-lg border-b pb-2'}>
@@ -143,6 +214,7 @@ export default async function Page({}: {}) {
 					{achievements?.map(achievement => (
 						<div
 							key={achievement.id}
+							id={achievement.id}
 							className={'col-span-full grid grid-cols-6'}
 						>
 							<div className={'col-span-1'}>
@@ -165,12 +237,16 @@ export default async function Page({}: {}) {
 									{JSON.stringify(achievement.condition, null, 2)}
 								</div>
 							</div>
-							<div className={'col-span-1 flex gap-4 items-center'}>
-								<form action={deleteAchievement}>
+							<div className={'col-span-1 flex gap-2 items-center justify-center'}>
+								<form action={redirectToEdit}>
 									<input type={'hidden'} name={'id'} value={achievement.id}/>
-									<Button type="submit" className={'ml-3 bg-red-600 border border-red-500 text-white'}>
-										Delete
+									<Button size="sm" isIconOnly type="submit">
+										<FontAwesomeIcon icon={faPencil}/>
 									</Button>
+								</form>
+								<form action={deleteAchievement}>
+									<input  type={'hidden'} name={'id'} value={achievement.id}/>
+									<DeleteAchievementButton/>
 								</form>
 							</div>
 						</div>
@@ -179,30 +255,48 @@ export default async function Page({}: {}) {
 			</div>
 			<div className={'flex flex-col items-center justify-center w-full h-full gap-4 border-t border-gold'}>
 				<h1 className={'text-xl self-start ml-6'}>Create Achievement</h1>
-				<form className={'flex flex-col gap-4 w-full max-w-lg p-4 shadow-lg'} action={createAchievement}>
-					<Input label={'Name'}
-					       isRequired
-					       name={'name'}
-					/>
-					<Input label={'Description'}
-					       isRequired
-					       name={'description'}/>
-					<Input label={'Points'}
-					       isRequired
-					       type={'number'}
-					       name={'points'}/>
-					<Input label={'Category'}
-					       isRequired
-					       type={'text'}
-					       name={'category'}/>
-					<Input
-						accept={'image/*'}
-						type="file"
-						label={'Icon'}
-						name={'img'}/>
-					<Textarea label="Condition"
-					          name={'condition'}
-					          isRequired/>
+				<form className={'flex flex-col gap-4 w-full p-4'} action={createAchievement}>
+					<div
+						className={'flex gap-2 w-full'}>
+						<div
+							className={'w-full flex flex-col gap-2 max-w-sm'}>
+							<Input
+								value={achievement?.name}
+								label={'Name'}
+								isRequired
+								name={'name'}
+							/>
+							<Input
+								value={achievement?.description}
+								label={'Description'}
+								isRequired
+								name={'description'}/>
+							<Input
+								label={'Points'}
+								isRequired
+								type={'number'}
+								name={'points'}/>
+							<Input
+								value={achievement?.category}
+								label={'Category'}
+								isRequired
+								type={'text'}
+								name={'category'}/>
+							<Input
+								accept={'image/*'}
+								type="file"
+								label={'Icon'}
+								name={'img'}/>
+						</div>
+						<div
+							className={'w-full flex flex-col gap-2'}>
+							<ConditionEditor
+								code={achievement ? JSON.stringify(achievement?.condition ?? '', null, 2) : undefined}
+								name={'condition'}
+							/>
+
+						</div>
+					</div>
 					<div className={'flex gap-4 w-full justify-between'}>
 						<Button
 							className={'w-full bg-red-600 border border-red-500 text-white'}
@@ -212,10 +306,9 @@ export default async function Page({}: {}) {
 						</Button>
 						<Button
 							className={'w-full'}
-
 							type="submit"
 						>
-							Create
+							{achievement ? 'Update' : 'Create'}
 						</Button>
 					</div>
 				</form>

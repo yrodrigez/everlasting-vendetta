@@ -1,10 +1,10 @@
 export type Achievement = {
-	id: string,
+	id?: string,
 	created_at: string,
 	name: string,
 	description: string,
 	points: number,
-	condition: AchievementCondition[],
+	condition: AchievementCondition,
 	img: string,
 	earned_at?: string,
 	category: string
@@ -23,9 +23,23 @@ export type TableCondition = {
 	order?: QueryOrder
 }
 
+export type ReducerStep = {
+	boolOperator: QueryBoolOperator
+	field: string
+	type: 'unique' | 'sum' | 'count' | 'avg' | 'min' | 'max'
+	value: QueryValue
+	operator: QueryOperator
+}
+
+export type Reducer = {
+	column: string,
+	steps: ReducerStep[]
+}
+
 export type CountCondition = {
 	countNumber: number,
-	operator: QueryOperator
+	operator: QueryOperator,
+	reducer?: Reducer
 }
 
 export type AchievementCondition = {
@@ -33,6 +47,7 @@ export type AchievementCondition = {
 	select: string
 	conditions: TableCondition[]
 	count?: CountCondition
+	isTest?: boolean
 }
 
 export type MemberAchievement = {

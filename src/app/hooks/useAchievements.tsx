@@ -3,7 +3,7 @@ import {useQuery} from "@tanstack/react-query";
 import {
 	type Achievement,
 	type AchievementCondition,
-	type MemberAchievement,
+	type MemberAchievement, Reducer,
 	type TableCondition
 } from "@/app/types/Achievements";
 import {useEffect} from "react";
@@ -13,6 +13,8 @@ import useToast from "@utils/useToast";
 import mustache from "mustache";
 import Image from "next/image";
 import moment from "moment";
+import {applyReducer} from "@/app/lib/achievements";
+import {GUILD_NAME} from "@utils/constants";
 
 
 async function createQuery(supabase: SupabaseClient, table: string, conditions: TableCondition[], options: {
@@ -85,36 +87,51 @@ async function createQuery(supabase: SupabaseClient, table: string, conditions: 
 	return query
 }
 
+export const executeCondition = async (supabase: SupabaseClient, condition: AchievementCondition, selectedCharacter: Character) => {
+	const template = JSON.stringify(condition)
+	const parsedCondition = JSON.parse(mustache.render(template, {
+		...selectedCharacter,
+		now: () => new Date().toISOString(),
+		daysAgo: () => (text: string) => {
+			const days = parseInt(text, 10) || 0;
+			return new Date(
+				Date.now() - days * 24 * 60 * 60 * 1000
+			).toISOString();
+		},
+		hoursAgo: () => (text: string) => {
+			const hours = parseInt(text, 10) || 0;
+			return new Date(
+				Date.now() - hours * 60 * 60 * 1000
+			).toISOString();
+		}
+	})) as AchievementCondition
+
+	const table = parsedCondition.table
+	const select = parsedCondition.select
+	const {conditions} = parsedCondition
+
+	// @ts-ignore it creates a query based on the conditions
+	const {data, error} = await createQuery(supabase, table, conditions, {
+		select: select ?? '*',
+		operation: 'select'
+	})
+
+	const {count} = parsedCondition
+	const {reducer} = count ?? {}
+	if (reducer && data && Array.isArray(data)) {
+		return {data: applyReducer(data, reducer), error}
+	}
+
+	return {data, error}
+}
+
+
 async function canAchieve(supabase: SupabaseClient, achievement: Achievement, selectedCharacter: Character): Promise<boolean> {
 	try {
-		const template = JSON.stringify(achievement.condition)
-
-		const condition = JSON.parse(mustache.render(template, {
-			...selectedCharacter,
-			now: () => new Date().toISOString(),
-			daysAgo: () => (text: string) => {
-				const days = parseInt(text, 10) || 0;
-				return new Date(
-					Date.now() - days * 24 * 60 * 60 * 1000
-				).toISOString();
-			},
-			hoursAgo : () => (text: string) => {
-				const hours = parseInt(text, 10) || 0;
-				return new Date(
-					Date.now() - hours * 60 * 60 * 1000
-				).toISOString();
-			}
-		})) as AchievementCondition
-
-		const table = condition.table
-		const select = condition.select
-		const {conditions} = condition
-
-		// @ts-ignore it creates a query based on the conditions
-		const {data, error} = await createQuery(supabase, table, conditions, {
-			select: select ?? '*',
-			operation: 'select'
-		})
+		if(selectedCharacter.guild?.name !== GUILD_NAME) return false
+		const {condition} = achievement
+		if (condition.isTest && process.env.NODE_ENV !== 'development') return false // skip test conditions in production
+		const {data, error} = await executeCondition(supabase, condition, selectedCharacter)
 		if (error) {
 			console.error('Error fetching data:', error)
 			return false
