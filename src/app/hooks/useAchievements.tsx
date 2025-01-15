@@ -91,9 +91,9 @@ async function createQuery(supabase: SupabaseClient, table: string, conditions: 
 	return query
 }
 
-export const executeCondition = async (supabase: SupabaseClient, condition: AchievementCondition, selectedCharacter: Character) => {
+function personalize(condition: any, selectedCharacter: Character) {
 	const template = JSON.stringify(condition)
-	const parsedCondition = JSON.parse(mustache.render(template, {
+	return JSON.parse(mustache.render(template, {
 		...selectedCharacter,
 		now: () => new Date().toISOString(),
 		daysAgo: () => (text: string) => {
@@ -107,8 +107,36 @@ export const executeCondition = async (supabase: SupabaseClient, condition: Achi
 			return new Date(
 				Date.now() - hours * 60 * 60 * 1000
 			).toISOString();
+		},
+		minutesAgo: () => (text: string) => {
+			const minutes = parseInt(text, 10) || 0;
+			return new Date(
+				Date.now() - minutes * 60 * 1000
+			).toISOString();
+		},
+		secondsAgo: () => (text: string) => {
+			const seconds = parseInt(text, 10) || 0;
+			return new Date(
+				Date.now() - seconds * 1000
+			).toISOString();
+		},
+	}))
+}
+
+export const executeCondition = async (supabase: SupabaseClient, condition: AchievementCondition, selectedCharacter: Character) => {
+	if (condition.rpc) {
+		const {
+			data,
+			error
+		} = await supabase.rpc(`achievement_${condition.rpc}`, personalize(condition.rpcParams, selectedCharacter))
+		if (error) {
+			console.error('Error executing RPC:', error)
+			return {data: null, error}
 		}
-	})) as AchievementCondition
+		return {data: data[0], error}
+	}
+
+	const parsedCondition = personalize(condition, selectedCharacter) as AchievementCondition
 
 	const table = parsedCondition.table
 	const select = parsedCondition.select
@@ -134,7 +162,7 @@ export const executeCondition = async (supabase: SupabaseClient, condition: Achi
 		return {data: applyReducer(val, reducer), error}
 	}
 
-	return {data:val, error}
+	return {data: val, error}
 }
 
 
@@ -169,6 +197,8 @@ async function canAchieve(supabase: SupabaseClient, achievement: Achievement, se
 			}
 
 		}
+
+		if (condition?.rpc) return data?.achieved
 
 		return (data && data.length && data[0])
 	} catch (e) {

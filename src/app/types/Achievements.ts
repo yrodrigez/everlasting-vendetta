@@ -44,11 +44,13 @@ export type CountCondition = {
 }
 
 export type AchievementCondition = {
-	table: string
-	select: string
-	conditions: TableCondition[]
+	table?: string
+	select?: string
+	conditions?: TableCondition[]
 	count?: CountCondition
 	isTest?: boolean
+	rpc?: string
+	rpcParams?: any
 }
 
 export type MemberAchievement = {
