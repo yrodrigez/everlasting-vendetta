@@ -23,8 +23,8 @@ export function useMessageBox() {
             message: string | ReactNode,
             title?: string,
             type?: 'success' | 'error' | 'epic' | 'window'
-        }) => {
-            const {message, title, type = 'success'} = typeof data === 'string' ? {message: data} : data
+        } | Function) => {
+            const {message, title, type = 'success'} = typeof data === 'string' ? {message: data} : typeof data === 'function' ? data(close) : data
             reset()
             if (title) {
                 setModalTitle(title)
@@ -54,6 +54,7 @@ export function useMessageBox() {
                 setModalHideCloseButton(false)
                 setModalSize('4xl')
             }
+
             openModal()
         },
         yesNo: async ({message, title, yesText = 'Yes', noText = 'No', modYes = 'default', modNo = 'danger'}: {

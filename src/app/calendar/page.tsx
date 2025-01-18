@@ -68,7 +68,7 @@ export async function generateMetadata(): Promise<Metadata> {
                 'Join Everlasting Vendetta in our upcoming raids. Prepare for epic encounters and secure your place in the battle!',
             images: [
                 {
-                    url: new URL('/banner.png', metadataBase).toString(),
+                    url: new URL('/banner.webp', metadataBase).toString(),
                     width: 800,
                     height: 600,
                     alt: 'Everlasting Vendetta Raid',
@@ -80,7 +80,7 @@ export async function generateMetadata(): Promise<Metadata> {
             title: 'Upcoming Raids | Everlasting Vendetta',
             description:
                 'Get ready for the upcoming raids organized by Everlasting Vendetta. Don’t miss out on the action!',
-            images: new URL('/banner.png', metadataBase).toString(),
+            images: new URL('/banner.webp', metadataBase).toString(),
         },
     };
 }

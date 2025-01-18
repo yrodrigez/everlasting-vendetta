@@ -64,7 +64,7 @@ export async function generateMetadata(): Promise<Metadata> {
                 'Join Everlasting Vendetta in our upcoming raids. Prepare for epic encounters and secure your place in the battle!',
             images: [
                 {
-                    url: new URL('/banner.png', metadataBase).toString(),
+                    url: new URL('/banner.webp', metadataBase).toString(),
                     width: 800,
                     height: 600,
                     alt: 'Everlasting Vendetta Raid',
@@ -76,7 +76,7 @@ export async function generateMetadata(): Promise<Metadata> {
             title: 'Upcoming Raids | Everlasting Vendetta',
             description:
                 'Get ready for the upcoming raids organized by Everlasting Vendetta. Don’t miss out on the action!',
-            images: new URL('/banner.png', metadataBase).toString(),
+            images: new URL('/banner.webp', metadataBase).toString(),
         },
     };
 }
@@ -94,7 +94,7 @@ export default async function Home() {
                 </div>
                 <div className={
                     "absolute bottom-[51%] left-0 w-full top-0 bg-cover bg-center bg-no-repeat backdrop-filter backdrop-blur-md border-bottom-image"
-                } style={{backgroundImage: "url('/banner.png')"}}>
+                } style={{backgroundImage: "url('/banner.webp')"}}>
                     <div
                         className="flex flex-col items-center justify-center h-full w-full bg-black bg-opacity-50">
                         <div

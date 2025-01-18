@@ -10,7 +10,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 
-function AchievementInfo({achievement}: { achievement: Achievement }) {
+function AchievementInfo({achievement, onClose}: { achievement: Achievement, onClose: () => void }) {
 
 	const supabase = createBrowserClient(
 		process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -25,7 +25,7 @@ function AchievementInfo({achievement}: { achievement: Achievement }) {
 				error
 			} = await supabase.from('member_achievements').select('member:ev_member(character),*').eq('achievement_id', achievement.id)
 			.order('earned_at', {ascending: true}).returns<{
-				member: { character: { name: string, avatar: string, id: number} },
+				member: { character: { name: string, avatar: string, id: number } },
 				earned_at: string
 			}[]>()
 			if (error || !data) {
@@ -54,7 +54,7 @@ function AchievementInfo({achievement}: { achievement: Achievement }) {
 						<Link key={character.id}
 						      href={`/roster/${character.name}`}
 						      className="w-full h-full flex flex-col gap-4 items-center justify-center border border-wood-100 p-4 hover:border-gold hover:shadow-gold hover:cursor-pointer">
-							<div className="w-full h-full flex flex-col gap-2 items-center justify-center">
+							<div className="w-full h-full flex flex-col gap-2 items-center justify-center" onClick={()=> onClose()}>
 								<div
 									className="w-full h-full min-w-48 flex items-center justify-center gap-4">
 									<img
@@ -79,10 +79,10 @@ function AchievementInfo({achievement}: { achievement: Achievement }) {
 function AchievementWithAlert({achievement, isAchieved}: { achievement: Achievement, isAchieved: boolean }) {
 	const {alert} = useMessageBox()
 	const handleOnClick = useCallback(() => {
-		alert({
-			message: <AchievementInfo achievement={achievement}/>,
+		alert((onClose: any) => ({
+			message: <AchievementInfo achievement={achievement} onClose={onClose}/>,
 			type: 'window'
-		})
+		}))
 	}, [isAchieved, alert, achievement])
 
 	return <AchievementCard achievement={achievement} isAchieved={isAchieved} handleOnClick={handleOnClick}/>
@@ -103,7 +103,7 @@ function AchievementCard({achievement, isAchieved, handleOnClick}: {
 				alt={achievement.name}
 				width={128}
 				height={128}
-				className={`w-20 h-20 ${['bcc5e55a-e050-4194-8bcc-4b3d51314410','2de9686a-ca4e-4fd8-8346-fb4b6dd7489f'].indexOf(achievement.id ||'') !== -1? 'rounded-full':''} ${isAchieved ? '' : 'grayscale'} absolute -top-8 left-18`}
+				className={`w-20 h-20 ${['bcc5e55a-e050-4194-8bcc-4b3d51314410', '2de9686a-ca4e-4fd8-8346-fb4b6dd7489f'].indexOf(achievement.id || '') !== -1 ? 'rounded-full' : ''} ${isAchieved ? '' : 'grayscale'} absolute -top-8 left-18`}
 			/>
 			<div className="w-full mt-10">
 				<span className="text-gold font-bold text-lg ">{achievement.name}</span>
@@ -138,7 +138,7 @@ export default function ({achieved, notAchieved, achievedPoints}: {
 				if (b.earned_at === undefined) return -1
 				return new Date(b.earned_at).getTime() - new Date(a.earned_at).getTime()
 			})
-		})) ?? []).sort((a, b)=> {
+		})) ?? []).sort((a, b) => {
 			return a.category.localeCompare(b.category)
 		}) as {
 			category: string,

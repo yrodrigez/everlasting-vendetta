@@ -33,7 +33,7 @@ export const ModalContext = React.createContext({
 })
 
 export function ModalProvider({children}: { children: ReactNode }) {
-    const {isOpen, onOpen, onClose, onOpenChange} = useDisclosure()
+    const {isOpen, onOpen, onClose, onOpenChange, } = useDisclosure()
     const [header, setHeader] = React.useState<ReactNode | null>(null)
     const [body, setBody] = React.useState<ReactNode | null>(null)
     const [footer, setFooter] = React.useState<ReactNode | null>(null)
