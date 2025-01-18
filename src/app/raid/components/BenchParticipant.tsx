@@ -29,7 +29,7 @@ export default function BenchParticipant({supabase, resetId, memberId, currentSt
         isDisabled={isPending || !supabase}
         size="sm"
         isLoading={isPending}
-        className={`${currentStatus !== RAID_STATUS.BENCH ? 'bg-red-800 border-red-600' : 'bg-green-600'} text-white rounded`}>
+        className={`${currentStatus !== RAID_STATUS.BENCH ? 'bg-orange-600 border-orange-600' : 'bg-green-600'} text-white rounded`}>
         {currentStatus === RAID_STATUS.BENCH ? <FontAwesomeIcon icon={faUser}/> : <FontAwesomeIcon icon={faChair}/>}
     </Button>
 }
