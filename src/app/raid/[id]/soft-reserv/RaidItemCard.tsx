@@ -23,7 +23,7 @@ export const ItemTooltip = ({item, qualityColor}: {
 
     return <div
         className={`flex gap-2 relative`}>
-        <Image src={item.description.icon} alt={item.name} width={40} height={40}
+        <img src={item.description.icon} alt={item.name} width={40} height={40}
                className={`max-h-[40px] max-w-[40px] w-[40px] h-[40px] border border-${qualityColor} rounded absolute top-0 -left-10 ${item.isHardReserved ? 'grayscale' :''}`}/>
         <div
             className={`bg-black border border-${qualityColor} rounded max-w-64 p-2 select-none`}
@@ -43,7 +43,7 @@ const ReservedByList = ({reservedBy}: { reservedBy: Character[] }) => {
                     href={`/roster/${encodeURIComponent(character.name.toLowerCase())}`}
                     target={'_blank'}
                     className="flex justify-between items-center gap-2 p-2 min-w-56">
-                    <Image
+                    <img
                         key={character.id}
                         src={character.avatar ?? '/avatar-anon.png'}
                         alt={character.name}
@@ -214,7 +214,7 @@ export function RaidItemCard({
                 }}
                 className={`flex justify-center p-2 mt-4 rounded-md w-40 lg:w-32 h-24 bg-gradient-to-b border-2 border-${item.isHardReserved ? 'poor': qualityColor} transition-all cursor-pointer bg-gradient-${item.isHardReserved ? 'poor': qualityColor}`}>
                 <div className="relative flex flex-col gap-2 items-center justify-center pt-6">
-                    <Image src={item.description.icon} alt={item.name}
+                    <img src={item.description.icon} alt={item.name}
                            width={46} height={46}
                            className={`absolute -top-5 rounded-md border border-${qualityColor} min-w-10 max-w-10 min-h-10 max-h-10 ${item.isHardReserved ? 'grayscale' :''}`}
                     />

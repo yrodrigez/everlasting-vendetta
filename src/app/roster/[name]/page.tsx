@@ -296,7 +296,7 @@ export default async function Page({params}: { params: Promise<{ name: string }>
 							<GearScore character={characterName} isGuildMember={isGuildMember}/>
 						</div>
 					</div>
-					<Image
+					<img
 						width={56}
 						height={56}
 						className={'rounded-full'}

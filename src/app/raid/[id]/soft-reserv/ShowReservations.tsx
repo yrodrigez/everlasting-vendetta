@@ -78,7 +78,7 @@ const ReservationByItem = ({item}: { item: { item: RaidItem, reservations: Chara
                     </div>
                 }
             >
-                <Image
+                <img
                     src={item.item.description.icon}
                     alt={item.item.name}
                     width={40}
@@ -99,7 +99,7 @@ const ReservationByItem = ({item}: { item: { item: RaidItem, reservations: Chara
                                 href={`/roster/${encodeURIComponent(character.name.toLowerCase())}`}
                                 target={'_blank'}
                             >
-                                <Image
+                                <img
                                     src={character.avatar ?? '/avatar-anon.png'}
                                     alt={character.name}
                                     width={40}
@@ -166,7 +166,7 @@ const ReservationByCharacter = ({item, isAdmin}: {
                 <Link
                     className={'flex gap-2 items-center'}
                     href={`/roster/${encodeURIComponent(item.character.name.toLowerCase())}`} target={'_blank'}>
-                    <Image
+                    <img
                         src={item.character.avatar ?? '/avatar-anon.png'}
                         alt={item.character.name}
                         width={40}
@@ -202,7 +202,7 @@ const ReservationByCharacter = ({item, isAdmin}: {
                             }
                         >
                             <div className={"relative group flex"}>
-                                <Image
+                                <img
                                     src={item.description.icon}
                                     alt={item.name}
                                     width={40}

@@ -30,7 +30,7 @@ export function ReservedItem({reservation, belongsToLogged, remove, reservations
                 className="bg-transparent border-none shadow-none"
                 content={(
                     <div className={`flex gap-2 p-2`}>
-                        <Image
+                        <img
                             className={`rounded-lg border border-${qualityColor} block bg-cover max-h-10 max-w-10 min-h-10 min-w-10 `}
                             src={item.icon} width={36} height={36} alt={item.name}
                         />
@@ -41,7 +41,7 @@ export function ReservedItem({reservation, belongsToLogged, remove, reservations
                     </div>
                 )}>
                 <div className="relative group">
-                    <Image
+                    <img
                         className={`border-${qualityColor} border rounded-md`}
                         src={icon} alt={name} width={36} height={36}/>
                     {belongsToLogged && reservationsOpen && remove && (

@@ -53,7 +53,7 @@ export const ItemWithTooltip = ({item}: { item: Item }) => {
                 <ModalContent>
                     {() =>
                         <div className={`flex gap-2 p-2`}>
-                            <Image
+                            <img
                                 className={`rounded-lg border border-${qualityColor} block bg-cover max-h-10 max-w-10 min-h-10 min-w-10 `}
                                 src={item.icon} width={36} height={36} alt={item.name}
                             />
@@ -96,7 +96,7 @@ const CharacterAvatar = ({characterName}: { characterName: string }) => {
                     `flex flex-col items-center gap-2 p-2`
                 }
             >
-                <Image className={`rounded-lg border border-gold`} src={'/disenchant.jpg'}
+                <img className={`rounded-lg border border-gold`} src={'/disenchant.jpg'}
                        alt={'Disenchanted'} width={64} height={64}/>
                 <div className={`whitespace-pre p-1`}>Disenchanted</div>
             </div>
@@ -110,7 +110,7 @@ const CharacterAvatar = ({characterName}: { characterName: string }) => {
             {error ? <span>Error!</span> : (
                 <Skeleton isLoaded={!isLoading}
                           className="w-16 h-16 rounded-full border border-gold bg-cover flex items-center justify-center">
-                    <Image
+                    <img
                         className={`rounded-full border border-gold block bg-cover relative`}
                         src={(characterName === 'unknown' || !characterName || !characterAvatar) ? '/avatar-anon.png' : characterAvatar}
                         width={64}

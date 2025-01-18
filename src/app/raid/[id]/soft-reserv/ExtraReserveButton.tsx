@@ -157,7 +157,7 @@ export function ExtraReserveButton({resetId}: { resetId: string }) {
                                              className="grid grid-cols-3 gap-2 p-2 text-center"
                                         >
                                             <div className="flex gap-2">
-                                                <Image src={participation.member.character.avatar}
+                                                <img src={participation.member.character.avatar}
                                                        alt={participation.member.character.name} width={32} height={24}
                                                        className="rounded-lg border border-gold"/>
                                                 <Link

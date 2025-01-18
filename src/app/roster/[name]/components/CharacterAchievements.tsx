@@ -7,6 +7,7 @@ import {useMessageBox} from "@utils/msgBox";
 import {createBrowserClient} from "@supabase/ssr"
 import {useQuery} from "@tanstack/react-query";
 import Link from "next/link";
+import Image from "next/image";
 
 
 function AchievementInfo({achievement}: { achievement: Achievement }) {
@@ -97,10 +98,12 @@ function AchievementCard({achievement, isAchieved, handleOnClick}: {
 		<div
 			onClick={handleOnClick}
 			className={`bg-wood border border-wood-100 p-4 min-w-48 min-h-64 max-w-48 max-h-64 rounded-xl ${isAchieved ? 'shadow shadow-gold border-gold' : ''} flex flex-col items-center justify-center relative mt-6 ${handleOnClick ? 'cursor-pointer' : ''}`}>
-			<img
+			<Image
 				src={achievement.img}
 				alt={achievement.name}
-				className={`w-20 h-20 rounded-full ${isAchieved ? '' : 'grayscale'} absolute -top-8 left-18`}
+				width={128}
+				height={128}
+				className={`w-20 h-20 ${['bcc5e55a-e050-4194-8bcc-4b3d51314410','2de9686a-ca4e-4fd8-8346-fb4b6dd7489f'].indexOf(achievement.id ||'') !== -1? 'rounded-full':''} ${isAchieved ? '' : 'grayscale'} absolute -top-8 left-18`}
 			/>
 			<div className="w-full mt-10">
 				<span className="text-gold font-bold text-lg ">{achievement.name}</span>
