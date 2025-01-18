@@ -142,7 +142,7 @@ export function RaidResetCard({
 						>
 							<FontAwesomeIcon icon={faPowerOff}/>
 						</Button>
-						<Button
+						{status === 'offline' ? null: (<Button
 							isIconOnly
 							className={`bg-wood border border-wood-100 text-stone-100`}
 							onPress={() => {
@@ -150,7 +150,7 @@ export function RaidResetCard({
 							}}
 						>
 							<FontAwesomeIcon icon={faEdit}/>
-						</Button>
+						</Button>)}
 					</div>
 				)}
 			</div>
