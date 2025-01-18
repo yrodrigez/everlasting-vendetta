@@ -12,6 +12,7 @@ import DeleteAchievementButton from "@/app/achievements-admin/DeleteAchievementB
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPencil} from "@fortawesome/free-solid-svg-icons";
 import {SupabaseClient} from "@supabase/supabase-js";
+import {TestDisplayAchievement} from "@/app/achievements-admin/TestDisplayachievement";
 
 const ALLOWED_ROLES = [ROLE.ADMIN]
 export const dynamic = 'force-dynamic';
@@ -244,6 +245,7 @@ export default async function Page({searchParams}: {
 										<FontAwesomeIcon icon={faPencil}/>
 									</Button>
 								</form>
+								<TestDisplayAchievement achievement={achievement}/>
 								<form action={deleteAchievement}>
 									<input  type={'hidden'} name={'id'} value={achievement.id}/>
 									<DeleteAchievementButton/>

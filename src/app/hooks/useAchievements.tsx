@@ -15,6 +15,34 @@ import Image from "next/image";
 import moment from "moment";
 import {applyReducer} from "@/app/lib/achievements";
 import {GUILD_NAME} from "@utils/constants";
+import {toast} from "sonner";
+
+export function displayAchievement(achievement: Achievement) {
+
+
+	if (!achievement) return
+	toast.custom(() => (
+		<div className="flex items-center gap-4 w-[600px] h-[180px] justify-between rounded-xl bg-wood border border-wood-100 p-8 glow-animation">
+			<div className="flex gap-4 items-center w-full h-full">
+				<Image src={achievement.img} alt={achievement.name} width={192} height={192}
+				       className="rounded-full min-w-16 min-h-16 shadow-gold shadow-lg"
+				/>
+				<div className="flex flex-col gap-1 text-default p-3 bg-dark border border-dark-100 shadow rounded-xl">
+					<h4 className="font-bold text-large text-gold">{achievement.name}</h4>
+					<p>{achievement.description}</p>
+				</div>
+			</div>
+			<div className="flex flex-col items-center justify-center bg-ocean border border-moss-100 rounded-xl w-20 text-xs h-full gap-1 text-gold p-2 h-full shadow shadow-xl">
+				<span className="text-3xl font-bold">{achievement.points}</span>
+				<span>Points</span>
+				<span>{moment(achievement.created_at).format('YY-MM-DD')}</span>
+			</div>
+		</div>
+	), {
+		duration: 15000,
+		position: 'bottom-center',
+	})
+}
 
 
 async function createQuery(supabase: SupabaseClient, table: string, conditions: TableCondition[], options: {
@@ -209,7 +237,6 @@ async function canAchieve(supabase: SupabaseClient, achievement: Achievement, se
 
 export default function useAchievements() {
 	const {supabase, selectedCharacter, session} = useSession()
-	const {epic} = useToast()
 
 	const {data: achievements, error, isLoading: loadingAchievements} = useQuery({
 		queryKey: ['achievements', selectedCharacter?.id],
@@ -281,35 +308,7 @@ export default function useAchievements() {
 			}))
 			earnedAchievements.forEach(achievement => {
 				if (!achievement) return
-				epic({
-					message: (
-						<div>
-							<h3 className="text-gold text-xl font-bold">Achievement Earned!</h3>
-							<div className="flex items-center gap-4 w-96 h-32 justify-between">
-								<div className="flex gap-4 items-center w-full h-full">
-									<Image src={achievement.img} alt={achievement.name} width={64} height={64}
-									       className="rounded-full border border-gold min-w-16 min-h-16"
-									/>
-									<div
-										className="flex flex-col gap-1"
-									>
-										<h4 className="font-bold text-large text-gold">{achievement.name}</h4>
-										<p>{achievement.description}</p>
-									</div>
-								</div>
-								<div
-									className="flex flex-col items-center justify-center bg-dark border border-gold rounded-xl w-16 text-xs h-full gap-1 text-gold">
-									<span>{achievement.points}</span>
-									<span>Points</span>
-									<span>{moment(achievement.created_at).format('YY-MM-DD')}</span>
-								</div>
-							</div>
-						</div>
-					),
-					duration: 15000,
-					position: 'bottom-center',
-				})
-
+				displayAchievement(achievement)
 				if (isPlaying) return
 				audio.play().then().catch(console.warn)
 				isPlaying = true

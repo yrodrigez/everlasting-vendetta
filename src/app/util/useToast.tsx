@@ -41,7 +41,6 @@ export default function useToast() {
             defaultDuration
         )
 
-
         toast.custom(
             () => (
                 <ToastContainer
@@ -52,6 +51,7 @@ export default function useToast() {
                 position,
                 duration,
                 icon: icon || null,
+                dismissible: true,
             }
         )
     }
