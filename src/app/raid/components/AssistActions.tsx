@@ -253,7 +253,8 @@ export default function AssistActions({
                                           participants,
                                           hasLootReservations = false,
                                           endTime,
-                                          days = [WEEK_DAYS.WEDNESDAY, WEEK_DAYS.SATURDAY]
+                                          days = [WEEK_DAYS.WEDNESDAY, WEEK_DAYS.SATURDAY],
+    status
                                       }: {
     raidId: string,
     minLvl: number,
@@ -262,6 +263,7 @@ export default function AssistActions({
     hasLootReservations?: boolean
     days?: string[]
     endTime: string
+    status?: 'online' | 'offline'
 }) {
     const {selectedCharacter, session, loading: isSessionLoading} = useSession()
     const selectedRole = selectedCharacter?.selectedRole
@@ -277,6 +279,9 @@ export default function AssistActions({
         }, 2300)
     }, [selectedCharacter]);
 
+    if(status === 'offline') {
+        return <div className="text-red-500">Raid is Cancelled!</div>
+    }
 
     if (moment.tz('Europe/Madrid').isAfter(moment(`${endDate} ${endTime === '00:00:00' ? '23:59:59' : endTime}`, 'YYYY-MM-DD HH:mm:ss').tz('Europe/Madrid'))) {
         return <div className="text-red-500 flex items-center min-h-7"></div>

@@ -5,10 +5,18 @@ import {useRouter} from "next/navigation";
 import {KpisView} from "@/app/raid/components/KpisView";
 import {useParticipants} from "@/app/raid/components/useParticipants";
 import moment from "moment";
-import {faCircleCheck, faCircleQuestion, faCircleXmark, faClock, faEdit} from "@fortawesome/free-solid-svg-icons";
+import {
+	faCircleCheck,
+	faCircleQuestion,
+	faCircleXmark,
+	faClock,
+	faEdit,
+	faPowerOff
+} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {Button} from "@/app/components/Button";
 import {useCallback} from "react";
+import {useSession} from "@hooks/useSession";
 
 export function RaidResetCard({
 	                              raidDate,
@@ -22,7 +30,8 @@ export function RaidResetCard({
 	                              modifiedBy,
 	                              lastModified,
 	                              endTime,
-	                              registrationStatus
+	                              registrationStatus,
+	                              status
                               }: {
 	id?: string,
 	raidDate: string,
@@ -36,12 +45,14 @@ export function RaidResetCard({
 	lastModified?: string
 	endTime: string
 	registrationStatus?: string
+	status?: 'online' | 'offline'
 }) {
 	const router = useRouter()
 	const participants = id ? useParticipants(id, raidRegistrations) : []
 	const isRaidCurrent = moment().isBetween(moment(raidDate), moment(raidEndDate))
 	const isToday = moment().format('YYYY-MM-DD') === moment(raidDate).format('YYYY-MM-DD')
 	const isRaidPast = moment().isAfter(moment(`${raidEndDate}T${endTime}`))
+	const {supabase} = useSession()
 
 	const registrationStatusIcon = useCallback((registrationStatus: string) => {
 		if (registrationStatus === 'confirmed') {
@@ -60,26 +71,33 @@ export function RaidResetCard({
 			return <FontAwesomeIcon icon={faClock} className="text-warning"/>
 		}
 
-
 		return null
 	}, [registrationStatus])
+
+	const toggleStatus = useCallback(() => {
+		supabase?.from('raid_resets').update({status: status === 'online' ? 'offline' : 'online'}).eq('id', id).then(() => {
+			router.refresh()
+		})
+	}, [status, id, isEditable, supabase])
 
 	return (
 		<div
 			className={`w-[300px] relative text-default min-h-64 flex flex-col p-3 rounded-xl backdrop-blur backdrop-opacity-90 justify-between ${
 				(isToday || isRaidCurrent) ? 'border-2 border-gold shadow-2xl shadow-gold glow-animation ' : 'border-1 border-wood-100'
 			}`}>
-			<div style={{
-				backgroundSize: 'cover',
-				backgroundPosition: 'center',
-				backgroundRepeat: 'no-repeat',
-				backgroundImage: `url('${raidImage}')`,
-			}}
-			     className="w-full h-full rounded-xl absolute top-0 left-0 -z-10">
+			<div
+
+				style={{
+					backgroundSize: 'cover',
+					backgroundPosition: 'center',
+					backgroundRepeat: 'no-repeat',
+					backgroundImage: `url('${raidImage}')`,
+				}}
+				className={`w-full h-full rounded-xl absolute top-0 left-0 -z-10 ${isRaidPast || status === 'offline' ? 'grayscale' : ''}`}>
 				<div className="w-full h-full bg-[rgba(0,0,0,.6)] rounded-xl"/>
 			</div>
 			<div className="flex flex-col  shadow-xl ">
-				<h4 className="font-bold text-large text-gold">{raidName}</h4>
+				<h4 className="font-bold text-large text-gold">{raidName}{status === 'offline' ? ' (Cancelled)' : ''}</h4>
 				<small
 					className="text-primary">{moment(raidDate).format('dddd, MMMM D')} - {raidTime.substring(0, 5)} to {endTime?.substring(0, 5)}</small>
 			</div>
@@ -111,15 +129,29 @@ export function RaidResetCard({
                   Open
                 </Button>}
 				{isEditable && (
-					<Button
-						isIconOnly
-						className={`bg-wood border border-wood-100 text-stone-100`}
-						onPress={() => {
-							router.push(`/calendar/${id}/edit`)
-						}}
+					<div
+						className="flex gap-0.5"
 					>
-						<FontAwesomeIcon icon={faEdit}/>
-					</Button>
+						<Button
+							isIconOnly
+							color={status === 'offline' ? 'success' : 'danger'}
+							className={`rounded`}
+							onPress={() => {
+								toggleStatus()
+							}}
+						>
+							<FontAwesomeIcon icon={faPowerOff}/>
+						</Button>
+						<Button
+							isIconOnly
+							className={`bg-wood border border-wood-100 text-stone-100`}
+							onPress={() => {
+								router.push(`/calendar/${id}/edit`)
+							}}
+						>
+							<FontAwesomeIcon icon={faEdit}/>
+						</Button>
+					</div>
 				)}
 			</div>
 

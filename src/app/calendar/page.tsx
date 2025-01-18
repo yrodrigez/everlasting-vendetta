@@ -24,7 +24,7 @@ async function fetchMaxRaidResets(supabase: SupabaseClient, date: string | undef
     isNext: boolean
 }) {
     const raidResets = await supabase.from('raid_resets')
-        .select('raid_date, id, raid:ev_raid(name, min_level, image), time, end_date, modifiedBy:ev_member!modified_by(character), modified_at, end_time')[
+        .select('raid_date, id, raid:ev_raid(name, min_level, image), time, end_date, modifiedBy:ev_member!modified_by(character), modified_at, end_time, status')[
         options.isCurrent && !options.isPrevious && !options.isNext ? 'gte' :
             options.isPrevious ? 'lt' : 'gt'
         ](options.isPrevious ? 'raid_date' : 'end_date', moment(date).format('YYYY-MM-DD'))
@@ -40,6 +40,7 @@ async function fetchMaxRaidResets(supabase: SupabaseClient, date: string | undef
             modifiedBy: { character: { name: string } }
             modified_at: string
             end_time: string
+            status?: 'online' | 'offline'
         }[]>();
 
 
@@ -154,6 +155,7 @@ export default async function Page({searchParams}: { searchParams: Promise<{ d?:
                     lastModified={raidReset.modified_at}
                     endTime={raidReset.end_time}
                     registrationStatus={raidReset.registrationStatus}
+                    status={raidReset.status}
                 />
             })}
         </div>
