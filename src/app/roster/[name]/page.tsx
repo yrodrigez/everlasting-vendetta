@@ -261,7 +261,7 @@ export default async function Page({params}: { params: Promise<{ name: string }>
 			<Head>
 				<title>{characterInfo.name} - {characterInfo.guild?.name ?? 'No Guild'}</title>
 			</Head>
-			<div className="relative w-full h-full">
+			<div className="relative w-full h-full flex flex-col">
 				<div className="mx-auto max-w-6xl px-4 flex justify-evenly items-center block h-36">
 					<div className="flex items-center gap-4 mb-4 ">
 						<div className="w-20 h-20 rounded-full overflow-hidden min-w-20">
@@ -303,11 +303,12 @@ export default async function Page({params}: { params: Promise<{ name: string }>
 						alt={characterInfo.character_class?.name}
 						src={getPlayerClassById(characterInfo.character_class?.id).icon}/>
 				</div>
-				<div className="lg:h-36">
+				<div className="lg:h-36 hidden lg:flex lg:flex-col">
 					<StatisticsView statistics={characterStatistics}/>
 				</div>
 				<CharacterViewOptions
-					containerClassName={'p-8 mb-6'}
+					containerClassName={'w-full mt-4 '}
+					innerContainerClassName={'w-full'}
 					items={[
 						{
 							label: 'Gear', name: 'gear', children: <CharacterGear

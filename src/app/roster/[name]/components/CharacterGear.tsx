@@ -7,7 +7,7 @@ export function CharacterGear({gear, token }: {
 }) {
     const {group1, group2, group3} = gear
     return (
-        <div className="w-full flex flex-col items-center">
+        <div className="w-full flex flex-col items-center h-full p-8 overflow-auto scrollbar-pill">
             <div className="w-full flex justify-between items-center">
                 <div className="flex flex-1 gap-4 flex-col">
                     {group1.map((item: any, index: number) => {

@@ -84,6 +84,7 @@ export function ModalProvider({children}: { children: ReactNode }) {
                     isDismissable={isDismissable}
                     size={size}
                     placement={placement}
+                    scrollBehavior="inside"
                 >
                     <ModalContent>
                         {() => (

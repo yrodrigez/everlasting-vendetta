@@ -38,12 +38,12 @@ function AchievementInfo({achievement, onClose}: { achievement: Achievement, onC
 	})
 	return (
 		<div
-			className="flex w-full h-full flex-col lg:flex-row items-center justify-center lg:justfy-evenly gap-4 overflow-auto scrollbar-pill py-8">
+			className="flex w-full h-full flex-col lg:flex-row items-center lg:justfy-evenly gap-4 overflow-auto scrollbar-pill py-8">
 			<div
 				className="w-full h-full bg-dark rounded-xl border border-dark-100 p-6 flex items-center justify-center">
 				<AchievementCard achievement={achievement} isAchieved={true}/>
 			</div>
-			<div className="w-full h-full flex flex-col gap-4 items-center justify-center">
+			<div className="w-full h-full flex flex-col gap-4 items-center justify-center overflow-auto">
 				<h2 className="text-gold text-2xl font-bold">Earners</h2>
 				<ScrollShadow
 					className="w-full h-full flex flex-col gap-4 overflow-auto scrollbar-pill max-h-[600px] p-2">
