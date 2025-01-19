@@ -14,5 +14,15 @@ export function Button({children, ...props}: { children?: ReactNode } & ButtonPr
 		props.className = defaultClassNames
 	}
 
+	if(props.color === 'danger') {
+		props.className = `${defaultClassNames} bg-red-700 text-white border border-red-600 ${props.className? props.className : ''}`
+		props.color = undefined
+	}
+
+	if(props.color === 'success') {
+		props.className = `${defaultClassNames} bg-green-800 text-white border border-green-700 ${props.className? props.className : ''}`
+		props.color = undefined
+	}
+
 	return <MuiButton {...props}>{children}</MuiButton>;
 }
