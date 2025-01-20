@@ -5,6 +5,7 @@ create or replace function achievement_raid_secrets_of_dead(character_name text)
                 progress numeric
             )
     language plpgsql
+    set search_path to 'public'
 as
 $$
 BEGIN

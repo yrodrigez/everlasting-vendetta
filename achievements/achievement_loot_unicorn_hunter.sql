@@ -1,6 +1,7 @@
 create or replace function achievement_reserve_unicorn_hunter(character_name text)
     returns TABLE(achieved boolean, progress numeric)
     language plpgsql
+    set search_path to 'public'
 as
 $$
 BEGIN

@@ -5,6 +5,7 @@ create or replace function achievement_raid_jungle_trailblazer(character_name te
                 progress numeric
             )
     language plpgsql
+    set search_path to 'public'
 as
 $$
 BEGIN

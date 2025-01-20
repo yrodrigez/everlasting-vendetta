@@ -5,6 +5,7 @@ create or replace function achievement_raid_breaker_of_wings(character_name text
                 progress numeric
             )
     language plpgsql
+    set search_path to 'public'
 as
 $$
 BEGIN
