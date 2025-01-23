@@ -13,6 +13,7 @@ import {type SupabaseClient} from "@supabase/supabase-js";
 import createServerSession from "@/app/util/supabase/createServerSession";
 import {fetchResetParticipants} from "@/app/raid/api/fetchParticipants";
 import Refresher from "@/app/calendar/components/Refresher";
+import {CalendarSkeleton} from "@/app/calendar/CalendarSkeleton";
 
 export const dynamic = 'force-dynamic'
 

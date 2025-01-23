@@ -13,19 +13,19 @@ function Providers({children}: { children: ReactNode }) {
 	const queryClient = new QueryClient()
 
 	return (
-		<NextUIProvider style={{height: "100%"}}>
-			<QueryClientProvider client={queryClient}>
-				<NextThemesProvider attribute="class" defaultTheme="light">
-					<ApplicantsContext>
-						<ModalProvider>
-							<AchievementsProvider>
+		<QueryClientProvider client={queryClient}>
+			<ApplicantsContext>
+				<ModalProvider>
+					<AchievementsProvider>
+						<NextThemesProvider attribute="class" defaultTheme="light">
+							<NextUIProvider style={{height: "100%"}}>
 								{children}
-							</AchievementsProvider>
-						</ModalProvider>
-					</ApplicantsContext>
-				</NextThemesProvider>
-			</QueryClientProvider>
-		</NextUIProvider>
+							</NextUIProvider>
+						</NextThemesProvider>
+					</AchievementsProvider>
+				</ModalProvider>
+			</ApplicantsContext>
+		</QueryClientProvider>
 	);
 }
 

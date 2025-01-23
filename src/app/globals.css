@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+
+
 .custom-h-full-minus-header {
     @apply w-full;
     height: calc(100% - 80px);
@@ -33,6 +35,14 @@
     --druid-rgb: 255, 125, 10;
     --dark: 3, 17, 17;
     --ligth-dark: 3, 17, 17;
+}
+
+.before\:bg-gradient-to-r::before {
+    background: linear-gradient(to right,
+            rgba(36, 32, 29, 0),
+            rgba(36, 32, 29, 1),
+            rgba(36, 32, 29, 0)
+    ) !important;
 }
 
 th:first-child>div.absolute {

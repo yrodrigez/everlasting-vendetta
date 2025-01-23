@@ -45,7 +45,7 @@ export function KpisView({participants, raidId, raidInProgress}: {
 			const toAdd = (+(participant?.is_confirmed && !!findRoleAndDay(participant, role, day))) * (hasOs ? 0.5 : 1)
 			return {
 				count: count + toAdd,
-				osCount: hasOs ? osCount+1 : osCount
+				osCount: hasOs ? osCount + 1 : osCount
 			}
 		}, {count: 0, osCount: 0})
 	}
@@ -85,43 +85,38 @@ export function KpisView({participants, raidId, raidInProgress}: {
 		<div className="flex flex-col gap-1 text-sm">
 			<div className="flex flex-col">
 				<div className="flex gap-3 transition-all duration-300 py-1 rounded-full w-fit">
-					<Tooltip content="Confirmed">
-			            <span className="text-success">
-			              <FontAwesomeIcon icon={faCircleCheck}/> {confirmed}
-			            </span>
-					</Tooltip>
-					<Tooltip content="Late">
-			            <span className="text-warning">
-			              <FontAwesomeIcon icon={faClock}/> {late}
-			            </span>
-					</Tooltip>
-					<Tooltip content="Tentative">
-			            <span className="text-relic">
-			              <FontAwesomeIcon icon={faCircleQuestion}/> {tentative}
-			            </span>
-					</Tooltip>
-					<Tooltip content="Declined">
-			            <span className="text-danger">
-			              <FontAwesomeIcon icon={faCircleXmark}/> {declined}
-			            </span>
-					</Tooltip>
+					<span className="text-success">
+						<FontAwesomeIcon icon={faCircleCheck}/> {confirmed}
+			        </span>
+					<span className="text-warning">
+			            <FontAwesomeIcon icon={faClock}/> {late}
+					</span>
+					<span className="text-relic">
+						<FontAwesomeIcon icon={faCircleQuestion}/> {tentative}
+					</span>
+					<span className="text-danger">
+						<FontAwesomeIcon icon={faCircleXmark}/> {declined}
+					</span>
 				</div>
 			</div>
 			<div className="grid grid-cols-1 gap-1 w-24">
 				<div className="flex items-center justify-center">
 					<FontAwesomeIcon icon={faShield} className="mr-1"/>
 					<span className="w-5 flex justify-end">{totalTank}</span>
-					{osTank>0 ? <span className="w-14 text-xs text-gray-500 ml-1">(OS: {osTank})</span> : <div className="w-14 ml-1"/>}
+					{osTank > 0 ? <span className="w-14 text-xs text-gray-500 ml-1">(OS: {osTank})</span> :
+						<div className="w-14 ml-1"/>}
 				</div>
 				<div className="flex items-center justify-center">
 					<FontAwesomeIcon icon={faHeart} className="mr-1"/>
 					<span className="w-5 flex justify-end">{totalHealer}</span>
-					{osHealer>0 ? <span className="w-14 text-xs text-gray-500 ml-1">(OS: {osHealer})</span> : <div className="w-14 ml-1"/>}
+					{osHealer > 0 ? <span className="w-14 text-xs text-gray-500 ml-1">(OS: {osHealer})</span> :
+						<div className="w-14 ml-1"/>}
 				</div>
 				<div className="flex items-center justify-center">
 					<DpsIcon className="w-4 h-4 mr-1"/>
 					<span className="w-5 flex justify-end">{totalDps}</span>
-					{osDps>0 ? <span className="w-14 text-xs text-gray-500 ml-1">(OS: {osDps})</span> : <div className="w-14 ml-1"/>}
+					{osDps > 0 ? <span className="w-14 text-xs text-gray-500 ml-1">(OS: {osDps})</span> :
+						<div className="w-14 ml-1"/>}
 				</div>
 			</div>
 		</div>
