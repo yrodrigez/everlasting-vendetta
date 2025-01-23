@@ -48,7 +48,7 @@ export function RaidCard() {
 						value={(startDate && endDate) ? {
 							start: new InterCalendar(startDate.getFullYear(), startDate.getMonth() + 1, startDate.getDate()),
 							end: new InterCalendar(endDate.getFullYear(), endDate.getMonth() + 1, endDate.getDate())
-						} : undefined}
+						} : null}
 					/>
 				</Tooltip>
 			</div>
