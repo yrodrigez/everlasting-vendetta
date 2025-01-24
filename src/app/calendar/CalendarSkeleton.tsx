@@ -12,7 +12,7 @@ const MAX_RAID_RESETS = 9
 export function RaidCardSkeleton() {
 	return (
 		<div
-			className="w-[300px] relative text-default bg-[#24201d] min-h-561 flex flex-col gap-4 border border-wood-100 h-[235px] rounded-xl backdrop-blur p-3">
+			className="w-[300px] relative text-default bg-[#24201d] min-h-561 flex flex-col gap-4 border border-wood-100 h-[256px] rounded-md backdrop-blur p-3 justify-between">
 			<div className="flex flex-col items-center justify-center gap-2">
 				<Skeleton className="rounded-lg h-4 w-48 bg-wood border border-wood-100"/>
 				<Skeleton className="rounded-lg h-3 w-64 bg-wood border border-wood-100"/>
@@ -31,7 +31,7 @@ export function RaidCardSkeleton() {
 					<Skeleton className="rounded-lg w-3 h-3 bg-wood border border-wood-100"/>
 				</div>
 			</div>
-			<div className=" px-6">
+			<div className=" px-6 ">
 				<Skeleton
 					classNames={{
 						content:'from-wood ',

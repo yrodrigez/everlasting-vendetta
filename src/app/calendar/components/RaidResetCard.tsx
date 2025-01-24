@@ -15,7 +15,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {Button} from "@/app/components/Button";
-import {useCallback} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {useSession} from "@hooks/useSession";
 
 export function RaidResetCard({
@@ -53,6 +53,11 @@ export function RaidResetCard({
 	const isToday = moment().format('YYYY-MM-DD') === moment(raidDate).format('YYYY-MM-DD')
 	const isRaidPast = moment().isAfter(moment(`${raidEndDate}T${endTime}`))
 	const {supabase} = useSession()
+	const [borderColor, setBorderColor] = useState<any>()
+	const [shadeColor, setShadeColor] = useState<any>()
+	const [accentColor, setAccentColor] = useState<any>()
+	const [accentBorderColor, setAccentBorderColor] = useState<any>()
+	const [buttonTextColor, setButtonTextColor] = useState<any>()
 
 	const registrationStatusIcon = useCallback((registrationStatus: string) => {
 		if (registrationStatus === 'confirmed') {
@@ -80,11 +85,36 @@ export function RaidResetCard({
 		})
 	}, [status, id, isEditable, supabase])
 
+	useEffect(() => {
+		// @ts-ignore
+		if (!window.ColorThief) return
+		const img = new Image();
+		//img.crossOrigin = 'anonymous'; // Ensure CORS for external images
+		img.src = raidImage;
+		img.onload = () => {
+			// @ts-ignore
+			const colorThief = new window.ColorThief();
+			const color = colorThief.getColor(img);
+			setBorderColor(`rgb(${color.join(',')})`)
+			const darkerShade = color.map((channel: any) => Math.max(channel - 30, 0));
+			setShadeColor(`rgba(${darkerShade.join(',')}, 1)`)
+		};
+	}, [raidImage, isRaidPast]);
+
 	return (
 		<div
-			className={`w-[300px] relative text-default min-h-64 flex flex-col p-3 rounded-xl backdrop-blur backdrop-opacity-90 justify-between ${
-				(isToday || isRaidCurrent) ? 'border-2 border-gold shadow-2xl shadow-gold glow-animation ' : 'border-1 border-wood-100'
-			}`}>
+			className={`w-[300px] relative text-default min-h-64 flex flex-col p-3 rounded-md backdrop-blur backdrop-opacity-90 justify-between border transition-all duration-300 ${
+				(isToday || isRaidCurrent) ? 'border-gold shadow-2xl shadow-gold glow-animation ' : 'border-wood-100'
+			}`}
+			style={{
+				...((!isRaidPast && borderColor) ? {borderColor} : {}),
+				...((!isRaidPast && shadeColor) ? {boxShadow: `
+					0 10px 15px -3px ${shadeColor},
+                    0 4px 6px -4px ${shadeColor}
+                    `
+				} : {}),
+			}}
+		>
 			<div
 
 				style={{
@@ -93,8 +123,8 @@ export function RaidResetCard({
 					backgroundRepeat: 'no-repeat',
 					backgroundImage: `url('${raidImage}')`,
 				}}
-				className={`w-full h-full rounded-xl absolute top-0 left-0 -z-10 ${isRaidPast || status === 'offline' ? 'grayscale' : ''}`}>
-				<div className="w-full h-full bg-[rgba(0,0,0,.6)] rounded-xl"/>
+				className={`w-full h-full rounded-md absolute top-0 left-0 -z-10 ${isRaidPast || status === 'offline' ? 'grayscale' : ''}`}>
+				<div className="w-full h-full bg-[rgba(0,0,0,.6)] rounded-md"/>
 			</div>
 			<div className="flex flex-col  shadow-xl ">
 				<h4 className="font-bold text-large text-gold">{raidName}{status === 'offline' ? ' (Cancelled)' : ''}</h4>
@@ -142,7 +172,7 @@ export function RaidResetCard({
 						>
 							<FontAwesomeIcon icon={faPowerOff}/>
 						</Button>
-						{status === 'offline' ? null: (<Button
+						{status === 'offline' ? null : (<Button
 							isIconOnly
 							className={`bg-wood border border-wood-100 text-stone-100`}
 							onPress={() => {

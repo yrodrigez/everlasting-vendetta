@@ -77,6 +77,7 @@ export default async function RootLayout({
         </Providers>
         <Script src="/scripts/jquery3.js" strategy="beforeInteractive"/>
         <Script src="/scripts/modelviewer.js" strategy="beforeInteractive"/>
+        <Script src="/scripts/color-thief.min.js" strategy="beforeInteractive"/>
         </body>
         </html>
     );
