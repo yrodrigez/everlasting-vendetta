@@ -90,6 +90,8 @@ const config: Config = {
         'bg-relic',
         'bg-relic-900',
         'bg-pink-900',
+        'border-stone-100',
+        'bg-wood-900',
     ],
     theme: {
         extend: {

@@ -243,18 +243,23 @@ export default async function Page({params}: { params: Promise<{ name: string }>
 	const {auth, supabase} = await createServerSession({cookies})
 	const session = await auth.getSession()
 
-	const [{data: isCharacterBanned}, {data: isMemberPresent}, achievementData] = await Promise.all([
+	const [{data: isCharacterBanned}, {data: isMemberPresent}, achievementData, attendance] = await Promise.all([
 		supabase
 		.from('banned_member')
 		.select('id')
 		.eq('member_id', characterInfo.id)
 		.maybeSingle(),
 		supabase.from('ev_member').select('id').eq('character', characterInfo.id).maybeSingle(),
-		fetchAchievements(supabase, characterInfo.id)
+		fetchAchievements(supabase, characterInfo.id),
+		supabase.rpc('raid_attendance', {character_name: characterName}).returns<{
+			id:string,
+			raid_name: string,
+			raid_date: string,
+			participated: boolean,
+		}[]>()
 	])
 	const canBan = !!(session?.permissions.includes('member.ban') && characterInfo.guild?.id !== GUILD_ID && isMemberPresent) // can ban only if not in the same guild
 	const canUnban = !!(session?.permissions.includes('member.unban') && characterInfo.guild?.id !== GUILD_ID && isCharacterBanned) // can unban only if not in the same guild
-
 
 	return (
 		<>
@@ -270,7 +275,8 @@ export default async function Page({params}: { params: Promise<{ name: string }>
 						</div>
 						<div className="grid gap-1.5 w-full">
 							<h2 className="font-semibold text-lg w-full flex items-center justify-between">{characterInfo?.name}
-								<span className="text-lg text-gold font-normal hidden lg:block ml-10"> ({achievementData.achievedPoints} Points)</span>
+								<span
+									className="text-lg text-gold font-normal hidden lg:block ml-10"> ({achievementData.achievedPoints} Points)</span>
 							</h2>
 							{characterInfo?.guild?.name ? (
 								<Link
@@ -334,6 +340,30 @@ export default async function Page({params}: { params: Promise<{ name: string }>
 							label: 'Loot History',
 							name: 'loot-history',
 							children: <LootHistory lootHistory={lootHistory}/>
+						},
+						{
+							label: 'Raid attendance',
+							name: 'raid-attendance',
+							children: <div
+								className={'w-full h-96  p-8 rounded border border-wood-100 flex flex-wrap gap-4 bg-wood overflow-auto scrollbar-pill'}>
+								{attendance?.data?.map((raid) => (
+									<div key={raid.id} className={`flex border ${raid.participated ? 'bg-moss border-moss-100' : 'bg-wood-900 border-wood'} w-8 h-8 rounded-lg shadow`}>
+										<Tooltip
+											className="border border-wood-100"
+											content={<div
+												className="flex flex-col gap-2">
+												<span className="text-gold font-bold">{raid.raid_name}</span>
+												<span className="text-muted">{moment(raid.raid_date).format('YYYY-MM-DD')}</span>
+												<Link href={`/raid/${raid.id}`} className="text-gold">View</Link>
+											</div>}
+											showArrow
+											placement={'top'}
+										>
+											<div className="w-full h-full"/>
+										</Tooltip>
+									</div>
+								))}
+							</div>
 						}
 					]}
 				/>
