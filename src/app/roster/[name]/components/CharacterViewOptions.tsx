@@ -7,6 +7,7 @@ const Controls = ({availableOptions, onSelect}: { availableOptions: string[], on
 
 	const ref = useRef<HTMLDivElement>(null)
 	const containerRef = useRef<HTMLDivElement>(null)
+	const timeout = useRef<NodeJS.Timeout>()
 
 	const calculatePosition = () => {
 		if(!ref.current || !containerRef.current) return
@@ -16,7 +17,10 @@ const Controls = ({availableOptions, onSelect}: { availableOptions: string[], on
 		const rect = selectedElement.getBoundingClientRect()
 		const containerRect = containerRef.current.getBoundingClientRect()
 
+
 		ref.current.style.left = `${rect.left - containerRect.left}px`
+
+		if(timeout.current) clearTimeout(timeout.current)
 
 
 		ref.current.style.width = `${rect.width}px`

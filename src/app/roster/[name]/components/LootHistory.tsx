@@ -49,7 +49,9 @@ export function LootHistory({lootHistory}: {
 		<div
 			className="flex flex-col bg-wood border border-wood-100 text-gold p-4 max-h-96 px-6 rounded gap-6"
 		>
-			<ScrollShadow>
+			<ScrollShadow
+				className="scrollbar-pill"
+			>
 				{
 					lootData.map((reset: any, index: number) => {
 						return <div key={index} className={`flex flex-col gap-2 ${index ? 'mt-6': ''}`}>
