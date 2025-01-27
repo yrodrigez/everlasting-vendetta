@@ -25,6 +25,7 @@ import {revalidatePath} from "next/cache";
 import CharacterAchievements from "@/app/roster/[name]/components/CharacterAchievements";
 import {SupabaseClient} from "@supabase/supabase-js";
 import {Achievement, MemberAchievement} from "@/app/types/Achievements";
+import {AttendanceHeatmap} from "@/app/roster/[name]/components/AttendanceHeatmap";
 
 export const dynamic = 'force-dynamic'
 
@@ -252,7 +253,7 @@ export default async function Page({params}: { params: Promise<{ name: string }>
 		supabase.from('ev_member').select('id').eq('character', characterInfo.id).maybeSingle(),
 		fetchAchievements(supabase, characterInfo.id),
 		supabase.rpc('raid_attendance', {character_name: characterName}).returns<{
-			id:string,
+			id: string,
 			raid_name: string,
 			raid_date: string,
 			participated: boolean,
@@ -344,26 +345,7 @@ export default async function Page({params}: { params: Promise<{ name: string }>
 						{
 							label: 'Raid attendance',
 							name: 'raid-attendance',
-							children: <div
-								className={'w-full h-96  p-8 rounded border border-wood-100 flex flex-wrap gap-4 bg-wood overflow-auto scrollbar-pill'}>
-								{attendance?.data?.map((raid) => (
-									<div key={raid.id} className={`flex border ${raid.participated ? 'bg-moss border-moss-100' : 'bg-wood-900 border-wood'} w-8 h-8 rounded-lg shadow`}>
-										<Tooltip
-											className="border border-wood-100"
-											content={<div
-												className="flex flex-col gap-2">
-												<span className="text-gold font-bold">{raid.raid_name}</span>
-												<span className="text-muted">{moment(raid.raid_date).format('YYYY-MM-DD')}</span>
-												<Link href={`/raid/${raid.id}`} className="text-gold">View</Link>
-											</div>}
-											showArrow
-											placement={'top'}
-										>
-											<div className="w-full h-full"/>
-										</Tooltip>
-									</div>
-								))}
-							</div>
+							children: <AttendanceHeatmap attendance={attendance.data ?? []}/>
 						}
 					]}
 				/>
