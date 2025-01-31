@@ -180,7 +180,7 @@ export default function ({item: _item, token, reverse, bottom}: {
         queryKey: ['item', item],
         queryFn: async () => {
 
-            const url = `/api/v1/services/wow/fetchItem?itemId=${id}&token=${token}`
+            const url = `/api/v1/services/wow/fetchItem?itemId=${id}`
             updateItem({
                 ...item,
                 loading: true

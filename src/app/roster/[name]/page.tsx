@@ -2,7 +2,6 @@ import CharacterAvatar from "@/app/components/CharacterAvatar";
 import {CharacterGear} from "@/app/roster/[name]/components/CharacterGear";
 import {CharacterViewOptions} from "@/app/roster/[name]/components/CharacterViewOptions";
 import {CharacterTalents} from "@/app/roster/[name]/components/CharacterTalents";
-import Image from 'next/image'
 import moment from "moment";
 import {cookies} from "next/headers";
 import {Tooltip} from "@nextui-org/react";
@@ -249,8 +248,9 @@ export default async function Page({params}: { params: Promise<{ name: string }>
 		.from('banned_member')
 		.select('id')
 		.eq('member_id', characterInfo.id)
+		.limit(1)
 		.maybeSingle(),
-		supabase.from('ev_member').select('id').eq('character', characterInfo.id).maybeSingle(),
+		supabase.from('ev_member').select('id').eq('id', characterInfo.id).maybeSingle(),
 		fetchAchievements(supabase, characterInfo.id),
 		supabase.rpc('raid_attendance', {character_name: characterName}).returns<{
 			id: string,
@@ -259,7 +259,7 @@ export default async function Page({params}: { params: Promise<{ name: string }>
 			participated: boolean,
 		}[]>()
 	])
-	const canBan = !!(session?.permissions.includes('member.ban') && characterInfo.guild?.id !== GUILD_ID && isMemberPresent) // can ban only if not in the same guild
+	const canBan = !!(session?.permissions.includes('member.ban') && characterInfo.guild?.id !== GUILD_ID && isMemberPresent && !isCharacterBanned) // can ban only if not in the same guild
 	const canUnban = !!(session?.permissions.includes('member.unban') && characterInfo.guild?.id !== GUILD_ID && isCharacterBanned) // can unban only if not in the same guild
 
 	return (
@@ -268,7 +268,7 @@ export default async function Page({params}: { params: Promise<{ name: string }>
 				<title>{characterInfo.name} - {characterInfo.guild?.name ?? 'No Guild'}</title>
 			</Head>
 			<div className="relative w-full h-full flex flex-col">
-				<div className="mx-auto max-w-6xl px-4 flex justify-evenly items-center block h-36">
+				<div className="mx-auto max-w-6xl px-4 flex justify-evenly items-center h-36">
 					<div className="flex items-center gap-4 mb-4 ">
 						<div className="w-20 h-20 rounded-full overflow-hidden min-w-20">
 							<CharacterAvatar token={token} realm={GUILD_REALM_SLUG} characterName={characterInfo.name}

@@ -165,9 +165,9 @@ export async function GET(request: NextRequest) {
     const itemDetailsFromDatabase = itemFromDatabase?.details
     const lastUpdated = itemFromDatabase?.lastUpdated
     const displayId = itemFromDatabase?.displayId
-    const updatedLessThanAWeekAgo = ((new Date().getTime() - new Date(lastUpdated).getTime()) < 1000 * 60 * 60 * 24 * 7)
+    const isStale = ((new Date().getTime() - new Date(lastUpdated).getTime()) < 1000 * 60 * 60 * 24 * 60)
 
-    if ((itemDetailsFromDatabase && lastUpdated && updatedLessThanAWeekAgo) && (displayId || displayId === 0)) { // If item is in database and was updated less than a week ago
+    if ((itemDetailsFromDatabase && lastUpdated && isStale)) { // If item is in database and was updated less than 2 months ago
         const itemIconUrl = itemDetailsFromDatabase.icon
         const itemDetails = itemDetailsFromDatabase;
 

@@ -60,7 +60,7 @@ export default async function Page() {
         .select('updated_at, character')
         .filter('character->>level', 'gte', CURRENT_MAX_LEVEL - 10)
         .filter('character->guild->>name', 'eq', GUILD_NAME)
-        .filter('updated_at', 'gte', moment('2024-09-19').format('YYYY-MM-DD')) // 30 days
+        .filter('updated_at', 'gte', moment().subtract(60, 'days').format('YYYY-MM-DD'))
         .order('updated_at', {ascending: false})
         .returns<{ updated_at: string, character: Character }[]>()
 
@@ -68,6 +68,10 @@ export default async function Page() {
         console.error(error)
         return <div>Error {error.message}</div>
     }
+
+    const {data: roles, error: errorRoles} = await supabase.from('ev_member_role').select('member_id, role')
+        .returns<{member_id: number, role: string }[]>()
+
 
     const guildRoster = getGuildRosterFromGuildInfo(data.map(({character, updated_at}) => ({
         ...character,
@@ -82,7 +86,7 @@ export default async function Page() {
             return acc.map((c) => c.id === character.id ? character : c)
         }
         return acc
-    }, [] as (Character & { updated_at: string })[]))
+    }, [] as (Character & { updated_at: string })[]), roles)
 
     const groupByRank = guildRoster.reduce((acc, member) => {
         if (!acc[member.rankName]) {

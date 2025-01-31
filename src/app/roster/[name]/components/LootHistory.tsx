@@ -46,31 +46,25 @@ export function LootHistory({lootHistory}: {
 	})
 
 	return (
-		<div
-			className="flex flex-col bg-wood border border-wood-100 text-gold p-4 max-h-96 px-6 rounded gap-6"
-		>
-			<ScrollShadow
-				className="scrollbar-pill"
-			>
-				{
-					lootData.map((reset: any, index: number) => {
-						return <div key={index} className={`flex flex-col gap-2 ${index ? 'mt-6': ''}`}>
-							<div className="flex gap-2 items-center">
-								<h4 className="text-gold text-lg">{reset.reset.name ?? reset.name}</h4>
-								<small className="text-primary">( {moment(reset.date).format('YYYY-MM-DD')} )</small>
-							</div>
-							<div className="flex flex-col gap-1">
-								{
-									reset.items.map((item: any, index: number) => {
-										return <div key={index} className="flex">
-											<Item id={item.id}/>
-										</div>
-									})
-								}
-							</div>
+		<div className="flex flex-col bg-wood border border-wood-100 text-gold p-4 max-h-96 px-6 rounded gap-6">
+			<ScrollShadow className="scrollbar-pill">
+				{lootData.map((reset: any, index: number) => {
+					return <div key={index} className={`flex flex-col gap-2 ${index ? 'mt-6' : ''}`}>
+						<div className="flex gap-2 items-center">
+							<h4 className="text-gold text-lg">{reset.reset.name ?? reset.name}</h4>
+							<small className="text-primary">( {moment(reset.date).format('YYYY-MM-DD')} )</small>
 						</div>
-					})
-				}
+						<div className="flex flex-col gap-1">
+							{
+								reset.items.map((item: any, index: number) => {
+									return <div key={index} className="flex">
+										<Item id={item.id}/>
+									</div>
+								})
+							}
+						</div>
+					</div>
+				})}
 			</ScrollShadow>
 		</div>
 	)

@@ -1,4 +1,4 @@
-import {GUILD_ID, REALM_ID} from "@/app/util/constants";
+import {GUILD_ID, REALM_ID, ROLE} from "@/app/util/constants";
 
 type Guild = {
     id: number;
@@ -66,41 +66,36 @@ const rankComparator = (a: any, b: any) => {
     return a.character.level - b.character.level
 }
 
-export function getGuildRosterFromGuildInfo(guildInfo: (Character & { updated_at: string })[]): (Character & {
+export function getGuildRosterFromGuildInfo(guildInfo: (Character & { updated_at: string; })[], roles: {
+    member_id: number;
+    role: string;
+}[] | null): (Character & {
     rankName: string;
     className: string;
     icon: string;
     rank: number;
 }) [] {
 
-    const vipMembersNames = [
-        'Alveric',
-        'Kornyous',
-        'Nivlor',
-        'Aythan',
-        'Aoriad',
-        'Morcego',
-        'Tacy',
-        'Felsargon',
-        'Rímefang',
-        'Utrivelig',
-    ]
 
-    const raiders = [
-        'Mephius',
-        'Deadflowers',
-        'Lebiatan',
-        'Llarra',
-        'Mariomario',
-        'Neffertiri',
-        'Templaari',
-        'Ruzki',
-        'Zuzzuk',
-        'Salgo',
-    ]
+    const guildMasterIds = roles?.filter((role) => role.role === ROLE.GUILD_MASTER).map((role) => role.member_id) ?? []
+    const vipMembersIds = roles?.filter((role) => role.role === ROLE.COMRADE).map((role) => role.member_id) ?? []
+    const raidersIds = roles?.filter((role) => role.role === ROLE.RAIDER).map((role) => role.member_id) ?? []
+    const altersIds = roles?.filter((role) => role.role === ROLE.ALTER).map((role) => role.member_id) ?? []
+
+    const guildMasterMember = guildInfo?.filter((member: any) => {
+        return guildMasterIds.includes(member.id)
+    }).map(function (member: Character) {
+        return {
+            ...member,
+            guild: {
+                ...member.guild,
+                rank: 0
+            }
+        }
+    });
 
     const vipMembers = guildInfo?.filter((member: any) => {
-        return vipMembersNames.includes(member.name)
+        return vipMembersIds.includes(member.id) && !raidersIds.includes(member.id)  && !guildMasterIds.includes(member.id) && !altersIds.includes(member.id)
     }).sort(rankComparator).sort((a: any, b: any) => {
         // sort by last updated
         return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
@@ -115,7 +110,7 @@ export function getGuildRosterFromGuildInfo(guildInfo: (Character & { updated_at
     });
 
     const raidersMembers = guildInfo?.filter((member: any) => {
-        return raiders.includes(member.name)
+        return raidersIds.includes(member.id) && !vipMembersIds.includes(member.id) && !guildMasterIds.includes(member.id) && !altersIds.includes(member.id)
     }).map(function (member: Character) {
         return {
             ...member,
@@ -130,7 +125,7 @@ export function getGuildRosterFromGuildInfo(guildInfo: (Character & { updated_at
     });
 
     const maxLevelMembers = (guildInfo || []).filter((member: any) => {
-        return !vipMembersNames.includes(member.name) && !raiders.includes(member.name)
+        return !guildMasterIds.includes(member.id) && !vipMembersIds.includes(member.id) && !raidersIds.includes(member.id) && member.level === 60 && !altersIds.includes(member.id)
     }).map(function (member: Character) {
         return {
             ...member,
@@ -145,7 +140,7 @@ export function getGuildRosterFromGuildInfo(guildInfo: (Character & { updated_at
     })
 
 
-    return [...vipMembers, ...raidersMembers, ...maxLevelMembers].map(rosterMapper)
+    return [...guildMasterMember, ...vipMembers, ...raidersMembers, ...maxLevelMembers].map(rosterMapper)
 }
 
 

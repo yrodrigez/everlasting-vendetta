@@ -15,7 +15,7 @@ export async function GET() {
     }
 
 
-    const guildRoster = getGuildRosterFromGuildInfo(guildInfo)
+    const guildRoster = getGuildRosterFromGuildInfo(guildInfo, [])
 
     return NextResponse.json(guildRoster)
 }
