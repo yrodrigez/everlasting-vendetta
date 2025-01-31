@@ -4,6 +4,7 @@ import {Button} from "@/app/components/Button";
 import Link from "next/link";
 import createServerSession from "@utils/supabase/createServerSession";
 import {cookies} from "next/headers";
+import LoopingVideo from "@/app/components/LoopingVideo";
 
 
 const intro = [
@@ -88,13 +89,16 @@ export default async function Home() {
     return (
         <main className="flex w-full h-full justify-evenly flex-col">
             <div className="hidden lg:block h-full w-full">
-                <div
-                    className="absolute top-2 right-4 flex flex-col">
+                <div className="absolute top-2 right-4 flex flex-col">
 
                 </div>
+
                 <div className={
                     "absolute bottom-[51%] left-0 w-full top-0 bg-cover bg-center bg-no-repeat backdrop-filter backdrop-blur-md border-bottom-image"
                 } style={{backgroundImage: "url('/atiesh.webp')"}}>
+                    <div className="absolute top-0 left-0 w-full h-full -z-10 ">
+                        <LoopingVideo />
+                    </div>
                     <div
                         className="flex flex-col items-center justify-center h-full w-full bg-black bg-opacity-50">
                         <div
