@@ -94,7 +94,7 @@ export default async function Home() {
                 </div>
                 <div className={
                     "absolute bottom-[51%] left-0 w-full top-0 bg-cover bg-center bg-no-repeat backdrop-filter backdrop-blur-md border-bottom-image"
-                } style={{backgroundImage: "url('/banner.webp')"}}>
+                } style={{backgroundImage: "url('/atiesh.webp')"}}>
                     <div
                         className="flex flex-col items-center justify-center h-full w-full bg-black bg-opacity-50">
                         <div

@@ -15,10 +15,10 @@ BEGIN
                                      join ev_raid_participant rp on rr.id = rp.raid_id
                                      join ev_member m on m.id = rp.member_id
                                      join ev_raid r on r.id = rr.raid_id
-                                     join ev_loot_history lh on lh.raid_id = rr.id
+                                     --join ev_loot_history lh on lh.raid_id = rr.id
                             where r.name = 'Temple of Ahn''Qiraj'
                               and rr.end_date < CURRENT_DATE - INTERVAL '1 day'
-                            order by rr.raid_date, rr.time
+                            order by rr.raid_date
                             limit 1),
          is_participant as (select m.character ->> 'name' as name
                             from ev_raid_participant rp
