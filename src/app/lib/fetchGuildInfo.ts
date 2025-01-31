@@ -95,7 +95,7 @@ export function getGuildRosterFromGuildInfo(guildInfo: (Character & { updated_at
     });
 
     const vipMembers = guildInfo?.filter((member: any) => {
-        return vipMembersIds.includes(member.id) && !raidersIds.includes(member.id)  && !guildMasterIds.includes(member.id) && !altersIds.includes(member.id)
+        return vipMembersIds.includes(member.id) && !guildMasterIds.includes(member.id)
     }).sort(rankComparator).sort((a: any, b: any) => {
         // sort by last updated
         return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
