@@ -88,7 +88,7 @@ function AchievementWithAlert({achievement, isAchieved}: { achievement: Achievem
 	return <AchievementCard achievement={achievement} isAchieved={isAchieved} handleOnClick={handleOnClick}/>
 }
 
-function AchievementCard({achievement, isAchieved, handleOnClick}: {
+export function AchievementCard({achievement, isAchieved, handleOnClick}: {
 	achievement: Achievement,
 	isAchieved: boolean,
 	handleOnClick?: () => void
