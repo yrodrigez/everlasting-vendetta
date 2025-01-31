@@ -1,5 +1,3 @@
-import React from "react";
-import {ScrollShadow} from "@nextui-org/react";
 import Link from "next/link";
 import {AchievementCard} from "@/app/roster/[name]/components/CharacterAchievements";
 import createServerSession from "@utils/supabase/createServerSession";
@@ -17,8 +15,8 @@ export default async function AtieshMomentsPage() {
 	if (!user.roles.includes(ROLE.MODERATOR)) return null;
 
 	return (
-		<ScrollShadow
-			className="min-h-full w-full text-primary flex flex-col items-center py-8 px-4 md:px-12 scrollbar-pill bg-wood rounded border border-wood-100">
+		<div
+			className="min-h-full w-full text-primary flex flex-col items-center py-8 px-4 md:px-12 scrollbar-pill mb-8">
 			{/* Page Title */}
 			<h1 className="text-4xl md:text-5xl font-bold text-legendary mb-6 text-center">
 				The Path to Atiesh:
@@ -28,7 +26,7 @@ export default async function AtieshMomentsPage() {
 			</h1>
 
 			{/* MOMENT I */}
-			<section className="w-full max-w-4xl bg-wood-900/40 border border-gold rounded-lg shadow-gold p-6 mb-8">
+			<section className="w-full max-w-4xl bg-wood-900 border border-gold rounded-lg shadow-gold p-6 mb-8">
 				<h2 className="text-2xl md:text-3xl font-semibold text-gold mb-4">
 					Moment I: The Gathering of the Worthy
 				</h2>
@@ -52,7 +50,7 @@ export default async function AtieshMomentsPage() {
 			</section>
 
 			{/* MOMENT II */}
-			<section className="w-full max-w-4xl bg-wood-900/40 border border-gold rounded-lg shadow-gold p-6 mb-8">
+			<section className="w-full max-w-4xl bg-wood-900 border border-gold rounded-lg shadow-gold p-6 mb-8">
 				<h2 className="text-2xl md:text-3xl font-semibold text-gold mb-4">
 					Moment II: The Great Queue
 				</h2>
@@ -82,7 +80,7 @@ export default async function AtieshMomentsPage() {
 			</section>
 
 			{/* MOMENT III */}
-			<section className="w-full max-w-4xl bg-wood-900/40 border border-gold rounded-lg shadow-gold p-6 mb-8">
+			<section className="w-full max-w-4xl bg-wood-900 border border-gold rounded-lg shadow-gold p-6 mb-8">
 				<h2 className="text-2xl md:text-3xl font-semibold text-gold mb-4">
 					Moment III: The Path of Dedication
 				</h2>
@@ -113,7 +111,7 @@ export default async function AtieshMomentsPage() {
 			</section>
 
 			{/* MOMENT IV */}
-			<section className="w-full max-w-4xl bg-wood-900/40 border border-gold rounded-lg shadow-gold p-6 mb-8">
+			<section className="w-full max-w-4xl bg-wood-900 border border-gold rounded-lg shadow-gold p-6 mb-8">
 				<h2 className="text-2xl md:text-3xl font-semibold text-gold mb-4">
 					Moment IV: Milestones on the Horizon
 				</h2>
@@ -134,7 +132,7 @@ export default async function AtieshMomentsPage() {
 			</section>
 
 			{/* MOMENT V */}
-			<section className="w-full max-w-4xl bg-wood-900/40 border border-gold rounded-lg shadow-gold p-6 mb-8">
+			<section className="w-full max-w-4xl bg-wood-900 border border-gold rounded-lg shadow-gold p-6 mb-8">
 				<h2 className="text-2xl md:text-3xl font-semibold text-gold mb-4">
 					Moment V: The Gathering of the Guardian
 				</h2>
@@ -154,7 +152,7 @@ export default async function AtieshMomentsPage() {
 			</section>
 
 			{/* MOMENT VI */}
-			<section className="w-full max-w-4xl bg-wood-900/40 border border-gold rounded-lg shadow-gold p-6 mb-8">
+			<section className="w-full max-w-4xl bg-wood-900 border border-gold rounded-lg shadow-gold p-6 mb-8">
 				<h2 className="text-2xl md:text-3xl font-semibold text-gold mb-4">
 					Moment VI: The Chosen One
 				</h2>
@@ -186,7 +184,7 @@ export default async function AtieshMomentsPage() {
 			</section>
 
 			{/* EPILOGUE */}
-			<section className="w-full max-w-4xl bg-wood-900/40 border border-gold rounded-lg shadow-gold p-6 mb-8">
+			<section className="w-full max-w-4xl bg-wood-900 border border-gold rounded-lg shadow-gold p-6 mb-8">
 				<h2 className="text-2xl md:text-3xl font-semibold text-gold mb-4">
 					Epilogue: Guardianship & Legacy
 				</h2>
@@ -202,6 +200,6 @@ export default async function AtieshMomentsPage() {
 					guild’s unity.
 				</p>
 			</section>
-		</ScrollShadow>
+		</div>
 	);
 }
