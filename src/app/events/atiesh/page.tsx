@@ -50,7 +50,7 @@ export default async function AtieshMomentsPage() {
 
 
     const isRoleAllowed = user?.roles?.includes(ROLE.RAIDER) || user?.roles?.includes(ROLE.COMRADE) || user?.roles?.includes(ROLE.GUILD_MASTER);
-    const isClassAllowed = ['Mage', 'Warlock', 'Druid', 'Priest', 'Warrior'].includes(user?.character_class?.name ?? '');
+    const isClassAllowed = ['Mage', 'Warlock', 'Druid', 'Priest'].includes(user?.character_class?.name ?? '');
     const {
         data: participants,
         error: errorParticipants
@@ -220,6 +220,12 @@ export default async function AtieshMomentsPage() {
                         forfeit—they are cast to the bottom of the queue.
                     </li>
                     <li>
+                        <strong>Missing a Raid & Splinter Transfer:</strong> If the designated Splinter farmer fails to attend a raid,
+                        the responsibility for receiving <Splinter/> will automatically pass to the next eligible member in the queue.
+                        Furthermore, if any queued member’s cumulative Splinter count exceeds that of the current farmer by at least <strong>10</strong>,
+                        that member will assume the role of active Splinter farmer.
+                    </li>
+                    <li>
                         <span className="font-bold text-gold mb-1">Redemption Moment:</span>
                         <p className="leading-relaxed">
                             A hero on the brink after missing two consecutive resets can <em>redeem</em> themselves at
@@ -259,6 +265,7 @@ export default async function AtieshMomentsPage() {
                             Successful restitution keeps them on the path to Atiesh!
                         </p>
                     </li>
+
                 </ul>
                 <div className="text-xs text-gold mt-4 p-2 border-t border-gold">
                     <span className="inline-flex items-center gap-1">
