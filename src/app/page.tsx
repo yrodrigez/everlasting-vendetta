@@ -89,10 +89,19 @@ export default async function Home() {
     return (
         <main className="flex w-full h-full justify-evenly flex-col">
             <div className="hidden lg:block h-full w-full">
-                <div className="absolute top-2 right-4 flex flex-col">
-
+                <div className="absolute top-2 right-4 flex flex-col z-50">
+                    <Link href="/events/atiesh">
+                        <div
+                            className="bg-legendary shadow-md hover:shadow-legendary hover:shadow-xl py-3 px-5 rounded-md cursor-pointer hover:opacity-95 shadow-gold flex gap-4 items-center justify-between transition-all duration-300 border border-gold">
+                            <img
+                                className="w-12 h-12 rounded-full"
+                                src="https://ijzwizzfjawlixolcuia.supabase.co/storage/v1/object/public/achievement-image/e464c747-64a4-4f19-af97-8cd17cf8e46d.webp"
+                                alt="Atiesh"
+                            />
+                            <h1 className="text-white text-xl font-bold">The Path to Atiesh</h1>
+                        </div>
+                    </Link>
                 </div>
-
                 <div className={
                     "absolute bottom-[51%] left-0 w-full top-0 bg-cover bg-center bg-no-repeat backdrop-filter backdrop-blur-md border-bottom-image"
                 } style={{backgroundImage: "url('/atiesh.webp')"}}>
