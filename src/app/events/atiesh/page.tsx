@@ -8,6 +8,7 @@ import {ScrollShadow} from "@nextui-org/react";
 import Sound from "@/app/events/components/Sound";
 import ParticipateButton from "@/app/events/components/ParticipateButton";
 import GearScore from "@/app/components/GearScore";
+
 export const dynamic = 'force-dynamic'
 
 const Splinter = () => (
@@ -29,6 +30,7 @@ const ItemLink = ({id, name, img, rarity}: { id: number, name: string, img: stri
         </Link>
     </span>
 );
+
 async function fetchGearScore(characterName: string) {
     const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL!}/api/v1/services/member/character/${encodeURIComponent(characterName.toLowerCase())}/gs`)
 
@@ -42,6 +44,7 @@ async function fetchGearScore(characterName: string) {
         return {gs: 0, color: 'gray', isFullEnchanted: false};
     }
 }
+
 export default async function AtieshMomentsPage() {
     const {auth, supabase} = await createServerSession({cookies});
     if (!auth) return <NotLoggedInView/>;
@@ -177,8 +180,12 @@ export default async function AtieshMomentsPage() {
                 </p>
                 <ul className="list-disc list-inside mt-4 space-y-2 text-base md:text-lg pl-2">
                     <li>
-                        A <strong>queue</strong> of eligible heroes shall be made, and the next
-                        recipients (2nd, 3rd, etc.) will be chosen <strong>randomly</strong> on Wednesday February 5th after <Link href="/raid/9949dcb1-28c1-417d-ae37-db1cbaf417c6" className="font-bold text-epic" target="_blank">Temple of AQ raid</Link> so make sure to be there!
+                        A <strong>queue</strong> of eligible heroes shall be maintained. The next recipient will be
+                        chosen <strong>randomly</strong> on Wednesday, February 5th after the <Link
+                        href="/raid/9949dcb1-28c1-417d-ae37-db1cbaf417c6" className="font-bold text-epic"
+                        target="_blank">Temple of AQ raid</Link>—so make sure to be there! Once the first Splinter
+                        farmer has collected 40 Splinters, the queue will advance automatically, with the next recipient
+                        being selected immediately.
                     </li>
                     <li>
                         Whichever hero currently farming the <Splinter/> is granted a&nbsp;<strong>+0.5 loot priority
@@ -193,9 +200,11 @@ export default async function AtieshMomentsPage() {
                 </ul>
                 <div className="text-xs text-gold mt-4 p-2 border-t border-gold">
                     <span>
-                        <strong>Note:</strong> 0.5 loot priority penalty is less than a +1 loot priority penalty but more than a 0 loot priority. <br/>As always, the loot council will decide the loot distribution and this <Link href="/terms" target="_blank"><strong>does not affects reserves</strong></Link>.
+                        <strong>Note:</strong> 0.5 loot priority penalty is less than a +1 loot priority penalty but more than a 0 loot priority. <br/>As always, the loot council will decide the loot distribution and this <Link
+                        href="/terms" target="_blank"><strong>does not affects reserves</strong></Link>.
                         <br/><br/>
-                        <strong>Note 2:</strong> Orders will be decided by the RNG site <Link href="https://www.random.org/lists/" target="_blank">random.org</Link>.
+                        <strong>Note 2:</strong> Orders will be decided by the RNG site <Link
+                        href="https://www.random.org/lists/" target="_blank">random.org</Link>.
                     </span>
                 </div>
             </section>
@@ -220,9 +229,12 @@ export default async function AtieshMomentsPage() {
                         forfeit—they are cast to the bottom of the queue.
                     </li>
                     <li>
-                        <strong>Missing a Raid & Splinter Transfer:</strong> If the designated Splinter farmer fails to attend a raid,
-                        the responsibility for receiving <Splinter/> will automatically pass to the next eligible member in the queue.
-                        Furthermore, if any queued member’s cumulative Splinter count exceeds that of the current farmer by at least <strong>10</strong>,
+                        <strong>Missing a Raid & Splinter Transfer:</strong> If the designated Splinter farmer fails to
+                        attend a raid,
+                        the responsibility for receiving <Splinter/> will automatically pass to the next eligible member
+                        in the queue.
+                        Furthermore, if any queued member’s cumulative Splinter count exceeds that of the current farmer
+                        by at least <strong>10</strong>,
                         that member will assume the role of active Splinter farmer.
                     </li>
                     <li>
@@ -358,12 +370,12 @@ export default async function AtieshMomentsPage() {
                                         !isClassAllowed && !isRoleAllowed ? 'your class and role. ' :
                                             !isClassAllowed ? 'your class (' + user.character_class.name + ').' :
                                                 !isRoleAllowed ? 'you are not a Core raider' :
-                                                !isFullEnchanted ? 'your gear is not fully enchanted.' :
-                                                    'an unknown reason.'
+                                                    !isFullEnchanted ? 'your gear is not fully enchanted.' :
+                                                        'an unknown reason.'
                                     }</div>
                             )}
                         </div>
-                    ): (
+                    ) : (
                         <NotLoggedInView hideTitle/>
                     )}
                     <div className="flex flex-col gap-2 items-center w-full max-h-[300px]">
@@ -382,7 +394,8 @@ export default async function AtieshMomentsPage() {
                                             <span className="text-gold">{x.member.character.name}</span>
                                             <GearScore characterName={x.member.character.name}
                                                        allowForce={user?.roles?.includes(ROLE.GUILD_MASTER) || user?.name === x.member.character.name}/>
-                                            <span className="text-gold ">position: {x.position === 999 ? '?': x.position}</span>
+                                            <span
+                                                className="text-gold ">position: {x.position === 999 ? '?' : x.position}</span>
                                         </div>
                                     ))}
                                 </div>
