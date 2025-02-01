@@ -21,7 +21,7 @@ export default function ParticipateButton({sound, children, eventId}: {
         supabase.from('guild_events_participants').insert({
             event_id: eventId,
             member_id: selectedCharacter.id,
-            position: selectedCharacter.name === 'Felsargon' ? 1 : 2,
+            position: selectedCharacter.name === 'Felsargon' ? 1 : 999,
         }).then(({error}) => {
             if (error) {
                 console.error(error);
