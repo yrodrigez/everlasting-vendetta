@@ -66,7 +66,7 @@ export default async function AtieshMomentsPage() {
     } = await supabase.from('guild_events').select('*').eq('name', 'Atiesh').limit(1).maybeSingle();
 
     const isParticipating = participants?.find((x: { member_id: number }) => x.member_id === user?.id);
-    const isFullEnchanted = (user?.name ? (await fetchGearScore(user.name)) : false);
+    const isFullEnchanted = false //(user?.name ? (await fetchGearScore(user.name)) : false);
 
     return (
         <ScrollShadow
