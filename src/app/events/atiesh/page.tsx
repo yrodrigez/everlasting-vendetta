@@ -382,7 +382,7 @@ export default async function AtieshMomentsPage() {
                                             <span className="text-gold">{x.member.character.name}</span>
                                             <GearScore characterName={x.member.character.name}
                                                        allowForce={user?.roles?.includes(ROLE.GUILD_MASTER) || user?.name === x.member.character.name}/>
-                                            <span className="text-gold ">position: {x.position}</span>
+                                            <span className="text-gold ">position: {x.position === 2 ? '?': x.position}</span>
                                         </div>
                                     ))}
                                 </div>
