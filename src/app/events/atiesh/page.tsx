@@ -335,8 +335,7 @@ export default async function AtieshMomentsPage() {
                 <h2 className="text-2xl md:text-3xl font-semibold text-gold mb-4 py-2">
                     Participate in the Atiesh Event
                 </h2>
-                <div className="flex w-full justify-center items-center gap-4">
-
+                <div className="flex w-full justify-center items-center gap-4 flex-col-reverse md:flex-row">
                     {!!user ? (
                         <div className="flex flex-col w-full gap-4 items-center justify-center">
                             <div className="flex gap-2 items-center">
