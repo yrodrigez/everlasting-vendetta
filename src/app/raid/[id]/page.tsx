@@ -172,9 +172,9 @@ export default async function ({params}: { params: Promise<{ id: string }> }) {
 	const raidStarted = moment().isAfter(raidStartDate)
 
 	let isLoggedInUserLowGear = false
-	let characterGearScore = 99999
+	let characterGearScore = 999999
 	if (isLoggedInUser) {
-		characterGearScore = await getCharacterGearScore(isLoggedInUser?.name)
+		//characterGearScore = await getCharacterGearScore(isLoggedInUser?.name)
 		isLoggedInUserLowGear = characterGearScore < reset.raid.min_gs
 	}
 
