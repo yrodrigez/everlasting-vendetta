@@ -66,57 +66,81 @@ const findEquipmentBySlotTypes = (equipment: any, slots: string[]) => {
 	return result
 }
 
-async function fetchLootHistory(characterName: string) {
 
-	const {supabase} = await createServerSession({cookies})
-	const {data, error} = await supabase
-	.from('ev_loot_history')
-	.select('*')
-	.ilike('character', characterName)
+interface LootItem {
+	characterName: string
+	id: number
+	date: string
+	resetId: string
+}
+
+interface LootGroup {
+	resetId: string
+	date: string
+	items: LootItem[]
+	reset?: RaidResetData | null
+}
+
+interface RaidResetData {
+	name: string
+	raid: {
+		name: string
+	}
+}
+
+async function fetchLootHistory(characterName: string) {
+	const { supabase } = await createServerSession({ cookies })
+
+	const { data, error } = await supabase
+		.from('ev_loot_history')
+		.select('*')
+		.ilike('character', characterName)
 
 	if (error) {
-		console.error(error)
-	}
-	const loot = (data ?? []).map((item: any) => {
-		return {
-			characterName: item.character ?? '',
-			id: parseInt(item.itemID),
-			date: item.dateTime ?? '',
-			resetId: item.raid_id ?? '',
-		}
-	}).sort((a, b) => {
-		return moment(a.date).isBefore(moment(b.date)) ? 1 : -1
-	}).reduce((acc, item) => {
-		if (!acc[item.resetId]) {
-			acc[item.resetId] = {
-				// @ts-ignore
-				id: item.resetId,
-				date: item.date,
-				items: [],
-				reset: {}
-			}
-		}
-		// @ts-ignore
-		acc[item.resetId].items.push(item)
-		return acc
-	}, {} as { [key: string]: { id: string, characterName: string, date: string, items: any[], reset: any }[] })
-	for (const key in loot) {
-		// @ts-ignore
-		const resetId = loot[key].id
-		const {data: reset, error} = await supabase
-		.from('raid_resets')
-		.select('name, raid:ev_raid(name)')
-		.eq('id', resetId)
-		.single()
-		if (error) {
-			console.error(error)
-			continue
-		}
-		// @ts-ignore
-		loot[key].reset = reset
+		console.error('Error fetching loot history:', error)
+		return {}
 	}
 
-	return loot
+	const lootItems: LootItem[] = (data ?? []).map((item: any) => ({
+		characterName: item.character ?? '',
+		id: parseInt(item.itemID, 10),
+		date: item.dateTime ?? '',
+		resetId: item.raid_id ?? '',
+	}))
+
+	lootItems.sort((a, b) => moment(b.date).diff(moment(a.date)))
+
+	const lootGroups = new Map<string, LootGroup>()
+	lootItems.forEach(item => {
+		if (!lootGroups.has(item.resetId)) {
+			lootGroups.set(item.resetId, {
+				resetId: item.resetId,
+				date: item.date,
+				items: [],
+			})
+		}
+		lootGroups.get(item.resetId)!.items.push(item)
+	})
+
+	await Promise.all(
+		[...lootGroups.values()].map(async (group) => {
+			const { data: resetData, error: resetError } = await supabase
+				.from('raid_resets')
+				.select('name, raid:ev_raid(name)')
+				.eq('id', group.resetId)
+				.single()
+
+			if (resetError) {
+				console.error(`Error fetching raid reset for resetId ${group.resetId}:`, resetError)
+				group.reset = null
+			} else {
+				// @ts-ignore
+				group.reset = resetData
+			}
+		})
+	)
+
+	return Object.fromEntries(lootGroups.entries())
 }
 
 export async function generateMetadata({params}: { params: Promise<{ name: string }> }): Promise<Metadata> {
@@ -201,6 +225,7 @@ export default async function Page({params}: { params: Promise<{ name: string }>
 	const {token} = (cookieToken ? {token: cookieToken} : (await getBlizzardToken()))
 	const {name} = await params
 	const characterName = decodeURIComponent(name.toLowerCase())
+	const {auth, supabase} = await createServerSession({cookies})
 
 	const {
 		fetchMemberInfo,
@@ -209,13 +234,27 @@ export default async function Page({params}: { params: Promise<{ name: string }>
 		getCharacterTalents,
 		fetchCharacterStatistics
 	} = new WoWService()
-	const [isGuildMember, characterInfo, equipment, talents, characterStatistics, lootHistory] = await Promise.all([
+	const characterInfo = await fetchMemberInfo(characterName)
+	const [isGuildMember, equipment, talents, characterStatistics, lootHistory, {data: isCharacterBanned}, {data: isMemberPresent}, achievementData, attendance] = await Promise.all([
 		isLoggedUserInGuild(),
-		fetchMemberInfo(characterName),
 		fetchEquipment(characterName),
 		getCharacterTalents(characterName),
 		fetchCharacterStatistics(characterName),
-		fetchLootHistory(characterName)
+		fetchLootHistory(characterName),
+		supabase
+			.from('banned_member')
+			.select('id')
+			.eq('member_id', characterInfo.id)
+			.limit(1)
+			.maybeSingle(),
+		supabase.from('ev_member').select('id').eq('id', characterInfo.id).maybeSingle(),
+		fetchAchievements(supabase, characterInfo.id),
+		supabase.rpc('raid_attendance', {character_name: characterName}).returns<{
+			id: string,
+			raid_name: string,
+			raid_date: string,
+			participated: boolean,
+		}[]>()
 	])
 
 	const equipmentData = equipment.equipped_items
@@ -240,25 +279,9 @@ export default async function Page({params}: { params: Promise<{ name: string }>
 			</div>
 		</div>
 	}
-	const {auth, supabase} = await createServerSession({cookies})
 	const session = await auth.getSession()
 
-	const [{data: isCharacterBanned}, {data: isMemberPresent}, achievementData, attendance] = await Promise.all([
-		supabase
-		.from('banned_member')
-		.select('id')
-		.eq('member_id', characterInfo.id)
-		.limit(1)
-		.maybeSingle(),
-		supabase.from('ev_member').select('id').eq('id', characterInfo.id).maybeSingle(),
-		fetchAchievements(supabase, characterInfo.id),
-		supabase.rpc('raid_attendance', {character_name: characterName}).returns<{
-			id: string,
-			raid_name: string,
-			raid_date: string,
-			participated: boolean,
-		}[]>()
-	])
+
 	const canBan = !!(session?.permissions.includes('member.ban') && characterInfo.guild?.id !== GUILD_ID && isMemberPresent && !isCharacterBanned) // can ban only if not in the same guild
 	const canUnban = !!(session?.permissions.includes('member.unban') && characterInfo.guild?.id !== GUILD_ID && isCharacterBanned) // can unban only if not in the same guild
 
