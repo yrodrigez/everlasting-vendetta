@@ -23,8 +23,13 @@ export function useMessageBox() {
             message: string | ReactNode,
             title?: string,
             type?: 'success' | 'error' | 'epic' | 'window'
+            actionOnClose?: () => void
         } | Function) => {
-            const {message, title, type = 'success'} = typeof data === 'string' ? {message: data} : typeof data === 'function' ? data(close) : data
+            const {
+                message,
+                title,
+                type = 'success'
+            } = typeof data === 'string' ? {message: data} : typeof data === 'function' ? data(close) : data
             reset()
             if (title) {
                 setModalTitle(title)
@@ -40,13 +45,17 @@ export function useMessageBox() {
             if (type === 'epic') {
                 setModalClassName('border-gold glow-animation')
             }
-            if(type !== 'window') {
+            if (type !== 'window') {
                 setModalFooter(
                     <div
                         className="float-right"
                     >
-                        <Button className="bg-moss text-gold border border-moss-100 float-right rounded"
-                                onPress={onClose}>OK</Button>
+                        <Button className={ type === 'error' ? 'border-white border text-white' : "bg-moss text-gold border border-moss-100 float-right rounded"}
+                                variant={type === 'error' ? 'bordered' : undefined}
+                                onPress={() => {
+                                    onClose()
+                                    if (typeof data === 'object' && data.actionOnClose) data.actionOnClose()
+                                }}>OK</Button>
                     </div>
                 )
             } else {

@@ -175,7 +175,6 @@ export default async function ({params}: { params: Promise<{ id: string }> }) {
     const raidEndDate = moment(end_date)
     const raidInProgress = moment().isBetween(raidStartDate, raidEndDate)
 
-
     const raidStarted = moment().isAfter(raidStartDate)
 
     let isLoggedInUserLowGear = false
