@@ -1,5 +1,5 @@
 'use client';
-import React, {useMemo} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import ReactApexChart from "react-apexcharts";
 import {MemberWithStatistics} from "@/app/stats/page";
 
@@ -68,10 +68,10 @@ export default ({members}: { members: MemberWithStatistics[] }) => {
         }];
         return {series, options};
     }, [members]);
-    const [loading, setLoading] = React.useState(true);
-    React.useEffect(() => {
-        setLoading(!window);
-    }, );
+    const [loading, setLoading] = useState(true);
+    useEffect(() => {
+        setLoading(false);
+    });
     return (
         <div
             className={`bg-moss border border-stone rounded-lg min-h-[340px] backdrop-filter backdrop-blur-md w-full opacity-90 p-4`}>

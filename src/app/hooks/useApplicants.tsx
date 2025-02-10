@@ -8,8 +8,7 @@ import {useQuery} from "@tanstack/react-query";
 import {usePathname, useRouter} from "next/navigation";
 import {GUILD_ID} from "@utils/constants";
 import {useMessageBox} from "@utils/msgBox";
-import {useReservations} from "@/app/raid/[id]/soft-reserv/useReservations";
-import {alert} from "@nextui-org/theme";
+
 import {ItemWithTooltip} from "@/app/raid/[id]/loot/components/LootItem";
 
 function useReservationAlert(someoneReservedMoreThanMe: false | { resetId: string, itemId: number, item?: any }) {
