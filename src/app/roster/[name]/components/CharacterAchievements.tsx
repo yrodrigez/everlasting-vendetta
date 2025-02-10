@@ -46,7 +46,7 @@ function AchievementInfo({achievement, onClose}: { achievement: Achievement, onC
             <div
                 className="w-full h-full rounded-xl p-6 flex items-center justify-center bg-wood-900">
                 <div
-                    className="transform scale-150"
+                    className="transform lg:scale-150"
                 >
                 <AchievementCard achievement={achievement} isAchieved={true}/>
                 </div>
