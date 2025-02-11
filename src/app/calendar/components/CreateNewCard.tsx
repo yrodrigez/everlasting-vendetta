@@ -21,8 +21,8 @@ export default function CreateNewCard() {
             </div>
             <div className="absolute inset-0 z-20 pointer-events-none">
                 <div
-                    className="absolute left-[50%] top-1/2  -translate-y-1/2 transform transition-transform duration-700
-                 group-hover:translate-x-[5.1875rem]"
+                    className="absolute left-[50%] top-1/2 ml-[1px] -translate-y-1/2 transform transition-transform duration-700
+                 group-hover:translate-x-[5.1875rem] z-50"
                 >
                     <div className="relative aspect-[224/280] w-[calc(224/16*1rem)]">
                         <svg
@@ -53,8 +53,8 @@ export default function CreateNewCard() {
                     </div>
                 </div>
                 <div
-                    className="absolute right-1/2 top-1/2 -translate-y-1/2 transform transition-transform duration-700
-                 group-hover:translate-x-[-5.1875rem]"
+                    className="absolute right-1/2 top-1/2 mr-[1px]  -translate-y-1/2 transform transition-transform duration-700
+                 group-hover:translate-x-[-5.1875rem] z-50"
                 >
                     <div className="relative aspect-[224/280] w-[calc(224/16*1rem)] -scale-x-100">
                         <svg
@@ -87,7 +87,7 @@ export default function CreateNewCard() {
             <div
                   onMouseEnter={e => ref.current?.dispatchEvent(new MouseEvent('mouseenter'))}
                   onMouseLeave={e => ref.current?.dispatchEvent(new MouseEvent('mouseleave'))}
-                  className="bg-moss px-7 py-6 border border-moss-100 text-gold group-hover:border-gold rounded-full transition-all duration-500 group-hover:shadow-[0_0_15px_5px_rgba(201,168,102,0.8)] z-50"
+                  className="bg-moss px-7 py-6 border border-moss-100 text-gold group-hover:border-gold rounded-full transition-all duration-500 group-hover:shadow-[0_0_15px_5px_rgba(201,168,102,0.8)] z-10"
             >
                 <FontAwesomeIcon icon={faAdd}/>
             </div>
