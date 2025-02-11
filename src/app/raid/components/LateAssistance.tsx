@@ -1,6 +1,6 @@
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faClock} from "@fortawesome/free-solid-svg-icons";
-import {Button, Spinner, useDisclosure} from "@nextui-org/react";
+import {Button, Spinner, useDisclosure} from "@heroui/react";
 import {useAssistanceStore} from "@/app/raid/components/assistanceStore";
 import {useState} from "react";
 import {useSession} from "@/app/hooks/useSession";

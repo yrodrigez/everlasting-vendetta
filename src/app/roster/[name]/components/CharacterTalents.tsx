@@ -6,7 +6,7 @@ import {
 import {TalentTree} from "@/app/roster/[name]/components/talents/TalentTree";
 import {CharacterViewOptions} from "@/app/roster/[name]/components/CharacterViewOptions";
 import {useState} from "react";
-import {Tooltip} from "@nextui-org/react";
+import {Tooltip} from "@heroui/react";
 
 export const getTalentTreeIconUrl = (className: string, talentName: string) => {
     return `/talents-spec/${(className ?? '').toLowerCase()}/${(talentName ?? '').replaceAll(' ', '')}.jpg`

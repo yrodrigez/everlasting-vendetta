@@ -1,5 +1,5 @@
 'use client'
-import {Input} from "@nextui-org/react";
+import {Input} from "@heroui/react";
 import {useApplyFormStore} from "@/app/apply/components/store";
 import {useEffect, useState} from "react";
 

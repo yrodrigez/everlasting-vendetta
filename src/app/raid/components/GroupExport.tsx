@@ -3,7 +3,7 @@ import {useSession} from "@hooks/useSession";
 import {useQuery} from "@tanstack/react-query";
 import {type Role} from "@/app/components/characterStore";
 import {useState, useMemo, useCallback} from "react";
-import {Spinner} from "@nextui-org/react";
+import {Spinner} from "@heroui/react";
 
 export default function GroupExport({resetId}: { resetId: string }) {
     const {supabase} = useSession();

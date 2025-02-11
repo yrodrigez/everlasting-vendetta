@@ -1,6 +1,6 @@
 import {useModal} from "@hooks/useModal";
 import {ReactNode} from "react";
-import {Button} from "@nextui-org/react";
+import {Button} from "@heroui/react";
 
 export function useMessageBox() {
 

@@ -12,7 +12,7 @@ import {faCartPlus, faGift} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 import {RaidOptions} from "@/app/raid/components/RaidOptions";
-import {Tooltip} from "@nextui-org/react";
+import {Tooltip} from "@heroui/react";
 import {faDiscord} from "@fortawesome/free-brands-svg-icons";
 import {Metadata} from "next";
 import createServerSession from "@utils/supabase/createServerSession";

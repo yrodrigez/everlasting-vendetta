@@ -3,7 +3,7 @@ import {faCloudArrowUp} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {useSession} from "@/app/hooks/useSession";
 import {type SupabaseClient} from "@supabase/supabase-js";
-import {Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure} from "@nextui-org/react";
+import {Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure} from "@heroui/react";
 
 import {useMutation, useQuery} from "@tanstack/react-query";
 import {useRef, useState} from "react";

@@ -2,7 +2,7 @@
 import {Button} from "@/app/components/Button";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCheck, faTrash} from "@fortawesome/free-solid-svg-icons";
-import {Chip, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip} from "@nextui-org/react";
+import {Chip, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip} from "@heroui/react";
 import React, {useCallback, useEffect} from "react";
 import Link from "next/link";
 import {getClassIcon, getRoleIcon} from "@/app/apply/components/utils";

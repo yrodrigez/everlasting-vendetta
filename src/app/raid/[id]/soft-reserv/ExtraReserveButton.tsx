@@ -1,7 +1,7 @@
 import {Button} from "@/app/components/Button";
 import {faUserPlus} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {ModalBody, ModalContent, Modal, useDisclosure, ModalHeader, ModalFooter, Chip} from "@nextui-org/react";
+import {ModalBody, ModalContent, Modal, useDisclosure, ModalHeader, ModalFooter, Chip} from "@heroui/react";
 import {useSession} from "@/app/hooks/useSession";
 import {type SupabaseClient} from "@supabase/supabase-js";
 import {useQuery} from "@tanstack/react-query";

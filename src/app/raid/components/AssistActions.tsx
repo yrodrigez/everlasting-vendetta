@@ -11,7 +11,7 @@ import {
     ModalHeader,
     Spinner,
     useDisclosure
-} from "@nextui-org/react";
+} from "@heroui/react";
 import {useAssistanceStore} from "@/app/raid/components/assistanceStore";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faChair, faCheck, faUser} from "@fortawesome/free-solid-svg-icons";

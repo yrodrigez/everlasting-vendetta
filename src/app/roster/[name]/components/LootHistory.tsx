@@ -2,7 +2,7 @@
 import moment from "moment/moment";
 import {ItemWithTooltip} from "@/app/raid/[id]/loot/components/LootItem";
 import {useEffect, useState} from "react";
-import {ScrollShadow, Spinner} from "@nextui-org/react";
+import {ScrollShadow, Spinner} from "@heroui/react";
 import {useWoWZamingCss} from "@/app/hooks/useWoWZamingCss";
 
 const fetchItemDataById = async (itemId: string) => {

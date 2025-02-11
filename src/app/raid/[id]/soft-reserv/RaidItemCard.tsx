@@ -2,7 +2,7 @@ import {Character, RaidItem} from "@/app/raid/[id]/soft-reserv/types";
 import {useWoWZamingCss} from "@/app/hooks/useWoWZamingCss";
 import Image from "next/image";
 import {useEffect, useRef, useState} from "react";
-import {Button, Modal, ModalContent, Tooltip} from "@nextui-org/react";
+import {Button, Modal, ModalContent, Tooltip} from "@heroui/react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
     faBan,
@@ -21,16 +21,18 @@ export const ItemTooltip = ({item, qualityColor}: {
     qualityColor: 'poor' | 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'
 }) => {
 
-    return <div
-        className={`flex gap-2 relative`}>
-        <img src={item.description.icon} alt={item.name} width={40} height={40}
-               className={`max-h-[40px] max-w-[40px] w-[40px] h-[40px] border border-${qualityColor} rounded absolute top-0 -left-10 ${item.isHardReserved ? 'grayscale' :''}`}/>
+    return (
         <div
-            className={`bg-black border border-${qualityColor} rounded max-w-64 p-2 select-none`}
-            dangerouslySetInnerHTML={{
-                __html: item.description.tooltip.replaceAll(/<a/g, '<span').replaceAll(/<\/a/g, '</span')
-            }}/>
-    </div>
+            className={`flex gap-2 relative`}>
+            <img src={item.description.icon} alt={item.name} width={40} height={40}
+                   className={`max-h-[40px] max-w-[40px] w-[40px] h-[40px] border border-${qualityColor} rounded absolute top-0 -left-10 ${item.isHardReserved ? 'grayscale' :''}`}/>
+            <div
+                className={`bg-black border border-${qualityColor} rounded max-w-64 p-2 select-none`}
+                dangerouslySetInnerHTML={{
+                    __html: item.description.tooltip.replaceAll(/<a/g, '<span').replaceAll(/<\/a/g, '</span')
+                }}/>
+        </div>
+    );
 }
 
 const ReservedByList = ({reservedBy}: { reservedBy: Character[] }) => {

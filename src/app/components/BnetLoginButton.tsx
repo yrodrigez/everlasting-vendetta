@@ -1,5 +1,5 @@
 'use client'
-import {Button} from "@nextui-org/react";
+import {Button} from "@heroui/react";
 import Link from "next/link";
 import {usePathname, useRouter} from "next/navigation";
 import useScreenSize from "@/app/hooks/useScreenSize";

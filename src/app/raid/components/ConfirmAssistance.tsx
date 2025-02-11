@@ -1,4 +1,4 @@
-import {Popover, PopoverContent, PopoverTrigger, useDisclosure} from "@nextui-org/react";
+import {Popover, PopoverContent, PopoverTrigger, useDisclosure} from "@heroui/react";
 import {useAssistanceStore} from "@/app/raid/components/assistanceStore";
 import {useSession} from "@/app/hooks/useSession";
 import React, {useCallback, useEffect, useMemo, useState} from "react";

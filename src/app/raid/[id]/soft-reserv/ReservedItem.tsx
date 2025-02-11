@@ -1,5 +1,5 @@
 import {type Reservation} from "@/app/raid/[id]/soft-reserv/types";
-import {Spinner, Tooltip} from "@nextui-org/react";
+import {Spinner, Tooltip} from "@heroui/react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faTrash} from "@fortawesome/free-solid-svg-icons";
 import Image from "next/image";
@@ -25,7 +25,7 @@ export function ReservedItem({reservation, belongsToLogged, remove, reservations
     ][quality ?? 0] ?? 'common'
 
     return (
-        <div className="flex items-center justify-between p-2 rounded-md">
+        (<div className="flex items-center justify-between p-2 rounded-md">
             <Tooltip
                 className="bg-transparent border-none shadow-none"
                 content={(
@@ -56,7 +56,7 @@ export function ReservedItem({reservation, belongsToLogged, remove, reservations
                     )}
                 </div>
             </Tooltip>
-        </div>
-    )
+        </div>)
+    );
 
 }

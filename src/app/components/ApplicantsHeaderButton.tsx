@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState} from "react";
 import useApplicants from "@hooks/useApplicants";
-import {Badge} from "@nextui-org/badge";
+import {Badge} from "@heroui/badge";
 import Link from "next/link";
 import Image from "next/image";
 

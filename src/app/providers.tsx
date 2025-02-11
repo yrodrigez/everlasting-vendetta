@@ -1,7 +1,7 @@
 'use client'
 import * as React from "react";
 import {type ReactNode} from "react";
-import {NextUIProvider} from "@nextui-org/react";
+import {HeroUIProvider} from "@heroui/react";
 import {QueryClient, QueryClientProvider,} from '@tanstack/react-query'
 import {ThemeProvider as NextThemesProvider} from "next-themes";
 import ApplicantsContext from "@/app/providers/ApplicantsContext";
@@ -18,9 +18,9 @@ function Providers({children}: { children: ReactNode }) {
 				<ModalProvider>
 					<AchievementsProvider>
 						<NextThemesProvider attribute="class" defaultTheme="light">
-							<NextUIProvider style={{height: "100%"}}>
+							<HeroUIProvider style={{height: "100%"}}>
 								{children}
-							</NextUIProvider>
+							</HeroUIProvider>
 						</NextThemesProvider>
 					</AchievementsProvider>
 				</ModalProvider>

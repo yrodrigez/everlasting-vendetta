@@ -1,5 +1,5 @@
 'use client'
-import {Skeleton, Tooltip} from "@nextui-org/react";
+import {Skeleton, Tooltip} from "@heroui/react";
 import {useQuery} from "@tanstack/react-query";
 
 export default function GearScore({character, isGuildMember}: { character: string, isGuildMember: boolean }) {

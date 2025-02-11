@@ -8,12 +8,16 @@ import {redirect} from "next/navigation";
 import {Button} from "@/app/components/Button";
 import Link from "next/link";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faAdd, faArrowLeft, faArrowRight} from "@fortawesome/free-solid-svg-icons";
+import {faAdd, faArrowLeft, faArrowRight, faHeart, faShield} from "@fortawesome/free-solid-svg-icons";
 import {type SupabaseClient} from "@supabase/supabase-js";
 import createServerSession from "@/app/util/supabase/createServerSession";
 import {fetchResetParticipants} from "@/app/raid/api/fetchParticipants";
 import Refresher from "@/app/calendar/components/Refresher";
 import {CalendarSkeleton} from "@/app/calendar/CalendarSkeleton";
+import {Skeleton} from "@heroui/react";
+import React from "react";
+import {DpsIcon} from "@/app/raid/components/KpisView";
+import CreateNewCard from "@/app/calendar/components/CreateNewCard";
 
 export const dynamic = 'force-dynamic'
 
@@ -131,20 +135,26 @@ export default async function Page({searchParams}: { searchParams: Promise<{ d?:
 
     const previousWeeksPath = getPreviousWeeks(currentDate, raidResets[0]?.raid_date)
     const nextWeeksPath = getNextWeeks(currentDate, raidResets[raidResets.length - 1]?.end_date)
+    const canCreate = user?.permissions?.some(p => p === 'reset.create')
 
     return <main className="flex justify-center items-center relative">
-        <div className="absolute top-0 -left-8">
-            <Link href={previousWeeksPath}>
-                <Button isIconOnly>
-                    <FontAwesomeIcon icon={faArrowLeft}/>
-                </Button>
-            </Link>
+        <div className={
+            `absolute top-0 lg:-left-8 -left-1 h-full`
+        }>
+            <div className="fixed sticky top-0">
+                <Link href={previousWeeksPath}>
+                    <Button isIconOnly>
+                        <FontAwesomeIcon icon={faArrowLeft}/>
+                    </Button>
+                </Link>
+            </div>
         </div>
-        <div className="flex gap-3 flex-col justify-center items-center md:flex-wrap md:flex-row w-full">
+        <div className="flex gap-3 flex-col lg:ml-9 items-center md:flex-wrap md:flex-row w-full h-full">
+
             {raidResets.map((raidReset, index: number) => {
                 return <RaidResetCard
                     raidEndDate={raidReset.end_date}
-                    isEditable={user?.permissions?.some(p => p === 'reset.edit') && moment(raidReset.raid_date+'T'+raidReset.time).isAfter(moment())}
+                    isEditable={user?.permissions?.some(p => p === 'reset.edit') && moment(raidReset.raid_date + 'T' + raidReset.time).isAfter(moment())}
                     id={raidReset.id}
                     key={index}
                     raidName={raidReset.raid.name}
@@ -159,18 +169,23 @@ export default async function Page({searchParams}: { searchParams: Promise<{ d?:
                     status={raidReset.status}
                 />
             })}
+            {raidResets.length < 9 && (<CreateNewCard/>)}
         </div>
-        <div className="absolute top-0 -right-8 flex flex-col gap-2">
-            <Link href={nextWeeksPath}>
-                <Button isIconOnly>
-                    <FontAwesomeIcon icon={faArrowRight}/>
-                </Button>
-            </Link>
-            <Link href={'/calendar/new'}>
-                <Button isIconOnly>
-                    <FontAwesomeIcon icon={faAdd}/>
-                </Button>
-            </Link>
+        <div className={
+            `absolute top-0 lg:-right-8 -right-1 h-full`
+        }>
+            <div className="sticky top-0  flex flex-col gap-2">
+                <Link href={nextWeeksPath}>
+                    <Button isIconOnly>
+                        <FontAwesomeIcon icon={faArrowRight}/>
+                    </Button>
+                </Link>
+                {canCreate && <Link href={'/calendar/new'}>
+                    <Button isIconOnly>
+                        <FontAwesomeIcon icon={faAdd}/>
+                    </Button>
+                </Link>}
+            </div>
         </div>
         <Refresher/>
     </main>

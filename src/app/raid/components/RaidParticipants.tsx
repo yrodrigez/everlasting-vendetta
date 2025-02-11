@@ -1,6 +1,6 @@
 'use client'
 import React, {useCallback, useEffect, useState} from "react";
-import {Chip, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip} from "@nextui-org/react";
+import {Chip, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip} from "@heroui/react";
 import Link from "next/link";
 import {getClassIcon, getRoleIcon} from "@/app/apply/components/utils";
 import {useSession} from "@/app/hooks/useSession";
@@ -105,9 +105,9 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
     const {data: guildEvent} = useQuery({
         queryKey: ['guildEvent', raidId],
         queryFn: async () => {
-            const {data = [], error = false} = await supabase?.from('guild_events_participants').select('*')
+            const {data = [], error = false} = (await supabase?.from('guild_events_participants').select('*')
                 .eq('event_id', 1)
-                .eq('position', 1)
+                .eq('position', 1))
             ?? {}
 
             if (error) {

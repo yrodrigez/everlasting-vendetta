@@ -1,5 +1,5 @@
 'use client'
-import {DatePicker} from "@nextui-org/react";
+import {DatePicker} from "@heroui/react";
 import {
 	getLocalTimeZone,
 	today,

@@ -1,6 +1,6 @@
 'use client'
 import {ItemDetails} from "@/app/components/CharacterItem";
-import {Button, Modal, ModalBody, ModalContent, Tooltip, useDisclosure} from "@nextui-org/react";
+import {Button, Modal, ModalBody, ModalContent, Tooltip, useDisclosure} from "@heroui/react";
 
 import {ItemDetailedView} from "@/app/roster/[name]/components/ItemDetailedView";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";

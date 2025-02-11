@@ -1,4 +1,4 @@
-import {Tooltip} from "@nextui-org/react";
+import {Tooltip} from "@heroui/react";
 import Image from "next/image";
 import {ItemTooltip} from "@/app/components/item/ItemTooltip";
 import {useWoWZamingCss} from "@/app/hooks/useWoWZamingCss";

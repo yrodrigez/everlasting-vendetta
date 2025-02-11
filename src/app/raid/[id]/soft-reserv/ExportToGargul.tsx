@@ -1,4 +1,4 @@
-import {Button, Modal, ModalBody, ModalContent, ModalHeader, Tooltip, useDisclosure} from "@nextui-org/react";
+import {Button, Modal, ModalBody, ModalContent, ModalHeader, Tooltip, useDisclosure} from "@heroui/react";
 import {faFileExport} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import type {Character, RaidItem} from "@/app/raid/[id]/soft-reserv/types";

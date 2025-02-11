@@ -1,4 +1,4 @@
-import {Button, Spinner} from "@nextui-org/react";
+import {Button, Spinner} from "@heroui/react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faBan} from "@fortawesome/free-solid-svg-icons";
 import {useSession} from "@/app/hooks/useSession";

@@ -2,9 +2,9 @@
 import useCreateRaidStore from "@/app/calendar/new/Components/useCreateRaidStore";
 import {RaidResetCard} from "@/app/calendar/components/RaidResetCard";
 import moment from "moment";
-import {RangeCalendar} from "@nextui-org/calendar";
+import {RangeCalendar} from "@heroui/calendar";
 import {CalendarDate as InterCalendar} from "@internationalized/date";
-import {Tooltip} from "@nextui-org/react";
+import {Tooltip} from "@heroui/react";
 
 export function RaidCard() {
 

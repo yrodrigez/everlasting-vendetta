@@ -4,7 +4,7 @@ import {CharacterViewOptions} from "@/app/roster/[name]/components/CharacterView
 import {CharacterTalents} from "@/app/roster/[name]/components/CharacterTalents";
 import moment from "moment";
 import {cookies} from "next/headers";
-import {Tooltip} from "@nextui-org/react";
+import {Tooltip} from "@heroui/react";
 import {getBlizzardToken} from "@/app/lib/getBlizzardToken";
 import WoWService from "@/app/services/wow-service";
 import GearScore from "@/app/roster/[name]/components/GearScore";

@@ -8,7 +8,7 @@ import {
     ScrollShadow,
     Tooltip,
     useDisclosure
-} from "@nextui-org/react";
+} from "@heroui/react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faArrowRightLong, faClose, faObjectGroup, faTrash, faUserGroup} from "@fortawesome/free-solid-svg-icons";
 import {useEffect, useState} from "react";

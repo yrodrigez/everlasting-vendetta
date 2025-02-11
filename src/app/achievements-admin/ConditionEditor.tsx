@@ -1,5 +1,5 @@
 'use client'
-import {Input} from "@nextui-org/react";
+import {Input} from "@heroui/react";
 import Editor from '@monaco-editor/react';
 import {editor} from "monaco-editor";
 import {useEffect, useState} from "react";

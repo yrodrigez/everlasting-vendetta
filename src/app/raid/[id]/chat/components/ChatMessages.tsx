@@ -3,7 +3,7 @@ import {ReactNode, useCallback, useEffect, useRef, useState} from "react";
 import {useSessionStore} from "@hooks/useSessionStore";
 import Link from "next/link";
 import {useQuery} from "@tanstack/react-query";
-import {Button, Popover, PopoverContent, PopoverTrigger, Spinner, Tooltip, useDisclosure} from "@nextui-org/react";
+import {Button, Popover, PopoverContent, PopoverTrigger, Spinner, Tooltip, useDisclosure} from "@heroui/react";
 
 import {ChevronDown, ChevronUp, SmilePlus} from "lucide-react";
 import {MessageReaction, Reaction} from "@/app/raid/[id]/chat/components/useReactions";

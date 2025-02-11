@@ -1,5 +1,5 @@
 'use client'
-import {Tooltip} from "@nextui-org/react"
+import {Tooltip} from "@heroui/react"
 import RaidTimeInfo from "@/app/raid/components/RaidTimeInfo";
 import {useRouter} from "next/navigation";
 import {KpisView} from "@/app/raid/components/KpisView";

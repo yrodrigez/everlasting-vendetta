@@ -12,7 +12,7 @@ import {
     PopoverContent,
     PopoverTrigger, ScrollShadow,
     Spinner, Tooltip
-} from "@nextui-org/react";
+} from "@heroui/react";
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 
 import {

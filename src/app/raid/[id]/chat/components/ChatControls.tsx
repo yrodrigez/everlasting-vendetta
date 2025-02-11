@@ -1,4 +1,4 @@
-import {Input, Tooltip} from "@nextui-org/react";
+import {Input, Tooltip} from "@heroui/react";
 import {Button} from "@/app/components/Button";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPaperPlane} from "@fortawesome/free-solid-svg-icons";

@@ -1,4 +1,4 @@
-import {Card, CardFooter} from "@nextui-org/react";
+import {Card, CardFooter} from "@heroui/react";
 import {Metadata} from "next";
 import {Button} from "@/app/components/Button";
 import Link from "next/link";

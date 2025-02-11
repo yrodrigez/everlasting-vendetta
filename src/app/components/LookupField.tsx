@@ -1,6 +1,6 @@
 'use client'
 import React, {useEffect} from "react";
-import {Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button} from "@nextui-org/react";
+import {Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button} from "@heroui/react";
 
 
 export default function LookupField({value, onChange, values, icon, title}: {

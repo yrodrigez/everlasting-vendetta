@@ -4,7 +4,7 @@ import createServerSession from "@utils/supabase/createServerSession";
 import {cookies} from "next/headers";
 import {ROLE} from "@utils/constants";
 import NotLoggedInView from "@/app/components/NotLoggedInView";
-import {ScrollShadow} from "@nextui-org/react";
+import {ScrollShadow} from "@heroui/react";
 import Sound from "@/app/events/components/Sound";
 import ParticipateButton from "@/app/events/components/ParticipateButton";
 import GearScore from "@/app/components/GearScore";

@@ -3,7 +3,7 @@ import {type CharacterWithLoot, type Item} from "@/app/raid/[id]/loot/components
 import {useWoWZamingCss} from "@/app/hooks/useWoWZamingCss";
 import Image from "next/image";
 import Link from "next/link";
-import {Modal, ModalContent, Skeleton, Tooltip, useDisclosure} from "@nextui-org/react";
+import {Modal, ModalContent, Skeleton, Tooltip, useDisclosure} from "@heroui/react";
 import {faMasksTheater, faPlus} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {useQuery} from "@tanstack/react-query";
@@ -18,55 +18,53 @@ export const ItemWithTooltip = ({item}: { item: Item }) => {
         'epic',
         'legendary',
     ][item.quality]
-    return (
-        <>
-            <Tooltip
-                className={`bg-black border border-${qualityColor} rounded-lg max-w-64`}
-                isDisabled={!item.isPlus && !item.offspec}
-                content={
-                   item.isPlus ? 'Plus'
-                     : item.offspec ? 'Offspec'
-                        : 'Main spec'
-                }
-                placement="top"
-                showArrow
+    return (<>
+        <Tooltip
+            className={`bg-black border border-${qualityColor} rounded-lg max-w-64`}
+            isDisabled={!item.isPlus && !item.offspec}
+            content={
+               item.isPlus ? 'Plus'
+                 : item.offspec ? 'Offspec'
+                    : 'Main spec'
+            }
+            placement="top"
+            showArrow
+        >
+            <div className="relative cursor-pointer"
+                 onClick={onOpen}
             >
-                <div className="relative cursor-pointer"
-                     onClick={onOpen}
-                >
-                    <Image
-                        className={`rounded-lg border border-${qualityColor} block bg-cover  min-h-10 min-w-10`}
-                        src={item.icon} width={36} height={36} alt={item.name}
-                    />
-                    {(item.isPlus || item.offspec) && <div
-                      className={`absolute -top-1 -right-1 text-gold border-gold border px-1 rounded-full text-xs bg-dark`}>
-                      <FontAwesomeIcon icon={item.isPlus ? faPlus : faMasksTheater}/>
-                    </div>
-                    }
+                <Image
+                    className={`rounded-lg border border-${qualityColor} block bg-cover  min-h-10 min-w-10`}
+                    src={item.icon} width={36} height={36} alt={item.name}
+                />
+                {(item.isPlus || item.offspec) && <div
+                  className={`absolute -top-1 -right-1 text-gold border-gold border px-1 rounded-full text-xs bg-dark`}>
+                  <FontAwesomeIcon icon={item.isPlus ? faPlus : faMasksTheater}/>
                 </div>
-            </Tooltip>
-            <Modal
-                isOpen={isOpen}
-                onClose={onClose}
-                className={`bg-transparent border-none shadow-none`}
-            >
-                <ModalContent>
-                    {() =>
-                        <div className={`flex gap-2 p-2`}>
-                            <img
-                                className={`rounded-lg border border-${qualityColor} block bg-cover max-h-10 max-w-10 min-h-10 min-w-10 `}
-                                src={item.icon} width={36} height={36} alt={item.name}
-                            />
-                            <div
-                                className={`w-96 border border-${qualityColor} rounded-lg p-2 bg-dark bg-blend-color select-none`}
-                                dangerouslySetInnerHTML={{__html: item.tooltip.replaceAll(/<a/g, '<span').replaceAll(/<\/a>/g, '</span>') || ''}}
-                            />
-                        </div>
-                    }
-                </ModalContent>
-            </Modal>
-        </>
-    )
+                }
+            </div>
+        </Tooltip>
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            className={`bg-transparent border-none shadow-none`}
+        >
+            <ModalContent>
+                {() =>
+                    <div className={`flex gap-2 p-2`}>
+                        <img
+                            className={`rounded-lg border border-${qualityColor} block bg-cover max-h-10 max-w-10 min-h-10 min-w-10 `}
+                            src={item.icon} width={36} height={36} alt={item.name}
+                        />
+                        <div
+                            className={`w-96 border border-${qualityColor} rounded-lg p-2 bg-dark bg-blend-color select-none`}
+                            dangerouslySetInnerHTML={{__html: item.tooltip.replaceAll(/<a/g, '<span').replaceAll(/<\/a>/g, '</span>') || ''}}
+                        />
+                    </div>
+                }
+            </ModalContent>
+        </Modal>
+    </>);
 }
 
 const CharacterAvatar = ({characterName}: { characterName: string }) => {

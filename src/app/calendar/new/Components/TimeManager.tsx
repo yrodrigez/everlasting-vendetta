@@ -1,5 +1,5 @@
 'use client'
-import {TimeInput} from "@nextui-org/react";
+import {TimeInput} from "@heroui/react";
 import {Time} from "@internationalized/date";
 import useCreateRaidStore from "@/app/calendar/new/Components/useCreateRaidStore";
 import moment from "moment";

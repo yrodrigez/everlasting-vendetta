@@ -1,5 +1,5 @@
 'use client'
-import {Tooltip} from "@nextui-org/react";
+import {Tooltip} from "@heroui/react";
 import {useReservations} from "@/app/raid/[id]/soft-reserv/useReservations";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faArrowLeft, faLock, faLockOpen} from "@fortawesome/free-solid-svg-icons";

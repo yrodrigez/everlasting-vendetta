@@ -1,5 +1,5 @@
 'use client'
-import {Tooltip} from "@nextui-org/react";
+import {Tooltip} from "@heroui/react";
 
 export function TalentTooltip({talent, maxPoints}: { talent: any, maxPoints: number}) {
     const {spell_tooltip} = talent

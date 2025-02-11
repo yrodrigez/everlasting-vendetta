@@ -1,6 +1,6 @@
 'use client'
 import {useCallback, useEffect, useRef} from "react";
-import {Modal, ModalBody, ModalContent, ModalHeader, useDisclosure} from "@nextui-org/react";
+import {Modal, ModalBody, ModalContent, ModalHeader, useDisclosure} from "@heroui/react";
 import AvailableCharactersList from "@/app/components/AvailableCharactersList";
 import {useCharacterStore} from "@/app/components/characterStore";
 import {toast} from "sonner";

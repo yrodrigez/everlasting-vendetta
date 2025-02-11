@@ -10,7 +10,7 @@ import {
     ModalFooter,
     Modal,
     useDisclosure
-} from "@nextui-org/react";
+} from "@heroui/react";
 import LookupField from "@/app/components/LookupField";
 import Link from "next/link";
 import {onForm, getClassIcon, getRoleIcon} from "@/app/apply/components/utils";

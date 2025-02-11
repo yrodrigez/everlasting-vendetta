@@ -1,4 +1,4 @@
-import {Button as MuiButton, type ButtonProps} from '@nextui-org/react';
+import {Button as MuiButton, type ButtonProps} from "@heroui/react";
 import {type ReactNode} from "react";
 
 

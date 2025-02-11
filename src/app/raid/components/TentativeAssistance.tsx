@@ -3,7 +3,7 @@ import {useAssistanceStore} from "@/app/raid/components/assistanceStore";
 import React, {useState} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faQuestion} from "@fortawesome/free-solid-svg-icons";
-import {Button, Spinner, useDisclosure} from "@nextui-org/react";
+import {Button, Spinner, useDisclosure} from "@heroui/react";
 import {assistRaid} from "@/app/raid/components/utils";
 import useScreenSize from "@/app/hooks/useScreenSize";
 import {ShouldReserveModal} from "@/app/raid/components/ShouldReserveModal";

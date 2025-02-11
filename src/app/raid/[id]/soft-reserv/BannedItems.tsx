@@ -4,7 +4,7 @@ import Link from "next/link";
 import {useReservations} from "@/app/raid/[id]/soft-reserv/useReservations";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faClose, faCloudArrowDown} from "@fortawesome/free-solid-svg-icons";
-import {Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ScrollShadow, useDisclosure} from "@nextui-org/react";
+import {Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ScrollShadow, useDisclosure} from "@heroui/react";
 import {Button} from "@/app/components/Button";
 import {useCallback, useState} from "react";
 import {useQuery} from "@tanstack/react-query";

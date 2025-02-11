@@ -1,5 +1,5 @@
 'use client'
-import {Tooltip, useDisclosure} from "@nextui-org/react";
+import {Tooltip, useDisclosure} from "@heroui/react";
 import moment from "moment/moment";
 import Link from "next/link";
 import {useState} from "react";

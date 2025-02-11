@@ -1,5 +1,5 @@
 import {useFiltersStore} from "@/app/raid/[id]/soft-reserv/filtersStore";
-import {Button, Chip, Input, Modal, ModalContent, Tooltip} from "@nextui-org/react";
+import {Button, Chip, Input, Modal, ModalContent, Tooltip} from "@heroui/react";
 import React, {useState} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faClose, faFilter} from "@fortawesome/free-solid-svg-icons";

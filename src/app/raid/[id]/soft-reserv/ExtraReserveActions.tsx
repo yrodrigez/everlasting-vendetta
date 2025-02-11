@@ -4,7 +4,7 @@ import {faMinus, faPlus} from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 import {useMutation} from "@tanstack/react-query";
 import {type SupabaseClient} from "@supabase/supabase-js";
-import {Spinner} from "@nextui-org/react";
+import {Spinner} from "@heroui/react";
 
 async function updateExtraReserve(resetId: string, characterId: number, amount: number, supabase?: SupabaseClient) {
     if (!supabase) {

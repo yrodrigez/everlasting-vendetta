@@ -8,7 +8,7 @@ import {
     ModalHeader,
     ScrollShadow,
     useDisclosure
-} from "@nextui-org/react";
+} from "@heroui/react";
 import {faCircleInfo} from "@fortawesome/free-solid-svg-icons";
 import React, {useEffect} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";

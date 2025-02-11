@@ -3,7 +3,7 @@ import createServerSession from "@utils/supabase/createServerSession";
 import {cookies} from "next/headers";
 import {ROLE} from "@utils/constants";
 import {Achievement, AchievementCondition} from "@/app/types/Achievements";
-import {Input, Textarea} from "@nextui-org/react";
+import {Input, Textarea} from "@heroui/react";
 import {revalidatePath} from "next/cache"
 import {redirect} from "next/navigation";
 import {Button} from "@/app/components/Button";

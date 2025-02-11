@@ -1,7 +1,7 @@
 'use client'
 import {Achievement} from "@/app/types/Achievements";
 import moment from "moment";
-import {Button, ScrollShadow} from "@nextui-org/react";
+import {Button, ScrollShadow} from "@heroui/react";
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {createBrowserClient} from "@supabase/ssr"
 import {useQuery} from "@tanstack/react-query";

@@ -1,7 +1,7 @@
 'use client'
 
-import {Card, CardBody, Skeleton} from "@nextui-org/react";
-import {CardFooter, CardHeader} from "@nextui-org/card";
+import {Card, CardBody, Skeleton} from "@heroui/react";
+import {CardFooter, CardHeader} from "@heroui/card";
 import React from "react";
 import {DpsIcon} from "@/app/raid/components/KpisView";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";

@@ -5,7 +5,7 @@ import {useReservations} from "@/app/raid/[id]/soft-reserv/useReservations";
 import {RaidItemCard} from "@/app/raid/[id]/soft-reserv/RaidItemCard";
 import {Filters} from "@/app/raid/[id]/soft-reserv/Filters";
 import {useFiltersStore} from "@/app/raid/[id]/soft-reserv/filtersStore";
-import {Button, ScrollShadow} from "@nextui-org/react";
+import {Button, ScrollShadow} from "@heroui/react";
 import {useRouter} from "next/navigation";
 
 export default function RaidItemsList({items, initialReservedItems, resetId, isAdmin}: {

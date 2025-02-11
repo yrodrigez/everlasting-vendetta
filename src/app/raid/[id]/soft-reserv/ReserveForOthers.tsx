@@ -9,7 +9,7 @@ import {
     ModalFooter,
     ModalHeader,
     useDisclosure
-} from "@nextui-org/react";
+} from "@heroui/react";
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useReservations} from "@/app/raid/[id]/soft-reserv/useReservations";
 import {toast} from "sonner";
