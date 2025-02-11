@@ -7,11 +7,12 @@ import {useRef} from "react";
 export default function CreateNewCard() {
     const ref = useRef<HTMLDivElement>(null);
     return (
-        <div
+        <Link
+            href="/calendar/new"
             className="relative group w-[300px] h-[256px] rounded-md border border-wood-100 bg-wood-900 backdrop-blur p-3 flex flex-col items-center justify-center overflow-hidden">
             <div
                 ref={ref}
-                className="absolute inset-0 z-10 bg-gradient-to-br from-[#64E5FF]/30 to-transparent opacity-0 transition-opacity duration-700 group-hover:opacity-100">
+                className="absolute inset-0 z-10 bg-gradient-to-br from-moss/30 to-transparent opacity-0 transition-opacity duration-700 group-hover:opacity-100">
                 {/* @ts-ignore*/}
                 <pixel-canvas
                     /* @ts-ignore*/
@@ -83,13 +84,13 @@ export default function CreateNewCard() {
                     </div>
                 </div>
             </div>
-            <Link href="/calendar/new"
+            <div
                   onMouseEnter={e => ref.current?.dispatchEvent(new MouseEvent('mouseenter'))}
                   onMouseLeave={e => ref.current?.dispatchEvent(new MouseEvent('mouseleave'))}
                   className="bg-moss px-7 py-6 border border-moss-100 text-gold group-hover:border-gold rounded-full transition-all duration-500 group-hover:shadow-[0_0_15px_5px_rgba(201,168,102,0.8)] z-50"
             >
                 <FontAwesomeIcon icon={faAdd}/>
-            </Link>
-        </div>
+            </div>
+        </Link>
     )
 }
