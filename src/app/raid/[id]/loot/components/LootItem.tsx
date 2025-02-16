@@ -33,7 +33,7 @@ export const ItemWithTooltip = ({item, className}: { item: Item, className?: str
             <div className="relative cursor-pointer"
                  onClick={onOpen}
             >
-                <Image
+                <img
                     className={`rounded-lg border border-${qualityColor} block bg-cover min-h-10 min-w-10 ${className}`}
                     src={item.icon} width={36} height={36} alt={item.name}
                 />

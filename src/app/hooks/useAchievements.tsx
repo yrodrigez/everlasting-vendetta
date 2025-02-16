@@ -24,7 +24,7 @@ export function displayAchievement(achievement: Achievement) {
 	toast.custom(() => (
 		<div className="flex items-center gap-4 w-[600px] h-[180px] justify-between rounded-xl bg-wood border border-wood-100 p-8 glow-animation">
 			<div className="flex gap-4 items-center w-full h-full">
-				<Image src={achievement.img} alt={achievement.name} width={192} height={192}
+				<img src={achievement.img} alt={achievement.name} width={192} height={192}
 				       className="rounded-full min-w-16 min-h-16 shadow-gold shadow-lg"
 				/>
 				<div className="flex flex-col gap-1 text-default p-3 bg-dark border border-dark-100 shadow rounded-xl">
