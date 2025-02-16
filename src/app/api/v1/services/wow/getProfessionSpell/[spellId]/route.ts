@@ -1,10 +1,10 @@
 import {NextRequest, NextResponse} from "next/server";
 import parseCraftingHtml from "@/app/api/v1/services/wow/getProfessionSpell/[spellId]/parseCraftingHtml";
-import createServerSession from "@utils/supabase/createServerSession";
+/*import createServerSession from "@utils/supabase/createServerSession";
 import {cookies} from "next/headers";
 import pLimit from 'p-limit';
 
-const limit = pLimit(10);
+const limit = pLimit(10);*/
 
 async function fetchProfessionSpell(spellId: any) {
     const spellData = await fetch(`https://nether.wowhead.com/tooltip/spell/${spellId}?dataEnv=4&locale=0`);

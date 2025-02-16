@@ -10,7 +10,7 @@ import {toast} from "sonner";
  * getCookie('cookieName')
  */
 export function getCookie(name: string) {
-    if(typeof document === 'undefined') return
+    if (typeof document === 'undefined') return
     if (!document?.cookie) return
     const value = `; ${document.cookie}`
     const parts = value.split(`; ${name}=`)
@@ -69,7 +69,8 @@ export function getLoggedInUserFromAccessToken(accessToken: string) {
 
         return {
             ...payload.wow_account,
-            permissions: payload.permissions,
+            permissions: payload.permissions ?? [],
+            custom_roles: payload.custom_roles ?? [],
         }
     } catch (e) {
         //console.error('Error parsing access token', e)

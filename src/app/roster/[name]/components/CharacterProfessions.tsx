@@ -15,6 +15,7 @@ import {useMessageBox} from "@utils/msgBox";
 import {useRouter} from "next/navigation";
 import {createPortal} from "react-dom";
 import {Blendy, createBlendy} from "blendy";
+import {ROLE} from "@utils/constants";
 
 export type ProfessionName =
     'Blacksmithing'
@@ -353,8 +354,11 @@ export default function CharacterProfessions({professions, characterId, classNam
     className?: string
 }) {
     const [selectedProfession, setSelectedProfession] = useState<Profession | null>(professions[0])
-    const {supabase, selectedCharacter} = useSession()
-    const isOwn = useMemo(() => selectedCharacter?.id === characterId, [selectedCharacter, characterId])
+    const {supabase, selectedCharacter, tokenUser} = useSession()
+    const isOwn = useMemo(() => {
+        if(tokenUser) return tokenUser.custom_roles?.includes(ROLE.ADMIN) || tokenUser.custom_roles?.includes(ROLE.MODERATOR) || tokenUser.id === characterId
+        return selectedCharacter?.id === characterId
+    }, [selectedCharacter, characterId, tokenUser])
     const router = useRouter()
     const {data: availableProfessions, error, isLoading} = useQuery({
         queryKey: ['availableProfession'],
@@ -433,7 +437,7 @@ export default function CharacterProfessions({professions, characterId, classNam
 
     const selectedSpells = useMemo(() => selectedProfession?.spells ? [...selectedProfession?.spells] : [], [characterProfessions, selectedProfession])
 
-    return (
+    return !isOwn && !professions.length ? 'This member has not updated his/her professions.' : (
         <div className={className ?? "w-full h-96 bg-wood border border-wood-100 flex gap-2 p-1 rounded-md"}>
             <div className="h-full min-w-18 max-w-18">
                 <ScrollShadow className="w-full h-full scrollbar-pill flex flex-col gap-2 p-2">
@@ -473,14 +477,6 @@ export default function CharacterProfessions({professions, characterId, classNam
                 </ScrollShadow>
             </div>
             <div className="w-full h-full scrollbar-pill overflow-auto">
-                {/*selectedProfession &&
-                    <div className="grid grid-cols-1 gap-2 p-1 sticky top-0 z-50 bg-wood rounded-md">
-                        <div
-                            className=" flex items-center justify-center border bg-wood  border-wood-100 rounded-md p-3 h-12 text-wood-100 hover:text-default hover:bg-wood-200 duration-300 transition-all cursor-pointer hover:border-default">
-                            <FontAwesomeIcon icon={faPlus}/>
-                        </div>
-                    </div>
-                */}
                 {selectedProfession ? (
                     <div className="grid grid-cols-1 gap-2 p-2">
                         {selectedSpells.map(spell => (
