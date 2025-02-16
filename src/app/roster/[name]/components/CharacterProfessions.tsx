@@ -194,7 +194,7 @@ const Recipe = ({spell, hideMats, onDelete}: {
     )
 }
 
-const AddProfession = ({availableProfessions}: { availableProfessions: { name: string, id: number }[] }) => {
+const AddProfession = ({availableProfessions, characterId}: { availableProfessions: { name: string, id: number }[], characterId:number }) => {
     const {supabase, selectedCharacter} = useSession()
     const [selectedProfessionId, setSelectedProfessionId] = useState<number>(availableProfessions[0]?.id)
     const PAGE_SIZE = 50
@@ -257,7 +257,7 @@ const AddProfession = ({availableProfessions}: { availableProfessions: { name: s
     const saveRecipe = useCallback(async (spellId: number) => {
         if (!selectedCharacter || !supabase) return
         const {error} = await supabase.from('member_profession_spells').insert({
-            member_id: selectedCharacter.id,
+            member_id: characterId,
             profession_id: selectedProfessionId,
             spell_id: spellId,
         })
@@ -272,7 +272,7 @@ const AddProfession = ({availableProfessions}: { availableProfessions: { name: s
         }
 
         success('Recipe learned')
-    }, [supabase, selectedCharacter, selectedProfessionId, selectedCharacter?.id])
+    }, [supabase, selectedCharacter, selectedProfessionId, characterId])
 
     const filterRef = useRef<NodeJS.Timeout | null>(null)
     useEffect(() => {
@@ -412,7 +412,7 @@ export default function CharacterProfessions({professions, characterId, classNam
         if (!selectedCharacter || !supabase || !isOwn) return
         const answer = await yesNo({message: 'Are you sure you want to delete this profession?'})
         if (!answer || answer !== 'yes') return
-        const {error} = await supabase.from('member_profession_spells').delete().eq('member_id', selectedCharacter.id).eq('profession_id', professionId)
+        const {error} = await supabase.from('member_profession_spells').delete().eq('member_id', characterId).eq('profession_id', professionId)
         if (error) {
             console.error(error)
             toastError('Failed to delete profession')
@@ -426,7 +426,7 @@ export default function CharacterProfessions({professions, characterId, classNam
         if (!selectedCharacter || !supabase || !isOwn) return
         const answer = await yesNo({message: 'Are you sure you want to delete this recipe?'})
         if (!answer || answer !== 'yes') return
-        const {error} = await supabase.from('member_profession_spells').delete().eq('member_id', selectedCharacter.id).eq('spell_id', spellId)
+        const {error} = await supabase.from('member_profession_spells').delete().eq('member_id', characterId).eq('spell_id', spellId)
         if (error) {
             console.error(error)
             toastError('Failed to delete recipe')
@@ -486,6 +486,7 @@ export default function CharacterProfessions({professions, characterId, classNam
                 ) : <div className="flex justify-center h-full w-full items-start">{
                     isLoading ? 'Loading...' : error ? 'Failed to load professions' : (
                         <AddProfession
+                            characterId={characterId}
                             availableProfessions={(availableProfessions ?? [])}/>
                     )
                 }</div>}
