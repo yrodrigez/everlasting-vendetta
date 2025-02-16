@@ -8,7 +8,7 @@ import {faMasksTheater, faPlus} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {useQuery} from "@tanstack/react-query";
 
-export const ItemWithTooltip = ({item}: { item: Item }) => {
+export const ItemWithTooltip = ({item, className}: { item: Item, className?: string }) => {
     const {isOpen, onOpen, onOpenChange, onClose} = useDisclosure()
     const qualityColor = [
         'poor',
@@ -34,7 +34,7 @@ export const ItemWithTooltip = ({item}: { item: Item }) => {
                  onClick={onOpen}
             >
                 <Image
-                    className={`rounded-lg border border-${qualityColor} block bg-cover  min-h-10 min-w-10`}
+                    className={`rounded-lg border border-${qualityColor} block bg-cover min-h-10 min-w-10 ${className}`}
                     src={item.icon} width={36} height={36} alt={item.name}
                 />
                 {(item.isPlus || item.offspec) && <div

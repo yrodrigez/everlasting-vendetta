@@ -213,7 +213,7 @@ export default function ({item: _item, token, reverse, bottom}: {
 
     return (
         <div className={`flex items-center gap-4 ${reverse ? 'flex-row-reverse' : ''}`}>
-            <Skeleton isLoaded={!loading} className={`w-12 h-12 relative  bg-wood ${loading ? 'rounded-lg' : ''}`}>
+            <Skeleton isLoaded={!loading} className={`w-12 h-12 relative  ${loading ? 'bg-wood rounded-lg' : 'bg-transparent'} transition-all duration-300`}>
                 <ItemImageWithRune
                     item={item}
                     itemIconUrl={itemIconUrl}
@@ -234,11 +234,11 @@ export default function ({item: _item, token, reverse, bottom}: {
                 </div>
             </Skeleton>
             <div className={`flex-col gap-10 ${reverse ? 'text-right' : 'text-left'} break-all relative`}>
-                <Skeleton isLoaded={!loading} className={`h-4 bg-wood ${loading ? 'rounded-full' : ''}`}>
+                <Skeleton isLoaded={!loading} className={`h-4 bg-transparent ${loading ? 'bg-wood rounded-full' : 'transition-all duration-300'}`}>
                     <h3 className="font-semibold text-sm hidden md:flex">{name}</h3>
                     <h3 className="font-semibold text-sm md:hidden">{slot.name}</h3>
                 </Skeleton>
-                <Skeleton isLoaded={!loading} className={`h-4 bg-wood mt-1 ${loading ? 'rounded-full' : ''}`}>
+                <Skeleton isLoaded={!loading} className={`h-4 bg-transparent mt-1 ${loading ? 'bg-wood rounded-full' : 'transition-all duration-300'}`}>
                     <p className="text-xs text-muted">Item Level {itemDetails.level}</p>
                 </Skeleton>
             </div>

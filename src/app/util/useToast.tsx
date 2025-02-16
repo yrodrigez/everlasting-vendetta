@@ -21,10 +21,13 @@ export default function useToast() {
             defaultPlacement,
             defaultDuration
         )
-        toast(
-            <div className="bg-wood border border-wood-100 p-4">
-                {typeof message === 'string' ? <span>{message}</span> : message}
-            </div>
+        toast.custom(
+            () => (
+                <ToastContainer
+                    className="bg-wood border border-wood-100">
+                    {typeof message === 'string' ? <span>{message}</span> : message}
+                </ToastContainer>
+            )
             , {
                 position,
                 duration,
@@ -62,10 +65,12 @@ export default function useToast() {
             defaultPlacement,
             defaultDuration
         )
-        toast.success(
-            <ToastContainer className="bg-moss border border-moss">
-                {(typeof message === 'string' ? <span>{message}</span> : message)}
-            </ToastContainer>
+        toast.custom(
+            () => (
+                <ToastContainer className="bg-moss border border-moss">
+                    {(typeof message === 'string' ? <span>{message}</span> : message)}
+                </ToastContainer>
+            )
             , {
                 position,
                 duration,
@@ -80,10 +85,12 @@ export default function useToast() {
             defaultPlacement,
             defaultDuration
         )
-        toast.error(
-            <ToastContainer className="bg-red-500 border border-red-400">
-                {(typeof message === 'string' ? <span>{message}</span> : message)}
-            </ToastContainer>
+        toast.custom(
+            () => (
+                <ToastContainer className="bg-red-500 border border-red-400">
+                    {(typeof message === 'string' ? <span>{message}</span> : message)}
+                </ToastContainer>
+            )
             , {
                 position,
                 duration,
@@ -102,7 +109,7 @@ export default function useToast() {
 
 function ToastContainer({children, className}: { children: ReactNode, className: string }) {
     return (
-        <div className={'flex gap-2 items-center justify-between p-4 rounded text-default ' + className}>
+        <div className={'flex gap-2 items-center justify-between p-4 rounded text-default w-full h-full ' + className}>
             {children}
         </div>
     )

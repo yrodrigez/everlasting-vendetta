@@ -9,6 +9,39 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          category: string | null
+          condition: Json
+          created_at: string
+          description: string
+          id: string
+          img: string | null
+          name: string
+          points: number
+        }
+        Insert: {
+          category?: string | null
+          condition: Json
+          created_at?: string
+          description: string
+          id?: string
+          img?: string | null
+          name: string
+          points?: number
+        }
+        Update: {
+          category?: string | null
+          condition?: Json
+          created_at?: string
+          description?: string
+          id?: string
+          img?: string | null
+          name?: string
+          points?: number
+        }
+        Relationships: []
+      }
       banned_member: {
         Row: {
           created_at: string
@@ -96,13 +129,6 @@ export type Database = {
             foreignKeyName: "chat_message_read_room_id_fkey"
             columns: ["room_id"]
             isOneToOne: false
-            referencedRelation: "chat_room_members_view"
-            referencedColumns: ["room_id"]
-          },
-          {
-            foreignKeyName: "chat_message_read_room_id_fkey"
-            columns: ["room_id"]
-            isOneToOne: false
             referencedRelation: "chat_rooms"
             referencedColumns: ["id"]
           },
@@ -142,13 +168,6 @@ export type Database = {
             foreignKeyName: "chat_messages_room_id_fkey"
             columns: ["room_id"]
             isOneToOne: false
-            referencedRelation: "chat_room_members_view"
-            referencedColumns: ["room_id"]
-          },
-          {
-            foreignKeyName: "chat_messages_room_id_fkey"
-            columns: ["room_id"]
-            isOneToOne: false
             referencedRelation: "chat_rooms"
             referencedColumns: ["id"]
           },
@@ -181,13 +200,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "chat_room_members_room_id_fkey"
-            columns: ["room_id"]
-            isOneToOne: false
-            referencedRelation: "chat_room_members_view"
-            referencedColumns: ["room_id"]
-          },
           {
             foreignKeyName: "chat_room_members_room_id_fkey"
             columns: ["room_id"]
@@ -490,28 +502,34 @@ export type Database = {
           created_at: string
           id: string
           image: string | null
+          min_gs: number | null
           min_level: number | null
           name: string
           reservation_amount: number
           short_name: string | null
+          size: number | null
         }
         Insert: {
           created_at?: string
           id?: string
           image?: string | null
+          min_gs?: number | null
           min_level?: number | null
           name?: string
           reservation_amount?: number
           short_name?: string | null
+          size?: number | null
         }
         Update: {
           created_at?: string
           id?: string
           image?: string | null
+          min_gs?: number | null
           min_level?: number | null
           name?: string
           reservation_amount?: number
           short_name?: string | null
+          size?: number | null
         }
         Relationships: []
       }
@@ -698,6 +716,114 @@ export type Database = {
           },
         ]
       }
+      gs_cache: {
+        Row: {
+          color: string | null
+          gs: number | null
+          md5: string
+        }
+        Insert: {
+          color?: string | null
+          gs?: number | null
+          md5: string
+        }
+        Update: {
+          color?: string | null
+          gs?: number | null
+          md5?: string
+        }
+        Relationships: []
+      }
+      guild_events: {
+        Row: {
+          created_at: string
+          id: number
+          name: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: string | null
+        }
+        Relationships: []
+      }
+      guild_events_participants: {
+        Row: {
+          created_at: string
+          event_id: number | null
+          id: number
+          member_id: number | null
+          position: number | null
+        }
+        Insert: {
+          created_at?: string
+          event_id?: number | null
+          id?: number
+          member_id?: number | null
+          position?: number | null
+        }
+        Update: {
+          created_at?: string
+          event_id?: number | null
+          id?: number
+          member_id?: number | null
+          position?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guild_event_participant_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "ev_member"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guild_events_participants_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "guild_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hard_reserve_templates: {
+        Row: {
+          created_at: string
+          item_id: number
+          raid_id: string
+        }
+        Insert: {
+          created_at?: string
+          item_id: number
+          raid_id: string
+        }
+        Update: {
+          created_at?: string
+          item_id?: number
+          raid_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hard_reserve_templates_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "raid_loot_item"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hard_reserve_templates_raid_id_fkey"
+            columns: ["raid_id"]
+            isOneToOne: false
+            referencedRelation: "ev_raid"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       last_raid: {
         Row: {
           created_at: string | null
@@ -796,6 +922,88 @@ export type Database = {
           message?: string | null
         }
         Relationships: []
+      }
+      member_achievements: {
+        Row: {
+          achievement_id: string
+          earned_at: string
+          id: string
+          member_id: number
+        }
+        Insert: {
+          achievement_id: string
+          earned_at?: string
+          id?: string
+          member_id: number
+        }
+        Update: {
+          achievement_id?: string
+          earned_at?: string
+          id?: string
+          member_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_achievements_achievement_id_fkey"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "achievements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "member_achievements_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "ev_member"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      member_profession_spells: {
+        Row: {
+          created_at: string
+          id: number
+          member_id: number
+          member_proffession_id: number | null
+          spell_id: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          member_id: number
+          member_proffession_id?: number | null
+          spell_id?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          member_id?: number
+          member_proffession_id?: number | null
+          spell_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_profession_spells_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "ev_member"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "member_profession_spells_member_proffession_id_fkey"
+            columns: ["member_proffession_id"]
+            isOneToOne: false
+            referencedRelation: "professions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "spell_member_proffessions_spell_id_fkey"
+            columns: ["spell_id"]
+            isOneToOne: false
+            referencedRelation: "profession_spells"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       member_rank: {
         Row: {
@@ -910,6 +1118,69 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      profession_spells: {
+        Row: {
+          created_at: string
+          details: Json
+          id: number
+          item_id: number | null
+          name: string
+          profession_id: number | null
+        }
+        Insert: {
+          created_at?: string
+          details: Json
+          id?: number
+          item_id?: number | null
+          name: string
+          profession_id?: number | null
+        }
+        Update: {
+          created_at?: string
+          details?: Json
+          id?: number
+          item_id?: number | null
+          name?: string
+          profession_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proffession_spells_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "wow_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proffession_spells_profession_id_fkey"
+            columns: ["profession_id"]
+            isOneToOne: false
+            referencedRelation: "professions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      professions: {
+        Row: {
+          created_at: string
+          id: number
+          name: string
+          rank: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name: string
+          rank?: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: string
+          rank?: number
+        }
+        Relationships: []
       }
       raid_loot: {
         Row: {
@@ -1050,6 +1321,7 @@ export type Database = {
           id: string
           image_url: string | null
           max_delay_days: number | null
+          min_gs: number | null
           min_lvl: number | null
           modified_at: string | null
           modified_by: number | null
@@ -1069,6 +1341,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           max_delay_days?: number | null
+          min_gs?: number | null
           min_lvl?: number | null
           modified_at?: string | null
           modified_by?: number | null
@@ -1088,6 +1361,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           max_delay_days?: number | null
+          min_gs?: number | null
           min_lvl?: number | null
           modified_at?: string | null
           modified_by?: number | null
@@ -1166,6 +1440,39 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      reset_hard_reserve: {
+        Row: {
+          created_at: string
+          item_id: number
+          reset_id: string
+        }
+        Insert: {
+          created_at?: string
+          item_id?: number
+          reset_id: string
+        }
+        Update: {
+          created_at?: string
+          item_id?: number
+          reset_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reset_hard_reserve_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "raid_loot_item"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reset_hard_reserve_reset_id_fkey"
+            columns: ["reset_id"]
+            isOneToOne: false
+            referencedRelation: "raid_resets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reset_messages: {
         Row: {
@@ -1274,15 +1581,243 @@ export type Database = {
       }
     }
     Views: {
-      chat_room_members_view: {
-        Row: {
-          member_ids: string[] | null
-          room_id: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
+      achievement_loot_cursed_rng: {
+        Args: {
+          character_name: string
+        }
+        Returns: {
+          achieved: boolean
+          progress: number
+        }[]
+      }
+      achievement_loot_greedy_fingers: {
+        Args: {
+          character_name: string
+        }
+        Returns: {
+          achieved: boolean
+          progress: number
+        }[]
+      }
+      achievement_loot_oportunist: {
+        Args: {
+          character_name: string
+        }
+        Returns: {
+          achieved: boolean
+          progress: number
+        }[]
+      }
+      achievement_loot_rnggesus_loves_you: {
+        Args: {
+          character_name: string
+        }
+        Returns: {
+          achieved: boolean
+          progress: number
+        }[]
+      }
+      achievement_loot_sniper: {
+        Args: {
+          character_name: string
+        }
+        Returns: {
+          achieved: boolean
+          progress: number
+        }[]
+      }
+      achievement_raid_altaholic: {
+        Args: {
+          character_name: string
+        }
+        Returns: {
+          achieved: boolean
+          progress: number
+        }[]
+      }
+      achievement_raid_architect: {
+        Args: {
+          character_name: string
+        }
+        Returns: {
+          achieved: boolean
+          progress: number
+        }[]
+      }
+      achievement_raid_breaker_of_wings: {
+        Args: {
+          character_name: string
+        }
+        Returns: {
+          achieved: boolean
+          progress: number
+        }[]
+      }
+      achievement_raid_commander_chaos: {
+        Args: {
+          character_name: string
+        }
+        Returns: {
+          achieved: boolean
+          progress: number
+        }[]
+      }
+      achievement_raid_father: {
+        Args: {
+          character_name: string
+        }
+        Returns: {
+          achieved: boolean
+          progress: number
+        }[]
+      }
+      achievement_raid_firestarter: {
+        Args: {
+          character_name: string
+        }
+        Returns: {
+          achieved: boolean
+          progress: number
+        }[]
+      }
+      achievement_raid_frozen_vanguard: {
+        Args: {
+          character_name: string
+        }
+        Returns: {
+          achieved: boolean
+          progress: number
+        }[]
+      }
+      achievement_raid_gnomish_vanguard: {
+        Args: {
+          character_name: string
+        }
+        Returns: {
+          achieved: boolean
+          progress: number
+        }[]
+      }
+      achievement_raid_jungle_trailblazer: {
+        Args: {
+          character_name: string
+        }
+        Returns: {
+          achieved: boolean
+          progress: number
+        }[]
+      }
+      achievement_raid_king: {
+        Args: {
+          character_name: string
+        }
+        Returns: {
+          achieved: boolean
+          progress: number
+        }[]
+      }
+      achievement_raid_late_comer: {
+        Args: {
+          character_name: string
+        }
+        Returns: {
+          achieved: boolean
+          progress: number
+        }[]
+      }
+      achievement_raid_maestro: {
+        Args: {
+          character_name: string
+        }
+        Returns: {
+          achieved: boolean
+          progress: number
+        }[]
+      }
+      achievement_raid_master_strategist: {
+        Args: {
+          character_name: string
+        }
+        Returns: {
+          achieved: boolean
+          progress: number
+        }[]
+      }
+      achievement_raid_rookie: {
+        Args: {
+          character_name: string
+        }
+        Returns: {
+          achieved: boolean
+          progress: number
+        }[]
+      }
+      achievement_raid_ruins_raider: {
+        Args: {
+          character_name: string
+        }
+        Returns: {
+          achieved: boolean
+          progress: number
+        }[]
+      }
+      achievement_raid_scarab_vanguard: {
+        Args: {
+          character_name: string
+        }
+        Returns: {
+          achieved: boolean
+          progress: number
+        }[]
+      }
+      achievement_raid_secrets_of_dead: {
+        Args: {
+          character_name: string
+        }
+        Returns: {
+          achieved: boolean
+          progress: number
+        }[]
+      }
+      achievement_raid_temple_pioneer: {
+        Args: {
+          character_name: string
+        }
+        Returns: {
+          achieved: boolean
+          progress: number
+        }[]
+      }
+      achievement_raid_unicorn_hunter: {
+        Args: {
+          character_name: string
+        }
+        Returns: {
+          achieved: boolean
+          progress: number
+        }[]
+      }
+      achievement_raid_whelp_wrangler: {
+        Args: {
+          character_name: string
+        }
+        Returns: {
+          achieved: boolean
+          progress: number
+        }[]
+      }
+      achievement_reserve_unicorn_hunter: {
+        Args: {
+          character_name: string
+        }
+        Returns: {
+          achieved: boolean
+          progress: number
+        }[]
+      }
       calculate_total_reservations: {
         Args: {
           reset_uuid: string
@@ -1340,6 +1875,16 @@ export type Database = {
         }
         Returns: string
       }
+      get_permissions: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      has_permission: {
+        Args: {
+          verify_permission: string
+        }
+        Returns: boolean
+      }
       id_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
@@ -1349,6 +1894,14 @@ export type Database = {
           id_column: string
         }
         Returns: string
+      }
+      initialize_permissions: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      is_admin_deprecated: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
       }
       is_role: {
         Args: {
@@ -1375,6 +1928,17 @@ export type Database = {
         }
         Returns: boolean
       }
+      raid_attendance: {
+        Args: {
+          character_name: string
+        }
+        Returns: {
+          raid_name: string
+          raid_date: string
+          participated: boolean
+          id: string
+        }[]
+      }
       reset_id_starts_with: {
         Args: {
           id_prefix: string
@@ -1388,6 +1952,7 @@ export type Database = {
           id: string
           image_url: string | null
           max_delay_days: number | null
+          min_gs: number | null
           min_lvl: number | null
           modified_at: string | null
           modified_by: number | null
