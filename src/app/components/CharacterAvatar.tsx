@@ -1,6 +1,5 @@
 'use client'
 import {useEffect, useState} from "react";
-import Image from "next/image";
 import {getRoleIcon} from "@/app/apply/components/utils";
 import {BNET_COOKIE_NAME} from "@/app/util/constants";
 import {getCookie} from "@/app/util";
@@ -56,7 +55,7 @@ const CharacterAvatar = ({
     }, [data, error, isLoading, realm, characterName, currentToken?.value])
 
     return <div className="relative">
-        {avatar && <Image
+        {avatar && <img
           width={width}
           height={height}
           src={avatar === 'unknown' ? '/avatar-anon.png' : avatar}
@@ -66,7 +65,7 @@ const CharacterAvatar = ({
         {role &&
           <div className={`absolute top-0 -right-3 w-4 h-8`}>
               <div className="relative overflow-visible w-full h-full group">
-              {role.split('-').map((r, i) => <Image key={i} src={getRoleIcon(r)} alt={r} width={16} height={16}
+              {role.split('-').map((r, i) => <img key={i} src={getRoleIcon(r)} alt={r} width={16} height={16}
                 className={`absolute top-${i * 4} 
                 transition-transform duration-300
                 group-hover:translate-y-${i * 4}

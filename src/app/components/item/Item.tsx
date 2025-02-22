@@ -34,7 +34,7 @@ export function Item({item}: {
                     </div>
                 }
             >
-                <Image
+                <img
                     src={item.description.icon}
                     alt={item.name}
                     width={40}

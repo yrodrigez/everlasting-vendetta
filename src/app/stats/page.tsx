@@ -262,7 +262,7 @@ export default async function Page() {
                                     href={`/roster/${officer.name}`}
                                     target={'_blank'}
                                     key={officer.id} className={`grid grid-cols-2`}>
-                                    <Image
+                                    <img
                                         width={36}
                                         height={36}
                                         alt={officer.name}
@@ -291,7 +291,7 @@ export default async function Page() {
                                     href={`/roster/${officer.name}`}
                                     target={'_blank'}
                                     key={officer.id} className={`grid grid-cols-2`}>
-                                    <Image
+                                    <img
                                         width={36}
                                         height={36}
                                         alt={officer.name}

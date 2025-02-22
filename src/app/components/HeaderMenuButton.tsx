@@ -4,7 +4,7 @@ import ApplicantsHeaderButton from "@/app/components/ApplicantsHeaderButton";
 
 const Children = ({text, imgKey}: { text: string, imgKey: string }) => (
     <>
-        <Image
+        <img
             width="36"
             height="36"
             alt={text} src={`/btn-${imgKey}.png`}

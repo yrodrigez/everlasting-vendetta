@@ -137,7 +137,7 @@ export function AchievementCard({achievement, isAchieved, handleOnClick}: {
             onClick={handleOnClick}
             data-blendy-from={`achievement-${achievement.id}`}
             className={`bg-wood border border-wood-100 p-4 min-w-48 min-h-64 max-w-48 max-h-64 rounded-xl ${isAchieved ? 'shadow shadow-gold border-gold' : ''} flex flex-col items-center justify-center relative mt-6 ${handleOnClick ? 'cursor-pointer' : ''}`}>
-            <Image
+            <img
                 src={achievement.img}
                 alt={achievement.name}
                 width={128}

@@ -43,7 +43,7 @@ export default function ApplicantsHeaderButton({text, url, onClick}: {
             <Link
                 className={className}
                 href={_url || url || `/${allowed.indexOf(text.toLowerCase()) === -1 ? '' : text.toLowerCase()}`}>
-                <Image
+                <img
                     width="36"
                     height="36"
                     alt={text} src={`/btn-${text.toLowerCase()}.png`}
