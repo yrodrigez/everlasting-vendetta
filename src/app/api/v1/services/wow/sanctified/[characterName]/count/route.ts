@@ -26,5 +26,5 @@ export async function GET(_: NextRequest, context: any) {
     const count = (data?.filter(({details}) => details?.tooltip?.toLowerCase().indexOf('sanctified') !== -1) ?? []).length
     const extras = (data?.filter(({details}) => details?.tooltip?.toLowerCase().indexOf('Treats your Seal of the Dawn bonus as if you were wearing 2 additional Sanctified items'.toLowerCase()) !== -1) ?? []).length
 
-    return NextResponse.json({count: count + (extras >= 1 ? 2 : 0), name: characterName, characterId: equipment?.character.id});
+    return NextResponse.json({count: count + (extras > 1 ? 2 : 0), name: characterName, characterId: equipment?.character.id});
 }
