@@ -146,6 +146,17 @@ async function fetchHasLootReservations(supabase: any, resetId: string, memberId
 
 }
 
+async function getCharacterSanctifiedCount(characterName: string | undefined) {
+    if (!characterName) return 0
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/services/wow/sanctified/${characterName.toLowerCase()}/count`)
+    if (!response.ok) {
+        console.error('Error fetching sanctified count:', response.status, response.statusText)
+        return 0
+    }
+
+    return await response.json()
+}
+
 export default async function ({params}: { params: Promise<{ id: string }> }) {
     const {supabase, auth} = await createServerSession({cookies})
     const isLoggedInUser = await auth.getSession()
@@ -174,6 +185,12 @@ export default async function ({params}: { params: Promise<{ id: string }> }) {
     const raidStartDate = moment(raidDate)
     const raidEndDate = moment(end_date)
     const raidInProgress = moment().isBetween(raidStartDate, raidEndDate)
+
+    let sanctifiedData = undefined
+    if (raidName.indexOf('Naxxramas') > -1) {
+        sanctifiedData = await Promise.all(participants.map((participant: any) => getCharacterSanctifiedCount(participant?.member?.character?.name)))
+    }
+
 
     const raidStarted = moment().isAfter(raidStartDate)
 
@@ -234,6 +251,7 @@ export default async function ({params}: { params: Promise<{ id: string }> }) {
                         raidId={id}
                         days={days}
                         minGs={reset.raid.min_gs}
+                        sanctifiedData={sanctifiedData}
                     />
                     {!!isLoggedInUser ? (<div className="w-full lg:max-w-80 flex-grow-0 max-h-fit">
                         <ChatContainer raidName={`${raidName} (${raidDate})`} resetId={id} showRedirect={true}/>

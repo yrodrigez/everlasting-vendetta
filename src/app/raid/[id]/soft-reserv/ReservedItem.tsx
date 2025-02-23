@@ -2,8 +2,6 @@ import {type Reservation} from "@/app/raid/[id]/soft-reserv/types";
 import {Spinner, Tooltip} from "@heroui/react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faTrash} from "@fortawesome/free-solid-svg-icons";
-import Image from "next/image";
-import {ItemWithTooltip} from "@/app/raid/[id]/loot/components/LootItem";
 
 export function ReservedItem({reservation, belongsToLogged, remove, reservationsOpen, loading, showTooltip = true}: {
     reservation: Reservation,

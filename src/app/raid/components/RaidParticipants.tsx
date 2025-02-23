@@ -64,12 +64,13 @@ const GuildMemberIndicator = (character: any) => {
     )
 }
 
-export default function RaidParticipants({participants, raidId, raidInProgress, days, minGs}: {
+export default function RaidParticipants({participants, raidId, raidInProgress, days, minGs, sanctifiedData}: {
     participants: RaidParticipant[],
     raidId: string,
     raidInProgress: boolean
     days: string[],
-    minGs: number
+    minGs: number,
+    sanctifiedData?: {characterName: string, count: number, characterId: string}[]
 }) {
     const {supabase, selectedCharacter, session: {isAdmin} = {}} = useSession()
 
@@ -89,7 +90,7 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
                 ...initialColumns,
                 {name: "GEAR SCORE", uid: "gs"},
                 //{name: "DAYS", uid: "days"},
-                {name: "GUILDIE", uid: "is_guildie"},
+                (sanctifiedData ? {name: "SANCT", uid:"sanctified"} : {name: "GUILDIE", uid: "is_guildie"}),
             ])
             if (isAdmin) {
                 setColumns(cols => [
@@ -126,8 +127,19 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
         const {name, avatar, playable_class, id} = registration.member?.character
         const {registration_source} = registration.member
         const registrationDetails = registration.details
+        const sanctifiedCount = sanctifiedData?.find(x => x.characterId === id)?.count
 
         switch (columnKey) {
+            case "sanctified":
+                return (
+                    <div className="flex flex-row items-center gap-2">
+                        <Tooltip content={`Sanctified: ${sanctifiedCount}`}>
+                            <span
+                                className="w-full h-full py-1 flex items-center justify-center bg-sanctified-900 border border-sanctified-50 text-xs font-bold text-sanctified rounded-full"
+                            >{sanctifiedCount}</span>
+                        </Tooltip>
+                    </div>
+                )
             case "gs":
                 return <GearScore characterName={name} min={minGs}
                                   allowForce={isAdmin || selectedCharacter?.id === registration?.member?.character?.id}/>

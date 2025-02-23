@@ -41,7 +41,7 @@ export default function ShowReserveRules({shouldAlwaysOpen}: {
     }
 
 
-    const terms =[
+    const terms = [
         {
             "header": "Special Roll Rule (69 Equals 100)",
             "content": "To add a fun twist, any roll of 69 will be considered the same as rolling 100."
@@ -145,7 +145,7 @@ export default function ShowReserveRules({shouldAlwaysOpen}: {
                     size={'lg'}
                     className={`bg-moss text-gold rounded ${shouldBlink ? 'border-2 border-gold animate-wiggle' : ''}`}
                     isIconOnly
-                    onClick={onOpen}
+                    onPress={onOpen}
                 >
                     <FontAwesomeIcon icon={faCircleInfo}/>
                 </Button>
