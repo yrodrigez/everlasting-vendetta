@@ -15,7 +15,7 @@ import {
     faCircleCheck, faCircleQuestion, faCircleXmark, faClock,
     faPersonCircleCheck,
     faPersonCircleXmark,
-    faTrash
+    faTrash, faTriangleExclamation
 } from "@fortawesome/free-solid-svg-icons";
 import {RaidParticipant} from "@/app/raid/api/types";
 import GearScore from "@/app/components/GearScore";
@@ -137,6 +137,9 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
                             <span
                                 className="w-full h-full py-1 flex items-center justify-center bg-sanctified-900 border border-sanctified-50 text-xs font-bold text-sanctified rounded-full"
                             >{sanctifiedCount}</span>
+                            {sanctifiedCount && sanctifiedCount < 8 && (
+                                <FontAwesomeIcon icon={faTriangleExclamation} className="text-red-600" beat/>
+                            )}
                         </Tooltip>
                     </div>
                 )
