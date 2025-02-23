@@ -70,7 +70,7 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
     raidInProgress: boolean
     days: string[],
     minGs: number,
-    sanctifiedData?: {characterName: string, count: number, characterId: string}[]
+    sanctifiedData?: { characterName: string, count: number, characterId: string }[]
 }) {
     const {supabase, selectedCharacter, session: {isAdmin} = {}} = useSession()
 
@@ -90,7 +90,7 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
                 ...initialColumns,
                 {name: "GEAR SCORE", uid: "gs"},
                 //{name: "DAYS", uid: "days"},
-                (sanctifiedData ? {name: "SANCT", uid:"sanctified"} : {name: "GUILDIE", uid: "is_guildie"}),
+                (sanctifiedData ? {name: "SANCT", uid: "sanctified"} : {name: "GUILDIE", uid: "is_guildie"}),
             ])
             if (isAdmin) {
                 setColumns(cols => [
@@ -132,16 +132,19 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
         switch (columnKey) {
             case "sanctified":
                 return (
-                    <div className="flex flex-row items-center gap-2">
-                        <Tooltip content={`Sanctified: ${sanctifiedCount}`}>
+
+                    <Tooltip content={`Sanctified: ${sanctifiedCount}`}>
+                        <div className="flex flex-row items-center gap-0.5">
                             <span
-                                className="w-full h-full py-1 flex items-center justify-center bg-sanctified-900 border border-sanctified-50 text-xs font-bold text-sanctified rounded-full"
-                            >{sanctifiedCount}</span>
-                            {sanctifiedCount && sanctifiedCount < 8 && (
-                                <FontAwesomeIcon icon={faTriangleExclamation} className="text-red-600" beat/>
-                            )}
-                        </Tooltip>
-                    </div>
+                                className="w-full h-full py-1 flex items-center justify-center bg-sanctified-900 border border-sanctified-50 text-xs font-bold text-sanctified rounded-full relative"
+                            >{sanctifiedCount}
+                                {sanctifiedCount !== undefined && sanctifiedCount < 8 && (
+                                    <FontAwesomeIcon icon={faTriangleExclamation} className="text-red-600 absolute -right-4" beat/>
+                                )}
+                            </span>
+                        </div>
+                    </Tooltip>
+
                 )
             case "gs":
                 return <GearScore characterName={name} min={minGs}
