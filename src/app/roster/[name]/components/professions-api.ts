@@ -14,7 +14,7 @@ export async function fetchProfessionSpells(supabase: SupabaseClient, profession
         .range((page - 1) * pageSize, page * pageSize - 1)
         .eq('profession_id', professionId)
         .filter(filter?.name ? 'name' : '', 'ilike', `%${filter?.name}%`)
-        .filter(filter?.ids ? 'id' : '', 'in' , `(${filter?.ids?.join(',')})`)
+        .filter(filter?.ids ? 'id' : '', 'in', `(${filter?.ids?.join(',')})`)
         .returns<{
             id: number,
             details: any,
@@ -61,7 +61,9 @@ export async function fetchProfessionSpells(supabase: SupabaseClient, profession
     }, undefined as unknown as Profession)
 }
 
-export async function fetchCharacterProfessionsSpells(supabase: SupabaseClient, characterId: number) {
+export async function fetchCharacterProfessionsSpells(supabase: SupabaseClient, characterId: number, filter?: {
+    spellName?: string,
+}) {
     const {data: learned, error} = await supabase.from('member_profession_spells')
         .select('spell:profession_spells!inner(id),profession:professions!inner(id)')
         .eq('member_id', characterId)
@@ -80,16 +82,18 @@ export async function fetchCharacterProfessionsSpells(supabase: SupabaseClient, 
     }
 
 
-    const professionSpells = (await Promise.all(learned.reduce((acc, curr)=>{
+    const professionSpells = (await Promise.all(learned.reduce((acc, curr) => {
         const found = acc.find(({profession}) => profession.id === curr.profession.id)
         if (!found) {
             acc.push({profession: curr.profession, spells: [curr.spell.id]})
-        }
-        else {
+        } else {
             found.spells.push(curr.spell.id)
         }
         return acc
-    },[] as {profession: {id: number} , spells: number[]}[]).map(({profession, spells}) => fetchProfessionSpells(supabase, profession.id, undefined, {ids: spells})))) as Profession[]
+    }, [] as { profession: { id: number }, spells: number[] }[]).map(({
+                                                                          profession,
+                                                                          spells
+                                                                      }) => fetchProfessionSpells(supabase, profession.id, undefined, {ids: spells, name: filter?.spellName})))) as Profession[]
 
     return professionSpells.map((p) => {
         const learnedSpells = learned.filter(({profession}) => profession.id === p?.id).map(({spell}) => spell.id)

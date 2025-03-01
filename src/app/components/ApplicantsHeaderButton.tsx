@@ -48,7 +48,7 @@ export default function ApplicantsHeaderButton({text, url, onClick}: {
                     height="36"
                     alt={text} src={`/btn-${text.toLowerCase()}.png`}
                     className="rounded-full w-9 h-9 min-h-9 max-h-9 min-w-9 max-w-9"/>
-                <span>{_text}</span>
+                <span className="text-sm">{_text}</span>
             </Link>
         </Badge>
     )

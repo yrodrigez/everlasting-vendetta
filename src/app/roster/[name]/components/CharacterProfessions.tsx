@@ -379,7 +379,7 @@ export default function CharacterProfessions({professions, characterId, classNam
         queryKey: ['characterProfessions', characterId],
         queryFn: async () => {
             if (!supabase) return []
-            const data = await fetchCharacterProfessionsSpells(supabase, characterId)
+            const data = await fetchCharacterProfessionsSpells(supabase, characterId, {spellName: filterName})
             if (!selectedProfession) return data
             setSelectedProfession(!data || !selectedProfession ? null : (data.find(profession => profession.id === selectedProfession?.id) ?? data.reverse()[0] ?? null))
             return data
@@ -436,6 +436,27 @@ export default function CharacterProfessions({professions, characterId, classNam
     }, [supabase, selectedCharacter, selectedCharacter?.id, characterId, isOwn])
 
     const selectedSpells = useMemo(() => selectedProfession?.spells ? [...selectedProfession?.spells] : [], [characterProfessions, selectedProfession])
+    const [filterName, setFilterName] = useState<string | undefined>()
+
+    const filterRef = useRef<NodeJS.Timeout | null>(null)
+    useEffect(() => {
+
+        if (!filterName) {
+            refresh();
+            return
+        }
+
+        if (filterRef.current) {
+            clearTimeout(filterRef.current)
+        }
+
+        filterRef.current = setTimeout(() => {
+            refresh()
+        }, 500)
+
+    }, [filterName]);
+
+
 
     return !isOwn && !professions.length ? 'This member has not updated his/her professions.' : (
         <div className={className ?? "w-full h-96 bg-wood border border-wood-100 flex gap-2 p-1 rounded-md"}>
@@ -479,6 +500,16 @@ export default function CharacterProfessions({professions, characterId, classNam
             <div className="w-full h-full scrollbar-pill overflow-auto">
                 {selectedProfession ? (
                     <div className="grid grid-cols-1 gap-2 p-2">
+                        <div className="sticky top-0 z-50 bg-wood">
+                            <Input
+                                type="search"
+                                placeholder="Search..."
+                                className="w-full h-14"
+                                size="lg"
+                                onChange={(e) => { setFilterName(e.target.value) }}
+
+                            />
+                        </div>
                         {selectedSpells.map(spell => (
                             <Recipe key={spell.id} spell={spell} onDelete={deleteRecipe}/>
                         ))}
