@@ -23,6 +23,7 @@ import {ClassSummary} from "@/app/raid/components/ClassSummary";
 import * as process from "node:process";
 import {IsLowGsModal} from "@/app/raid/components/IsLowGsModal";
 import ParticipantsManager from "@/app/raid/components/ParticipantsManager";
+import axios from "axios";
 
 const raidResetAttr = 'raid_date, id, raid:ev_raid(name, min_level, image, min_gs), time, end_date, end_time, days, status'
 export const dynamic = 'force-dynamic'
@@ -148,7 +149,7 @@ async function fetchHasLootReservations(supabase: any, resetId: string, memberId
 
 async function getCharactersSanctifiedCount(characterNames: string[] | undefined) {
     if (!characterNames || !characterNames.length) return 0
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/services/wow/sanctified/count`,
+    /*const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/services/wow/sanctified/count`,
         {
             method: 'POST',
             headers: {
@@ -161,7 +162,9 @@ async function getCharactersSanctifiedCount(characterNames: string[] | undefined
         return 0
     }
 
-    return await response.json()
+    return await response.json()*/
+
+    return await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/services/wow/sanctified/count`, characterNames)
 }
 
 export default async function ({params}: { params: Promise<{ id: string }> }) {
