@@ -149,22 +149,8 @@ async function fetchHasLootReservations(supabase: any, resetId: string, memberId
 
 async function getCharactersSanctifiedCount(characterNames: string[] | undefined) {
     if (!characterNames || !characterNames.length) return 0
-    /*const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/services/wow/sanctified/count`,
-        {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(characterNames)
-        })
-    if (!response.ok) {
-        console.error('Error fetching sanctified count:', response.status, response.statusText)
-        return 0
-    }
-
-    return await response.json()*/
-
-    return await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/services/wow/sanctified/count`, characterNames)
+    const {data} = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/services/wow/sanctified/count`, characterNames)
+    return data as { characterName: string; count: number; characterId: string; }[] | undefined
 }
 
 export default async function ({params}: { params: Promise<{ id: string }> }) {
@@ -209,6 +195,7 @@ export default async function ({params}: { params: Promise<{ id: string }> }) {
         isLoggedInUserLowGear = characterGearScore < reset.raid.min_gs
     }
 
+    // @ts-ignore
     return (
         <div className="w-full h-full flex flex-col relative scrollbar-pill grow-0 overflow-auto gap-4">
             <ParticipantsManager resetId={id} initialParticipants={participants}>
@@ -261,6 +248,7 @@ export default async function ({params}: { params: Promise<{ id: string }> }) {
                         raidId={id}
                         days={days}
                         minGs={reset.raid.min_gs}
+                        // @ts-ignore
                         sanctifiedData={sanctifiedData}
                     />
                     {!!isLoggedInUser ? (<div className="w-full lg:max-w-80 flex-grow-0 max-h-fit">
