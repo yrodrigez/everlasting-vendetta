@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
 
             const {data, error} = await supabase.from('wow_items').select('details').in('id', itemsIds)
             if (error) {
-                console.error('Error fetching items:', error)
+                console.error('Error fetching items supabase supabase:', error)
                 return {count: 0}
             }
 
