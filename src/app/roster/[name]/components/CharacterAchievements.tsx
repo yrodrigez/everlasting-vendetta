@@ -39,12 +39,35 @@ function AchievementInfo({achievement, onClose}: { achievement: Achievement, onC
         },
         staleTime: 1000 * 60 * 30
     })
+
+    const [bgColor, setBgColor] = useState<string|undefined>(undefined)
+    const [borderColor, setBorderColor] = useState<string|undefined>(undefined)
+
+    useEffect(() => {
+        // @ts-ignore
+        if (!window.ColorThief) return
+        const img = new window.Image();
+        img.src = achievement.img;
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+            // @ts-ignore
+            const colorThief = new window.ColorThief();
+            const color = colorThief.getColor(img) as [number, number, number];
+            const palette = colorThief.getPalette(img, 5) as [number, number, number][];
+            setBgColor(`rgb(${palette[Math.random() * palette.length | 0].join(',')})`)
+            const darkerShade = palette.map((channel: any) => Math.max(channel - 30, 0));
+            setBorderColor(`rgba(${darkerShade.join(',')}, 1)`)
+        };
+    }, [achievement]);
+
     return (
         <div
             className="flex w-full h-full flex-col lg:flex-row items-center lg:justfy-evenly gap-4 overflow-auto scrollbar-pill py-8"
         >
             <div
-                className="w-full h-full rounded-xl p-6 flex items-center justify-center bg-wood-900">
+                className="w-full h-full rounded-xl p-6 flex items-center justify-center bg-wood-900 border"
+                style={(bgColor && borderColor) ? {backgroundColor: bgColor, borderColor: borderColor}: undefined}
+            >
                 <div
                     className="transform lg:scale-150"
                 >
@@ -108,7 +131,7 @@ function AchievementWithAlert({achievement, isAchieved}: { achievement: Achievem
                 <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center" onClick={handleOnClose}>
                     <div data-blendy-to={achievementToggleKey}
                          onClick={(e) => e.stopPropagation()}
-                         className={`w-[900px] h-[750px] flex items-center justify-center p-8 border border-wood-100 bg-wood rounded-xl relative`}>
+                         className={`w-[900px] h-[750px] flex items-center justify-center p-8 border border-wood-100 bg-wood rounded-xl relative transition-all duration-300`}>
                         <div
                             className={`w-full h-full flex items-center justify-center gap-4 opacity-0 ${isClicked ? 'opacity-100' : ''} transition-all duration-300`}
                         >

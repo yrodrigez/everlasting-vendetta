@@ -230,7 +230,8 @@ export default async function Page({params}: { params: Promise<{ name: string }>
     const cookieToken = (await cookies()).get(process.env.BNET_COOKIE_NAME!)?.value
     const {token} = (cookieToken ? {token: cookieToken} : (await getBlizzardToken()))
     const {name} = await params
-    const characterName = decodeURIComponent(name.toLowerCase())
+    const characterName = decodeURIComponent(name.toLowerCase()).trim()
+
     const {auth, supabase} = await createServerSession({cookies})
 
     const {

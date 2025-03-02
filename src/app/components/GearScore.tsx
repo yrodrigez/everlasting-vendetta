@@ -1,6 +1,6 @@
 'use client'
-import React, {useState, useEffect} from "react";
-import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
+import React, {useEffect, useState} from "react";
+import {useMutation, useQuery} from "@tanstack/react-query";
 import {Tooltip} from "@heroui/react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faRotate, faTriangleExclamation, faWandMagic, faWandMagicSparkles} from "@fortawesome/free-solid-svg-icons";

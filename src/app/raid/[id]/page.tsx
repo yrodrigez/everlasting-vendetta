@@ -146,9 +146,16 @@ async function fetchHasLootReservations(supabase: any, resetId: string, memberId
 
 }
 
-async function getCharacterSanctifiedCount(characterName: string | undefined) {
-    if (!characterName) return 0
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/services/wow/sanctified/${characterName.toLowerCase()}/count`)
+async function getCharactersSanctifiedCount(characterNames: string[] | undefined) {
+    if (!characterNames || !characterNames.length) return 0
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/services/wow/sanctified/count`,
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(characterNames)
+        })
     if (!response.ok) {
         console.error('Error fetching sanctified count:', response.status, response.statusText)
         return 0
@@ -188,7 +195,7 @@ export default async function ({params}: { params: Promise<{ id: string }> }) {
 
     let sanctifiedData = undefined
     if (raidName.indexOf('Naxxramas') > -1) {
-        sanctifiedData = await Promise.all(participants.map((participant: any) => getCharacterSanctifiedCount(participant?.member?.character?.name)))
+        sanctifiedData = await getCharactersSanctifiedCount(participants.map((participant: any) => participant?.member?.character?.name))
     }
 
 
