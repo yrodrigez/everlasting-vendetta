@@ -180,7 +180,7 @@ export const executeCondition = async (supabase: SupabaseClient, condition: Achi
 	const {reducer, extractProp} = count ?? {}
 	let val = extractProp ? data[0] : data
 	const path = extractProp?.split('.')
-	if (path) {
+	if (path && val) {
 		for (const p of path) {
 			val = val[p]
 		}

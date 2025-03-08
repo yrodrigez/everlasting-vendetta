@@ -89,3 +89,41 @@ export type BnetCharacterResponse = {
     };
     avatar: string;
 };
+
+export const createEmptyBnetCharacterResponse = (): BnetCharacterResponse => {
+    return {
+        active_spec: {id: 0, key: {href: ""}},
+        appearance: {href: ""},
+        avatar: "",
+        average_item_level: 0,
+        character_class: {id: 0, key: {href: ""}, name: ""},
+        equipment: {href: ""},
+        equipped_item_level: 0,
+        experience: 0,
+        faction: {name: "", type: ""},
+        gender: {name: "", type: ""},
+        guild: {
+            faction: {name: "", type: ""},
+            id: 0,
+            key: {href: ""},
+            name: "",
+            realm: {id: 0, key: {href: ""}, name: "", slug: ""}
+        },
+        last_login_timestamp: 0,
+        level: 0,
+        media: {href: ""},
+        pvp_summary: {href: ""},
+        race: {id: 0, key: {href: ""}, name: ""},
+        realm: {id: 0, key: {href: ""}, name: "", slug: ""},
+        specializations: {href: ""},
+        statistics: {href: ""},
+        titles: {href: ""},
+        _links: {
+            self: {
+                href: '',
+            },
+        },
+        id: 0,
+        name: ''
+    }
+}

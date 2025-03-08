@@ -28,7 +28,7 @@ import {useQuery} from "@tanstack/react-query";
 import {fetchCharacterByName} from "@/app/raid/[id]/soft-reserv/ReserveForOthers";
 import LookupField from "@/app/components/LookupField";
 import {getRoleIcon} from "@/app/apply/components/utils";
-import {BnetCharacterResponse} from "@/app/types/BnetCharacterResponse";
+import {BnetCharacterResponse, createEmptyBnetCharacterResponse} from "@/app/types/BnetCharacterResponse";
 import {Character, useCharacterStore} from "@/app/components/characterStore";
 import {CharacterRoleType} from "@/app/types/CharacterRole";
 import {useRouter} from "next/navigation";
@@ -90,16 +90,16 @@ export function TemporalLogin() {
         queryKey: ['character', lowerCaseCharacterName],
         queryFn: async () => {
             if (!lowerCaseCharacterName) {
-                return undefined
+                return createEmptyBnetCharacterResponse()
             }
 
             const character = await fetchCharacterByName(lowerCaseCharacterName, 'temporal')
             if (!character) {
-                return undefined
+                return createEmptyBnetCharacterResponse()
             }
 
             if (character.faction.type.toLowerCase() !== 'alliance') {
-                return undefined
+                return createEmptyBnetCharacterResponse()
             }
 
             return character
@@ -108,7 +108,7 @@ export function TemporalLogin() {
     })
 
     const setIntoStore = useCallback(async () => {
-        if (character && characterRole) {
+        if (character && character?.id !== 0 && characterRole) {
             setIsLogging(true)
             const {error, ok} = await performTemporalLogin(character)
             if (!ok) {
