@@ -27,7 +27,7 @@ const initialState = {
     startDate: new Date(),
     endDate: undefined,
     startTime: '20:30',
-    endTime: '00:00',
+    endTime: '23:59',
     days: undefined,
     loading: false
 }
