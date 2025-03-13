@@ -148,7 +148,7 @@ async function fetchHasLootReservations(supabase: any, resetId: string, memberId
 }
 
 async function getCharactersSanctifiedCount(characterNames: string[] | undefined) {
-    if (!characterNames || !characterNames.length) return 0
+    if (!characterNames || !characterNames.length) return undefined
     const {data} = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/services/wow/sanctified/count`, characterNames)
     return data as { characterName: string; count: number; characterId: string; }[] | undefined
 }
@@ -184,7 +184,11 @@ export default async function ({params}: { params: Promise<{ id: string }> }) {
 
     let sanctifiedData = undefined
     if (raidName.indexOf('Naxxramas') > -1) {
-        sanctifiedData = await getCharactersSanctifiedCount(participants.map((participant: any) => participant?.member?.character?.name))
+        try {
+            sanctifiedData = await getCharactersSanctifiedCount(participants.map((participant: any) => participant?.member?.character?.name))
+        } catch (e) {
+            console.error('Error fetching sanctified data:', e)
+        }
     }
 
 
@@ -248,7 +252,6 @@ export default async function ({params}: { params: Promise<{ id: string }> }) {
                         raidId={id}
                         days={days}
                         minGs={reset.raid.min_gs}
-                        // @ts-ignore
                         sanctifiedData={sanctifiedData}
                     />
                     {!!isLoggedInUser ? (<div className="w-full lg:max-w-80 flex-grow-0 max-h-fit">
