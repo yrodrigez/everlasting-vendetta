@@ -2,6 +2,7 @@ import createServerSession from "@utils/supabase/createServerSession";
 import {cookies} from "next/headers";
 import WoWService from "@services/wow-service";
 import {NextRequest, NextResponse} from "next/server";
+export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
     try {
