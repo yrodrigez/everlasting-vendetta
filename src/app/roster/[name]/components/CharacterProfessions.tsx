@@ -124,7 +124,7 @@ const Recipe = ({spell, hideMats, onDelete}: {
             setIsClicked(false)
         })
     }, [spell])
-    console.log(spell)
+
     return (<>
             {isClicked && createPortal((
                     <div

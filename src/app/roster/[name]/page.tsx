@@ -383,7 +383,7 @@ export default async function Page({params}: { params: Promise<{ name: string }>
                         {
                             label: 'Raid attendance',
                             name: 'raid-attendance',
-                            children: <AttendanceHeatmap attendance={attendance.data ?? []}/>
+                            children: <AttendanceHeatmap attendance={Array.isArray(attendance.data) ? attendance.data: []}/>
                         }
                     ]}
                 />

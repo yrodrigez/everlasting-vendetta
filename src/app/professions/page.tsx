@@ -9,13 +9,13 @@ export const dynamic = 'force-dynamic'
 export default async function ProfessionsPage() {
     const {supabase} = await createServerSession({cookies})
     const {data, error} = await supabase.rpc('get_member_profession_spell_count')
-        .returns<{
+        .overrideTypes<{
             member_name: string,
             profession_name: string,
             spell_count: number
-        }[]>()
+        }[],{ merge: false }>()
 
-    if (error) {
+    if (error || !Array.isArray(data)) {
         console.error('Error fetching profession spell counts:', error)
         return <div>Error fetching professions</div>
     }
@@ -48,9 +48,6 @@ export default async function ProfessionsPage() {
         }
 
     }, [] as { memberName: string, professions: { name: string, icon: string, recipeCount: number }[] }[])
-
-    console.log(professions)
-    console.log(data)
 
     return (
         <main className="flex w-full h-full flex-col">

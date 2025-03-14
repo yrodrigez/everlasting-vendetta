@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({error: 'Error - realm and characterName are mandatory!'})
     }
 
-    if (!tokenString) {
+    if (!tokenString || tokenString === 'undefined') {
         tokenString = (await cookies()).get(BNET_COOKIE_NAME)?.value || (await getBlizzardToken()).token
     }
 

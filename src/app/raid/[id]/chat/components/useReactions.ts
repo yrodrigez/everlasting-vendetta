@@ -134,7 +134,7 @@ export function useReactions(resetId: string) {
                 table: MESSAGE_REACTIONS_TABLE,
                 //filter: `message.reset_id=eq.${resetId}`
             }, async (payload) => {
-                console.log('Received message reaction event', payload);
+
                 switch (payload.eventType) {
                     case 'INSERT':
                     case 'UPDATE': {

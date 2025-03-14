@@ -27,6 +27,7 @@ import axios from "axios";
 
 const raidResetAttr = 'raid_date, id, raid:ev_raid(name, min_level, image, min_gs), time, end_date, end_time, days, status'
 export const dynamic = 'force-dynamic'
+export const maxDuration = 60;
 
 function findNextWednesday() {
     if (moment().day() === 3) {
