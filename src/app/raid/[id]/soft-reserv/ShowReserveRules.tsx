@@ -55,6 +55,28 @@ export default function ShowReserveRules({shouldAlwaysOpen}: {
             "content": "Reservations will be closed at the discretion of the loot master. No modifications are allowed once closed."
         },
         {
+            "header": "Early Signup Bonus (Extra SR)",
+            "content": "To encourage early raid confirmations and help raid planning, participants who confirm their attendance (confirmed, tentative, or late) at least 48 hours before the raid start will receive one additional Soft Reserve (SR) slot automatically.",
+            "details": [
+                {
+                    "header": "Eligibility Window:",
+                    "content": "To qualify for this bonus, your raid status must be updated more than 48 hours (precisely before 47:59:59:9999) before the scheduled raid start time. Confirmations after this time will not be eligible—NO EXCEPTIONS."
+                },
+                {
+                    "header": "Responsibility:",
+                    "content": "Ensure your attendance is correctly confirmed on the raid page. Claims of forgotten confirmations or misunderstandings will not be considered, especially if the rest of the raid has correctly received their bonuses."
+                },
+                {
+                    "header": "Absences and Penalties:",
+                    "content": "If you confirm attendance early but do not show up without updating your status, you may lose eligibility for the extra SR in the following raid reset."
+                },
+                {
+                    "header": "Raid-Specific Details:",
+                    "content": "For raids with multiple SRs, this extra SR stacks. For special raids (e.g., Scarlet Enclave), you'll have 1 regular SR plus the early confirmation extra SR if applicable."
+                }
+            ]
+        },
+        {
             "header": "Duplicate Reservations",
             "content": "Participants who reserve the same item multiple times will receive priority over those who reserve it fewer times. Here’s how it works:",
             "details": [
