@@ -1,0 +1,23 @@
+# robots.txt for Everlasting Vendetta Next.js app
+
+User-agent: *
+Allow: /
+
+# Block sensitive and admin routes
+Disallow: /achievements-admin/
+Disallow: /admin/
+Disallow: /api/
+Disallow: /apply/
+Disallow: /banned/
+Disallow: /login/
+Disallow: /providers/
+Disallow: /services/
+Disallow: /util/
+
+Disallow: /guild/
+Disallow: /professions/
+Disallow: /roster/
+
+# Explicitly allow crawling public informative pages
+Allow: /calendar
+
