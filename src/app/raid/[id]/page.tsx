@@ -114,15 +114,39 @@ export async function generateMetadata({params}: { params: Promise<{ id: string 
     }
 
     const {raid, raid_date: raidDate, time: raidTime, end_date} = data;
-    const {name: raidName} = raid;
+    const {name: raidName, image} = raid;
 
     const raidStartDate = moment(raidDate).format('MMMM D, YYYY');
     const raidEndDate = moment(end_date).format('MMMM D, YYYY');
 
+    const title = `${raidName} Raid - ${raidStartDate} | Everlasting Vendetta`
+    const description = `Join the ${raidName} raid starting on ${raidStartDate} at ${raidTime}. Participate in epic battles and secure your loot until ${raidEndDate}.`
+    const keywords = `wow, world of warcraft, raid, raiding, pve, pvp, guild, guild events, loot, soft reservations, ${raidName}, ${raidStartDate}`
+    const metadataBase = new URL('/raid/' + raidId, process.env.NEXT_PUBLIC_BASE_URL)
+    const metadataImage = new URL(`/${image}`, metadataBase).toString()
+
     return {
-        title: `${raidName} Raid - ${raidStartDate} | Everlasting Vendetta`,
-        description: `Join the ${raidName} raid starting on ${raidStartDate} at ${raidTime}. Participate in epic battles and secure your loot until ${raidEndDate}.`,
-        keywords: `wow, world of warcraft, raid, raiding, pve, pvp, guild, guild events, loot, soft reservations, ${raidName}, ${raidStartDate}`,
+        title,
+        description,
+        keywords,
+        openGraph: {
+            title,
+            description,
+            images: [
+                {
+                    url: metadataImage,
+                    width: 600,
+                    height: 400,
+                    alt: 'Everlasting Vendetta Raid',
+                },
+            ],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title,
+            description,
+            images: metadataImage,
+        }
     };
 }
 
