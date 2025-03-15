@@ -70,10 +70,6 @@ export default function ShowReserveRules({shouldAlwaysOpen}: {
                     "header": "Absences and Penalties:",
                     "content": "If you confirm attendance early but do not show up without updating your status, you may lose eligibility for the extra SR in the following raid reset."
                 },
-                {
-                    "header": "Raid-Specific Details:",
-                    "content": "For raids with multiple SRs, this extra SR stacks. For special raids (e.g., Scarlet Enclave), you'll have 1 regular SR plus the early confirmation extra SR if applicable."
-                }
             ]
         },
         {

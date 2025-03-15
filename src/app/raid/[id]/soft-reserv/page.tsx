@@ -204,6 +204,7 @@ export default async function Page({params}: { params: Promise<{ id: string }> }
                             />
                         </div>
                         <YourReservations
+                            baseReservationAmount={resetData?.data?.raid?.reservation_amount}
                             resetId={resetId}
                             initialReservedItems={reservations}
                         />
@@ -246,6 +247,7 @@ export default async function Page({params}: { params: Promise<{ id: string }> }
                             />
                         </div>
                         <YourReservations
+                            baseReservationAmount={resetData?.data?.raid?.reservation_amount}
                             resetId={resetId}
                             initialReservedItems={reservations}
                         />

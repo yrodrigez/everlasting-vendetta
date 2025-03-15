@@ -2,14 +2,15 @@
 import {Reservation} from "@/app/raid/[id]/soft-reserv/types";
 import {ReservedItem} from "@/app/raid/[id]/soft-reserv/ReservedItem";
 import {useReservations} from "@/app/raid/[id]/soft-reserv/useReservations";
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faLock, faLockOpen} from "@fortawesome/free-solid-svg-icons";
 import {Tooltip} from "@heroui/react";
 
-export default function YourReservations({resetId, initialReservedItems}: {
+export default function YourReservations({resetId, initialReservedItems, baseReservationAmount = 0}: {
     resetId: string,
     initialReservedItems: Reservation[]
+    baseReservationAmount?: number
 }) {
     const [stateReservations, setStateReservations] = useState<Reservation[]>([])
 
@@ -27,6 +28,10 @@ export default function YourReservations({resetId, initialReservedItems}: {
         // it needs to be here to update the list of your reservations
         setStateReservations(yourReservations)
     }, [yourReservations, resetId])
+
+    const extraSR = useMemo(() => {
+        return maxReservations - baseReservationAmount
+    }, [stateReservations, resetId, baseReservationAmount, maxReservations])
 
     return <div className={"flex flex-col gap-2 relative w-full"}>
         {globalLoading && (
@@ -59,7 +64,13 @@ export default function YourReservations({resetId, initialReservedItems}: {
         }>
             <h3 className="text-lg font-bold">Reserved items: {
                 stateReservations.length
-            } / {maxReservations}</h3>
+            } / {maxReservations}
+                {<sup
+                    className="ml-1"
+                >
+                    <span className={`${extraSR > 0 ? 'text-green-600': 'text-gray-500'} text-xs `}>(+{extraSR})</span>
+                </sup>}
+            </h3>
         </div>
         <div className="flex gap-2 px-2 mb-8 grow flex-wrap overflow-auto max-h-24 scrollbar-pill">
             {
