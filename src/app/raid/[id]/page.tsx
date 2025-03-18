@@ -207,16 +207,6 @@ export default async function ({params}: { params: Promise<{ id: string }> }) {
     const raidEndDate = moment(end_date)
     const raidInProgress = moment().isBetween(raidStartDate, raidEndDate)
 
-    let sanctifiedData = undefined
-    if (raidName.indexOf('Naxxramas') > -1) {
-        try {
-            sanctifiedData = await getCharactersSanctifiedCount(participants.map((participant: any) => participant?.member?.character?.name))
-        } catch (e) {
-            console.error('Error fetching sanctified data:', e)
-        }
-    }
-
-
     const raidStarted = moment().isAfter(raidStartDate)
 
     let isLoggedInUserLowGear = false
@@ -277,7 +267,6 @@ export default async function ({params}: { params: Promise<{ id: string }> }) {
                         raidId={id}
                         days={days}
                         minGs={reset.raid.min_gs}
-                        sanctifiedData={sanctifiedData}
                     />
                     {!!isLoggedInUser ? (<div className="w-full lg:max-w-80 flex-grow-0 max-h-fit">
                         <ChatContainer raidName={`${raidName} (${raidDate})`} resetId={id} showRedirect={true}/>

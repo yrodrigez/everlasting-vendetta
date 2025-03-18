@@ -104,13 +104,13 @@ export function RaidResetCard({
 	return (
 		<div
 			className={`w-[300px] relative text-default min-h-64 flex flex-col p-3 rounded-md backdrop-blur backdrop-opacity-90 justify-between border transition-all duration-300 ${
-				(isToday || isRaidCurrent) ? 'border-gold shadow-2xl shadow-gold glow-animation ' : 'border-wood-100'
+				(isToday || isRaidCurrent) ? 'border-gold shadow-xl shadow-gold glow-animation ' : 'border-wood-100'
 			}`}
 			style={{
 				...((!isRaidPast && borderColor) ? {borderColor} : {}),
 				...((!isRaidPast && shadeColor) ? {boxShadow: `
-					0 10px 15px -3px ${shadeColor},
-                    0 4px 6px -4px ${shadeColor}
+					0 10px 15px 3px ${shadeColor},
+                    0 4px 6px 4px ${shadeColor}
                     `
 				} : {}),
 			}}
@@ -124,7 +124,7 @@ export function RaidResetCard({
 					backgroundImage: `url('${raidImage}')`,
 				}}
 				className={`w-full h-full rounded-md absolute top-0 left-0 -z-10 ${isRaidPast || status === 'offline' ? 'grayscale' : ''}`}>
-				<div className="w-full h-full bg-[rgba(0,0,0,.6)] rounded-md"/>
+				<div className="w-full h-full backdrop-brightness-50 backdrop-filter backdrop-blur-xs rounded-md"/>
 			</div>
 			<div className="flex flex-col  shadow-xl ">
 				<h4 className="font-bold text-large text-gold">{raidName}{status === 'offline' ? ' (Cancelled)' : ''}</h4>
