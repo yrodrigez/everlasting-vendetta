@@ -1,9 +1,8 @@
 import {useEffect} from "react";
 import {useCharacterStore} from "@/app/components/characterStore";
-import {useRouter, usePathname} from "next/navigation";
+import {usePathname, useRouter} from "next/navigation";
 import {useSessionStore} from "@/app/hooks/useSessionStore";
 import sessionManager from "@/app/hooks/SessionManager";
-
 
 export function useSession() {
     const {
