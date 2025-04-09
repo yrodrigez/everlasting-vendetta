@@ -74,15 +74,15 @@ export default function ShowReserveRules({shouldAlwaysOpen}: {
         },
         {
             "header": "Duplicate Reservations",
-            "content": "Participants who reserve the same item multiple times will receive priority over those who reserve it fewer times. Here’s how it works:",
+            "content": "Participants who reserve the same item multiple times will have multiple chances to roll for it. Here’s how it works:",
             "details": [
                 {
                     "header": "Reservation Count",
-                    "content": "If you reserve an item twice, you are only eligible to roll against other participants who have also reserved that item twice. This means that participants who reserved an item multiple times have priority over those who reserved it only once."
+                    "content": "Each reservation grants one roll. If you reserve an item twice, you can roll twice for that item. If you reserve it three times, you roll three times. This increases your chances compared to someone who only reserved it once."
                 },
                 {
-                    "header": "Priority in Rolling",
-                    "content": "If a participant with a single reservation rolls against a participant with multiple reservations, the participant with more reservations will have priority for that item, even if their roll result is lower."
+                    "header": "Priority by Probability",
+                    "content": "All rolls are considered equally, but participants with more reservations have more chances to win."
                 }
             ]
         },
