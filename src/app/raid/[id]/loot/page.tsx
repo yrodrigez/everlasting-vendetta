@@ -112,7 +112,7 @@ const fetchResetInfo = async (supabase: SupabaseClient, resetId: string) => {
 
 export default async function ({params}: { params: Promise<{ id: string }> }) {
 
-    const {supabase, auth} = await  createServerSession({cookies})
+    const {supabase, auth} = await createServerSession({cookies})
     const user = await auth.getSession()
 
     if (!user) {
@@ -162,21 +162,21 @@ export default async function ({params}: { params: Promise<{ id: string }> }) {
     const charactersWithNoLoot = participants.filter((p) => !sortedCharactersWithLoot.find((c) => c.character === p.character))
     const disenchanted = charactersWithLoot.filter((c) => c.character === '_disenchanted')
     const resetInfo = await fetchResetInfo(supabase, resetId)
-    if(!resetInfo) {
+    if (!resetInfo) {
         return <div>Could not find reset info</div>
     }
 
     return (
         <div className="flex flex-col w-full h-full scrollbar-pill">
             <div className="flex gap-4 items-center justify-between w-full text-gold rounded-lg bg-dark p-2">
-                <Link href={`/raid/${resetId}`}>
-                    <Button
-                        variant="light"
-                        isIconOnly
-                    >
-                        <FontAwesomeIcon icon={faArrowLeft}/>
-                    </Button>
-                </Link>
+                <Button
+                    as="a"
+                    href={`/raid/${resetId}`}
+                    variant="light"
+                    isIconOnly
+                >
+                    <FontAwesomeIcon icon={faArrowLeft}/>
+                </Button>
                 <h1 className="text-2xl font-bold">Loot History</h1>
                 <div
                     className="flex flex-col gap-4 items-center">

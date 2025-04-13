@@ -281,43 +281,43 @@ export default async function ({params}: { params: Promise<{ id: string }> }) {
                             nextResetId={nextReset?.data?.id}
                             raidStarted={raidStarted}
                         />
-                        <Link
-                            target={'_blank'}
-                            href={`https://discord.gg/fYw9WCNFDU`}>
+
+                        <Tooltip
+                            content="Discord"
+                            placement="right"
+                        >
+                            <Button
+                                target={'_blank'}
+                                href={`https://discord.gg/fYw9WCNFDU`}
+                                as="a"
+                                className={`bg-moss text-default font-bold rounded`} isIconOnly>
+                                <FontAwesomeIcon icon={faDiscord}/>
+                            </Button>
+                        </Tooltip>
+                        <Tooltip
+                            content="Soft Reservations"
+                            placement="right"
+                        >
+                            <Button
+                                href={`/raid/${id}/soft-reserv`}
+                                as="a"
+                                className={`bg-moss text-default font-bold rounded ${!hasLootReservations && isLoggedInUser ? 'shadow-2xl shadow-gold border-2 animate-blink-and-glow' : ''}`}
+                                isIconOnly>
+                                <FontAwesomeIcon icon={faCartPlus}/>
+                            </Button>
+                        </Tooltip>
+                        {!!hasLootHistory?.data?.length && (
                             <Tooltip
-                                content="Discord"
-                                placement="right"
-                            >
-                                <Button className={`bg-moss text-default font-bold rounded`} isIconOnly>
-                                    <FontAwesomeIcon icon={faDiscord}/>
-                                </Button>
-                            </Tooltip>
-                        </Link>
-                        <Link
-                            href={`/raid/${id}/soft-reserv`}>
-                            <Tooltip
-                                content="Soft Reservations"
+                                content="Loot"
                                 placement="right"
                             >
                                 <Button
-                                    className={`bg-moss text-default font-bold rounded ${!hasLootReservations && isLoggedInUser ? 'shadow-2xl shadow-gold border-2 animate-blink-and-glow' : ''}`}
-                                    isIconOnly>
-                                    <FontAwesomeIcon icon={faCartPlus}/>
+                                    as="a"
+                                    href={`/raid/${id}/loot`}
+                                    className="bg-moss text-default font-bold rounded" isIconOnly>
+                                    <FontAwesomeIcon icon={faGift}/>
                                 </Button>
                             </Tooltip>
-                        </Link>
-                        {!!hasLootHistory?.data?.length && (
-                            <Link
-                                href={`/raid/${id}/loot`}>
-                                <Tooltip
-                                    content="Loot"
-                                    placement="right"
-                                >
-                                    <Button className="bg-moss text-default font-bold rounded" isIconOnly>
-                                        <FontAwesomeIcon icon={faGift}/>
-                                    </Button>
-                                </Tooltip>
-                            </Link>
                         )}
                     </div>
                 ) : null}

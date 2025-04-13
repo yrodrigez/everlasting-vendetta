@@ -22,14 +22,14 @@ export default function AdminPanel({isAdmin, resetId}: { isAdmin: boolean, reset
                 content={'Back to raid'}
                 placement={'right'}
             >
-                <Link href={`/raid/${resetId}`}>
-                    <Button
-                        className={'bg-moss text-gold rounded'}
-                        size={'lg'}
-                        isIconOnly>
-                        <FontAwesomeIcon icon={faArrowLeft}/>
-                    </Button>
-                </Link>
+                <Button
+                    as="a"
+                    href={`/raid/${resetId}`}
+                    className={'bg-moss text-gold rounded'}
+                    size={'lg'}
+                    isIconOnly>
+                    <FontAwesomeIcon icon={faArrowLeft}/>
+                </Button>
             </Tooltip>
             <ShowReserveRules/>
             <Tooltip

@@ -102,15 +102,13 @@ export default function useApplicants() {
                     <div
                         className="flex gap-2 items-center bg-wood border border-gold p-4 rounded-lg text-default glow-animation">
                         <div>Someone has applied!</div>
-                        <Link href={'/apply/list'}>
-                            <Button size="sm">Review</Button>
-                        </Link>
+                        <Button as="a" href={'/apply/list'} size="sm">Review</Button>
                     </div>
                 ), {
                     duration: Infinity,
                     position: 'bottom-right',
                 })
-                new Audio('/sounds/MagicClick.ogg').play()
+                new Audio('/sounds/MagicClick.ogg').play().finally(()=> {})
                 router.refresh()
             }).subscribe()
 
@@ -161,7 +159,10 @@ export default function useApplicants() {
                         {newApplicants.length} new applicant{newApplicants.length > 1 ? 's' : ''}!
                     </div>
                     <Link href={'/apply/list'}>
-                        <Button size="sm">Review</Button>
+                        <Button
+                            as="a"
+                            href={'/apply/list'}
+                            size="sm">Review</Button>
                     </Link>
                 </div>
             ), {
@@ -169,7 +170,7 @@ export default function useApplicants() {
                 position: 'bottom-right',
             })
             localStorage.setItem('shownApplicants', JSON.stringify([...shownApplicants, ...newApplicants.map((x: any) => x.id)]))
-            new Audio('/sounds/MagicClick.ogg').play()
+            new Audio('/sounds/MagicClick.ogg').play().finally(()=> {})
         }
     }, [applicants]);
 

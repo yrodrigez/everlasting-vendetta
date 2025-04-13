@@ -142,11 +142,9 @@ export default async function Page({searchParams}: { searchParams: Promise<{ d?:
             `absolute top-0 lg:-left-8 -left-1 h-full`
         }>
             <div className="fixed sticky top-0">
-                <Link href={previousWeeksPath}>
-                    <Button isIconOnly>
-                        <FontAwesomeIcon icon={faArrowLeft}/>
-                    </Button>
-                </Link>
+                <Button as="a" href={previousWeeksPath} isIconOnly>
+                    <FontAwesomeIcon icon={faArrowLeft}/>
+                </Button>
             </div>
         </div>
         <div className="flex gap-3 flex-col lg:ml-9 items-center md:flex-wrap md:flex-row w-full h-full">
@@ -175,16 +173,13 @@ export default async function Page({searchParams}: { searchParams: Promise<{ d?:
             `absolute top-0 lg:-right-8 -right-1 h-full`
         }>
             <div className="sticky top-0  flex flex-col gap-2">
-                <Link href={nextWeeksPath}>
-                    <Button isIconOnly>
-                        <FontAwesomeIcon icon={faArrowRight}/>
-                    </Button>
-                </Link>
-                {canCreate && <Link href={'/calendar/new'}>
-                    <Button isIconOnly>
+                <Button href={nextWeeksPath} as="a" isIconOnly>
+                    <FontAwesomeIcon icon={faArrowRight}/>
+                </Button>
+                {canCreate &&
+                    <Button href={'/calendar/new'} as="a" isIconOnly>
                         <FontAwesomeIcon icon={faAdd}/>
-                    </Button>
-                </Link>}
+                    </Button>}
             </div>
         </div>
         <Refresher/>

@@ -1,14 +1,15 @@
 'use client'
-import {Button} from "@heroui/react";
-import Link from "next/link";
+import {Button, type ButtonProps} from "@heroui/react";
 import {usePathname, useRouter} from "next/navigation";
 import useScreenSize from "@/app/hooks/useScreenSize";
 import {createHandleAuthMessage, openAuthWindow} from "@/app/util/blizzard/loginOnWindow";
 
-const LoginButton = ({onClick}: { onClick?: Function }) => {
+const LoginButton = ({onClick, href, as}: { onClick?: () => any, as?: string, href?: string } & ButtonProps) => {
     return (<Button
         size="lg"
-        onClick={() => onClick && onClick()}
+        {...(as ? {as} : {})}
+        href={href}
+        onPress={() => onClick && onClick()}
         startContent={(
             <span className="font-xl text-white">
         <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" stroke="currentColor"
@@ -50,10 +51,6 @@ export function BnetLoginButton() {
             />
         </div>
     ) : (
-        <Link
-            href={loginUrl}
-        >
-            <LoginButton/>
-        </Link>
+        <LoginButton as="a" href={loginUrl}/>
     )
 }
