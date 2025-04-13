@@ -211,7 +211,7 @@ export default async function ({params}: { params: Promise<{ id: string }> }) {
 
     let isLoggedInUserLowGear = false
     if (isLoggedInUser) {
-        isLoggedInUserLowGear = characterGearScore < reset.raid.min_gs
+        //isLoggedInUserLowGear = characterGearScore < reset.raid.min_gs
     }
 
     // @ts-ignore
