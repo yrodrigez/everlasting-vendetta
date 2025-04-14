@@ -18,7 +18,7 @@ export default function GroupExport({resetId}: { resetId: string }) {
 
             const {data, error} = await supabase
                 .from("ev_raid_participant")
-                .select("member:ev_member(character), details, updated_at, created_at")
+                .select("member:ev_member!inner(character), details, updated_at, created_at")
                 .eq("raid_id", resetId)
                 .neq("details->>status", "declined")
                 .neq("details->>status", "bench")
