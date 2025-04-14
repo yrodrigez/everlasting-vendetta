@@ -6,6 +6,9 @@ import CharacterAvatar from "@/app/components/CharacterAvatar";
 import {CURRENT_MAX_LEVEL, GUILD_NAME} from "@/app/util/constants";
 import {getClassIcon} from "@/app/apply/components/utils";
 import {redirect} from "next/navigation";
+import WoWService from "@services/wow-service";
+import {BnetLoginButton} from "@/app/components/BnetLoginButton";
+import {Button} from "@/app/components/Button";
 
 function getClassName(classId: number) {
     const classes = {
@@ -27,6 +30,23 @@ function getClassName(classId: number) {
 }
 
 export default async function Page({params}: { params: Promise<{ id: string }> }) {
+
+    const isGuildMember = await new WoWService().isLoggedUserInGuild()
+    if (!isGuildMember) {
+        return (
+            <div className="flex flex-col items-center justify-center h-screen">
+                <h1 className="text-4xl font-bold text-center mb-4">You should be a member of <span className="text-gold font-bold">{GUILD_NAME}</span> to see others guild's rosters</h1>
+                <div className="flex items-center gap-2 text-default">Please <BnetLoginButton/> or <Button size="lg" className="rounded-lg" as="a" href="/apply">Apply</Button> to
+                    view this page.
+                </div>
+                <p className="text-sm text-gray-500 mt-2">If you are a member of the guild and still see this message, make sure you are using battle.net login.</p>
+
+            </div>
+        )
+    }
+
+
+
     const token = (await cookies()).get('bnetToken')?.value || (await getBlizzardToken()).token
     const {id: guildId} = await params
     const roster = await fetchGuildInfo(token, guildId)
@@ -47,6 +67,7 @@ export default async function Page({params}: { params: Promise<{ id: string }> }
 
     if (!roster?.guild?.name) return <h1>There is no guild roster</h1>
     if (roster?.guild?.name === GUILD_NAME) redirect(`/roster`)
+
     return <main className="flex w-full h-full flex-col">
         <h1 className="text-4xl font-bold text-center mb-4">This is the shitty guild: <span
             className="text-gold">{`<${roster?.guild?.name}>`}</span></h1>

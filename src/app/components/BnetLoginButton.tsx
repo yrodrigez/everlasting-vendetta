@@ -21,7 +21,7 @@ const LoginButton = ({onClick, href, as}: { onClick?: () => any, as?: string, hr
         </svg>
         </span>
         )}
-        className="bg-battlenet text-white rounded-md text-xl"
+        className="bg-battlenet border border-battlenet-10 text-white rounded-md text-xl"
     >
         Log In
     </Button>)
