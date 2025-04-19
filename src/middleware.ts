@@ -1,7 +1,7 @@
 import {NextRequest, NextResponse} from 'next/server';
 import moment from "moment";
 import {cookies} from "next/headers";
-import {getLoggedInUserFromAccessToken} from "@utils/supabase/createServerSession";
+import createServerSession, {getLoggedInUserFromAccessToken} from "@utils/supabase/createServerSession";
 import {createServerComponentClient} from "@utils/supabase/createServerComponentClient";
 
 async function isBanned() {
@@ -35,14 +35,49 @@ export const config = {
     ]
 }
 
+async function registerClick(urlId: string) {
+    const {supabase} = await createServerSession({cookies})
+    const {data, error: urlError} = await supabase
+        .schema('open_campaign')
+        .from('urls')
+        .select('id, url')
+        .eq('id', urlId)
+        .single();
+
+    if (urlError) {
+        console.error('Error fetching URL:', urlError);
+        return;
+    }
+
+    const {error} = await supabase
+        .schema('open_campaign')
+        .from('clicks')
+        .insert({
+        url_id: urlId,
+        created_at: new Date().toISOString(),
+    });
+
+    if (error) {
+        console.error('Error inserting click:', error);
+        return;
+    }
+
+    return NextResponse.redirect(data.url);
+
+}
+
 
 export async function middleware(req: NextRequest) {
     const url = req.nextUrl;
 
+    if(url.pathname.startsWith('/r/')) {
+        const urlId = url.pathname.split('/')[2];
+        return await registerClick(urlId);
+    }
+
     if (await isBanned() && url.pathname !== '/banned') {
         return NextResponse.redirect(`${url.origin}/banned`);
     }
-
 
     if (url.pathname === '/calendar') {
         if (!url.searchParams.has('d')) {
