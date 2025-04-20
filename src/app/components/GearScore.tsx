@@ -117,7 +117,6 @@ export default function GearScore({characterName, min, allowForce, updater}: {
 			>
 				<FontAwesomeIcon icon={faWandMagic} className="text-yellow-600"/>
 			</Tooltip>)}
-
 		</div>
 	)
 

@@ -7,7 +7,7 @@ import {useSession} from "@/app/hooks/useSession";
 import useScreenSize from "@/app/hooks/useScreenSize";
 import moment from "moment";
 import {useParticipants} from "@/app/raid/components/useParticipants";
-import {GUILD_NAME, REGISTRATION_SOURCES} from "@/app/util/constants";
+import {GUILD_ID, GUILD_NAME, REGISTRATION_SOURCES} from "@/app/util/constants";
 import {Button} from "@/app/components/Button";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
@@ -72,8 +72,9 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
     minGs: number,
     sanctifiedData?: { characterName: string, count: number, characterId: string }[]
 }) {
-    const {supabase, selectedCharacter, session: {isAdmin} = {}} = useSession()
-
+    const {supabase, selectedCharacter, session} = useSession()
+    const {isAdmin} = session ?? {isAdmin: false}
+    console.log('session', session)
     const stateParticipants = useParticipants(raidId, participants)
     const {isMobile} = useScreenSize()
     const initialColumns = [
@@ -89,7 +90,6 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
             setColumns([
                 ...initialColumns,
                 {name: "GEAR SCORE", uid: "gs"},
-                //{name: "DAYS", uid: "days"},
                 (sanctifiedData ? {name: "SANCT", uid: "sanctified"} : {name: "GUILDIE", uid: "is_guildie"}),
             ])
             if (isAdmin) {
@@ -139,7 +139,8 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
                                 className="w-full h-full py-1 flex items-center justify-center bg-sanctified-900 border border-sanctified-50 text-xs font-bold text-sanctified rounded-full relative"
                             >{sanctifiedCount}
                                 {sanctifiedCount !== undefined && sanctifiedCount < 8 && (
-                                    <FontAwesomeIcon icon={faTriangleExclamation} className="text-red-600 absolute -right-4" beat/>
+                                    <FontAwesomeIcon icon={faTriangleExclamation}
+                                                     className="text-red-600 absolute -right-4" beat/>
                                 )}
                             </span>
                         </div>
@@ -147,8 +148,27 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
 
                 )
             case "gs":
-                return <GearScore characterName={name} min={minGs}
-                                  allowForce={isAdmin || selectedCharacter?.id === registration?.member?.character?.id}/>
+                return (
+                    session?.guild?.id === GUILD_ID ? (
+                        <GearScore characterName={name} min={minGs}
+                                   allowForce={isAdmin || selectedCharacter?.id === registration?.member?.character?.id}/>
+                    ) : (
+                        <Tooltip
+                            content={`Gear score is available only for guild members`}
+                            placement="top"
+                        >
+                            <Chip variant="flat"
+                                    color="warning"
+                                  className="text-warning"
+                                  size="sm"
+                                  startContent={
+                                      <FontAwesomeIcon icon={faCircleQuestion}/>}
+                            >
+                                EV-only
+                            </Chip>
+                        </Tooltip>
+                    )
+                )
             case "name":
                 return (
                     <Link
@@ -360,7 +380,7 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
             default:
                 return <></>;
         }
-    }, [selectedCharacter, supabase, guildEvent, isAdmin, yesNo]);
+    }, [selectedCharacter, supabase, guildEvent, isAdmin, yesNo, session]);
 
     return (
         <Table
