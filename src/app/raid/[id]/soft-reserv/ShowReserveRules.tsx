@@ -54,7 +54,7 @@ export default function ShowReserveRules({shouldAlwaysOpen}: {
             "header": "Closure of Reservations",
             "content": "Reservations will be closed at the discretion of the loot master. No modifications are allowed once closed."
         },
-        {
+        /*{
             "header": "Early Signup Bonus (Extra SR)",
             "content": "To encourage early raid confirmations and help raid planning, participants who confirm their attendance (confirmed, tentative, or late) at least 48 hours before the raid start will receive one additional Soft Reserve (SR) slot automatically.",
             "details": [
@@ -71,7 +71,7 @@ export default function ShowReserveRules({shouldAlwaysOpen}: {
                     "content": "If you confirm attendance early but do not show up without updating your status, you may lose eligibility for the extra SR in the following raid reset."
                 },
             ]
-        },
+        },*/
         {
             "header": "Duplicate Reservations",
             "content": "Participants who reserve the same item multiple times will have multiple chances to roll for it. Here’s how it works:",
