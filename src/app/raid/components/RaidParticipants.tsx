@@ -149,10 +149,10 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
                 )
             case "gs":
                 return (
-                    session?.guild?.id === GUILD_ID ? (
+                    /*session?.guild?.id === GUILD_ID ? (*/
                         <GearScore characterName={name} min={minGs}
                                    allowForce={isAdmin || selectedCharacter?.id === registration?.member?.character?.id}/>
-                    ) : (
+                    /*) : (
                         <Tooltip
                             content={`Gear score is available only for guild members`}
                             placement="top"
@@ -167,7 +167,7 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
                                 EV-only
                             </Chip>
                         </Tooltip>
-                    )
+                    )*/
                 )
             case "name":
                 return (
