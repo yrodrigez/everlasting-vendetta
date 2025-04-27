@@ -66,11 +66,11 @@ export function CharacterNameInput() {
                 label="Character's name *" id="character-name"
                 required
                 validate={() => {
-                    if (name && name.length >= 3 && characterExists) {
-                        return true
+                    if (name?.length >= 3 || characterExists) {
+                        return ''
                     }
 
-                    return 'invalid character name'
+                    return 'Invalid character name'
                 }}
             />
             {characterAvatar &&
