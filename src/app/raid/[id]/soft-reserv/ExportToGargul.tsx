@@ -90,7 +90,7 @@ export function ExportToGargul({isReservationsOpen, reservationsByItem, loading,
 
     useEffect(() => {
         if (isReservationsOpen || loading || !supabase) {
-            return
+            return console.log('isReservationsOpen', isReservationsOpen, 'loading', loading, 'supabase', !!supabase)
         }
         const execute = async () => {
             setInternalLoading(true)
@@ -111,7 +111,7 @@ export function ExportToGargul({isReservationsOpen, reservationsByItem, loading,
 
     const exportToGargul = useCallback(() => {
         if (loading || !supabase || !raidShortName) {
-            return
+            return console.log('loading', loading, 'supabase', !!supabase, 'raidShortName', raidShortName)
         }
 
         const execute = async () => {
