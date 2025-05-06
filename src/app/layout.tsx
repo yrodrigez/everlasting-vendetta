@@ -13,6 +13,7 @@ import React from "react";
 import {HeaderMenuButton} from "@/app/components/HeaderMenuButton";
 import {LoginButton} from "@/app/components/LoginButton";
 import Script from 'next/script';
+import {SpeedInsights} from "@vercel/speed-insights/next"
 
 config.autoAddCss = false;
 const inter = Inter({subsets: ["latin"]});
@@ -25,8 +26,8 @@ export const metadata: Metadata = {
 
 
 export default async function RootLayout({
-                                       children,
-                                   }: Readonly<{
+                                             children,
+                                         }: Readonly<{
     children: React.ReactNode;
 }>) {
     const battleNetRedirectUrl = `${process.env.BNET_LOGIN_URI}`;
@@ -80,6 +81,7 @@ export default async function RootLayout({
         <Script src="/scripts/modelviewer.js" strategy="beforeInteractive"/>
         <Script src="/scripts/color-thief.min.js" strategy="beforeInteractive"/>
         <Script src="/scripts/pixel-canvas.js" strategy="beforeInteractive"/>
+        <SpeedInsights/>
         </body>
         </html>
     );
