@@ -1,15 +1,22 @@
 "use client";
 import {useSession} from "@hooks/useSession";
-import {useQuery} from "@tanstack/react-query";
+import {useMutation, useQuery} from "@tanstack/react-query";
 import {type Role} from "@/app/components/characterStore";
-import {useState, useMemo, useCallback} from "react";
-import {Spinner} from "@heroui/react";
+import {useCallback, useEffect, useMemo, useState} from "react";
+import {Spinner, Tooltip} from "@heroui/react";
+import {Button} from "@/app/components/Button";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faBrain} from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
+import {aiGroupExport} from "@/app/lib/supa-functions/config";
+import {useMessageBox} from "@utils/msgBox";
 
 export default function GroupExport({resetId}: { resetId: string }) {
-    const {supabase} = useSession();
+    const {supabase, tokenUser} = useSession();
     const [copySuccess, setCopySuccess] = useState("");
+    const [generateRoster, setGenerateRoster] = useState("");
 
-    const {data: participants, isLoading, isError} = useQuery({
+    const {data: participants} = useQuery({
         queryKey: ["resetExport", resetId],
         queryFn: async () => {
             if (!supabase) {
@@ -24,7 +31,7 @@ export default function GroupExport({resetId}: { resetId: string }) {
                 .neq("details->>status", "bench")
                 .order("created_at", {ascending: false})
                 .order("updated_at", {ascending: false})
-                .returns<{
+                .overrideTypes<{
                     member: {
                         character: {
                             name: string;
@@ -35,7 +42,7 @@ export default function GroupExport({resetId}: { resetId: string }) {
                         status: string;
                     };
                     updated_at: string;
-                }[]>();
+                }[], { merge: false }>();
 
             if (error) {
                 throw new Error("Error fetching reset");
@@ -47,9 +54,8 @@ export default function GroupExport({resetId}: { resetId: string }) {
         enabled: !!supabase,
     });
 
-    const generateRoster = useMemo(() => {
-        if (!participants?.length) return "";
-
+    useEffect(() => {
+        if (!participants?.length) return;
         const sortedParticipants = participants.sort((a, b) => {
             const rolePriority = {
                 tank: 1,
@@ -93,8 +99,15 @@ export default function GroupExport({resetId}: { resetId: string }) {
             .map((group, index) => `${index + 1}:${group.join(",")}`)
             .join("\n");
 
-        return `${formattedGroups}\n${formattedTanksGroup}`;
+        setGenerateRoster(`${formattedGroups}\n${formattedTanksGroup}`);
     }, [participants]);
+
+    const userHasPermission = useMemo(() => {
+        if (!tokenUser) return false;
+        const {custom_roles: roles} = tokenUser;
+
+        return roles?.includes("GUILD_MASTER") || roles?.includes("RAID_LEADER") || roles?.includes("LOOT_MASTER");
+    }, [tokenUser])
 
     const copyToClipboard = useCallback(() => {
         if (!generateRoster) return;
@@ -103,8 +116,52 @@ export default function GroupExport({resetId}: { resetId: string }) {
             () => setCopySuccess("Failed to copy.")
         );
     }, [generateRoster]);
+    const {alert} = useMessageBox()
 
-    if(!participants?.length) {
+    const {mutate: sortRosterAi, isPending} = useMutation({
+        mutationKey: ["sortRosterAi", resetId],
+        mutationFn: async () => {
+            if (!supabase) {
+                return {error: "No supabase client"};
+            }
+
+            try {
+                const {data} = await axios.get(`${aiGroupExport}?resetId=${resetId}`, {
+                    headers: {
+                        Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
+                    }
+                })
+
+                if (!data) {
+                    return {error: "No data"};
+                }
+                if (data.error) {
+                    alert({
+                        title: "Error",
+                        message: data.error,
+                        type: "error",
+                    })
+                    return {error: data.error};
+                }
+
+                const {composition} = data;
+                setGenerateRoster(composition);
+
+            } catch (e: any) {
+                alert({
+                    title: "Error",
+                    message: "Failed to fetch AI group export. Please try again.",
+                    type: "error",
+                })
+                return {error: "Error fetching AI group export"};
+            }
+
+
+        },
+
+    })
+
+    if (!participants?.length) {
         return <div className="p-4">No participants found for this reset.</div>
     }
 
@@ -118,7 +175,8 @@ export default function GroupExport({resetId}: { resetId: string }) {
                     className={'list-decimal list-inside text-sm'}>
                     <li>Open Gargul by typing <code
                         className={'bg-dark p-1 rounded-md text-gold border border-dark-100'}
-                    >/gl roster</code> in the chat.</li>
+                    >/gl roster</code> in the chat.
+                    </li>
                     <li>Copy the generated roster below and paste it into the Gargul roster window.</li>
                     <li>Click <strong>Apply</strong> to sort the groups automatically.</li>
                     <li>Ensure all raid members are present and out of combat before inviting.</li>
@@ -147,6 +205,17 @@ export default function GroupExport({resetId}: { resetId: string }) {
                     />
                 </div>
             )}
+            <div className="flex flex-col gap-2 mt-4 float-right">
+                <Tooltip
+                    content={'Compose with AI'}
+                    placement="top"
+                >
+                    <Button isIconOnly size="lg" onPress={() => sortRosterAi()} isLoading={isPending}
+                            isDisabled={!userHasPermission || isPending}>
+                        <FontAwesomeIcon icon={faBrain} className="text-gold"/>
+                    </Button>
+                </Tooltip>
+            </div>
         </div>
     );
 }
