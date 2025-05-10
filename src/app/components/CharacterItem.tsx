@@ -1,6 +1,6 @@
 'use client'
 import {ItemImageWithRune} from "@/app/roster/[name]/components/ItemImageWithRune";
-import {useState} from "react";
+import {useMemo, useState} from "react";
 import {useCharacterItemsStore} from "@/app/roster/[name]/characterItemsStore";
 import {Skeleton, Tooltip} from "@heroui/react";
 import {itemTypeInfo} from "@/app/roster/[name]/ilvl";
@@ -210,10 +210,19 @@ export default function ({item: _item, token, reverse, bottom}: {
         retry: 3
     })
 
+    const isShoulderAndNotRuned = useMemo(() => {
+        console.log(item)
+        const isShoulder = item?.inventory_type?.type === 'SHOULDER'
+        if (!isShoulder) return false
+        const rune = item?.enchantments?.find((enchant: any) => enchant?.enchantment_slot?.type === 'TEMPORARY')
+
+        return !rune
+    }, [item?.enchantments, item?.inventory_type?.name])
 
     return (
         <div className={`flex items-center gap-4 ${reverse ? 'flex-row-reverse' : ''}`}>
-            <Skeleton isLoaded={!loading} className={`w-12 h-12 relative  ${loading ? 'bg-wood rounded-lg' : 'bg-transparent'} transition-all duration-300`}>
+            <Skeleton isLoaded={!loading}
+                      className={`w-12 h-12 relative rounded-lg  ${loading ? 'bg-wood rounded-lg' : 'bg-transparent'} transition-all duration-300 shadow-lg ${isShoulderAndNotRuned ? 'shadow-red-500': 'shadow-moss-900'}`}>
                 <ItemImageWithRune
                     item={item}
                     itemIconUrl={itemIconUrl}
@@ -234,11 +243,13 @@ export default function ({item: _item, token, reverse, bottom}: {
                 </div>
             </Skeleton>
             <div className={`flex-col gap-10 ${reverse ? 'text-right' : 'text-left'} break-all relative`}>
-                <Skeleton isLoaded={!loading} className={`h-4 bg-transparent ${loading ? 'bg-wood rounded-full' : 'transition-all duration-300'}`}>
+                <Skeleton isLoaded={!loading}
+                          className={`h-4 bg-transparent ${loading ? 'bg-wood rounded-full' : 'transition-all duration-300'}`}>
                     <h3 className="font-semibold text-sm hidden md:flex">{name}</h3>
                     <h3 className="font-semibold text-sm md:hidden">{slot.name}</h3>
                 </Skeleton>
-                <Skeleton isLoaded={!loading} className={`h-4 bg-transparent mt-1 ${loading ? 'bg-wood rounded-full' : 'transition-all duration-300'}`}>
+                <Skeleton isLoaded={!loading}
+                          className={`h-4 bg-transparent mt-1 ${loading ? 'bg-wood rounded-full' : 'transition-all duration-300'}`}>
                     <p className="text-xs text-muted">Item Level {itemDetails.level}</p>
                 </Skeleton>
             </div>
