@@ -27,6 +27,12 @@ export default function ApplyForm() {
         footer: ''
     } as any);
 
+    const contactWith = [
+        'Alveric',
+        'Felsargon',
+        'Utrivelig',
+        'Templaari',
+    ]
 
     const name = useApplyFormStore(state => state.name)
     const email = useApplyFormStore(state => state.email)
@@ -121,10 +127,10 @@ export default function ApplyForm() {
                                     <p>Your application has been submitted successfully.</p>
                                     <p>Thank you for applying to our guild.</p>
                                     <p>In the meantime, you can contact us in game to speed up the process.</p>
-                                    <p>You can reach out to any of our officers: <Link className={'text-gold'}
-                                                                                       href={'/roster/alveric'}>Alveric</Link> or <Link
-                                        className={'text-gold'}
-                                        href={'/roster/porco'}>Porco</Link></p>
+                                    <p>You can reach out to any of our officers: {contactWith.map(((x, i) => {
+                                        return <span key={x}><Link className={'text-gold'}
+                                                                   href={`/roster/${x.toLowerCase()}`}>{x}</Link>{i === contactWith.length - 1 ? '' : i === contactWith.length - 2 ? ' or ' : ', '}</span>
+                                    }))}</p>
                                     <p>Good luck!</p>
                                 </>),
                                 footer: ''
@@ -146,7 +152,7 @@ export default function ApplyForm() {
                     {() => (
                         <>
                             {modalContent.title &&
-                              <ModalHeader className="flex flex-col gap-1">{modalContent.title}</ModalHeader>}
+                                <ModalHeader className="flex flex-col gap-1">{modalContent.title}</ModalHeader>}
                             <ModalBody>
                                 {modalContent.body}
                             </ModalBody>

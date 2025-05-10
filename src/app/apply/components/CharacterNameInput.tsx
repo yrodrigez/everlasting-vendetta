@@ -8,6 +8,7 @@ export function CharacterNameInput() {
     const {
         setName,
         setClass,
+        setRole,
         setCharacterExists
     } = useApplyFormStore()
     const name = useApplyFormStore(state => state.name)
@@ -25,7 +26,7 @@ export function CharacterNameInput() {
             (async () => {
                 const response = await fetch(`/api/v1/services/member/avatar/get?characterName=${name}`)
                 const data = await response.json()
-
+                setRole('')
                 if (!data.avatar || data.avatar === 'unknown') {
                     return setCharacterAvatar('')
                 }
@@ -40,6 +41,7 @@ export function CharacterNameInput() {
                 if (!characterClass) return
 
                 setClass(characterClass)
+
                 setLevel(characterInfoData.character.level)
                 setCharacterExists(true)
             })()
