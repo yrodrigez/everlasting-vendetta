@@ -64,6 +64,9 @@ export default function GroupExport({resetId}: { resetId: string }) {
                 healer: 3,
                 dps: 4,
                 "healer-dps": 5,
+                rdps: 4,
+                "tank-rdps": 2,
+                "healer-rdps": 3,
             };
 
             return rolePriority[a.details.role] - rolePriority[b.details.role];
