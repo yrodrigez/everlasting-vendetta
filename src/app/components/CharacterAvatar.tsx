@@ -4,6 +4,8 @@ import {getRoleIcon} from "@/app/apply/components/utils";
 import {BNET_COOKIE_NAME} from "@/app/util/constants";
 import {getCookie} from "@/app/util";
 import {useQuery} from "@tanstack/react-query";
+import {Role} from "@/app/admin/types";
+import {CharacterRoleType} from "@/app/types/CharacterRole";
 
 const CharacterAvatar = ({
                              token,
@@ -20,7 +22,7 @@ const CharacterAvatar = ({
     width?: number,
     height?: number,
     className?: string,
-    role?: 'tank' | 'dps' | 'healer' | 'tank-healer' | 'tank-dps' | 'healer-dps'
+    role?: CharacterRoleType
 }) => {
     const tokenFromCookie = getCookie(BNET_COOKIE_NAME)
     const currentToken = !token && tokenFromCookie ? {

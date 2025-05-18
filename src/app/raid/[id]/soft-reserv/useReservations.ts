@@ -9,6 +9,7 @@ import {type SupabaseClient} from "@supabase/supabase-js";
 import {useQuery} from "@tanstack/react-query";
 import {registerOnRaid} from "@/app/lib/database/raid_resets/registerOnRaid";
 import {RAID_STATUS} from "@/app/raid/components/utils";
+import {MemberRole} from "@/app/types/Member";
 
 const groupByItem = (reservations: Reservation[]) => {
     // @ts-ignore
@@ -308,7 +309,7 @@ export const useReservations = (resetId: string, initialItems: Reservation[] = [
                 }
                 registerOnRaid(selectedCharacter.id, resetId, {
                     days: resetDays,
-                    role: selectedCharacter.selectedRole ?? 'dps',
+                    role: selectedCharacter.selectedRole as MemberRole,
                     status: 'confirmed',
                     className
                 }, supabase).then(() => {
