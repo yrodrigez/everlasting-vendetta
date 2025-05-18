@@ -15,7 +15,9 @@ export default function Page() {
                         ranks.
                     </p>
                 </div>
-                <div className="mx-auto max-w-sm space-y-4">
+                <div className="items-center flex lg:gap-6 w-full justify-center">
+                    <img src="/recruit-banner.webp" alt="recruitment banner"
+                         className="hidden lg:flex max-h-[350px] rounded-lg border border-gold-100"/>
                     <ApplyForm/>
                 </div>
             </div>

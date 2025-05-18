@@ -1,6 +1,7 @@
 export const healingClasses = ['priest', 'paladin', 'shaman', 'druid', 'mage']
 export const tankClasses = ['warrior', 'paladin', 'druid', 'rogue', 'warlock']
 export const dpsClasses = ['warrior', 'paladin', 'hunter', 'rogue', 'priest', 'shaman', 'mage', 'warlock']
+export const rdpsClasses = ['druid', 'priest', 'mage', 'warlock', 'hunter']
 
 export type ApplyFormValues = {
     name: string,
@@ -33,6 +34,9 @@ export function validateStore(store: ApplyFormValues) {
     }
     if (role === 'tank' && !tankClasses.includes(characterClass)) {
         return {error: 'Invalid class for tank role'}
+    }
+    if( role === 'rdps' && !rdpsClasses.includes(characterClass) ) {
+        return {error: 'Invalid class for rdps role'}
     }
     if (role === 'dps' && !dpsClasses.includes(characterClass)) {
         return {error: 'Invalid class for dps role'}
@@ -78,5 +82,6 @@ export function getRoleIcon(role: string) {
         'off-tank': '/role-icons/tank.png',
         'healer': '/role-icons/healer.png',
         'dps': '/role-icons/dps.png',
+        'rdps': '/role-icons/rdps.webp',
     }[role.split('-')[0].toLowerCase()] || '';
 }

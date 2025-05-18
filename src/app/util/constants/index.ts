@@ -29,6 +29,9 @@ export const PLAYABLE_ROLES = {
     TANK_HEALER: {value: 'tank-healer', label: 'Tank/Healer'},
     TANK_DPS: {value: 'tank-dps', label: 'Tank/DPS'},
     HEALER_DPS: {value: 'healer-dps', label: 'Healer/DPS'},
+    RANGED: {value: 'rdps', label: 'Ranged DPS'},
+    HEALER_RDPS: {value: 'healer-rdps', label: 'Healer/Ranged DPS'},
+    TANK_RDPS: {value: 'tank-rdps', label: 'Tank/Ranged DPS'},
 } as {[key: string]: {value: Role, label: string}}
 
 export const ROLE = {

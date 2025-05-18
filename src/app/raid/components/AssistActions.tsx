@@ -35,6 +35,8 @@ import {useRouter} from "next/navigation";
 import {performTemporalLogin} from "@/app/hooks/SessionManager";
 import {toast} from "sonner";
 import {RAID_STATUS} from "@/app/raid/components/utils";
+import {PLAYABLE_ROLES} from "@utils/constants";
+import {isRoleAssignable} from "@/app/components/ProfileManager";
 
 export const WEEK_DAYS = {
     MONDAY: 'Mon',
@@ -106,6 +108,9 @@ export function TemporalLogin() {
         },
         enabled: !!lowerCaseCharacterName && !!characterRole,
     })
+    const assignableRoles = useMemo(() => {
+        return Object.values(PLAYABLE_ROLES).filter(role => role.value.split('-').every((x: string) => isRoleAssignable(x.toLowerCase(), character?.character_class?.name?.toLowerCase())))
+    }, [character, character?.character_class?.name, character?.name])
 
     const setIntoStore = useCallback(async () => {
         if (character && character?.id !== 0 && characterRole) {
@@ -155,7 +160,7 @@ export function TemporalLogin() {
             className="border border-gold scrollbar-pill"
         >
             <ModalContent>
-                {(onClose) => (
+                {() => (
                     <>
                         <ModalHeader>
                             <h1 className="text-2xl font-bold text-center">
@@ -195,20 +200,44 @@ export function TemporalLogin() {
                                 {character?.name && (
                                     <div className="flex flex-col gap-2 justify-center w-full">
                                         <div className="flex w-full items-center justify-center">
-                                            <div className="w-64">
-                                                <LookupField
-                                                    title="Role"
-                                                    value={characterRole}
-                                                    onChange={(selectedValue: string) => {
-                                                        setRole(selectedValue as CharacterRoleType)
-                                                    }}
-                                                    values={new Set([
-                                                        'Healer',
-                                                        'Tank',
-                                                        'DPS'
-                                                    ])}
-                                                    icon={(characterRole && characterRole) ? getRoleIcon(characterRole) : ''}
-                                                />
+                                            <div className="w-full">
+                                                <div
+                                                    className="flex gap-2 p-2 w-full flex-wrap justify-center items-center">
+                                                    {assignableRoles.map(
+                                                        (role, i) => {
+                                                            return (
+                                                                <Button
+                                                                    key={i}
+                                                                    style={{
+                                                                        opacity: 1
+                                                                    }}
+                                                                    className={
+                                                                        `bg-moss text-gold rounded border border-moss-100 relative hover:bg-dark hover:border-dark-100 opacity-100`
+                                                                        + ` ${characterRole === role.value ? 'bg-dark text-gold border-gold' : ''}`
+                                                                    }
+                                                                    onPress={() => {
+                                                                        if (characterRole !== role.value) setRole(role.value as CharacterRoleType)
+                                                                    }}
+                                                                ><span className="relative min-w-6 max-w-12 h-6 group">
+                            {role.value.split('-').map((roleValue, i, arr) => (
+                                <img
+                                    key={i}
+                                    className={`
+                                        absolute top-0 ${(i === 0 && arr.length === 1) ? 'left-0' : (i === 0 && arr.length > 1) ? '-left-1.5' : 'left-2.5'}
+                                        w-6 h-6
+                                        rounded-full border border-gold
+                                        
+                                    `}
+                                    src={getRoleIcon(roleValue)}
+                                    alt={roleValue}
+                                />
+                            ))}
+                            </span>
+                                                                </Button>
+                                                            )
+                                                        }
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                         <div className="flex gap-2">
@@ -222,7 +251,19 @@ export function TemporalLogin() {
                                                     <span>{character.name} ({character.level})</span>
                                                 </Link>
                                                 <span>Class: {character.character_class?.name}</span>
-                                                <span>Guild: {character.guild?.name ?? 'No guild, Invite this guy'}</span>
+                                                {character.guild?.name ? (
+                                                    <span>Guild: {character.guild?.name}</span>
+                                                ) : (
+                                                    <span className="text-default">
+                                                        We've noticed that you are not in a guild, would you like to &nbsp;
+                                                        <Link
+                                                            className={'text-gold underline'}
+                                                            target={'_blank'}
+                                                            href={`/apply`}>
+                                                            apply to our guild?
+                                                        </Link>
+                                                    </span>
+                                                )}
                                             </div>
                                         </div>
                                     </div>

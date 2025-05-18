@@ -2,7 +2,16 @@ import {create as createStore} from 'zustand'
 import {persist} from 'zustand/middleware';
 
 const storeKey = 'bnetProfile'
-export type Role = 'tank' | 'healer' | 'dps' | 'tank-healer' | 'tank-dps' | 'healer-dps'
+export type Role =
+    'tank'
+    | 'healer'
+    | 'dps'
+    | 'tank-healer'
+    | 'tank-dps'
+    | 'healer-dps'
+    | 'rdps'
+    | 'tank-rdps'
+    | 'healer-rdps'
 
 export interface Character {
     id: number

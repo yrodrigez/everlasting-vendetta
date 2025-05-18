@@ -1,5 +1,5 @@
 "use client"
-import {useEffect, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import {
     Input,
     Textarea,
@@ -16,6 +16,8 @@ import Link from "next/link";
 import {onForm, getClassIcon, getRoleIcon} from "@/app/apply/components/utils";
 import {useApplyFormStore} from "@/app/apply/components/store";
 import {CharacterNameInput} from "@/app/apply/components/CharacterNameInput";
+import {PLAYABLE_ROLES} from "@/app/util/constants";
+import {isRoleAssignable} from "@/app/components/ProfileManager";
 
 
 export default function ApplyForm() {
@@ -56,8 +58,12 @@ export default function ApplyForm() {
         setIsFormDisabled(!(name && characterClass && characterRole && characterExists))
     }, [name, characterClass, characterRole, characterExists])
 
+    const assignableRoles = useMemo(() => {
+        return Object.values(PLAYABLE_ROLES).filter(role => role.value.split('-').every((x: string) => isRoleAssignable(x.toLowerCase(), characterClass?.toLowerCase())))
+    }, [characterClass, name])
+
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 lg:w-[300px] w-[450px]">
             <div className="grid gap-2">
                 <CharacterNameInput/>
             </div>
@@ -86,22 +92,49 @@ export default function ApplyForm() {
                 />
             </div>
             <div className="grid gap-2">
-                <LookupField
-                    title="Role"
-                    value={characterRole}
-                    onChange={(selectedValue: string) => selectedValue !== 'Role' && setRole(selectedValue)}
-                    values={new Set([
-                        'Healer',
-                        'Tank',
-                        'DPS'
-                    ])}
-                    icon={(characterRole && characterRole !== 'Role') ? getRoleIcon(characterRole) : ''}
-                />
+                <div
+                    className="flex gap-2 p-2 w-full flex-wrap justify-center items-center">
+                    {assignableRoles.map(
+                        (role, i) => {
+                            return (
+                                <Button
+                                    key={i}
+                                    style={{
+                                        opacity: 1
+                                    }}
+                                    className={
+                                        `bg-moss text-gold rounded border border-moss-100 relative hover:bg-dark hover:border-dark-100 opacity-100`
+                                        + ` ${characterRole === role.value ? 'bg-dark text-gold border-gold' : ''}`
+                                    }
+                                    onPress={() => {
+                                        if (characterRole !== role.value) setRole(role.value)
+                                    }}
+                                ><span className="relative min-w-6 max-w-12 h-6 group">
+                            {role.value.split('-').map((roleValue, i, arr) => (
+                                <img
+                                    key={i}
+                                    className={`
+                                        absolute top-0 ${(i === 0 && arr.length === 1) ? 'left-0' : (i === 0 && arr.length > 1) ? '-left-1.5' : 'left-2.5'}
+                                        w-6 h-6
+                                        rounded-full border border-gold
+                                        
+                                    `}
+                                    src={getRoleIcon(roleValue)}
+                                    alt={roleValue}
+                                />
+                            ))}
+                            </span>
+                                </Button>
+                            )
+                        }
+                    )}
+                </div>
             </div>
             <div className="grid gap-2">
                 <Textarea
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
+                    rows={20}
                     id="message" placeholder="Enter your message"/>
             </div>
             <div className="flex items-center">
