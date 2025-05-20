@@ -1,8 +1,9 @@
-import {useEffect} from "react";
+import {useCallback, useEffect} from "react";
 import {useCharacterStore} from "@/app/components/characterStore";
 import {usePathname, useRouter} from "next/navigation";
 import {useSessionStore} from "@/app/hooks/useSessionStore";
 import sessionManager from "@/app/hooks/SessionManager";
+import {useShallow} from "zustand/react/shallow";
 
 export function useSession() {
     const {
@@ -16,16 +17,27 @@ export function useSession() {
         session,
         setSession,
         clear: clearSession
-    } = useSessionStore(state => state);
+    } = useSessionStore(useShallow(state => ({
+        loading: state.loading,
+        setLoading: state.setLoading,
+        supabase: state.supabase,
+        setSupabase: state.setSupabase,
+        bnetToken: state.bnetToken,
+        tokenUser: state.tokenUser,
+        setTokenUser: state.setTokenUser,
+        session: state.session,
+        setSession: state.setSession,
+        clear: state.clear
+    })));
 
     const selectedCharacter = useCharacterStore(state => state.selectedCharacter);
     const clearSelectedCharacter = useCharacterStore(state => state.clear);
     const router = useRouter();
     const pathName = usePathname();
-    const clear = () => {
+    const clear = useCallback(() => {
         clearSession();
         clearSelectedCharacter();
-    };
+    }, [clearSession, clearSelectedCharacter]);
     useEffect(() => {
         if (!selectedCharacter) {
             return setLoading(false);

@@ -1,6 +1,5 @@
 import {create as createStore} from "zustand";
 import {persist} from "zustand/middleware";
-import {zustandLogger} from "@/app/util";
 
 export type RaidItemFilters = {
     name?: string,
@@ -21,12 +20,17 @@ type RaidFiltersStore = {
 } & RaidItemFilters
 
 const initialState: RaidItemFilters = {name: '', itemClass: [], itemSubClass: [], inventoryType: [], qualityName: []}
-export const useFiltersStore = createStore<RaidFiltersStore>()(zustandLogger(persist((set) => ({
-    ...initialState,
-    setName: (name: string) => set({name}),
-    setItemClass: (itemClass: string[]) => set({itemClass}),
-    setItemSubClass: (itemSubClass: string[]) => set({itemSubClass}),
-    setInventoryType: (inventoryType: string[]) => set({inventoryType}),
-    setQualityName: (qualityName: string[]) => set({qualityName}),
-    clear: () => set({...initialState}),
-}), {name: 'raid-filters-store',})));
+export const useFiltersStore = createStore<RaidFiltersStore>()(
+    persist(
+        (set: any) => ({
+            ...initialState,
+            setName: (name: string) => set({name}),
+            setItemClass: (itemClass: string[]) => set({itemClass}),
+            setItemSubClass: (itemSubClass: string[]) => set({itemSubClass}),
+            setInventoryType: (inventoryType: string[]) => set({inventoryType}),
+            setQualityName: (qualityName: string[]) => set({qualityName}),
+            clear: () => set({...initialState}),
+        }),
+        {name: 'raid-filters-store',}
+    )
+);

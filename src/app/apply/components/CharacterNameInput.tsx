@@ -2,6 +2,7 @@
 import {Input} from "@heroui/react";
 import {useApplyFormStore} from "@/app/apply/components/store";
 import {useEffect, useState} from "react";
+import {useShallow} from "zustand/shallow";
 
 
 export function CharacterNameInput() {
@@ -10,7 +11,13 @@ export function CharacterNameInput() {
         setClass,
         setRole,
         setCharacterExists
-    } = useApplyFormStore()
+    } = useApplyFormStore(useShallow(state => ({
+        setName: state.setName,
+        setClass: state.setClass,
+        setRole: state.setRole,
+        setCharacterExists: state.setCharacterExists
+    })))
+
     const name = useApplyFormStore(state => state.name)
     const characterExists = useApplyFormStore(state => state.characterExists)
     const [characterAvatar, setCharacterAvatar] = useState('')
@@ -76,21 +83,21 @@ export function CharacterNameInput() {
                 }}
             />
             {characterAvatar &&
-              <div className="w-10 h-10 bg-red-500 absolute top-2.5 -right-12 rounded-full border border-green-500"
-                   style={{
-                       backgroundImage: `url(${characterAvatar})`,
-                       backgroundSize: 'cover',
-                       backgroundPosition: 'center',
-                       backgroundRepeat: 'no-repeat'
-                   }}>
+                <div className="w-10 h-10 bg-red-500 absolute top-2.5 -right-12 rounded-full border border-green-500"
+                     style={{
+                         backgroundImage: `url(${characterAvatar})`,
+                         backgroundSize: 'cover',
+                         backgroundPosition: 'center',
+                         backgroundRepeat: 'no-repeat'
+                     }}>
 
-                <div className="relative">
+                    <div className="relative">
                   <span className="absolute -bottom-16 right-2">
                       {level || null}
                   </span>
-                </div>
+                    </div>
 
-              </div>
+                </div>
             }
         </div>
     )

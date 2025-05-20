@@ -4,12 +4,17 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPaperPlane} from "@fortawesome/free-solid-svg-icons";
 import {useChatStore} from "@/app/raid/[id]/chat/components/chatStore";
 import {useSession} from "@hooks/useSession";
+import {useShallow} from "zustand/react/shallow";
 
 export function ChatControls({onSubmit, showRedirect}: {
     showRedirect?: boolean
     onSubmit: (message: string) => void
 }) {
-    const {currentMessage, setCurrentMessage} = useChatStore(state => state)
+    const {currentMessage, setCurrentMessage} = useChatStore(useShallow(state => ({
+        currentMessage: state.currentMessage,
+        setCurrentMessage: state.setCurrentMessage,
+    })))
+
     const {selectedCharacter} = useSession()
     return (
         <div className="w-full flex gap-2 relative">

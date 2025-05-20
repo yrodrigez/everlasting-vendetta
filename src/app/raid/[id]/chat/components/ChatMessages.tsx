@@ -1,5 +1,5 @@
 import {type ChatMessage} from "./chatStore";
-import {ReactNode, useCallback, useEffect, useRef, useState} from "react";
+import {ReactNode, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useSessionStore} from "@hooks/useSessionStore";
 import Link from "next/link";
 import {useQuery} from "@tanstack/react-query";
@@ -235,8 +235,8 @@ const ChatMessage = ({message, reactionsHandler}: {
     message: ChatMessage,
     reactionsHandler: ReactNode
 }) => {
-    const {session} = useSessionStore(state => state)
-    const isCurrentUser = session?.id === message.character.id
+    const session = useSessionStore(state => state.session)
+    const isCurrentUser = useMemo(() => session?.id === message.character.id, [session, message])
 
     return (
         isCurrentUser ? <ChatMessageOwner message={message}/> :
@@ -341,7 +341,7 @@ export function ChatMessages({messages, addReaction, emojis, removeReaction}: {
             chatRef.current.scrollTo(0, chatRef.current.scrollHeight);
         }
     }, [messages, isUserAtBottom]);
-    const {session} = useSessionStore(state => state)
+    const session = useSessionStore(state => state.session)
 
     return (
         !messages?.length ? <div className="flex justify-center items-center w-full h-full">Write something</div> :

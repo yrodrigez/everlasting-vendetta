@@ -6,11 +6,19 @@ import {useSession} from "@/app/hooks/useSession";
 import {useCallback} from "react";
 import {useRouter} from "next/navigation";
 import moment from "moment";
+import {useShallow} from "zustand/shallow";
 
 
 
 export function CreateRaidButton() {
-    const {raid, endTime, startTime, startDate, endDate, days} = useCreateRaidStore(state => state)
+    const {raid, endTime, startTime, startDate, endDate, days} = useCreateRaidStore(useShallow(state => ({
+        raid: state.raid,
+        endTime: state.endTime,
+        startTime: state.startTime,
+        startDate: state.startDate,
+        endDate: state.endDate,
+        days: state.days
+    })))
     const {supabase, selectedCharacter} = useSession()
     const router = useRouter()
 

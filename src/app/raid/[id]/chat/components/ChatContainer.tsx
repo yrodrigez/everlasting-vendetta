@@ -14,6 +14,7 @@ import moment from "moment/moment";
 import useScreenSize from "@hooks/useScreenSize";
 import {useQuery} from "@tanstack/react-query";
 import {useReactions} from "@/app/raid/[id]/chat/components/useReactions";
+import {useShallow} from "zustand/shallow";
 
 const tableFields = `*, character:ev_member(id,character)`;
 const table = 'reset_messages';
@@ -58,7 +59,11 @@ export function ChatContainer({resetId: id, showRedirect = false, raidName}: {
 }) {
     const router = useRouter()
     const {supabase, selectedCharacter} = useSession()
-    const {messages, addMessage, setMessages} = useChatStore()
+    const {messages, addMessage, setMessages} = useChatStore(useShallow(state=> ({
+        messages: state.messages,
+        addMessage: state.addMessage,
+        setMessages: state.setMessages
+    })))
     const [shouldHide, setShouldHide] = useState(false)
 
     const {isDesktop} = useScreenSize()

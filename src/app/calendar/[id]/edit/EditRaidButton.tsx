@@ -6,24 +6,32 @@ import {useSession} from "@/app/hooks/useSession";
 import {useCallback} from "react";
 import {useRouter} from "next/navigation";
 import moment from "moment";
+import {useShallow} from "zustand/shallow";
 
 export function EditRaidButton({reset}: { reset: any }) {
-    const {raid, endTime, startTime, startDate, endDate, days} = useCreateRaidStore(state => state)
+    const {raid, endTime, startTime, startDate, endDate, days} = useCreateRaidStore(useShallow(state => ({
+        raid: state.raid,
+        endTime: state.endTime,
+        startTime: state.startTime,
+        startDate: state.startDate,
+        endDate: state.endDate,
+        days: state.days
+    })))
     const {supabase, selectedCharacter} = useSession()
     const router = useRouter()
 
     const createReset = useCallback(async () => {
         if (!raid || !startTime || !endTime || !startDate || !endDate || !days?.length || !supabase || !selectedCharacter) return
 
-        if(raid.id !== reset.raid_id) {
+        if (raid.id !== reset.raid_id) {
             const confirmation = confirm('Changing the raid will delete all participants and reservations. Are you sure you want to continue?')
-            if(!confirmation) return
+            if (!confirmation) return
             const {error: errorParticipants} = await supabase
                 .from('ev_raid_participant')
                 .delete()
                 .eq('raid_id', reset.id)
 
-            if(errorParticipants) {
+            if (errorParticipants) {
                 console.error('Error updating raid participants', errorParticipants)
                 alert('Error updating raid participants: ' + errorParticipants.message)
             }
@@ -33,7 +41,7 @@ export function EditRaidButton({reset}: { reset: any }) {
                 .delete()
                 .eq('reset_id', reset.id)
 
-            if(errorReservations) {
+            if (errorReservations) {
                 console.error('Error updating raid reservations', errorReservations)
                 alert('Error updating raid reservations: ' + errorReservations.message)
             }

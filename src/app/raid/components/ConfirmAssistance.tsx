@@ -19,11 +19,11 @@ export function ConfirmAssistance({raidId, hasLootReservations = false}: {
 }) {
     const selectedDays = useAssistanceStore(state => state.selectedDays)
     const {selectedCharacter} = useSession()
-    const selectedRole = selectedCharacter?.selectedRole
+    const selectedRole = useMemo(() => selectedCharacter?.selectedRole, [selectedCharacter])
     const [loading, setLoading] = useState(false)
     const {isOpen, onOpen, onClose, onOpenChange} = useDisclosure()
-    const className = selectedCharacter?.playable_class?.name
-    const {setRole} = useCharacterStore(({setRole}) => ({setRole}))
+    const className = useMemo(() => selectedCharacter?.playable_class?.name, [selectedCharacter])
+    const setRole = useCharacterStore(state => state.setRole)
     const assignableRoles = useMemo(() => {
         return Object.values(PLAYABLE_ROLES).filter(role => role.value.split('-').every((x: string) => isRoleAssignable(x.toLowerCase(), className?.toLowerCase())))
     }, [className, selectedRole, selectedCharacter])
@@ -31,21 +31,20 @@ export function ConfirmAssistance({raidId, hasLootReservations = false}: {
     const {isOpen: isOpenRoles, onOpenChange: onOpenChangeRoles, onOpen: onOpenRoles} = useDisclosure()
     const [isHovering, setIsHovering] = useState(false)
     const [showHint, setShowHint] = useState(false)
-    useEffect(() => {
-        if (!isHovering || isOpenRoles) {
-            setShowHint(false)
-        } else {
-            const timeout = setInterval(() => {
-                if (isHovering) {
-                    setShowHint(true)
-                } else {
-                    setShowHint(false)
-                }
-            }, 800)
+    const timeoutRef = React.useRef<NodeJS.Timeout | null>(null)
 
-            return () => clearTimeout(timeout)
+    useEffect(() => {
+        if (timeoutRef.current) clearTimeout(timeoutRef.current)
+
+        if (isHovering && !isOpenRoles) {
+            timeoutRef.current = setTimeout(() => setShowHint(true), 800)
+        } else {
+            setShowHint(false)
         }
-    }, [isHovering, isOpenRoles, onOpenChangeRoles])
+        return () => {
+            if (timeoutRef.current) clearTimeout(timeoutRef.current)
+        }
+    }, [isHovering, isOpenRoles])
 
     const confirmRaid = useCallback(((role = selectedRole) => {
         setLoading(true)

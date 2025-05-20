@@ -1,5 +1,6 @@
 import {BnetLoginButton} from "@/app/components/BnetLoginButton";
-import {TemporalLogin} from "@/app/raid/components/AssistActions";
+
+import {TemporalLogin} from "@/app/raid/components/TemporalLogin";
 
 export default function NotLoggedInView({hideTitle = false}: { hideTitle?: boolean }) {
 

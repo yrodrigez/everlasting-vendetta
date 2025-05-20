@@ -32,6 +32,26 @@ class SessionManager {
 	session: Character | undefined = undefined;
 	isInstallingSession: boolean = false;
 
+	// Helper to create and configure a Supabase client for a given access token
+	private createSupabaseClient(accessToken: string): SupabaseClient {
+		const client = createClientComponentClient(
+			process.env.NEXT_PUBLIC_SUPABASE_URL!,
+			process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+			{
+				global: { headers: { Authorization: `Bearer ${accessToken}` } },
+				realtime: { accessToken: async () => accessToken }
+			}
+		);
+		client.realtime.accessToken = async () => accessToken;
+		return client;
+	}
+
+	// Helper to check if a token belongs to the selected character
+	private isValidTokenForCharacter(accessToken: string, character: Character): boolean {
+		const user = getLoggedInUserFromAccessToken(accessToken);
+		return user?.id === character.id;
+	}
+
 	async installSession(token: string | undefined, selectedCharacter: Character, retries: number = 0): Promise<{
 		access_token?: string,
 		error?: string
@@ -119,53 +139,24 @@ class SessionManager {
 
 			this.bnetToken = bnetToken;
 
-			if (access_token) {
-				const currentCookieCharacter = getLoggedInUserFromAccessToken(access_token);
-				if (currentCookieCharacter?.id === selectedCharacter.id) {
-					this.supabase = createClientComponentClient(
-						process.env.NEXT_PUBLIC_SUPABASE_URL!,
-						process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-						{
-							global: {
-								headers: {
-									Authorization: `Bearer ${access_token}`
-								}
-							},
-							realtime: {
-								accessToken: async () => access_token
-							}
-						});
-					this.supabase.realtime.accessToken = async () => access_token
-					this.session = getLoggedInUserFromAccessToken(access_token);
-					this.tokenUser = currentCookieCharacter;
-					setSupabase(this.supabase);
-					if (this.session && this.tokenUser) {
-						setSession(this.session);
-						setTokenUser(this.tokenUser);
-					}
-					return;
+			if (access_token && this.isValidTokenForCharacter(access_token, selectedCharacter)) {
+				this.supabase = this.createSupabaseClient(access_token);
+				this.session = getLoggedInUserFromAccessToken(access_token);
+				this.tokenUser = getLoggedInUserFromAccessToken(access_token);
+				setSupabase(this.supabase);
+				if (this.session && this.tokenUser) {
+					setSession(this.session);
+					setTokenUser(this.tokenUser);
 				}
+				return;
 			}
 
 			this.isInstallingSession = true;
 			const {access_token: newAccessToken} = await this.installSession(bnetToken, selectedCharacter);
 			if (newAccessToken) {
-				this.supabase = createClientComponentClient(
-					process.env.NEXT_PUBLIC_SUPABASE_URL!,
-					process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-					{
-						global: {
-							headers: {
-								Authorization: `Bearer ${newAccessToken}`
-							}
-						},
-						realtime: {
-							accessToken: async () => newAccessToken
-						}
-					});
+				this.supabase = this.createSupabaseClient(newAccessToken);
 				this.session = getLoggedInUserFromAccessToken(newAccessToken);
 				this.tokenUser = getLoggedInUserFromAccessToken(newAccessToken);
-				this.supabase.realtime.accessToken = async () => newAccessToken
 				setSupabase(this.supabase);
 				if (this.session && this.tokenUser) {
 					setSession(this.session);

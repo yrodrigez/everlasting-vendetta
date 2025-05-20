@@ -1,8 +1,6 @@
 import {create as createStore} from 'zustand'
 import type {RaidItem, Reservation, Character} from "@/app/raid/[id]/soft-reserv/types";
 
-// const storeKey = 'reservedItems'
-
 interface ReservationStore {
     items: Reservation[]
     yourReservations: Reservation[]

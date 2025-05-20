@@ -3,6 +3,7 @@ import {TimeInput} from "@heroui/react";
 import {Time} from "@internationalized/date";
 import useCreateRaidStore from "@/app/calendar/new/Components/useCreateRaidStore";
 import moment from "moment";
+import {useShallow} from "zustand/shallow";
 
 export default function TimeManager() {
     const {
@@ -11,7 +12,13 @@ export default function TimeManager() {
         setEndTime,
         endTime,
         startTime
-    } = useCreateRaidStore((state) => state);
+    } = useCreateRaidStore(useShallow((state) => ({
+        raid: state.raid,
+        setStartTime: state.setStartTime,
+        setEndTime: state.setEndTime,
+        endTime: state.endTime,
+        startTime: state.startTime
+    })));
 
     const timeStart = new Time(
         parseInt(startTime.split(':')[0]),

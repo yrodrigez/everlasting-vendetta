@@ -18,6 +18,7 @@ import {useApplyFormStore} from "@/app/apply/components/store";
 import {CharacterNameInput} from "@/app/apply/components/CharacterNameInput";
 import {PLAYABLE_ROLES} from "@/app/util/constants";
 import {isRoleAssignable} from "@/app/components/ProfileManager";
+import {useShallow} from "zustand/react/shallow";
 
 
 export default function ApplyForm() {
@@ -51,7 +52,14 @@ export default function ApplyForm() {
         setClass,
         setRole,
         reset: resetForm,
-    } = useApplyFormStore()
+    } = useApplyFormStore(useShallow(state => ({
+        setIsFormDisabled: state.setIsFormDisabled,
+        setEmail: state.setEmail,
+        setMessage: state.setMessage,
+        setClass: state.setClass,
+        setRole: state.setRole,
+        reset: state.reset
+    })))
 
 
     useEffect(() => {

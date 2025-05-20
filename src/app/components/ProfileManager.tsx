@@ -33,13 +33,18 @@ export function isRoleAssignable(role: 'tank' | 'healer' | 'dps' | string, chara
     if (!characterClass) return false
     const healingClasses = ['priest', 'paladin', 'shaman', 'druid', 'mage']
     const tankClasses = ['warrior', 'paladin', 'druid', 'rogue', 'warlock']
-    const dpsClasses = ['warrior', 'paladin', 'hunter', 'rogue', 'priest', 'shaman', 'mage', 'warlock', 'druid']
+    const rdpsClasses = ['druid', 'priest', 'mage', 'warlock', 'hunter']
+    const dpsClasses = ['warrior', 'paladin', 'hunter', 'rogue', 'shaman', 'druid']
 
     if (role === 'tank') {
         return tankClasses.includes(characterClass)
     }
     if (role === 'healer') {
         return healingClasses.includes(characterClass)
+    }
+
+    if( role === 'rdps') {
+        return rdpsClasses.includes(characterClass)
     }
 
     return dpsClasses.includes(characterClass)

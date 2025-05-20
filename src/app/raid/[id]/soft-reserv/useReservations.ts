@@ -10,6 +10,7 @@ import {useQuery} from "@tanstack/react-query";
 import {registerOnRaid} from "@/app/lib/database/raid_resets/registerOnRaid";
 import {RAID_STATUS} from "@/app/raid/components/utils";
 import {MemberRole} from "@/app/types/Member";
+import {useShallow} from 'zustand/react/shallow'
 
 const groupByItem = (reservations: Reservation[]) => {
     // @ts-ignore
@@ -122,14 +123,21 @@ export const useReservations = (resetId: string, initialItems: Reservation[] = [
     onExtraReserveUpdate?: Array<Function>
 } = {}) => {
     const {selectedCharacter, supabase} = useSession()
-    const [
+    const {
         items,
         yourReservations,
         reservationsByItem,
         loading,
         isReservationsOpen,
         maxReservations
-    ] = useReservationsStore(state => [state.items, state.yourReservations, state.reservationsByItem, state.loading, state.isReservationsOpen, state.maxReservations])
+    } = useReservationsStore(useShallow(state => ({
+        items: state.items,
+        yourReservations: state.yourReservations,
+        reservationsByItem: state.reservationsByItem,
+        loading: state.loading,
+        isReservationsOpen: state.isReservationsOpen,
+        maxReservations: state.maxReservations
+    })))
 
     const {
         setYourReservations,
@@ -138,11 +146,18 @@ export const useReservations = (resetId: string, initialItems: Reservation[] = [
         setLoading,
         setIsReservationsOpen,
         setMaxReservations
-    } = useReservationsStore(state => state)
+    } = useReservationsStore(useShallow(state => ({
+        setYourReservations: state.setYourReservations,
+        setReservationsByItem: state.setReservationsByItem,
+        setItems: state.setItems,
+        setLoading: state.setLoading,
+        setIsReservationsOpen: state.setIsReservationsOpen,
+        setMaxReservations: state.setMaxReservations
+    })))
 
     useEffect(() => {
         setReservationsByItem([...groupByItem(items)])
-        setYourReservations([...items?.filter((item) => item.member?.id === selectedCharacter?.id)])
+        setYourReservations([...items?.filter((item: any) => item.member?.id === selectedCharacter?.id)])
     }, [items, loading, selectedCharacter]);
 
     const {isLoading: isLoadingItems, error: errorItems, refetch: reFetchItems} = useQuery({
@@ -349,7 +364,7 @@ export const useReservations = (resetId: string, initialItems: Reservation[] = [
             toast.error('Error hard reserving item')
         }
 
-        const{error: itemError} = await supabase.from('raid_loot_reservation')
+        const {error: itemError} = await supabase.from('raid_loot_reservation')
             .delete()
             .eq('reset_id', resetId)
             .eq('item_id', itemId)

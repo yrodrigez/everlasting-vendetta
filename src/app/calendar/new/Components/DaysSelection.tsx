@@ -5,11 +5,18 @@ import {CheckIcon} from "@/app/raid/components/AssistActions";
 import useCreateRaidStore, {type Day} from "@/app/calendar/new/Components/useCreateRaidStore";
 import useScreenSize from "@/app/hooks/useScreenSize";
 import moment from "moment-timezone";
+import {useShallow} from "zustand/shallow";
 
 
 export function DaysSelection() {
     const availableDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun',] as Day[]
-    const {raid, days: selectedDays = [], setDays, startDate, setEndDate} = useCreateRaidStore(state => state)
+    const {raid, days: selectedDays = [], setDays, startDate, setEndDate} = useCreateRaidStore(useShallow(state => ({
+        raid: state.raid,
+        days: state.days,
+        setDays: state.setDays,
+        startDate: state.startDate,
+        setEndDate: state.setEndDate
+    })))
     const {isMobile} = useScreenSize()
 
     const calculateEndDate = useCallback(() => {

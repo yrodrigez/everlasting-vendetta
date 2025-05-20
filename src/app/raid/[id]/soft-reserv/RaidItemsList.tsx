@@ -7,6 +7,7 @@ import {Filters} from "@/app/raid/[id]/soft-reserv/Filters";
 import {useFiltersStore} from "@/app/raid/[id]/soft-reserv/filtersStore";
 import {Button, ScrollShadow} from "@heroui/react";
 import {useRouter} from "next/navigation";
+import {useShallow} from "zustand/shallow";
 
 export default function RaidItemsList({items, initialReservedItems, resetId, isAdmin}: {
     items: RaidItem[],
@@ -22,8 +23,15 @@ export default function RaidItemsList({items, initialReservedItems, resetId, isA
         itemSubClass: itemSubClassFilter,
         inventoryType: inventoryTypeFilter,
         qualityName: qualityNameFilter,
-        clear: clearFilters,
-    } = useFiltersStore()
+        clearFilters,
+    } = useFiltersStore(useShallow(state=>({
+        name: state.name,
+        itemClass: state.itemClass,
+        itemSubClass: state.itemSubClass,
+        inventoryType: state.inventoryType,
+        qualityName: state.qualityName,
+        clearFilters: state.clear
+    })))
 
     const {
         items: reservations,

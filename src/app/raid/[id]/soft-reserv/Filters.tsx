@@ -4,13 +4,17 @@ import React, {useState} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faClose, faFilter} from "@fortawesome/free-solid-svg-icons";
 import useScreenSize from "@hooks/useScreenSize";
+import {useShallow} from "zustand/shallow";
 
 const FilterContainer = ({children}: { children: React.ReactNode }) => {
     return <div className="flex w-full gap-2 p-2 flex-wrap">{children}</div>
 }
 
 function QualityFilter() {
-    const {qualityName: qualityNamesFilter, setQualityName} = useFiltersStore(state => state)
+    const {qualityName: qualityNamesFilter, setQualityName} = useFiltersStore(useShallow(state => ({
+        qualityName: state.qualityName,
+        setQualityName: state.setQualityName,
+    })))
     const qualityNames = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary']
 
     return (
@@ -87,7 +91,10 @@ const ItemSubClassFilter = () => {
 
 const InventoryTypeFilter = () => {
     const inventoryTypes = ["Two-Hand", "One-Hand", "Main-Hand", "Off-Hand", "Chest", "Shoulder", "Wrist", "Legs", "Head", "Feet", "Hands", "Waist", "Back", "Ranged", "Neck", "Finger", "Trinket", "Relic", "Miscellaneous"]
-    const {inventoryType: inventoryTypeFilter, setInventoryType} = useFiltersStore(state => state)
+    const {inventoryType: inventoryTypeFilter, setInventoryType} = useFiltersStore(useShallow(state => ({
+        inventoryType: state.inventoryType,
+        setInventoryType: state.setInventoryType,
+    })))
     return <FilterContainer>
         {inventoryTypes.map((inventoryType) => {
             const isClicked = inventoryTypeFilter?.includes(inventoryType)
@@ -110,9 +117,22 @@ const InventoryTypeFilter = () => {
 }
 
 export function Filters() {
-    const {name, setName} = useFiltersStore(state => state)
+    const {
+        name,
+        setName,
+        inventoryType,
+        itemSubClass,
+        qualityName,
+        itemClass
+    } = useFiltersStore(useShallow(state => ({
+        name: state.name,
+        setName: state.setName,
+        inventoryType: state.inventoryType,
+        itemSubClass: state.itemSubClass,
+        qualityName: state.qualityName,
+        itemClass: state.itemClass,
+    })))
     const [advancedFiltersOpen, setAdvancedFiltersOpen] = useState(false)
-    const {inventoryType, itemSubClass, qualityName, itemClass} = useFiltersStore(state => state)
     const isUsingAdvancedFilters = (((inventoryType?.length ?? 0) > 0) || ((itemSubClass?.length ?? 0) > 0)) || ((qualityName?.length ?? 0) > 0) || ((itemClass?.length ?? 0) > 0)
     const {isDesktop} = useScreenSize()
     return (
@@ -167,18 +187,18 @@ export function Filters() {
                 size="sm"
                 endContent={
                     name && <Button
-                    onClick={(e) => {
-                        setName('')
-                        // @ts-ignore - blur is a valid function
-                        e.target.blur && e.target.blur()
-                    }}
-                    variant="light"
-                    isIconOnly
-                    size="sm"
-                    className="text-[rgba(19,19,19,0.5)]"
-                  >
-                    <FontAwesomeIcon icon={faClose}/>
-                  </Button>
+                        onClick={(e) => {
+                            setName('')
+                            // @ts-ignore - blur is a valid function
+                            e.target.blur && e.target.blur()
+                        }}
+                        variant="light"
+                        isIconOnly
+                        size="sm"
+                        className="text-[rgba(19,19,19,0.5)]"
+                    >
+                        <FontAwesomeIcon icon={faClose}/>
+                    </Button>
                 }
                 onChange={(e) => {
                     if (name !== e.target.value) setName(e.target.value)

@@ -6,9 +6,14 @@ import {
 	CalendarDate as InterCalendar
 } from "@internationalized/date";
 import useCreateRaidStore from "@/app/calendar/new/Components/useCreateRaidStore";
+import {useShallow} from "zustand/shallow";
 
 export default function StartDate() {
-	const {startDate, setStartDate, raid} = useCreateRaidStore(state => state)
+	const {startDate, setStartDate, raid} = useCreateRaidStore(useShallow(state => ({
+		startDate: state.startDate,
+		setStartDate: state.setStartDate,
+		raid: state.raid
+	})))
 	return (
 		<DatePicker
 			classNames={{

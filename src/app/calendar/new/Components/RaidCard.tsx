@@ -2,9 +2,10 @@
 import useCreateRaidStore from "@/app/calendar/new/Components/useCreateRaidStore";
 import {RaidResetCard} from "@/app/calendar/components/RaidResetCard";
 import moment from "moment";
-import {RangeCalendar} from "@heroui/calendar";
 import {CalendarDate as InterCalendar} from "@internationalized/date";
-import {Tooltip} from "@heroui/react";
+import {Tooltip, RangeCalendar} from "@heroui/react";
+import {useShallow} from "zustand/shallow";
+
 
 export function RaidCard() {
 
@@ -14,7 +15,13 @@ export function RaidCard() {
 		endDate,
 		startTime,
 		endTime,
-	} = useCreateRaidStore(state => state)
+	} = useCreateRaidStore(useShallow(state => ({
+		raid: state.raid,
+		startDate: state.startDate,
+		endDate: state.endDate,
+		startTime: state.startTime,
+		endTime: state.endTime,
+	})))
 
 	if (!raid) return null
 	return (
@@ -45,6 +52,7 @@ export function RaidCard() {
 						}}
 						aria-label="Raid date"
 						isReadOnly
+						//@ts-ignore
 						value={(startDate && endDate) ? {
 							start: new InterCalendar(startDate.getFullYear(), startDate.getMonth() + 1, startDate.getDate()),
 							end: new InterCalendar(endDate.getFullYear(), endDate.getMonth() + 1, endDate.getDate())
