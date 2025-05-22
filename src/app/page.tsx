@@ -23,7 +23,7 @@ const intro = [
         ]
     },
     {
-        img: "/scarlet_enclave_banner.webp",
+        img: "/news/news-3.webp",
         header: "Join Our Quest",
         paragraphs: [
             "Whether you're a seasoned raider, a strategic battleground commander, or a spirited newcomer eager to make your mark, you'll find a home here.",
@@ -104,7 +104,7 @@ export default async function Home() {
                 </div>
                 <div className={
                     "absolute bottom-[51%] left-0 w-full top-0 bg-cover bg-center bg-no-repeat backdrop-filter backdrop-blur-md border-bottom-image"
-                } style={{backgroundImage: "url('/scarlet_enclave_banner_cropped.webp')"}}>
+                } style={{backgroundImage: "url('/banner-cropped.webp')"}}>
                     <div className="absolute top-0 left-0 w-full h-full -z-10 ">
                         {/*<LoopingVideo />*/}
                     </div>
@@ -112,7 +112,7 @@ export default async function Home() {
                         className="flex flex-col items-center justify-center h-full w-full bg-black bg-opacity-50">
                         <div
                             className="flex flex-col items-center justify-center bg-opacity-100 opacity-100">
-                            <img alt={'center-img'} src={`/center-img.png`}
+                            <img alt={'center-img'} src={`/center-img.webp`}
                                  className="flex-1 rounded-full w-60"/>
                             {!session && <Link href="/apply">
                                 <Button className="mt-4 glow-animation border-gold bg-opacity-100 hover:bg-opacity-100"

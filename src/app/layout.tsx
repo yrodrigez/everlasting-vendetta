@@ -49,9 +49,9 @@ export default async function RootLayout({
                                 {/*<HeaderMenuButton text="Stats"/>*/}
                                 <HeaderMenuButton text="Professions"/>
                             </div>
-                            <img alt="center-img" src="/center-img.png"
+                            <img alt="center-img" src="/center-img.webp"
                                  className="flex-1 rounded-full max-w-20 hidden md:flex my-auto"/>
-                            <div className="flex items-center md:w-[240px] flex-1 gap-2 justify-center">
+                            <div className="flex items-center md:w-[240px] flex-1 gap-2 md:ml-2">
                                 <HeaderMenuButton text="Roster"/>
                                 <HeaderMenuButton text="Calendar"/>
                             </div>
@@ -61,7 +61,7 @@ export default async function RootLayout({
                 <div
                     id="content-container"
                     className="flex w-full custom-h-full-minus-header bg-no-repeat bg-center bg-cover"
-                    style={{backgroundImage: "url('/scarlet_enclave_banner.webp')"}}>
+                    style={{backgroundImage: "url('/banner.webp')"}}>
                     <div
                         className="p-3 w-full h-full overflow-auto scrollbar-pill bg-[rgba(19,19,19,.78)] backdrop-filter backdrop-blur-sm justify-center items-center flex">
                         <div className="flex flex-col md:max-w-[1000px] w-full h-full grow-0">

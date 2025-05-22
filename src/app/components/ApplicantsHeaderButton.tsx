@@ -46,7 +46,7 @@ export default function ApplicantsHeaderButton({text, url, onClick}: {
                 <img
                     width="36"
                     height="36"
-                    alt={text} src={`/btn-${text.toLowerCase()}.png`}
+                    alt={text} src={`/btn-${text.toLowerCase()}.webp`}
                     className="rounded-full w-9 h-9 min-h-9 max-h-9 min-w-9 max-w-9"/>
                 <span className="text-sm">{_text}</span>
             </Link>

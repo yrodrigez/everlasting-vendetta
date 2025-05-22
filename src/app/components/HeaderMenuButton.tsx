@@ -7,7 +7,7 @@ const Children = ({text, imgKey}: { text: string, imgKey: string }) => (
         <img
             width="36"
             height="36"
-            alt={text} src={`/btn-${imgKey}.${imgKey === 'professions' ? 'webp' : 'png'}`}
+            alt={text} src={`/btn-${imgKey}.webp`}
             className="rounded-full w-9 h-9 min-h-9 max-h-9 min-w-9 max-w-9"/>
         <span
             className="text-sm"
