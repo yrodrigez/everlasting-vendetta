@@ -106,7 +106,7 @@ export default async function Home() {
                     "absolute bottom-[51%] left-0 w-full top-0 bg-cover bg-center bg-no-repeat backdrop-filter backdrop-blur-md border-bottom-image"
                 } style={{backgroundImage: "url('/banner-cropped.webp')"}}>
                     <div className="absolute top-0 left-0 w-full h-full -z-10 ">
-                        {/*<LoopingVideo />*/}
+                        {<LoopingVideo />}
                     </div>
                     <div
                         className="flex flex-col items-center justify-center h-full w-full bg-black bg-opacity-50">
