@@ -51,13 +51,9 @@ export function RaidResetCard({
 	const participants = id ? useParticipants(id, raidRegistrations) : []
 	const isRaidCurrent = moment().isBetween(moment(raidDate), moment(raidEndDate))
 	const isToday = moment().format('YYYY-MM-DD') === moment(raidDate).format('YYYY-MM-DD')
-	const isRaidPast = moment().isAfter(moment(`${raidEndDate}T${endTime}`))
 	const {supabase} = useSession()
 	const [borderColor, setBorderColor] = useState<any>()
 	const [shadeColor, setShadeColor] = useState<any>()
-	const [accentColor, setAccentColor] = useState<any>()
-	const [accentBorderColor, setAccentBorderColor] = useState<any>()
-	const [buttonTextColor, setButtonTextColor] = useState<any>()
 
 	const registrationStatusIcon = useCallback((registrationStatus: string) => {
 		if (registrationStatus === 'confirmed') {
@@ -89,26 +85,25 @@ export function RaidResetCard({
 		// @ts-ignore
 		if (!window.ColorThief) return
 		const img = new Image();
-		//img.crossOrigin = 'anonymous'; // Ensure CORS for external images
 		img.src = raidImage;
 		img.onload = () => {
 			// @ts-ignore
-			const colorThief = new window.ColorThief();
+			const colorThief = new ColorThief();
 			const color = colorThief.getColor(img);
 			setBorderColor(`rgb(${color.join(',')})`)
 			const darkerShade = color.map((channel: any) => Math.max(channel - 30, 0));
 			setShadeColor(`rgba(${darkerShade.join(',')}, 1)`)
 		};
-	}, [raidImage, isRaidPast]);
+	}, [raidImage]);
 
 	return (
 		<div
-			className={`w-[300px] relative text-default min-h-64 flex flex-col p-3 rounded-md backdrop-blur backdrop-opacity-90 justify-between border transition-all duration-300 ${
+			className={`w-[300px] relative text-default max-h-64 3xl:min-h-64 flex flex-col p-3 rounded-md backdrop-blur backdrop-opacity-90 justify-between border transition-all duration-300 ${
 				(isToday || isRaidCurrent) ? 'border-gold shadow-xl shadow-gold glow-animation ' : 'border-wood-100'
 			}`}
 			style={{
-				...((!isRaidPast && borderColor) ? {borderColor} : {}),
-				...((!isRaidPast && shadeColor) ? {boxShadow: `
+				...((borderColor && status !== 'offline') ? {borderColor} : {}),
+				...((shadeColor && status !== 'offline') ? {boxShadow: `
 					0 10px 15px 3px ${shadeColor},
                     0 4px 6px 4px ${shadeColor}
                     `
@@ -116,14 +111,13 @@ export function RaidResetCard({
 			}}
 		>
 			<div
-
 				style={{
 					backgroundSize: 'cover',
 					backgroundPosition: 'center',
 					backgroundRepeat: 'no-repeat',
 					backgroundImage: `url('${raidImage}')`,
 				}}
-				className={`w-full h-full rounded-md absolute top-0 left-0 -z-10 ${isRaidPast || status === 'offline' ? 'grayscale' : ''}`}>
+				className={`w-full h-full rounded-md absolute top-0 left-0 -z-10 ${status === 'offline' ? 'grayscale' : ''}`}>
 				<div className="w-full h-full backdrop-brightness-50 backdrop-filter backdrop-blur-xs rounded-md"/>
 			</div>
 			<div className="flex flex-col  shadow-xl ">

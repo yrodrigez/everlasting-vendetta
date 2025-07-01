@@ -95,6 +95,10 @@ const config: Config = {
     ],
     theme: {
         extend: {
+            screens: {
+                '3xl': '1921px',
+                '4xl': '2560px',
+            },
             keyframes: {
                 wiggle: {
                     '0%, 100%': {transform: 'rotate(-3deg)'},
