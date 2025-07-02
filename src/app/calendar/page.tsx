@@ -29,9 +29,6 @@ async function fetchMaxRaidResets(supabase: SupabaseClient, page = 0) {
     const currentPage = page === 0 ? totalPages : page;
     const offset = Math.max(0, (totalItems - ((currentPage) * MAX_RAID_RESETS)));
 
-    console.log('Getting max raid reset page', page);
-    console.log('Total items:', totalItems, 'Total pages:', totalPages, 'Offset:', offset, 'Current page:', currentPage);
-
     const raidResets = await supabase.from('raid_resets')
         .select('raid_date, id, raid:ev_raid(name, min_level, image), time, end_date, modifiedBy:ev_member!modified_by(character), modified_at, end_time, status')
         .order('raid_date', {ascending: false})
@@ -127,7 +124,7 @@ export default async function Page({searchParams}: { searchParams: Promise<{ p?:
 
     return (
         <main className="flex flex-col justify-between items-center relative h-full w-full gap-2">
-            <div className="flex gap-3 flex-col lg:ml-9 md:flex-wrap md:flex-row w-full h-full">
+            <div className="flex gap-3 flex-col md:flex-wrap md:flex-row px-8 md:px-0 h-full overflow-auto scrollbar-pill justify-start items-center">
                 {raidResetsWithParticipants.map((raidReset: any, index: number) => {
                     return <RaidResetCard
                         raidEndDate={raidReset.end_date}
