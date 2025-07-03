@@ -112,12 +112,8 @@ const fetchResetInfo = async (supabase: SupabaseClient, resetId: string) => {
 
 export default async function ({params}: { params: Promise<{ id: string }> }) {
 
-    const {supabase, auth} = await createServerSession({cookies})
-    const user = await auth.getSession()
+    const {supabase} = await createServerSession({cookies})
 
-    if (!user) {
-        return <NotLoggedInView/>
-    }
     const {id: resetId} = await params
     const lootHistory = await fetchLootHistory(supabase, resetId)
     if (!lootHistory?.length) {
@@ -173,6 +169,7 @@ export default async function ({params}: { params: Promise<{ id: string }> }) {
                     as="a"
                     href={`/raid/${resetId}`}
                     variant="light"
+                    className="text-gold"
                     isIconOnly
                 >
                     <FontAwesomeIcon icon={faArrowLeft}/>
