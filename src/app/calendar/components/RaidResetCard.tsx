@@ -121,7 +121,11 @@ export function RaidResetCard({
 				<div className="w-full h-full backdrop-brightness-50 backdrop-filter backdrop-blur-xs rounded-md"/>
 			</div>
 			<div className="flex flex-col  shadow-xl ">
-				<h4 className="font-bold text-large text-gold">{raidName}{status === 'offline' ? ' (Cancelled)' : ''}</h4>
+				<h4 className={`font-bold text-large text-gold`}>
+					{raidName}
+					{status === 'offline' ? (<span className="text-xs">&nbsp;(Cancelled)</span>) : null}
+				</h4>
+
 				<small
 					className="text-primary">{moment(raidDate).format('dddd, MMMM D')} - {raidTime.substring(0, 5)} to {endTime?.substring(0, 5)}</small>
 			</div>

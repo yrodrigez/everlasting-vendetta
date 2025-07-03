@@ -74,7 +74,6 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
 }) {
     const {supabase, selectedCharacter, session} = useSession()
     const {isAdmin} = session ?? {isAdmin: false}
-    console.log('session', session)
     const stateParticipants = useParticipants(raidId, participants)
     const {isMobile} = useScreenSize()
     const initialColumns = [
@@ -367,7 +366,6 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
                                                 console.error('Error deleting participant', err)
                                                 return
                                             }
-                                            console.log('Deleted participant', data)
                                         })
                                 })
                             }}

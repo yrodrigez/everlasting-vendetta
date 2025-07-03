@@ -119,7 +119,6 @@ export default function CloneReservesCard({originalResetId, reset, reserves}: {
                     isDisabled={isPending || !supabase}
                     onPress={() => {
                         // Handle clone action
-                        console.log('Clone action triggered');
                         mutate()
                     }}
                 >

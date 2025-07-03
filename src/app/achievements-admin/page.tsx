@@ -146,7 +146,6 @@ async function redirectToEdit(formData: FormData) {
 	'use server'
 	return
 	const id = formData.get('id') as string
-	console.log('Edit achievement:', id)
 	if (!id) {
 		console.error('No id provided')
 		return
