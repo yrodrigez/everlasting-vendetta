@@ -274,7 +274,7 @@ export default async function Page({params}: { params: Promise<{ name: string }>
         return <div>Character not found</div>
     }
 
-    if (!isGuildMember && characterInfo.guild?.id !== GUILD_ID) {
+    if (false && !isGuildMember && characterInfo.guild?.id !== GUILD_ID) {
         return <div
             className="text-2xl text-red-500 font-bold p-4 w-full h-full flex items-center justify-center flex-col gap-2">
             <FontAwesomeIcon icon={faBan}/>
