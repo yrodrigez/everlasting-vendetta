@@ -81,7 +81,7 @@ export default async function Page() {
         .select('updated_at, character')
         .filter('character->>level', 'gte', CURRENT_MAX_LEVEL - 10)
         .filter('character->guild->>name', 'eq', GUILD_NAME)
-        .filter('updated_at', 'gte', moment().subtract(60, 'days').format('YYYY-MM-DD'))
+        //.filter('updated_at', 'gte', moment().subtract(60, 'days').format('YYYY-MM-DD')) // Uncomment this line to filter characters updated in the last 60 days
         .order('updated_at', {ascending: false})
         .returns<{ updated_at: string, character: Character }[]>()
 
