@@ -1,16 +1,17 @@
-import {Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader} from "@heroui/react";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faCartPlus} from "@fortawesome/free-solid-svg-icons";
-import {useSession} from "@/app/hooks/useSession";
-import {useRouter} from "next/navigation";
+import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@heroui/react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCartPlus } from "@fortawesome/free-solid-svg-icons";
+import { useRouter } from "next/navigation";
+import { useCharacterStore } from "@/app/components/characterStore";
+import { useShallow } from "zustand/react/shallow";
 
-export function ShouldReserveModal({raidId, isOpen, onClose, onOpenChange}: {
+export function ShouldReserveModal({ raidId, isOpen, onClose, onOpenChange }: {
     raidId: string,
     isOpen: boolean,
     onClose: () => void,
     onOpenChange: (open: boolean) => void
 }) {
-    const {selectedCharacter} = useSession()
+    const { selectedCharacter } = useCharacterStore(useShallow(state => ({ selectedCharacter: state.selectedCharacter })));
     const router = useRouter()
     return (
         <Modal
@@ -46,7 +47,7 @@ export function ShouldReserveModal({raidId, isOpen, onClose, onOpenChange}: {
                                 onClick={() => {
                                     router.push(`/raid/${raidId}/soft-reserv`)
                                 }}
-                                endContent={<FontAwesomeIcon icon={faCartPlus}/>}
+                                endContent={<FontAwesomeIcon icon={faCartPlus} />}
                             >Reserve items</Button>
                         </ModalFooter>
 

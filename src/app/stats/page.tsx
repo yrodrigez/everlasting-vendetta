@@ -1,15 +1,14 @@
 
 import {type SupabaseClient} from "@supabase/supabase-js";
-import {cookies} from "next/headers";
 import Chart from "@/app/stats/Chart";
 import {fetchCharacterAvatar} from "@/app/lib/fetchCharacterAvatar";
-import {Card, CardBody} from "@heroui/react";
-import {CardFooter, CardHeader} from "@heroui/card";
-import Image from "next/image";
+import {Card, CardBody, CardFooter, CardHeader} from "@heroui/react";
+
 import moment from "moment";
 import Link from "next/link";
 import {CURRENT_MAX_LEVEL, GUILD_REALM_SLUG} from "@/app/util/constants";
 import createServerSession from "@utils/supabase/createServerSession";
+import { headers } from "next/headers";
 
 export const dynamic = 'force-dynamic'
 
@@ -132,7 +131,8 @@ async function findMembersAvatars(members: MemberWithStatistics[], token: string
 }
 
 export default async function Page() {
-    const {supabase} = await  createServerSession({cookies})
+    const { getSupabase } = await createServerSession();
+    const supabase = await getSupabase();
     const {
         data,
         error

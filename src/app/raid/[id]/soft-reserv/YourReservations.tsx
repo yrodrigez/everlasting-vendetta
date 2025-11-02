@@ -1,33 +1,26 @@
 'use client'
-import {Reservation} from "@/app/raid/[id]/soft-reserv/types";
-import {ReservedItem} from "@/app/raid/[id]/soft-reserv/ReservedItem";
-import {useReservations} from "@/app/raid/[id]/soft-reserv/useReservations";
-import {useEffect, useMemo, useState} from "react";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faLock, faLockOpen} from "@fortawesome/free-solid-svg-icons";
-import {Tooltip} from "@heroui/react";
+import { Reservation } from "@/app/raid/[id]/soft-reserv/types";
+import { ReservedItem } from "@/app/raid/[id]/soft-reserv/ReservedItem";
+import { useReservations } from "@/app/raid/[id]/soft-reserv/useReservations";
+import { useEffect, useMemo, useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faLock, faLockOpen } from "@fortawesome/free-solid-svg-icons";
+import { Tooltip } from "@heroui/react";
 
-export default function YourReservations({resetId, initialReservedItems, baseReservationAmount = 0}: {
+export default function YourReservations({ resetId, initialReservedItems, baseReservationAmount = 0 }: {
     resetId: string,
     initialReservedItems: Reservation[]
     baseReservationAmount?: number
 }) {
-    const [stateReservations, setStateReservations] = useState<Reservation[]>([])
 
     const {
         remove,
         loading,
-        yourReservations,
         isReservationsOpen,
-        items,
         maxReservations,
+        yourReservations: stateReservations,
         globalLoading,
     } = useReservations(resetId, initialReservedItems)
-
-    useEffect(() => {
-        // it needs to be here to update the list of your reservations
-        setStateReservations(yourReservations)
-    }, [yourReservations, resetId])
 
     const extraSR = useMemo(() => {
         return maxReservations - baseReservationAmount
@@ -47,13 +40,13 @@ export default function YourReservations({resetId, initialReservedItems, baseRes
                 `flex flex-col justify-center items-center absolute top-1 right-0 z-50 transition-all duration-300`
             }>
                 {isReservationsOpen ? (
-                    <FontAwesomeIcon icon={faLockOpen} className={`text-success transition-all`}/>
+                    <FontAwesomeIcon icon={faLockOpen} className={`text-success transition-all`} />
                 ) : (
                     <Tooltip
                         content={'Reservations are closed'}
                         placement={'right'}
                     >
-                        <FontAwesomeIcon icon={faLock} className="text-gray-500 transition-all"/>
+                        <FontAwesomeIcon icon={faLock} className="text-gray-500 transition-all" />
                     </Tooltip>
                 )}
             </div>
@@ -68,21 +61,21 @@ export default function YourReservations({resetId, initialReservedItems, baseRes
                 {<sup
                     className="ml-1"
                 >
-                    <span className={`${extraSR > 0 ? 'text-green-600': 'text-gray-500'} text-xs `}>(+{extraSR})</span>
+                    <span className={`${extraSR > 0 ? 'text-green-600' : 'text-gray-500'} text-xs `}>(+{extraSR})</span>
                 </sup>}
             </h3>
         </div>
         <div className="flex gap-2 px-2 mb-8 grow flex-wrap overflow-auto max-h-24 scrollbar-pill">
             {
-                stateReservations.length ? stateReservations.map((item) => (
+                stateReservations.length ? stateReservations.map((reservation) => (
                     <ReservedItem
                         showTooltip={false}
                         loading={loading}
                         reservationsOpen={isReservationsOpen}
                         belongsToLogged
-                        remove={isReservationsOpen ? remove : undefined}
-                        key={item.id}
-                        reservation={item}
+                        remove={() => remove(reservation.id)}
+                        key={reservation.id}
+                        reservation={reservation}
                     />
                 )) : <span className="text-gray-500">None</span>
             }

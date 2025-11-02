@@ -1,15 +1,15 @@
 import moment from "moment-timezone";
 
-import {RaidResetCard} from "@/app/calendar/components/RaidResetCard";
-import {cookies} from "next/headers";
+import { RaidResetCard } from "@/app/calendar/components/RaidResetCard";
+import { cookies } from "next/headers";
 
-import {Metadata} from "next";
-import {Button} from "@/app/components/Button";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faAdd} from "@fortawesome/free-solid-svg-icons";
-import {type SupabaseClient} from "@supabase/supabase-js";
+import { Metadata } from "next";
+import { Button } from "@/app/components/Button";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faAdd } from "@fortawesome/free-solid-svg-icons";
+import { type SupabaseClient } from "@supabase/supabase-js";
 import createServerSession from "@/app/util/supabase/createServerSession";
-import {fetchResetParticipants} from "@/app/raid/api/fetchParticipants";
+import { fetchResetParticipants } from "@/app/raid/api/fetchParticipants";
 import Refresher from "@/app/calendar/components/Refresher";
 import CreateNewCard from "@/app/calendar/components/CreateNewCard";
 import CalendarPagination from "@/app/calendar/components/CalendarPagination";
@@ -19,9 +19,9 @@ export const dynamic = 'force-dynamic'
 const MAX_RAID_RESETS = 9
 
 async function fetchMaxRaidResets(supabase: SupabaseClient, page = 0) {
-    const {count} = await supabase
+    const { count } = await supabase
         .from('raid_resets')
-        .select('*', {count: 'exact', head: true});
+        .select('*', { count: 'exact', head: true });
 
     const totalItems = count || 0;
     const totalPages = Math.ceil(totalItems / MAX_RAID_RESETS);
@@ -31,8 +31,8 @@ async function fetchMaxRaidResets(supabase: SupabaseClient, page = 0) {
 
     const raidResets = await supabase.from('raid_resets')
         .select('raid_date, id, raid:ev_raid(name, min_level, image), time, end_date, modifiedBy:ev_member!modified_by(character), modified_at, end_time, status')
-        .order('raid_date', {ascending: false})
-        .order('raid_id', {ascending: false})
+        .order('raid_date', { ascending: false })
+        .order('raid_id', { ascending: false })
         .range(offset, (offset + MAX_RAID_RESETS - 1))
         .limit(MAX_RAID_RESETS)
         .overrideTypes<{
@@ -105,18 +105,19 @@ const normalizePage = (page: number | undefined): number => {
     return Math.floor(page);
 }
 
-export default async function Page({searchParams}: { searchParams: Promise<{ p?: string }> }) {
-    const {supabase, auth} = await createServerSession({cookies})
+export default async function Page({ searchParams }: { searchParams: Promise<{ p?: string }> }) {
+    const { getSupabase, auth } = await createServerSession();
+    const supabase = await getSupabase();
     const user = await auth.getSession()
-    const {p: page = '0'} = await searchParams
-    const {raidResets, totalPages, currentPage} = await fetchMaxRaidResets(supabase, normalizePage(parseInt(page)))
+    const { p: page = '0' } = await searchParams
+    const { raidResets, totalPages, currentPage } = await fetchMaxRaidResets(supabase, normalizePage(parseInt(page)))
     const raidResetsWithParticipants = await Promise.all(raidResets.map(async (raidReset: any) => {
         const raidRegistrations = await fetchResetParticipants(supabase, raidReset.id)
 
         return {
             ...raidReset,
             raidRegistrations,
-            registrationStatus: raidRegistrations.find(r => r.member.id === user?.id)?.details?.status
+            registrationStatus: raidRegistrations.find(r => r.member.id === user?.selectedCharacter?.id)?.details?.status
         }
     }))
 
@@ -143,7 +144,7 @@ export default async function Page({searchParams}: { searchParams: Promise<{ p?:
                         status={raidReset.status}
                     />
                 })}
-                {raidResets.length < 9 && (<CreateNewCard/>)}
+                {raidResets.length < 9 && (<CreateNewCard />)}
             </div>
             <CalendarPagination
                 currentPage={currentPage}
@@ -155,11 +156,11 @@ export default async function Page({searchParams}: { searchParams: Promise<{ p?:
                 <div className="sticky top-0 flex flex-col gap-2">
                     {canCreate &&
                         <Button href={'/calendar/new'} as="a" isIconOnly>
-                            <FontAwesomeIcon icon={faAdd}/>
+                            <FontAwesomeIcon icon={faAdd} />
                         </Button>}
                 </div>
             </div>
-            <Refresher/>
+            <Refresher />
         </main>
     )
 }

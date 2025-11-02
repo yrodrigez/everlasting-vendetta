@@ -1,11 +1,9 @@
 'use client'
 
-import {Card, CardBody, Skeleton} from "@heroui/react";
-import {CardFooter, CardHeader} from "@heroui/card";
-import React from "react";
-import {DpsIcon} from "@/app/raid/components/KpisView";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faHeart, faShield} from "@fortawesome/free-solid-svg-icons";
+import { DpsIcon } from "@/app/raid/components/KpisView";
+import { faHeart, faShield } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Skeleton } from "@heroui/react";
 
 const MAX_RAID_RESETS = 9
 

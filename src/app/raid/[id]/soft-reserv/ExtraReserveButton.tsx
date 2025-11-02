@@ -1,18 +1,19 @@
-import {Button} from "@/app/components/Button";
-import {faUserPlus} from "@fortawesome/free-solid-svg-icons";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {ModalBody, ModalContent, Modal, useDisclosure, ModalHeader, ModalFooter, Chip} from "@heroui/react";
-import {useSession} from "@/app/hooks/useSession";
-import {type SupabaseClient} from "@supabase/supabase-js";
-import {useQuery} from "@tanstack/react-query";
+import { Button } from "@/app/components/Button";
+import { faUserPlus } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ModalBody, ModalContent, Modal, useDisclosure, ModalHeader, ModalFooter, Chip } from "@heroui/react";
+import { type SupabaseClient } from "@supabase/supabase-js";
+import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
-import React, {useCallback} from "react";
+import React, { useCallback } from "react";
 import Link from "next/link";
-import {ExtraReserveActions} from "@/app/raid/[id]/soft-reserv/ExtraReserveActions";
+import { ExtraReserveActions } from "@/app/raid/[id]/soft-reserv/ExtraReserveActions";
+import { useAuth } from "@/app/context/AuthContext";
+import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
 
 
 async function fetchExtraReserves(resetId: string, supabase: SupabaseClient) {
-    const {data: extraReserves, error} = await supabase
+    const { data: extraReserves, error } = await supabase
         .from('ev_extra_reservations')
         .select('character_id, extra_reservations')
         .eq('reset_id', resetId)
@@ -36,11 +37,11 @@ async function fetchExtraReserves(resetId: string, supabase: SupabaseClient) {
 
 
 async function fetchResetMembers(resetId: string, supabase: SupabaseClient) {
-    const {data: members, error} = await supabase
+    const { data: members, error } = await supabase
         .from('ev_raid_participant')
         .select('member:ev_member(*), details')
         .eq('raid_id', resetId)
-        .order('created_at', {ascending: true})
+        .order('created_at', { ascending: true })
         .returns<{
             details: {
                 status: string;
@@ -68,9 +69,10 @@ async function fetchResetMembers(resetId: string, supabase: SupabaseClient) {
 }
 
 
-export function ExtraReserveButton({resetId}: { resetId: string }) {
-    const {isOpen, onOpen, onOpenChange,} = useDisclosure()
-    const {supabase,} = useSession()
+export function ExtraReserveButton({ resetId }: { resetId: string }) {
+    const { isOpen, onOpen, onOpenChange } = useDisclosure()
+    const { accessToken } = useAuth()
+    const supabase = React.useMemo(() => createClientComponentClient(accessToken), [accessToken]);
 
     const getStatusChip = useCallback((status: string) => {
         const color = ((status: string) => {
@@ -87,8 +89,8 @@ export function ExtraReserveButton({resetId}: { resetId: string }) {
         })(status);
         return (
             <Chip className={`capitalize min-w-20 text-${color}`} color={color}
-                  size="sm"
-                  variant="flat"
+                size="sm"
+                variant="flat"
 
             >
                 {status}
@@ -97,7 +99,7 @@ export function ExtraReserveButton({resetId}: { resetId: string }) {
 
     }, [])
 
-    const {data: members, error, isFetching, refetch: reFetchMembers} = useQuery(
+    const { data: members, error, isFetching, refetch: reFetchMembers } = useQuery(
         {
             queryKey: ['resetMembers', resetId],
             enabled: supabase !== undefined,
@@ -110,7 +112,7 @@ export function ExtraReserveButton({resetId}: { resetId: string }) {
             },
         });
 
-    const {data: extraReserves, isFetching: isFetchingReserves, refetch: reFetchReserves,} = useQuery(
+    const { data: extraReserves, isFetching: isFetchingReserves, refetch: reFetchReserves, } = useQuery(
         {
             queryKey: ['extraReserves', resetId],
             enabled: supabase !== undefined,
@@ -131,7 +133,7 @@ export function ExtraReserveButton({resetId}: { resetId: string }) {
                 isLoading={isFetching || isFetchingReserves}
                 isDisabled={isFetching || isFetchingReserves}
             >
-                <FontAwesomeIcon icon={faUserPlus}/>
+                <FontAwesomeIcon icon={faUserPlus} />
             </Button>
             <Modal
                 isOpen={isOpen}
@@ -154,12 +156,12 @@ export function ExtraReserveButton({resetId}: { resetId: string }) {
                                     const currentAmount = characterExtraReserve?.amount ?? 0
                                     return (
                                         <div key={participation.member.id}
-                                             className="grid grid-cols-3 gap-2 p-2 text-center"
+                                            className="grid grid-cols-3 gap-2 p-2 text-center"
                                         >
                                             <div className="flex gap-2">
                                                 <img src={participation.member.character.avatar}
-                                                       alt={participation.member.character.name} width={32} height={24}
-                                                       className="rounded-lg border border-gold"/>
+                                                    alt={participation.member.character.name} width={32} height={24}
+                                                    className="rounded-lg border border-gold" />
                                                 <Link
                                                     className="self-end"
                                                     href={`/roster/${participation.member.character.name.toLowerCase()}`}

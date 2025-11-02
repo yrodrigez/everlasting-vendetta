@@ -1,10 +1,9 @@
 import Link from "next/link";
-import {AchievementCard} from "@/app/roster/[name]/components/CharacterAchievements";
+import { AchievementCard } from "@/app/roster/[name]/components/CharacterAchievements";
 import createServerSession from "@utils/supabase/createServerSession";
-import {cookies} from "next/headers";
-import {ROLE} from "@utils/constants";
+import { ROLE } from "@utils/constants";
 import NotLoggedInView from "@/app/components/NotLoggedInView";
-import {ScrollShadow} from "@heroui/react";
+import { ScrollShadow } from "@heroui/react";
 import Sound from "@/app/events/components/Sound";
 import ParticipateButton from "@/app/events/components/ParticipateButton";
 import GearScore from "@/app/components/GearScore";
@@ -14,17 +13,17 @@ export const dynamic = 'force-dynamic'
 const Splinter = () => (
     <span className="text-legendary inline-flex gap-2 items-center">
         <img src="https://wow.zamimg.com/images/wow/icons/large/inv_qiraj_jewelblessed.jpg"
-             className="w-[15px] h-[15px]"
-             alt="Splinter of Atiesh"/>
+            className="w-[15px] h-[15px]"
+            alt="Splinter of Atiesh" />
         <Link href="https://www.wowhead.com/classic/item=22726" target="_blank">
             [Splinter of Atiesh]
         </Link>
     </span>
 );
 
-const ItemLink = ({id, name, img, rarity}: { id: number, name: string, img: string, rarity: string }) => (
+const ItemLink = ({ id, name, img, rarity }: { id: number, name: string, img: string, rarity: string }) => (
     <span className={`text-${rarity} inline-flex gap-2 items-center`}>
-        <img src={img} className="w-[15px] h-[15px]" alt={name}/>
+        <img src={img} className="w-[15px] h-[15px]" alt={name} />
         <Link href={`https://www.wowhead.com/classic/item=${id}`} target="_blank">
             [{name}]
         </Link>
@@ -34,30 +33,31 @@ const ItemLink = ({id, name, img, rarity}: { id: number, name: string, img: stri
 async function fetchGearScore(characterName: string) {
     const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL!}/api/v1/services/member/character/${encodeURIComponent(characterName.toLowerCase())}/gs`)
 
-    if (!response?.ok) return {gs: 0, color: 'gray', isFullEnchanted: false};
+    if (!response?.ok) return { gs: 0, color: 'gray', isFullEnchanted: false };
 
     try {
-        const {gs, color, isFullEnchanted} = await response.json();
+        const { gs, color, isFullEnchanted } = await response.json();
         return !!isFullEnchanted;
     } catch (e) {
         console.error('Error parsing response', e);
-        return {gs: 0, color: 'gray', isFullEnchanted: false};
+        return { gs: 0, color: 'gray', isFullEnchanted: false };
     }
 }
 
 export default async function AtieshMomentsPage() {
-    const {auth, supabase} = await createServerSession({cookies});
-    if (!auth) return <NotLoggedInView/>;
+    const { auth, getSupabase } = await createServerSession();
+    if (!auth) return <NotLoggedInView />;
 
     const user = await auth.getSession();
 
 
     const isRoleAllowed = user?.roles?.includes(ROLE.RAIDER) || user?.roles?.includes(ROLE.COMRADE) || user?.roles?.includes(ROLE.GUILD_MASTER);
-    const isClassAllowed = ['Mage', 'Warlock', 'Druid', 'Priest'].includes(user?.character_class?.name ?? '');
+    const isClassAllowed = ['Mage', 'Warlock', 'Druid', 'Priest'].includes(user?.selectedCharacter?.class ?? '');
+    const supabase = await getSupabase();
     const {
         data: participants,
         error: errorParticipants
-    } = await supabase.from('guild_events_participants').select('member_id,position, event:guild_events!inner(name,id), member:ev_member!inner(character)').eq('event.name', 'Atiesh').order('position', {ascending: true}).returns<{
+    } = await supabase.from('guild_events_participants').select('member_id,position, event:guild_events!inner(name,id), member:ev_member!inner(character)').eq('event.name', 'Atiesh').order('position', { ascending: true }).returns<{
         position: number;
         event: { name: string, id: number };
         member: { character: { id: number, name: string, avatar: string, character_class: { name: string } } };
@@ -68,7 +68,7 @@ export default async function AtieshMomentsPage() {
         error: errorEvent
     } = await supabase.from('guild_events').select('*').eq('name', 'Atiesh').limit(1).maybeSingle();
 
-    const isParticipating = participants?.find((x: { member_id: number }) => x.member_id === user?.id);
+    const isParticipating = participants?.find((x: { member_id: number }) => x.member_id === user?.selectedCharacter?.id);
     const isFullEnchanted = true//(user?.name ? (await fetchGearScore(user.name)) : false);
 
     return (
@@ -76,7 +76,7 @@ export default async function AtieshMomentsPage() {
             size={20}
             className="min-h-full w-full text-primary flex flex-col items-center scrollbar-pill">
             <div className="sticky top-2  ml-auto mt-2">
-                <Sound sound={'/sounds/naxxramas.mp3'}/>
+                <Sound sound={'/sounds/naxxramas.mp3'} />
             </div>
             {/* Page Title */}
             <h1 className="text-4xl md:text-5xl font-bold text-legendary mb-6 text-center">
@@ -101,57 +101,57 @@ export default async function AtieshMomentsPage() {
                     <li>Show no missed core raid resets without 1-day prior notice.</li>
                     <li>
                         Be a <strong><span className="text-mage">Mage</span>, <span
-                        className="text-warlock">Warlock</span>, <span className="text-druid">Druid</span>, or <span
-                        className="text-priest">Priest</span></strong>.
+                            className="text-warlock">Warlock</span>, <span className="text-druid">Druid</span>, or <span
+                                className="text-priest">Priest</span></strong>.
                     </li>
                     <li>
-                        The member who is active farming the <Splinter/> will arrive each week armed with a full
+                        The member who is active farming the <Splinter /> will arrive each week armed with a full
                         set of world buffs for Naxxramas (at least 1 of each):
                         <ul className="list-disc list-inside mt-2 ml-6 space-y-2">
                             <li className="text-rare flex gap-2 items-center">
                                 <img src="https://wow.zamimg.com/images/wow/icons/tiny/inv_misc_horn_03.gif"
-                                     className="w-[15px] h-[15px]"
-                                     alt="Horn of the Dawn"/>
+                                    className="w-[15px] h-[15px]"
+                                    alt="Horn of the Dawn" />
                                 <Link href="https://www.wowhead.com/classic/item=233198" target="_blank">
                                     [Horn of the Dawn]
                                 </Link>
                             </li>
                             <li className="text-rare flex gap-2 items-center">
                                 <img src="https://wow.zamimg.com/images/wow/icons/tiny/inv_misc_herb_dreamingglory.gif"
-                                     className="w-[15px] h-[15px]"
-                                     alt="Songflower Seed"/>
+                                    className="w-[15px] h-[15px]"
+                                    alt="Songflower Seed" />
                                 <Link href="https://www.wowhead.com/classic/item=233200" target="_blank">
                                     [Songflower Seed]
                                 </Link>
                             </li>
                             <li className="text-rare flex gap-2 items-center">
                                 <img src="https://wow.zamimg.com/images/wow/icons/tiny/inv_elemental_primal_water.gif"
-                                     className="w-[15px] h-[15px]"
-                                     alt="Shimmering Globe"/>
+                                    className="w-[15px] h-[15px]"
+                                    alt="Shimmering Globe" />
                                 <Link href="https://www.wowhead.com/classic/item=233201" target="_blank">
                                     [Shimmering Globe]
                                 </Link>
                             </li>
                             <li className="text-rare flex gap-2 items-center">
                                 <img src="https://wow.zamimg.com/images/wow/icons/tiny/inv_misc_coin_14.gif"
-                                     className="w-[15px] h-[15px]"
-                                     alt="Spirit Conch"/>
+                                    className="w-[15px] h-[15px]"
+                                    alt="Spirit Conch" />
                                 <Link href="https://www.wowhead.com/classic/item=233211" target="_blank">
                                     [Spirit Conch]
                                 </Link>
                             </li>
                             <li className="text-rare flex gap-2 items-center">
                                 <img src="https://wow.zamimg.com/images/wow/icons/tiny/trade_blacksmithing.gif"
-                                     className="w-[15px] h-[15px]"
-                                     alt="Overseer's Anvil"/>
+                                    className="w-[15px] h-[15px]"
+                                    alt="Overseer's Anvil" />
                                 <Link href="https://www.wowhead.com/classic/item=233206" target="_blank">
                                     [Overseer's Anvil]
                                 </Link>
                             </li>
                             <li className="text-rare flex gap-2 items-center">
                                 <img src="https://wow.zamimg.com/images/wow/icons/tiny/inv_misc_orb_02.gif"
-                                     className="w-[15px] h-[15px]"
-                                     alt='"Defective" Magic 8-Ball'/>
+                                    className="w-[15px] h-[15px]"
+                                    alt='"Defective" Magic 8-Ball' />
                                 <Link href="https://www.wowhead.com/classic/item=233208" target="_blank">
                                     ["Defective" Magic 8-Ball]
                                 </Link>
@@ -182,29 +182,29 @@ export default async function AtieshMomentsPage() {
                     <li>
                         A <strong>queue</strong> of eligible heroes shall be maintained. The next recipient will be
                         chosen <strong>randomly</strong> on Wednesday, February 5th after the <Link
-                        href="/raid/9949dcb1-28c1-417d-ae37-db1cbaf417c6" className="font-bold text-epic"
-                        target="_blank">Temple of AQ raid</Link>—so make sure to be there! Once the first Splinter
+                            href="/raid/9949dcb1-28c1-417d-ae37-db1cbaf417c6" className="font-bold text-epic"
+                            target="_blank">Temple of AQ raid</Link>—so make sure to be there! Once the first Splinter
                         farmer has collected 40 Splinters, the queue will advance automatically, with the next recipient
                         being selected immediately.
                     </li>
                     <li>
-                        Whichever hero currently farming the <Splinter/> is granted a&nbsp;<strong>+0.5 loot priority
-                        penalty</strong> each raid.
+                        Whichever hero currently farming the <Splinter /> is granted a&nbsp;<strong>+0.5 loot priority
+                            penalty</strong> each raid.
                     </li>
                     <li>
                         As they forge this legendary staff, their <em>portrait</em> shall shine
                         with a <span
-                        className="text-white shadow-legendary shadow rounded-lg bg-legendary p-1 border border-legendary ">legendary
-                        background</span>&nbsp;on the guild’s website — so all know who carries the sacred burden.
+                            className="text-white shadow-legendary shadow rounded-lg bg-legendary p-1 border border-legendary ">legendary
+                            background</span>&nbsp;on the guild’s website — so all know who carries the sacred burden.
                     </li>
                 </ul>
                 <div className="text-xs text-gold mt-4 p-2 border-t border-gold">
                     <span>
-                        <strong>Note:</strong> 0.5 loot priority penalty is less than a +1 loot priority penalty but more than a 0 loot priority. <br/>As always, the loot council will decide the loot distribution and this <Link
-                        href="/terms" target="_blank"><strong>does not affects reserves</strong></Link>.
-                        <br/><br/>
+                        <strong>Note:</strong> 0.5 loot priority penalty is less than a +1 loot priority penalty but more than a 0 loot priority. <br />As always, the loot council will decide the loot distribution and this <Link
+                            href="/terms" target="_blank"><strong>does not affects reserves</strong></Link>.
+                        <br /><br />
                         <strong>Note 2:</strong> Orders will be decided by the RNG site <Link
-                        href="https://www.random.org/lists/" target="_blank">random.org</Link>.
+                            href="https://www.random.org/lists/" target="_blank">random.org</Link>.
                     </span>
                 </div>
             </section>
@@ -231,7 +231,7 @@ export default async function AtieshMomentsPage() {
                     <li>
                         <strong>Missing a Raid & Splinter Transfer:</strong> If the designated Splinter farmer fails to
                         attend a raid,
-                        the responsibility for receiving <Splinter/> will automatically pass to the next eligible member
+                        the responsibility for receiving <Splinter /> will automatically pass to the next eligible member
                         in the queue.
                         Furthermore, if any queued member’s cumulative Splinter count exceeds that of the current farmer
                         by at least <strong>10</strong>,
@@ -281,11 +281,11 @@ export default async function AtieshMomentsPage() {
                 </ul>
                 <div className="text-xs text-gold mt-4 p-2 border-t border-gold">
                     <span className="inline-flex items-center gap-1">
-                      <strong>Note:</strong> This applies to every member participating in the Atiesh guild event and/or actively farming the <Splinter/>.
+                        <strong>Note:</strong> This applies to every member participating in the Atiesh guild event and/or actively farming the <Splinter />.
                     </span>
-                    <br/>
+                    <br />
                     <span>
-                      Example: If you are 3<sup>rd</sup> in the queue and you miss 3 core raid resets, you will be dropped to the bottom of the queue.
+                        Example: If you are 3<sup>rd</sup> in the queue and you miss 3 core raid resets, you will be dropped to the bottom of the queue.
                     </span>
                 </div>
             </section>
@@ -351,16 +351,16 @@ export default async function AtieshMomentsPage() {
                     {!!user ? (
                         <div className="flex flex-col w-full gap-4 items-center justify-center">
                             <div className="flex gap-2 items-center">
-                                <img src={user.avatar}
-                                     className={`w-12 h-12 rounded-full border border-gold ${!isClassAllowed || !isRoleAllowed ? 'grayscale' : ''} `}
-                                     alt="User Avatar"/>
-                                <span className="text-gold font-semibold">{user.name}</span>
+                                <img src={user?.selectedCharacter?.avatar}
+                                    className={`w-12 h-12 rounded-full border border-gold ${!isClassAllowed || !isRoleAllowed ? 'grayscale' : ''} `}
+                                    alt="User Avatar" />
+                                <span className="text-gold font-semibold">{user?.selectedCharacter?.name}</span>
                             </div>
                             {isParticipating ? (
                                 <div className="text-gold">You are already participating in the Atiesh event.</div>
                             ) : isClassAllowed && isRoleAllowed && isFullEnchanted ? (
                                 <ParticipateButton sound="/sounds/KelThuzad.ogg"
-                                                   eventId={event?.id}
+                                    eventId={event?.id}
                                 >
                                     Participate
                                 </ParticipateButton>
@@ -368,7 +368,7 @@ export default async function AtieshMomentsPage() {
                                 <div className="text-gold">You are not eligible to participate in the Atiesh event due
                                     to {
                                         !isClassAllowed && !isRoleAllowed ? 'your class and role. ' :
-                                            !isClassAllowed ? 'your class (' + user.character_class.name + ').' :
+                                            !isClassAllowed ? 'your class (' + user?.selectedCharacter?.class + ').' :
                                                 !isRoleAllowed ? 'you are not a Core raider' :
                                                     !isFullEnchanted ? 'your gear is not fully enchanted.' :
                                                         'an unknown reason.'
@@ -376,7 +376,7 @@ export default async function AtieshMomentsPage() {
                             )}
                         </div>
                     ) : (
-                        <NotLoggedInView hideTitle/>
+                        <NotLoggedInView hideTitle />
                     )}
                     <div className="flex flex-col gap-2 items-center w-full max-h-[300px]">
                         <span className="text-gold text-2xl font-semibold">Participants</span>
@@ -387,13 +387,13 @@ export default async function AtieshMomentsPage() {
                                 <div className="grid grid-cols-1 gap-2">
                                     {participants?.map((x) => (
                                         <div key={x.member_id}
-                                             className={`flex gap-2 items-center justify-between bg-wood-800 border border-gold rounded-lg ${x.position === 1 ? 'shadow shadow-legendary' : ''} p-3`}>
+                                            className={`flex gap-2 items-center justify-between bg-wood-800 border border-gold rounded-lg ${x.position === 1 ? 'shadow shadow-legendary' : ''} p-3`}>
                                             <img src={x.member.character.avatar}
-                                                 className="w-8 h-8 rounded-full border border-gold"
-                                                 alt={x.member.character.name}/>
+                                                className="w-8 h-8 rounded-full border border-gold"
+                                                alt={x.member.character.name} />
                                             <span className="text-gold">{x.member.character.name}</span>
                                             <GearScore characterName={x.member.character.name}
-                                                       allowForce={user?.roles?.includes(ROLE.GUILD_MASTER) || user?.name === x.member.character.name}/>
+                                                allowForce={user?.roles?.includes(ROLE.GUILD_MASTER) || user?.selectedCharacter?.name === x.member.character.name} />
                                             <span
                                                 className="text-gold ">position: {x.position === 999 ? '?' : x.position}</span>
                                         </div>
@@ -404,9 +404,9 @@ export default async function AtieshMomentsPage() {
                     </div>
                 </div>
                 <div className="text-xs text-gold mt-4 p-2 border-t border-gold">
-                                        <span className="inline-flex items-center gap-1">
-                                        <strong>Note:</strong> if you are not eligible to participate, please contact an officer for more information.
-                                        </span>
+                    <span className="inline-flex items-center gap-1">
+                        <strong>Note:</strong> if you are not eligible to participate, please contact an officer for more information.
+                    </span>
                 </div>
             </section>
         </ScrollShadow>

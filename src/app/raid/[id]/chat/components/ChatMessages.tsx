@@ -1,12 +1,13 @@
-import {type ChatMessage} from "./chatStore";
-import {ReactNode, useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {useSessionStore} from "@hooks/useSessionStore";
+import { type ChatMessage } from "./chatStore";
+import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import {useQuery} from "@tanstack/react-query";
-import {Button, Popover, PopoverContent, PopoverTrigger, Spinner, Tooltip, useDisclosure} from "@heroui/react";
+import { useQuery } from "@tanstack/react-query";
+import { Button, Popover, PopoverContent, PopoverTrigger, Spinner, Tooltip, useDisclosure } from "@heroui/react";
 
-import {ChevronDown, ChevronUp, SmilePlus} from "lucide-react";
-import {MessageReaction, Reaction} from "@/app/raid/[id]/chat/components/useReactions";
+import { ChevronDown, ChevronUp, SmilePlus } from "lucide-react";
+import { MessageReaction, Reaction } from "@/app/raid/[id]/chat/components/useReactions";
+import { useCharacterStore } from "@/app/components/characterStore";
+import { useShallow } from "zustand/shallow";
 
 const isCharacterAvailable = async (name: string) => {
     if (!name) return false
@@ -14,12 +15,12 @@ const isCharacterAvailable = async (name: string) => {
     return response.ok
 }
 
-const CharacterMention = ({name}: { name: string }) => {
+const CharacterMention = ({ name }: { name: string }) => {
     const capitalize = useCallback((str: string) => {
         return str.charAt(0).toUpperCase() + str.slice(1);
     }, [name]);
 
-    const {data: isAvailable, isLoading} = useQuery({
+    const { data: isAvailable, isLoading } = useQuery({
         queryKey: ['character', name],
         queryFn: async () => {
             return await isCharacterAvailable(name)
@@ -31,7 +32,7 @@ const CharacterMention = ({name}: { name: string }) => {
     return isLoading ?
         <div className="inline-flex items-baseline text-gray-500 whitespace-nowrap">
             <Spinner size="sm"
-                     color="current"/>{capitalize(name)}
+                color="current" />{capitalize(name)}
         </div> : isAvailable ? (
             <Link href={`/roster/${encodeURIComponent(name.toLowerCase())}`} target="_blank" className="text-blue-500">
                 @{capitalize(name)}
@@ -45,9 +46,9 @@ const extractYouTubeID = (url: string) => {
     return match ? match[1] : null;
 };
 
-const UrlLink = ({href}: { href: string }) => {
+const UrlLink = ({ href }: { href: string }) => {
     const isYouTubeLink = extractYouTubeID(href);
-    const {data: linkMetadata} = useQuery({
+    const { data: linkMetadata } = useQuery({
         queryKey: ['link', href],
         queryFn: async () => {
             const response = await fetch(`/api/v1/services/link/preview?url=${encodeURIComponent(href)}`)
@@ -79,21 +80,21 @@ const UrlLink = ({href}: { href: string }) => {
     }
 
     return linkMetadata?.title ? (
-            <Link
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500"
-            >
-                {linkMetadata.title}
-                {linkMetadata.image && (
-                    <div className="flex w-full items-center justify-center">
-                        <img src={linkMetadata.image} alt={linkMetadata.title}
-                             className="max-w-52 max-h-32 rounded-xl border-blue-500 border"/>
-                    </div>
-                )}
-            </Link>
-        ) :
+        <Link
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-500"
+        >
+            {linkMetadata.title}
+            {linkMetadata.image && (
+                <div className="flex w-full items-center justify-center">
+                    <img src={linkMetadata.image} alt={linkMetadata.title}
+                        className="max-w-52 max-h-32 rounded-xl border-blue-500 border" />
+                </div>
+            )}
+        </Link>
+    ) :
         (
             <Link
                 href={href}
@@ -106,22 +107,22 @@ const UrlLink = ({href}: { href: string }) => {
         )
 }
 
-const ImageLink = ({src}: { src: string }) => {
+const ImageLink = ({ src }: { src: string }) => {
     return (
         <Link href={src}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-500">
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-500">
             <div className="flex w-full items-center justify-center">
-                <img src={src} alt="image" className="max-w-52 max-h-32 rounded-xl border-blue-500 border"/>
+                <img src={src} alt="image" className="max-w-52 max-h-32 rounded-xl border-blue-500 border" />
             </div>
         </Link>
     )
 }
 
 const ChatMessageContent = ({
-                                children
-                            }: {
+    children
+}: {
     children: string | ReactNode
 }) => {
     if (typeof children !== 'string') return <div className="break-all">{children}</div>;
@@ -164,7 +165,7 @@ const ChatMessageContent = ({
 
                 return item.split(' ').map((part: string, j: number) => {
                     if (part.match(atMentionsPattern)) {
-                        return <CharacterMention key={`mention-${i}-${j}`} name={part.replaceAll('@', '')}/>;
+                        return <CharacterMention key={`mention-${i}-${j}`} name={part.replaceAll('@', '')} />;
                     }
 
                     return part;
@@ -189,12 +190,12 @@ const ChatMessageContent = ({
 };
 
 
-const ChatMessageOwner = ({message, children}: { message: ChatMessage, children?: ReactNode }) => {
+const ChatMessageOwner = ({ message, children }: { message: ChatMessage, children?: ReactNode }) => {
     return (
         <div className="flex gap-1 flex-row-reverse mr-3 ">
             <img src={message.character.avatar}
-                 className={`w-8 h-8 rounded-full border border-${message.character?.className?.toLowerCase()} self-end`}
-                 alt={`${message.character.name}'s avatar`}/>
+                className={`w-8 h-8 rounded-full border border-${message.character?.className?.toLowerCase()} self-end`}
+                alt={`${message.character.name}'s avatar`} />
             <div className="flex flex-col gap-1 p-2 rounded-l-xl rounded-tr-xl bg-moss border border-moss-100">
                 <div className="flex gap-1 items-center">
                     <span
@@ -207,13 +208,13 @@ const ChatMessageOwner = ({message, children}: { message: ChatMessage, children?
     )
 }
 
-const ChatMessageOther = ({message, reactionsHandler}: { message: ChatMessage, reactionsHandler: ReactNode }) => {
+const ChatMessageOther = ({ message, reactionsHandler }: { message: ChatMessage, reactionsHandler: ReactNode }) => {
 
     return (
         <div className="flex gap-1 ml-3">
             <img src={message.character.avatar}
-                 className={`w-8 h-8 rounded-full border border-${message.character?.className?.toLowerCase()} self-end`}
-                 alt={`${message.character.name}'s avatar`}/>
+                className={`w-8 h-8 rounded-full border border-${message.character?.className?.toLowerCase()} self-end`}
+                alt={`${message.character.name}'s avatar`} />
             <div className="flex flex-col gap-1 p-2 rounded-r-xl rounded-tl-xl bg-dark border border-dark-100 relative">
                 <div className="flex gap-1 items-center">
                     <Link href={`/roster/${encodeURIComponent(message.character.name.toLowerCase())}`} target="_blank">
@@ -231,29 +232,30 @@ const ChatMessageOther = ({message, reactionsHandler}: { message: ChatMessage, r
     )
 }
 
-const ChatMessage = ({message, reactionsHandler}: {
+const ChatMessage = ({ message, reactionsHandler }: {
     message: ChatMessage,
     reactionsHandler: ReactNode
 }) => {
-    const session = useSessionStore(state => state.session)
-    const isCurrentUser = useMemo(() => session?.id === message.character.id, [session, message])
+
+    const selectedCharacter = useCharacterStore(useShallow(state => state.selectedCharacter));
+    const isCurrentUser = useMemo(() => selectedCharacter?.id === message.character.id, [selectedCharacter, message])
 
     return (
-        isCurrentUser ? <ChatMessageOwner message={message}/> :
-            <ChatMessageOther message={message} reactionsHandler={reactionsHandler}/>
+        isCurrentUser ? <ChatMessageOwner message={message} /> :
+            <ChatMessageOther message={message} reactionsHandler={reactionsHandler} />
     )
 }
 
-const AddReactionButton = ({messageId, addReaction, emojis}: {
+const AddReactionButton = ({ messageId, addReaction, emojis }: {
     messageId: number,
     emojis: Reaction[],
-    addReaction: ({messageId, reactionId}: { messageId: number, reactionId: number }) => void
+    addReaction: ({ messageId, reactionId }: { messageId: number, reactionId: number }) => void
 }) => {
     const [expanded, setExpanded] = useState(false)
-    const {isOpen, onOpenChange, onClose} = useDisclosure()
+    const { isOpen, onOpenChange, onClose } = useDisclosure()
 
     const singleAddReaction = useCallback((messageId: number, reaction: number) => {
-        addReaction({messageId, reactionId: reaction})
+        addReaction({ messageId, reactionId: reaction })
         onClose()
     }, [messageId])
 
@@ -267,7 +269,7 @@ const AddReactionButton = ({messageId, addReaction, emojis}: {
                     size="sm"
                     className="text-xs border-none rounded-full text-primary"
                 >
-                    <SmilePlus className="w-4 h-4"/>
+                    <SmilePlus className="w-4 h-4" />
                 </Button>
             </PopoverTrigger>
             <PopoverContent className={`bg-dark border border-dark-100 rounded-xl`}>
@@ -289,8 +291,8 @@ const AddReactionButton = ({messageId, addReaction, emojis}: {
                             variant="light"
                             onPress={() => setExpanded(!expanded)}
                             radius="full">
-                            {!expanded ? <ChevronDown className="w-4 h-4 text-primary"/> :
-                                <ChevronUp className="w-4 h-4 text-primary"/>}
+                            {!expanded ? <ChevronDown className="w-4 h-4 text-primary" /> :
+                                <ChevronUp className="w-4 h-4 text-primary" />}
                         </Button>
                     </div>
                     <div
@@ -313,10 +315,10 @@ const AddReactionButton = ({messageId, addReaction, emojis}: {
     )
 }
 
-export function ChatMessages({messages, addReaction, emojis, removeReaction}: {
+export function ChatMessages({ messages, addReaction, emojis, removeReaction }: {
     messages: ChatMessage[],
-    addReaction: ({messageId, reactionId}: { messageId: number, reactionId: number }) => void
-    removeReaction: ({messageId}: { messageId: number }) => void
+    addReaction: ({ messageId, reactionId }: { messageId: number, reactionId: number }) => void
+    removeReaction: ({ messageId }: { messageId: number }) => void
     emojis: { shortcut: string, emoji: string, description: string, id: number }[]
 }) {
 
@@ -325,46 +327,46 @@ export function ChatMessages({messages, addReaction, emojis, removeReaction}: {
 
     const handleScroll = () => {
         if (chatRef.current) {
-            const {scrollTop, scrollHeight, clientHeight} = chatRef.current;
+            const { scrollTop, scrollHeight, clientHeight } = chatRef.current;
             setIsUserAtBottom(scrollHeight - scrollTop <= clientHeight + 10);
         }
     };
 
     useEffect(() => {
-        chatRef.current?.scrollIntoView({behavior: "smooth"})
+        chatRef.current?.scrollIntoView({ behavior: "smooth" })
         chatRef.current?.scrollTo(0, chatRef.current.scrollHeight)
     }, []);
 
     useEffect(() => {
         if (isUserAtBottom && chatRef.current) {
-            chatRef.current?.scrollIntoView({behavior: "smooth"})
+            chatRef.current?.scrollIntoView({ behavior: "smooth" })
             chatRef.current.scrollTo(0, chatRef.current.scrollHeight);
         }
     }, [messages, isUserAtBottom]);
-    const session = useSessionStore(state => state.session)
+    const selectedCharacter = useCharacterStore(useShallow(state => state.selectedCharacter))
 
     return (
         !messages?.length ? <div className="flex justify-center items-center w-full h-full">Write something</div> :
             <div ref={chatRef} className="w-full h-full flex flex-col gap-4 overflow-auto scrollbar-pill pb-1"
-                 onScroll={handleScroll}>
+                onScroll={handleScroll}>
                 {messages.map((message, index) => {
-                    const isCurrentUser = message.character.id === session?.id
-                    const userReacted = message.reactions?.find(reaction => reaction.character.id === session?.id)
+                    const isCurrentUser = message.character.id === selectedCharacter?.id
+                    const userReacted = message.reactions?.find(reaction => reaction.character.id === selectedCharacter?.id)
                     return <div key={index} className="flex flex-col gap-0.5 relative">
                         <ChatMessage message={message} reactionsHandler={
                             <AddReactionButton addReaction={addReaction}
-                                               messageId={message.id}
-                                               emojis={emojis}/>
-                        }/>
+                                messageId={message.id}
+                                emojis={emojis} />
+                        } />
                         <div>
                             {!!message?.reactions?.length && (
                                 <Tooltip
                                     content={<div
                                         className="flex gap-1 flex-wrap flex-col">
                                         {message.reactions.map(({
-                                                                    reaction,
-                                                                    character
-                                                                }) => {
+                                            reaction,
+                                            character
+                                        }) => {
                                             return <Link
                                                 href={`/roster/${encodeURIComponent(character.character?.name.toLowerCase())}`}
                                                 key={reaction.id}
@@ -373,19 +375,19 @@ export function ChatMessages({messages, addReaction, emojis, removeReaction}: {
                                     </div>}
                                 >
                                     <div
-                                        onClick={() => removeReaction({messageId: message.id})}
+                                        onClick={() => removeReaction({ messageId: message.id })}
                                         className={`py-2 px-3 bg-wood border border-wood-100 rounded-full inline-flex  ${isCurrentUser ? 'float-right mr-12' : 'ml-12'} gap-1 ${userReacted ? 'cursor-pointer' : ''}`}>
                                         <div className="inline-flex gap-0.5">
                                             {message?.reactions?.reduce((acc, next) => {
-                                                if (acc.find(({reaction}) => reaction.id === next.reaction.id)) {
+                                                if (acc.find(({ reaction }) => reaction.id === next.reaction.id)) {
                                                     return acc
                                                 }
                                                 return [...acc, next]
-                                            }, [] as MessageReaction[]).slice(0, 8)?.map(({reaction}, index) => {
+                                            }, [] as MessageReaction[]).slice(0, 8)?.map(({ reaction }, index) => {
                                                 return <span
                                                     key={index}
                                                     onClick={() => {
-                                                        if (userReacted) return removeReaction({messageId: message.id})
+                                                        if (userReacted) return removeReaction({ messageId: message.id })
                                                         addReaction({
                                                             messageId: message.id,
                                                             reactionId: reaction.id

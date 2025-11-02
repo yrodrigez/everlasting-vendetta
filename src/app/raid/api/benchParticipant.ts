@@ -21,7 +21,7 @@ export default async function benchParticipant(supabase: SupabaseClient, resetId
         .eq("member_id", memberId)
         .select('member_id')
         .single();
-
+        
     if (error) {
         console.error(error);
         return null;

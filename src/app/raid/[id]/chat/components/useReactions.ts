@@ -1,7 +1,8 @@
-import {type SupabaseClient} from "@supabase/supabase-js";
-import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
-import {useSession} from "@hooks/useSession";
-import {useEffect, useMemo, useState} from "react";
+import { type SupabaseClient } from "@supabase/supabase-js";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
+import { useCharacterStore } from "@/app/components/characterStore";
+import { useShallow } from "zustand/react/shallow";
 
 const REACTION_TABLE = 'reaction';
 const REACTION_TABLE_SELECT = `*`;
@@ -32,7 +33,7 @@ export type MessageReaction = {
 
 
 async function fetchReactions(supabase: SupabaseClient) {
-    const {data, error} = await supabase
+    const { data, error } = await supabase
         .from(REACTION_TABLE)
         .select(REACTION_TABLE_SELECT)
         .limit(100)
@@ -47,7 +48,7 @@ async function fetchReactions(supabase: SupabaseClient) {
 }
 
 async function fetchMessageReactions(supabase: SupabaseClient, resetId: string) {
-    const {data, error} = await supabase
+    const { data, error } = await supabase
         .from(MESSAGE_REACTIONS_TABLE)
         .select(MESSAGE_REACTIONS_TABLE_SELECT)
         .eq('message.reset_id', resetId)
@@ -63,7 +64,7 @@ async function fetchMessageReactions(supabase: SupabaseClient, resetId: string) 
 
 async function fetchReaction(supabase: SupabaseClient, id?: string, resetId?: string) {
     if (!id) return null
-    const {data, error} = await supabase
+    const { data, error } = await supabase
         .from(MESSAGE_REACTIONS_TABLE)
         .select(MESSAGE_REACTIONS_TABLE_SELECT)
         .eq('id', id)
@@ -92,12 +93,14 @@ function insertOrUpdateReaction(oldData: MessageReaction[], newReaction: Message
     }
 }
 
-export function useReactions(resetId: string) {
-    const {supabase, selectedCharacter} = useSession()
+export function useReactions(resetId: string, supabase: SupabaseClient | null) {
+    const { selectedCharacter } = useCharacterStore(useShallow(state => ({
+        selectedCharacter: state.selectedCharacter
+    })))
 
     const [reactions, setReactions] = useState<MessageReaction[]>([])
 
-    const {data: emojis} = useQuery({
+    const { data: emojis, refetch: refetchEmojis } = useQuery({
         queryKey: ['reactions'],
         queryFn: () => {
             if (!supabase) {
@@ -106,10 +109,10 @@ export function useReactions(resetId: string) {
             return fetchReactions(supabase)
         },
         enabled: !!supabase,
-        staleTime: 1000 * 60 * 60 // 1 hour
+        //staleTime: 1000 * 60 * 60 // 1 hour
     })
-    const reactionsQueryKey = useMemo(() => ['messageReactions', {resetId}], [resetId])
-    useQuery({
+    const reactionsQueryKey = useMemo(() => ['messageReactions', { resetId }], [resetId])
+    const { refetch } = useQuery({
         queryKey: reactionsQueryKey,
         queryFn: async () => {
             if (!supabase) {
@@ -127,6 +130,8 @@ export function useReactions(resetId: string) {
     useEffect(() => {
         if (!supabase) return;
 
+        refetchEmojis();
+        refetch();
         const channel = supabase.channel(`message_reactions:${resetId}`)
             .on('postgres_changes', {
                 event: '*',
@@ -165,12 +170,12 @@ export function useReactions(resetId: string) {
     }, [resetId, queryClient, supabase]);
 
 
-    const {mutate: addReaction} = useMutation({
+    const { mutate: addReaction } = useMutation({
         mutationKey: ['addReaction'],
-        mutationFn: async ({messageId, reactionId}: { messageId: number, reactionId: number }) => {
+        mutationFn: async ({ messageId, reactionId }: { messageId: number, reactionId: number }) => {
             if (!supabase || !selectedCharacter) return;
 
-            const {data: newReaction, error} = await supabase.from(MESSAGE_REACTIONS_TABLE).upsert({
+            const { data: newReaction, error } = await supabase.from(MESSAGE_REACTIONS_TABLE).upsert({
                 message_id: messageId,
                 reaction_id: reactionId,
                 member_id: selectedCharacter.id,
@@ -193,12 +198,12 @@ export function useReactions(resetId: string) {
         }
     })
 
-    const {mutate: removeReaction} = useMutation({
+    const { mutate: removeReaction } = useMutation({
         mutationKey: ['removeReaction'],
-        mutationFn: async ({messageId}: { messageId: number }) => {
+        mutationFn: async ({ messageId }: { messageId: number }) => {
             if (!supabase || !selectedCharacter) return;
 
-            const {data: deletedReaction, error} = await supabase.from(MESSAGE_REACTIONS_TABLE).delete()
+            const { data: deletedReaction, error } = await supabase.from(MESSAGE_REACTIONS_TABLE).delete()
                 .eq('message_id', messageId)
                 .eq('member_id', selectedCharacter.id)
                 .select(MESSAGE_REACTIONS_TABLE_SELECT).maybeSingle<MessageReaction>();

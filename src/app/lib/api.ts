@@ -1,0 +1,164 @@
+import axios from 'axios';
+import { gearScore } from './supa-functions/gearScore';
+import { a } from 'framer-motion/dist/types.d-BJcRxCew';
+import { FetchCharacterOutput } from '../hooks/api/use-fetch-character';
+
+const api = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_EV_API_URL,
+  withCredentials: true
+});
+
+let accessTokenGetter: (() => string | null) | null = null;
+
+export function setAccessTokenGetter(getter: () => string | null) {
+  accessTokenGetter = getter;
+}
+
+api.interceptors.request.use((config) => {
+  const accessToken = accessTokenGetter?.() ?? process.env.NEXT_PUBLIC_EV_ANON_TOKEN!;
+
+  if (accessToken) {
+    config.headers.Authorization = `Bearer ${accessToken}`;
+  }
+
+  return config;
+});
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        const res = await fetch('/api/v1/auth/refresh', {
+          method: 'POST',
+          credentials: 'include'
+        });
+
+        if (!res.ok) {
+          throw new Error('Refresh failed');
+        }
+
+        const { accessToken: newAccessToken } = await res.json();
+
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        return api(originalRequest);
+      } catch (refreshError) {
+        window.location.href = '/api/v1/oauth/bnet/auth';
+        return Promise.reject(refreshError);
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+export default api;
+type AvatarOutput = {
+  avatarUrl: string;
+  source: 'battlenet' | 'database';
+  updated: boolean;
+}
+
+type ItemOutput = {
+  itemIconUrl: string;
+  displayId: number;
+  itemDetails: {
+    itemLevel: number;
+    quality: {
+      type: string;
+      name: string;
+    };
+    icon: string;
+    name?: string;
+    type?: string;
+    icons?: {
+      large: string;
+      medium: string;
+      small: string;
+    };
+    level?: number;
+    tooltip?: string;
+    qualityName?: string;
+  };
+}
+
+type GearScoreOutput = {
+  success: boolean;
+  data: [{ characterName: string; score: number; color: string; hash: string; isFullEnchanted: boolean }];
+}
+
+type UserCharactersOutput = {
+  id: string;
+  name: string;
+  realm: {
+    id: number;
+    name: string;
+    slug: string;
+  };
+  level: number;
+  character_class: {
+    id: number;
+    name: string;
+  };
+  playable_class: {
+    id: number;
+    name: string;
+  };
+  avatar: string;
+  guild?: {
+    id: string;
+    name: string;
+  };
+}[];
+
+export const apiService = {
+  anon: {
+    getCharacterAvatar: async (realmSlug: string, characterName: string): Promise<AvatarOutput> => {
+      try {
+        const { data } = await api.get(`/wow/character/avatar/${realmSlug}/${characterName}`);
+        return data;
+      } catch (error) {
+        console.error('Error fetching character avatar:', error);
+        throw error;
+      }
+    },
+    getItem: async (itemId: number): Promise<ItemOutput> => {
+      try {
+        const { data } = await api.get(`/wow/item/${itemId}`);
+        return data;
+      } catch (error) {
+        console.error('Error fetching item:', error);
+        throw error;
+      }
+    },
+    gearScore: async (characters: { name: string; realm: string }[], force: boolean | undefined): Promise<GearScoreOutput> => {
+      try {
+        const { data } = await api.post(`/gearscore`, { characters, forceRefresh: !!force });
+        return data;
+      } catch (error) {
+        console.error('Error fetching gear score:', error);
+        throw error;
+      }
+    },
+
+    getCharacter: async (realmSlug: string, characterName: string) => {
+      const { data } = await api.get(`/wow/character/${realmSlug}/${characterName}`);
+      return data?.character as FetchCharacterOutput;
+    }
+  },
+  auth: {
+    getUserCharacters: async (realmSlug: string): Promise<UserCharactersOutput> => {
+      try {
+        const { data } = await api.get(`/user/characters?realmSlug=${realmSlug}`);
+        return data;
+      } catch (error) {
+        console.error('Error fetching user characters:', error);
+        throw error;
+      }
+    }
+  }
+}

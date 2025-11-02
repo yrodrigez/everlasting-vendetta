@@ -1,3 +1,4 @@
+'use client'
 import * as React from "react";
 import type {ReactNode} from "react";
 import {Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure} from "@heroui/react";

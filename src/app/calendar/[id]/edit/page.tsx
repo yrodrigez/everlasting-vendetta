@@ -15,7 +15,8 @@ import moment from "moment";
 export const dynamic = 'force-dynamic'
 
 export default async function Page({params}: { params: Promise<{ id: string }> }) {
-    const {supabase, auth} = await createServerSession({cookies})
+    const { getSupabase, auth } = await createServerSession();
+    const supabase = await getSupabase();
     const user = await auth.getSession()
     if (!user) {
         return <NotLoggedInView/>

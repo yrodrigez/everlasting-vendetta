@@ -1,3 +1,4 @@
+'use client'
 import useApplicants from "@hooks/useApplicants";
 import {createContext, type ReactNode} from "react";
 

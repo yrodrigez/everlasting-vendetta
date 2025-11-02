@@ -1,8 +1,8 @@
 'use client';
-import {Pagination} from "@heroui/pagination";
-import {useRouter} from "next/navigation";
+import { Pagination } from "@heroui/react";
+import { useRouter } from "next/navigation";
 
-export default function CalendarPagination({totalPages, currentPage}: {
+export default function CalendarPagination({ totalPages, currentPage }: {
     totalPages: number;
     currentPage: number;
 }) {

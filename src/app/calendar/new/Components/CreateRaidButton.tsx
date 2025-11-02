@@ -1,17 +1,19 @@
 'use client'
 
 import useCreateRaidStore from "@/app/calendar/new/Components/useCreateRaidStore";
-import {Button} from "@/app/components/Button";
-import {useSession} from "@/app/hooks/useSession";
-import {useCallback} from "react";
-import {useRouter} from "next/navigation";
+import { Button } from "@/app/components/Button";
+import { useCallback, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import moment from "moment";
-import {useShallow} from "zustand/shallow";
+import { useShallow } from "zustand/shallow";
+import { useAuth } from "@/app/context/AuthContext";
+import { useCharacterStore } from "@/app/components/characterStore";
+import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
 
 
 
 export function CreateRaidButton() {
-    const {raid, endTime, startTime, startDate, endDate, days} = useCreateRaidStore(useShallow(state => ({
+    const { raid, endTime, startTime, startDate, endDate, days } = useCreateRaidStore(useShallow(state => ({
         raid: state.raid,
         endTime: state.endTime,
         startTime: state.startTime,
@@ -19,7 +21,11 @@ export function CreateRaidButton() {
         endDate: state.endDate,
         days: state.days
     })))
-    const {supabase, selectedCharacter} = useSession()
+
+    const { accessToken } = useAuth()
+    const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
+    const selectedCharacter = useCharacterStore(useShallow(state => state.selectedCharacter));
+
     const router = useRouter()
 
     const createReset = useCallback(async () => {
@@ -27,7 +33,7 @@ export function CreateRaidButton() {
 
         const shouldAddADay = (
             moment(`${startDate}T${startTime}`).isAfter(
-            moment(`${endDate}T${endTime}`).toDate())
+                moment(`${endDate}T${endTime}`).toDate())
         )
 
         const payload = {
@@ -42,7 +48,7 @@ export function CreateRaidButton() {
             days
         }
 
-        const {data, error} = await supabase.from('raid_resets').insert(payload)
+        const { data, error } = await supabase.from('raid_resets').insert(payload)
             .select('id')
 
         if (error) {

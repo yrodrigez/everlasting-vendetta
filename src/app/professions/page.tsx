@@ -1,5 +1,4 @@
 import createServerSession from "@utils/supabase/createServerSession";
-import {cookies} from "next/headers";
 import Link from "next/link";
 import CharacterAvatar from "@/app/components/CharacterAvatar";
 import {GUILD_REALM_SLUG} from "@utils/constants";
@@ -7,7 +6,8 @@ import {GUILD_REALM_SLUG} from "@utils/constants";
 export const dynamic = 'force-dynamic'
 
 export default async function ProfessionsPage() {
-    const {supabase} = await createServerSession({cookies})
+    const {getSupabase} = await createServerSession();
+    const supabase = await getSupabase();
     const {data, error} = await supabase.rpc('get_member_profession_spell_count')
         .overrideTypes<{
             member_name: string,

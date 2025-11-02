@@ -1,17 +1,17 @@
 import createServerSession from "@/app/util/supabase/createServerSession"
-import {cookies} from "next/headers"
-import {redirect} from "next/navigation"
-import {ROLE} from "@utils/constants";
-import {RaidResetCard} from "@/app/calendar/components/RaidResetCard";
+import { cookies } from "next/headers"
+import { redirect } from "next/navigation"
+import { ROLE } from "@utils/constants";
+import { RaidResetCard } from "@/app/calendar/components/RaidResetCard";
 import moment from "moment";
 import CloneReservesCard from "@/app/raid/[id]/soft-reserv/clone/CloneReservesCard";
 
-const {ADMIN, RAID_LEADER, LOOT_MASTER} = ROLE
+const { ADMIN, RAID_LEADER, LOOT_MASTER } = ROLE
 const ALLOWED_ROLES = [ADMIN, RAID_LEADER, LOOT_MASTER]
 
-export default async function Page({params}: { params: Promise<{ id: string }> }) {
-    const {id: resetId} = await params
-    const {supabase, auth} = await createServerSession({cookies})
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+    const { id: resetId } = await params
+    const { getSupabase, auth } = await createServerSession();  
     const user = await auth.getSession()
 
     if (!user) {
@@ -27,6 +27,7 @@ export default async function Page({params}: { params: Promise<{ id: string }> }
         </div>
     }
 
+    const supabase = await getSupabase();
     const {
         data: reset,
         error: resetFetchError
@@ -61,12 +62,12 @@ export default async function Page({params}: { params: Promise<{ id: string }> }
 
 
     const raid = reset.raid
-    const {data: resetsToCloneFrom, error: raidResetsError} = await supabase
+    const { data: resetsToCloneFrom, error: raidResetsError } = await supabase
         .from('raid_resets')
         .select('id, name, raid_date, raid:ev_raid(name, id, image), reserves:raid_loot_reservation!inner(member_id, item_id)')
         .eq('raid_id', raid.id)
         .neq('id', resetId)
-        .order('raid_date', {ascending: false})
+        .order('raid_date', { ascending: false })
         .overrideTypes<{
             id: string,
             name: string,

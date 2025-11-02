@@ -1,21 +1,19 @@
-import {cookies} from "next/headers";
+import { cookies } from "next/headers";
 import React from "react";
-import {type SupabaseClient} from "@supabase/supabase-js";
-import {CharacterWithLoot, RaidLoot} from "@/app/raid/[id]/loot/components/types";
-import Link from "next/link";
-import {faArrowLeft} from "@fortawesome/free-solid-svg-icons";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import NotLoggedInView from "@/app/components/NotLoggedInView";
-import {Button} from "@/app/components/Button";
+import { type SupabaseClient } from "@supabase/supabase-js";
+import { CharacterWithLoot, RaidLoot } from "@/app/raid/[id]/loot/components/types";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Button } from "@/app/components/Button";
 import createServerSession from "@utils/supabase/createServerSession";
-import {GUILD_REALM_SLUG} from "@utils/constants";
-import {LootHistory} from "@/app/raid/[id]/loot/components/LootHistory";
-import {fetchItemDataFromWoWHead, groupByCharacter} from "@/app/raid/[id]/loot/util";
-import {RaidParticipant} from "@/app/types/RaidParticipant";
+import { GUILD_REALM_SLUG } from "@utils/constants";
+import { LootHistory } from "@/app/raid/[id]/loot/components/LootHistory";
+import { fetchItemDataFromWoWHead, groupByCharacter } from "@/app/raid/[id]/loot/util";
+import { RaidParticipant } from "@/app/types/RaidParticipant";
 
 
 async function fetchLootHistory(supabase: SupabaseClient, raidId: string): Promise<RaidLoot[]> {
-    const {error, data} = await supabase
+    const { error, data } = await supabase
         .from('ev_loot_history')
         .select('*')
         .eq('raid_id', raidId)
@@ -28,7 +26,7 @@ async function fetchLootHistory(supabase: SupabaseClient, raidId: string): Promi
 }
 
 async function fetchParticipants(supabase: SupabaseClient, raidId: string): Promise<CharacterWithLoot[]> {
-    const {error, data} = await supabase
+    const { error, data } = await supabase
         .from('ev_raid_participant')
         .select('character:ev_member(*), details')
         .eq('raid_id', raidId)
@@ -51,7 +49,7 @@ async function fetchParticipants(supabase: SupabaseClient, raidId: string): Prom
 }
 
 async function isItemPlus(supabase: SupabaseClient, itemID: number, resetId: string, characterId: number): Promise<boolean> {
-    const {error, data} = await supabase
+    const { error, data } = await supabase
         .from('raid_loot_reservation')
         .select('*')
         .eq('item_id', itemID)
@@ -69,7 +67,7 @@ async function isItemPlus(supabase: SupabaseClient, itemID: number, resetId: str
 
 function fetchCharactersIds(supabase: SupabaseClient, characters: CharacterWithLoot[]): Promise<CharacterWithLoot[]> {
     return Promise.all(characters.map(async (c) => {
-        const {error, data} = await supabase
+        const { error, data } = await supabase
             .from('ev_member')
             .select('id')
             .eq('character->>name', c.character)
@@ -87,7 +85,7 @@ function fetchCharactersIds(supabase: SupabaseClient, characters: CharacterWithL
 }
 
 const fetchResetInfo = async (supabase: SupabaseClient, resetId: string) => {
-    const {data, error} = await supabase
+    const { data, error } = await supabase
         .from('raid_resets')
         .select('raid_date, raid:ev_raid(*)')
         .eq('id', resetId)
@@ -110,11 +108,12 @@ const fetchResetInfo = async (supabase: SupabaseClient, resetId: string) => {
 }
 
 
-export default async function ({params}: { params: Promise<{ id: string }> }) {
+export default async function ({ params }: { params: Promise<{ id: string }> }) {
 
-    const {supabase} = await createServerSession({cookies})
+    const { getSupabase } = await createServerSession();
 
-    const {id: resetId} = await params
+    const { id: resetId } = await params
+    const supabase = await getSupabase();
     const lootHistory = await fetchLootHistory(supabase, resetId)
     if (!lootHistory?.length) {
         return <div>Could not find loot history</div>
@@ -172,7 +171,7 @@ export default async function ({params}: { params: Promise<{ id: string }> }) {
                     className="text-gold"
                     isIconOnly
                 >
-                    <FontAwesomeIcon icon={faArrowLeft}/>
+                    <FontAwesomeIcon icon={faArrowLeft} />
                 </Button>
                 <h1 className="text-2xl font-bold">Loot History</h1>
                 <div
@@ -181,7 +180,7 @@ export default async function ({params}: { params: Promise<{ id: string }> }) {
                 </div>
             </div>
             <LootHistory charactersWithLoot={[...sortedCharactersWithLoot, ...disenchanted]}
-                         charactersWithoutLoot={charactersWithNoLoot}/>
+                charactersWithoutLoot={charactersWithNoLoot} />
         </div>
     )
 }

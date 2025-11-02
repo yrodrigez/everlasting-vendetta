@@ -16,6 +16,7 @@ export default function AvailableCharactersList({characters, onCharacterSelect}:
                         className={'rounded-full  w-14 border-2 border-gold'}
                         characterName={character.name}
                         realm={character.realm.slug}
+                        avatarUrl={character.avatar}
                         />
                     <div className={'flex flex-col gap-1'}>
                         <h2 className={'text-gold font-bold text-xl'}>{character.name}</h2>

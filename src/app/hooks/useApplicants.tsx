@@ -1,15 +1,18 @@
 'use client'
-import {useSession} from "@hooks/useSession";
-import {useEffect, useRef, useState} from "react";
-import {toast} from "sonner";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 import Link from "next/link";
-import {Button} from "@/app/components/Button";
-import {useQuery} from "@tanstack/react-query";
-import {usePathname, useRouter} from "next/navigation";
-import {GUILD_ID} from "@utils/constants";
-import {useMessageBox} from "@utils/msgBox";
+import { Button } from "@/app/components/Button";
+import { useQuery } from "@tanstack/react-query";
+import { usePathname, useRouter } from "next/navigation";
+import { GUILD_ID } from "@utils/constants";
+import { useMessageBox } from "@utils/msgBox";
 
-import {ItemWithTooltip} from "@/app/raid/[id]/loot/components/LootItem";
+import { ItemWithTooltip } from "@/app/raid/[id]/loot/components/LootItem";
+import { useShallow } from "zustand/react/shallow";
+import { useCharacterStore } from "../components/characterStore";
+import { useAuth } from "../context/AuthContext";
+import { createClientComponentClient } from "../util/supabase/createClientComponentClient";
 
 function useReservationAlert(someoneReservedMoreThanMe: false | { resetId: string, itemId: number, item?: any }) {
     const localStorageKey = 'lastReservationAlert'
@@ -17,8 +20,8 @@ function useReservationAlert(someoneReservedMoreThanMe: false | { resetId: strin
     const pathName = usePathname()
     const router = useRouter()
     const soundPlayedRef = useRef(false)
-    const alertTimeout = useRef<NodeJS.Timeout | undefined>()
-    const {alert} = useMessageBox()
+    const alertTimeout = useRef<NodeJS.Timeout | undefined>(undefined)
+    const { alert } = useMessageBox()
 
     useEffect(() => {
         if (!localStorage) return
@@ -35,24 +38,24 @@ function useReservationAlert(someoneReservedMoreThanMe: false | { resetId: strin
             if (alertTimeout.current) clearTimeout(alertTimeout.current)
 
             alertTimeout.current = setTimeout(() => {
-                const {item} = someoneReservedMoreThanMe
+                const { item } = someoneReservedMoreThanMe
                 const resetPath = `/raid/${someoneReservedMoreThanMe.resetId}/soft-reserv`
 
                 alert({
                     title: 'Someone reserved an item more times you!',
                     message: (
                         item ? (
-                                <div>
-                                    The item <div className="inline-flex justfy-between items-end">
-                                    <ItemWithTooltip item={item}/> {item.name}</div> has more reservations
-                                    than yours.
-                                    <br/>
-                                    Please remember that someone with more reserves than you have priority over the item.
-                                    <br/>
-                                    For more information, read the loot rules <Link href={'/terms'}
-                                                                                    className="text-battlenet">here</Link>.
-                                </div>
-                            ) :
+                            <div>
+                                The item <div className="inline-flex justfy-between items-end">
+                                    <ItemWithTooltip item={item} /> {item.name}</div> has more reservations
+                                than yours.
+                                <br />
+                                Please remember that someone with more reserves than you have priority over the item.
+                                <br />
+                                For more information, read the loot rules <Link href={'/terms'}
+                                    className="text-battlenet">here</Link>.
+                            </div>
+                        ) :
                             (
                                 <div>
                                     You have been outbid on a loot reservation. Please review your reservations.
@@ -85,7 +88,10 @@ function useReservationAlert(someoneReservedMoreThanMe: false | { resetId: strin
 }
 
 export default function useApplicants() {
-    const {supabase, selectedCharacter, tokenUser} = useSession();
+    const { accessToken, user } = useAuth();
+    const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
+
+    const selectedCharacter = useCharacterStore(useShallow(state => state.selectedCharacter));
     const router = useRouter();
     const [applyCount, setApplyCount] = useState(0)
 
@@ -108,7 +114,7 @@ export default function useApplicants() {
                     duration: Infinity,
                     position: 'bottom-right',
                 })
-                new Audio('/sounds/MagicClick.ogg').play().finally(()=> {})
+                new Audio('/sounds/MagicClick.ogg').play().finally(() => { })
                 router.refresh()
             }).subscribe()
 
@@ -117,7 +123,7 @@ export default function useApplicants() {
         }
     }, [supabase, selectedCharacter, selectedCharacter?.id]);
 
-    const {data: applicants} = useQuery({
+    const { data: applicants } = useQuery({
         queryKey: ['applicants'],
         queryFn: async () => {
             if (!supabase) return
@@ -170,13 +176,13 @@ export default function useApplicants() {
                 position: 'bottom-right',
             })
             localStorage.setItem('shownApplicants', JSON.stringify([...shownApplicants, ...newApplicants.map((x: any) => x.id)]))
-            new Audio('/sounds/MagicClick.ogg').play().finally(()=> {})
+            new Audio('/sounds/MagicClick.ogg').play().finally(() => { })
         }
     }, [applicants]);
 
     return {
         applyCount,
-        canReadApplications: (tokenUser?.permissions?.indexOf('applications.read') !== -1 && tokenUser?.guild?.id === GUILD_ID),
+        canReadApplications: (user?.permissions?.includes('applications.read') && selectedCharacter?.guild?.id === GUILD_ID),
         applicants
     }
 }

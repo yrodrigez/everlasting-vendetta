@@ -1,25 +1,29 @@
 'use client'
-import {getQualityColor} from "@/app/util";
+import { getQualityColor } from "@/app/util";
 import Link from "next/link";
-import {useReservations} from "@/app/raid/[id]/soft-reserv/useReservations";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faClose, faCloudArrowDown} from "@fortawesome/free-solid-svg-icons";
-import {Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ScrollShadow, useDisclosure} from "@heroui/react";
-import {Button} from "@/app/components/Button";
-import {useCallback, useState} from "react";
-import {useQuery} from "@tanstack/react-query";
-import {useMessageBox} from "@utils/msgBox";
+import { useReservations } from "@/app/raid/[id]/soft-reserv/useReservations";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faClose, faCloudArrowDown } from "@fortawesome/free-solid-svg-icons";
+import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ScrollShadow, useDisclosure } from "@heroui/react";
+import { Button } from "@/app/components/Button";
+import { useCallback, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useMessageBox } from "@utils/msgBox";
+import { useAuth } from "@/app/context/AuthContext";
+import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
 
-export function BannedItems({hardReservations, reset_id, isAdmin = false, raid_id}: {
+export function BannedItems({ hardReservations, reset_id, isAdmin = false, raid_id }: {
     hardReservations: any,
     reset_id: string,
     isAdmin?: boolean
     raid_id: string
 }) {
-    const {removeHardReserve, loading, globalLoading, supabase} = useReservations(reset_id, [])
+    const { removeHardReserve, loading, globalLoading } = useReservations(reset_id, [])
+    const { accessToken } = useAuth()
+    const supabase = createClientComponentClient(accessToken)
 
     const [updateLoading, setUpdateLoading] = useState(false)
-    const {alert, yesNo} = useMessageBox()
+    const { alert, yesNo } = useMessageBox()
 
     const updateFutureRaids = useCallback(async () => {
         if (!supabase || !reset_id || !raid_id) return
@@ -33,26 +37,26 @@ export function BannedItems({hardReservations, reset_id, isAdmin = false, raid_i
         })
         if (accept === 'no') return setUpdateLoading(false)
 
-        const {data: futureResets, error: futureResetsError} = await supabase
+        const { data: futureResets, error: futureResetsError } = await supabase
             .from('raid_resets')
             .select('id')
             .eq('raid_id', raid_id)
             .neq('id', reset_id)
             .gt('raid_date', new Date().toISOString())
-            .order('id', {ascending: true})
+            .order('id', { ascending: true })
             .limit(100)
         if (futureResetsError) {
-            alert({message: 'Error fetching future resets', type: 'error'})
+            alert({ message: 'Error fetching future resets', type: 'error' })
             return setUpdateLoading(false)
         }
 
 
-        const {error: deleteTemplateError} = await supabase.from('hard_reserve_templates')
+        const { error: deleteTemplateError } = await supabase.from('hard_reserve_templates')
             .delete()
             .eq('raid_id', raid_id)
 
         if (deleteTemplateError) {
-            alert({message: 'Error deleting template', type: 'error'})
+            alert({ message: 'Error deleting template', type: 'error' })
             return setUpdateLoading(false)
         }
 
@@ -89,7 +93,7 @@ export function BannedItems({hardReservations, reset_id, isAdmin = false, raid_i
         ])
 
         if (future.error || template.error) {
-            alert({message: 'Error updating future raids', type: 'error'})
+            alert({ message: 'Error updating future raids', type: 'error' })
             return setUpdateLoading(false)
         }
 
@@ -103,18 +107,18 @@ export function BannedItems({hardReservations, reset_id, isAdmin = false, raid_i
             <ScrollShadow className="flex flex-col gap-2 h-full overflow-auto max-h-96 scrollbar-pill">
                 {hardReservations.map((hr: any) => (
                     <div key={hr.item_id}
-                         className={`flex gap-2 justify-between items-center text-sm text-${getQualityColor(hr?.item?.description?.quality)} p-2 border border-wood rounded`}>
+                        className={`flex gap-2 justify-between items-center text-sm text-${getQualityColor(hr?.item?.description?.quality)} p-2 border border-wood rounded`}>
                         <Link href={`https://www.wowhead.com/classic/item=${hr.item_id}`}
-                              className="flex gap-2 items-center" target="_blank">
+                            className="flex gap-2 items-center" target="_blank">
                             <img src={hr.item.description.icon} alt={hr.item.name}
-                                 className={`w-6 border border-${getQualityColor(hr?.item?.description?.quality)} rounded`}/>
+                                className={`w-6 border border-${getQualityColor(hr?.item?.description?.quality)} rounded`} />
                             <span>[{hr.item.name}]</span>
                         </Link>
                         {isAdmin && (
                             <button onClick={() => removeHardReserve(hr.item_id)}
-                                    disabled={loading || globalLoading}
-                                    className="text-red-500 hover:text-red-700">
-                                <FontAwesomeIcon icon={faClose}/>
+                                disabled={loading || globalLoading}
+                                className="text-red-500 hover:text-red-700">
+                                <FontAwesomeIcon icon={faClose} />
                             </button>
                         )}
                     </div>
@@ -134,18 +138,20 @@ export function BannedItems({hardReservations, reset_id, isAdmin = false, raid_i
     );
 }
 
-export function ImportBannedItems({raid_id, reset_id}: { raid_id: string, reset_id: string }) {
-    const {loading, supabase} = useReservations(reset_id, [])
+export function ImportBannedItems({ raid_id, reset_id }: { raid_id: string, reset_id: string }) {
+    const { loading } = useReservations(reset_id, [])
+    const { accessToken } = useAuth()
+    const supabase = createClientComponentClient(accessToken)
 
-    const {isOpen, onOpenChange, onClose, onOpen} = useDisclosure()
+    const { isOpen, onOpenChange, onClose, onOpen } = useDisclosure()
 
-    const {alert} = useMessageBox()
+    const { alert } = useMessageBox()
 
-    const {data: currentTemplate, isLoading} = useQuery({
+    const { data: currentTemplate, isLoading } = useQuery({
         queryKey: ['hard_reserve_templates', raid_id],
         queryFn: async () => {
             if (!supabase) return []
-            const {data, error} = await supabase.from('hard_reserve_templates').select(
+            const { data, error } = await supabase.from('hard_reserve_templates').select(
                 'item_id, item:raid_loot_item(*)'
             ).eq('raid_id', raid_id)
             if (error) {
@@ -161,19 +167,19 @@ export function ImportBannedItems({raid_id, reset_id}: { raid_id: string, reset_
         if (!supabase || !reset_id || !raid_id) return
         if (loading || isLoading || !currentTemplate?.length) return
         setIsPending(true)
-        const {error} = await supabase.from('reset_hard_reserve').upsert(
+        const { error } = await supabase.from('reset_hard_reserve').upsert(
             currentTemplate.map((x: any) => {
                 return {
                     reset_id,
                     item_id: x.item_id
                 }
             }), {
-                onConflict: ['reset_id', 'item_id'].join(',')
-            }
+            onConflict: ['reset_id', 'item_id'].join(',')
+        }
         )
 
         if (error) {
-            alert({message: 'Error importing template', type: 'error'})
+            alert({ message: 'Error importing template', type: 'error' })
             return
         }
 
@@ -191,7 +197,7 @@ export function ImportBannedItems({raid_id, reset_id}: { raid_id: string, reset_
                 isDisabled={loading || isLoading || !currentTemplate?.length}
                 onPress={onOpen}
                 size="lg"
-                startContent={!loading && !isLoading && <FontAwesomeIcon icon={faCloudArrowDown}/>}
+                startContent={!loading && !isLoading && <FontAwesomeIcon icon={faCloudArrowDown} />}
             >
                 {!currentTemplate?.length ? 'No template created' : 'Import from template'}
             </Button>
@@ -218,11 +224,11 @@ export function ImportBannedItems({raid_id, reset_id}: { raid_id: string, reset_
                                         className="flex flex-col gap-2 h-full overflow-auto max-h-96 scrollbar-pill">
                                         {currentTemplate?.map((hr: any) => (
                                             <div key={hr.item_id}
-                                                 className={`flex gap-2 justify-between items-center text-sm text-${getQualityColor(hr?.item?.description?.quality)} p-2 border border-wood rounded`}>
+                                                className={`flex gap-2 justify-between items-center text-sm text-${getQualityColor(hr?.item?.description?.quality)} p-2 border border-wood rounded`}>
                                                 <Link href={`https://www.wowhead.com/classic/item=${hr.item_id}`}
-                                                      className="flex gap-2 items-center" target="_blank">
+                                                    className="flex gap-2 items-center" target="_blank">
                                                     <img src={hr.item.description.icon} alt={hr.item.name}
-                                                         className={`w-6 border border-${getQualityColor(hr?.item?.description?.quality)} rounded`}/>
+                                                        className={`w-6 border border-${getQualityColor(hr?.item?.description?.quality)} rounded`} />
                                                     <span>[{hr.item.name}]</span>
                                                 </Link>
                                             </div>

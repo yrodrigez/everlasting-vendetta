@@ -10,7 +10,10 @@ export type RaidLoot = {
 }
 export type Item = {
     name: string;
-    quality: number;
+    quality: number | {
+        type: string;
+        name: string;
+    };
     icon: string;
     tooltip: string;
     spells: any[];

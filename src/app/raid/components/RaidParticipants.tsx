@@ -1,15 +1,14 @@
 'use client'
-import React, {useCallback, useEffect, useState} from "react";
-import {Chip, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip} from "@heroui/react";
+import React, { use, useCallback, useEffect, useMemo, useState } from "react";
+import { Chip, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip } from "@heroui/react";
 import Link from "next/link";
-import {getClassIcon, getRoleIcon} from "@/app/apply/components/utils";
-import {useSession} from "@/app/hooks/useSession";
+import { getClassIcon, getRoleIcon } from "@/app/apply/components/utils";
 import useScreenSize from "@/app/hooks/useScreenSize";
 import moment from "moment";
-import {useParticipants} from "@/app/raid/components/useParticipants";
-import {GUILD_ID, GUILD_NAME, REGISTRATION_SOURCES} from "@/app/util/constants";
-import {Button} from "@/app/components/Button";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import { useParticipants } from "@/app/raid/components/useParticipants";
+import { GUILD_NAME, REGISTRATION_SOURCES } from "@/app/util/constants";
+import { Button } from "@/app/components/Button";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faChair,
     faCircleCheck, faCircleQuestion, faCircleXmark, faClock,
@@ -17,15 +16,19 @@ import {
     faPersonCircleXmark,
     faTrash, faTriangleExclamation
 } from "@fortawesome/free-solid-svg-icons";
-import {RaidParticipant} from "@/app/raid/api/types";
+import { RaidParticipant } from "@/app/raid/api/types";
 import GearScore from "@/app/components/GearScore";
 import BenchParticipant from "@/app/raid/components/BenchParticipant";
-import {RAID_STATUS} from "@/app/raid/components/utils";
-import {useMessageBox} from "@utils/msgBox";
-import {useQuery} from "@tanstack/react-query";
+import { RAID_STATUS } from "@/app/raid/components/utils";
+import { useMessageBox } from "@utils/msgBox";
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/app/context/AuthContext";
+import { useCharacterStore } from "@/app/components/characterStore";
+import { useShallow } from "zustand/react/shallow";
+import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
 
 
-const BadgeCheckIcon = ({className}: { className: string }) => {
+const BadgeCheckIcon = ({ className }: { className: string }) => {
     const c = "fadl";
 
     return (
@@ -39,10 +42,10 @@ const BadgeCheckIcon = ({className}: { className: string }) => {
         >
             <g>
                 <path
-                    d="M32 256c0 28.3 15.9 53 39.4 65.4c6.8 3.6 10.1 11.5 7.8 18.8c-7.8 25.4-1.6 54.1 18.4 74.1s48.7 26.2 74.1 18.4c7.3-2.3 15.2 1 18.8 7.8C203 464.1 227.7 480 256 480s53-15.9 65.4-39.4c3.6-6.8 11.5-10.1 18.8-7.8c25.4 7.8 54.1 1.6 74.1-18.4s26.2-48.7 18.4-74.1c-2.3-7.3 1-15.2 7.8-18.8C464.1 309 480 284.3 480 256s-15.9-53-39.4-65.4c-6.8-3.6-10.1-11.5-7.8-18.8c7.8-25.4 1.6-54.1-18.4-74.1s-48.7-26.2-74.1-18.4c-7.3 2.3-15.2-1-18.8-7.8C309 47.9 284.3 32 256 32s-53 15.9-65.4 39.4c-3.6 6.8-11.5 10.1-18.8 7.8c-25.4-7.8-54.1-1.6-74.1 18.4s-26.2 48.7-18.4 74.1c2.3 7.3-1 15.2-7.8 18.8C47.9 203 32 227.7 32 256zm116.7-11.3c6.2-6.2 16.4-6.2 22.6 0L224 297.4 340.7 180.7c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6l-128 128c-6.2 6.2-16.4 6.2-22.6 0l-64-64c-6.2-6.2-6.2-16.4 0-22.6z"/>
+                    d="M32 256c0 28.3 15.9 53 39.4 65.4c6.8 3.6 10.1 11.5 7.8 18.8c-7.8 25.4-1.6 54.1 18.4 74.1s48.7 26.2 74.1 18.4c7.3-2.3 15.2 1 18.8 7.8C203 464.1 227.7 480 256 480s53-15.9 65.4-39.4c3.6-6.8 11.5-10.1 18.8-7.8c25.4 7.8 54.1 1.6 74.1-18.4s26.2-48.7 18.4-74.1c-2.3-7.3 1-15.2 7.8-18.8C464.1 309 480 284.3 480 256s-15.9-53-39.4-65.4c-6.8-3.6-10.1-11.5-7.8-18.8c7.8-25.4 1.6-54.1-18.4-74.1s-48.7-26.2-74.1-18.4c-7.3 2.3-15.2-1-18.8-7.8C309 47.9 284.3 32 256 32s-53 15.9-65.4 39.4c-3.6 6.8-11.5 10.1-18.8 7.8c-25.4-7.8-54.1-1.6-74.1 18.4s-26.2 48.7-18.4 74.1c2.3 7.3-1 15.2-7.8 18.8C47.9 203 32 227.7 32 256zm116.7-11.3c6.2-6.2 16.4-6.2 22.6 0L224 297.4 340.7 180.7c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6l-128 128c-6.2 6.2-16.4 6.2-22.6 0l-64-64c-6.2-6.2-6.2-16.4 0-22.6z" />
                 <path
                     className="text-white"
-                    d="M190.6 71.4C203 47.9 227.7 32 256 32s53 15.9 65.4 39.4c3.6 6.8 11.5 10.1 18.8 7.8c25.4-7.8 54.1-1.6 74.1 18.4s26.2 48.7 18.4 74.1c-2.3 7.3 1 15.2 7.8 18.8C464.1 203 480 227.7 480 256s-15.9 53-39.4 65.4c-6.8 3.6-10.1 11.5-7.8 18.8c7.8 25.4 1.6 54.1-18.4 74.1s-48.7 26.2-74.1 18.4c-7.3-2.3-15.2 1-18.8 7.8C309 464.1 284.3 480 256 480s-53-15.9-65.4-39.4c-3.6-6.8-11.5-10.1-18.8-7.8c-25.4 7.8-54.1 1.6-74.1-18.4s-26.2-48.7-18.4-74.1c2.3-7.3-1-15.2-7.8-18.8C47.9 309 32 284.3 32 256s15.9-53 39.4-65.4c6.8-3.6 10.1-11.5 7.8-18.8c-7.8-25.4-1.6-54.1 18.4-74.1s48.7-26.2 74.1-18.4c7.3 2.3 15.2-1 18.8-7.8zM256 0c-36.1 0-68 18.1-87.1 45.6c-33-6-68.3 3.8-93.9 29.4s-35.3 60.9-29.4 93.9C18.1 188 0 219.9 0 256s18.1 68 45.6 87.1c-6 33 3.8 68.3 29.4 93.9s60.9 35.3 93.9 29.4C188 493.9 219.9 512 256 512s68-18.1 87.1-45.6c33 6 68.3-3.8 93.9-29.4s35.3-60.9 29.4-93.9C493.9 324 512 292.1 512 256s-18.1-68-45.6-87.1c6-33-3.8-68.3-29.4-93.9s-60.9-35.3-93.9-29.4C324 18.1 292.1 0 256 0zM363.3 203.3c6.2-6.2 6.2-16.4 0-22.6s-16.4-6.2-22.6 0L224 297.4l-52.7-52.7c-6.2-6.2-16.4-6.2-22.6 0s-6.2 16.4 0 22.6l64 64c6.2 6.2 16.4 6.2 22.6 0l128-128z"/>
+                    d="M190.6 71.4C203 47.9 227.7 32 256 32s53 15.9 65.4 39.4c3.6 6.8 11.5 10.1 18.8 7.8c25.4-7.8 54.1-1.6 74.1 18.4s26.2 48.7 18.4 74.1c-2.3 7.3 1 15.2 7.8 18.8C464.1 203 480 227.7 480 256s-15.9 53-39.4 65.4c-6.8 3.6-10.1 11.5-7.8 18.8c7.8 25.4 1.6 54.1-18.4 74.1s-48.7 26.2-74.1 18.4c-7.3-2.3-15.2 1-18.8 7.8C309 464.1 284.3 480 256 480s-53-15.9-65.4-39.4c-3.6-6.8-11.5-10.1-18.8-7.8c-25.4 7.8-54.1 1.6-74.1-18.4s-26.2-48.7-18.4-74.1c2.3-7.3-1-15.2-7.8-18.8C47.9 309 32 284.3 32 256s15.9-53 39.4-65.4c6.8-3.6 10.1-11.5 7.8-18.8c-7.8-25.4-1.6-54.1 18.4-74.1s48.7-26.2 74.1-18.4c7.3 2.3 15.2-1 18.8-7.8zM256 0c-36.1 0-68 18.1-87.1 45.6c-33-6-68.3 3.8-93.9 29.4s-35.3 60.9-29.4 93.9C18.1 188 0 219.9 0 256s18.1 68 45.6 87.1c-6 33 3.8 68.3 29.4 93.9s60.9 35.3 93.9 29.4C188 493.9 219.9 512 256 512s68-18.1 87.1-45.6c33 6 68.3-3.8 93.9-29.4s35.3-60.9 29.4-93.9C493.9 324 512 292.1 512 256s-18.1-68-45.6-87.1c6-33-3.8-68.3-29.4-93.9s-60.9-35.3-93.9-29.4C324 18.1 292.1 0 256 0zM363.3 203.3c6.2-6.2 6.2-16.4 0-22.6s-16.4-6.2-22.6 0L224 297.4l-52.7-52.7c-6.2-6.2-16.4-6.2-22.6 0s-6.2 16.4 0 22.6l64 64c6.2 6.2 16.4 6.2 22.6 0l128-128z" />
             </g>
 
         </svg>
@@ -64,7 +67,7 @@ const GuildMemberIndicator = (character: any) => {
     )
 }
 
-export default function RaidParticipants({participants, raidId, raidInProgress, days, minGs, sanctifiedData}: {
+export default function RaidParticipants({ participants, raidId, raidInProgress, days, minGs, sanctifiedData }: {
     participants: RaidParticipant[],
     raidId: string,
     raidInProgress: boolean
@@ -72,14 +75,16 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
     minGs: number,
     sanctifiedData?: { characterName: string, count: number, characterId: string }[]
 }) {
-    const {supabase, selectedCharacter, session} = useSession()
-    const {isAdmin} = session ?? {isAdmin: false}
+    const { accessToken, user } = useAuth()
+    const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
+    const selectedCharacter = useCharacterStore(useShallow(state => ({ ...state.selectedCharacter })));
+
     const stateParticipants = useParticipants(raidId, participants)
-    const {isMobile} = useScreenSize()
+    const { isMobile } = useScreenSize()
     const initialColumns = [
-        {name: "NAME", uid: "name"},
-        {name: "ROLE", uid: "role"},
-        {name: "STATUS", uid: "status"},
+        { name: "NAME", uid: "name" },
+        { name: "ROLE", uid: "role" },
+        { name: "STATUS", uid: "status" },
     ]
     const [columns, setColumns] = useState(initialColumns)
     useEffect(() => {
@@ -88,27 +93,27 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
         } else {
             setColumns([
                 ...initialColumns,
-                {name: "GEAR SCORE", uid: "gs"},
-                (sanctifiedData ? {name: "SANCT", uid: "sanctified"} : {name: "GUILDIE", uid: "is_guildie"}),
+                { name: "GEAR SCORE", uid: "gs" },
+                (sanctifiedData ? { name: "SANCT", uid: "sanctified" } : { name: "GUILDIE", uid: "is_guildie" }),
             ])
-            if (isAdmin) {
+            if (user?.isAdmin) {
                 setColumns(cols => [
                     ...cols,
-                    {name: "ADMIN", uid: "admin"},
+                    { name: "ADMIN", uid: "admin" },
                 ])
             }
         }
-    }, [isMobile, isAdmin, selectedCharacter]);
+    }, [isMobile, user, selectedCharacter]);
 
     const [onlyConfirmed, setOnlyConfirmed] = useState(true)
-    const {yesNo} = useMessageBox()
-    const {data: guildEvent} = useQuery({
+    const { yesNo } = useMessageBox()
+    const { data: guildEvent } = useQuery({
         queryKey: ['guildEvent', raidId],
         queryFn: async () => {
-            const {data = [], error = false} = (await supabase?.from('guild_events_participants').select('*')
+            const { data = [], error = false } = (await supabase?.from('guild_events_participants').select('*')
                 .eq('event_id', 1)
                 .eq('position', 1))
-            ?? {}
+                ?? {}
 
             if (error) {
                 console.error('Error fetching guild event', error)
@@ -123,8 +128,8 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
     })
 
     const renderCell = useCallback((registration: { member: RaidParticipant } & any, columnKey: React.Key) => {
-        const {name, avatar, playable_class, id} = registration.member?.character
-        const {registration_source} = registration.member
+        const { name, avatar, playable_class, id } = registration.member?.character
+        const { registration_source } = registration.member
         const registrationDetails = registration.details
         const sanctifiedCount = sanctifiedData?.find(x => x.characterId === id)?.count
 
@@ -139,7 +144,7 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
                             >{sanctifiedCount}
                                 {sanctifiedCount !== undefined && sanctifiedCount < 8 && (
                                     <FontAwesomeIcon icon={faTriangleExclamation}
-                                                     className="text-red-600 absolute -right-4" beat/>
+                                        className="text-red-600 absolute -right-4" beat />
                                 )}
                             </span>
                         </div>
@@ -149,8 +154,8 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
             case "gs":
                 return (
                     /*session?.guild?.id === GUILD_ID ? (*/
-                        <GearScore characterName={name} min={minGs}
-                                   allowForce={isAdmin || selectedCharacter?.id === registration?.member?.character?.id}/>
+                    <GearScore characterName={name} min={minGs}
+                        allowForce={user?.isAdmin || (selectedCharacter?.id || 0) === registration?.member?.character?.id} />
                     /*) : (
                         <Tooltip
                             content={`Gear score is available only for guild members`}
@@ -292,7 +297,7 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
                             variant="flat">
                             <span
                                 className="mr-1"
-                            ><FontAwesomeIcon icon={statusIcon(registrationDetails.status)}/></span>
+                            ><FontAwesomeIcon icon={statusIcon(registrationDetails.status)} /></span>
                             {registrationDetails.status}
                         </Chip>
                     );
@@ -328,7 +333,7 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
                 );
 
             case "is_guildie":
-                return <GuildMemberIndicator {...registration.member.character}/>
+                return <GuildMemberIndicator {...registration.member.character} />
 
             case "admin":
                 return (
@@ -361,7 +366,7 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
                                         .eq('member_id', memberId)
                                         .eq('raid_id', raidId)
                                         .then((response) => {
-                                            const {data, error: err} = response
+                                            const { data, error: err } = response
                                             if (err) {
                                                 console.error('Error deleting participant', err)
                                                 return
@@ -370,7 +375,7 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
                                 })
                             }}
                         >
-                            <FontAwesomeIcon icon={faTrash}/>
+                            <FontAwesomeIcon icon={faTrash} />
                         </Button>
                     </div>
                 )
@@ -378,7 +383,7 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
             default:
                 return <></>;
         }
-    }, [selectedCharacter, supabase, guildEvent, isAdmin, yesNo, session]);
+    }, [selectedCharacter, supabase, guildEvent, yesNo, user]);
 
     return (
         <Table
@@ -395,7 +400,7 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
                     isDisabled={onlyConfirmed}
                 >
                     {onlyConfirmed ? 'Showing only confirmed' : 'Show only confirmed '}
-                    <FontAwesomeIcon icon={faPersonCircleCheck}/>
+                    <FontAwesomeIcon icon={faPersonCircleCheck} />
                 </Button>
                 <Button
                     className="flex-1"
@@ -403,7 +408,7 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
                     isDisabled={!onlyConfirmed}
                 >
                     {onlyConfirmed ? 'Show all ' : 'Showing all '}
-                    <FontAwesomeIcon icon={faPersonCircleXmark}/>
+                    <FontAwesomeIcon icon={faPersonCircleXmark} />
                 </Button>
             </div>}
             topContentPlacement="outside"
@@ -413,7 +418,7 @@ export default function RaidParticipants({participants, raidId, raidInProgress, 
                 columns={columns}>
                 {(column) => (
                     <TableColumn key={column.uid} align={"start"}>
-                        <div className="border-y border-moss-100 absolute h-full w-full top-0 left-0 inline-block"/>
+                        <div className="border-y border-moss-100 absolute h-full w-full top-0 left-0 inline-block" />
                         {column.name}
                     </TableColumn>
                 )}

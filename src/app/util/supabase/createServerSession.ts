@@ -1,96 +1,107 @@
-import {createServerComponentClient} from "@/app/util/supabase/createServerComponentClient";
-import {type SupabaseClient} from "@supabase/supabase-js";
-import {UserProfile} from "@/app/util/supabase/types";
+'use server'
+import 'server-only'
+import { cookies, headers } from 'next/headers'
+import { type SupabaseClient, createClient } from '@supabase/supabase-js'
+import { REFRESH_TOKEN_COOKIE_KEY, SELECTED_CHARACTER_COOKIE_KEY, SESSION_INFO_COOKIE_KEY } from '../constants'
+import { SelectedCharacterCookieDTO } from '@/app/components/characterStore'
+import { decrypt } from '../auth/crypto'
+import { revalidatePath } from 'next/cache'
 
-export function getLoggedInUserFromAccessToken(accessToken: string) {
-    try {
-        const parts = accessToken.split('.');
-        if (parts.length < 2) {
-            return null;
-        }
 
-        const payloadJson = decodeBase64ToString(parts[1]);
-
-        const payload = JSON.parse(payloadJson);
-
-        return payload.wow_account ?? null;
-    } catch (e) {
-        return null;
-    }
+export type UserProfile = {
+    id: string
+    roles: string[]
+    permissions: string[]
+    provider: 'bnet_oauth' | 'discord_oauth' | 'temporal'
+    isTemporal: boolean
+    isAdmin: boolean
+    isBanned?: boolean
+    selectedCharacter?: SelectedCharacterCookieDTO | null
 }
 
-function decodeBase64ToString(base64: string): string {
-    if (typeof TextDecoder !== 'undefined') {
-        const bytes = Uint8Array.from(atob(base64), (char) => char.charCodeAt(0));
-        return new TextDecoder('utf-8').decode(bytes);
-    } else {
-        const asciiString = atob(base64);
-        return decodeURIComponent(
-            asciiString
-            .split('')
-            .map((char) =>
-                '%' + char.charCodeAt(0).toString(16).padStart(2, '0')
-            )
-            .join('')
-        );
+async function getFreshAccessToken(): Promise<string | null> {
+    const cookieStore = await cookies()
+    const refreshCookie = cookieStore.get(REFRESH_TOKEN_COOKIE_KEY)
+    if (!refreshCookie) {
+        return null
     }
+    const refreshToken = refreshCookie.value
+    if (!refreshToken) {
+        return null
+    }
+
+    const headersStore = await headers()
+    const accessToken = headersStore.get('x-ev-access')
+    return accessToken
 }
 
-
-export default async function createServerSession({cookies}: { cookies: any }): Promise<{
-    supabase: SupabaseClient,
-    auth: { getSession: () => Promise<void | UserProfile> }
+export default async function createServerSession(): Promise<{
+    getSupabase: () => Promise<SupabaseClient>;
+    auth: { getSession: () => Promise<UserProfile | undefined> }
+    didSsrRefresh?: boolean
+    ssrRefreshedAt?: number
 }> {
-    if (!cookies) {
-        throw new Error('cookies is required')
+
+    const cookiesStore = await cookies()
+    const sessionInfoVal = cookiesStore.get(SESSION_INFO_COOKIE_KEY)?.value
+    const refreshTokenCookie = cookiesStore.get(REFRESH_TOKEN_COOKIE_KEY)?.value
+    const accessToken = await getFreshAccessToken();
+
+    const getSupabase = async () => {
+        if (!accessToken) {
+            return createClient(
+                process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            );
+        }
+        console.log("Creating supabase client with access token", accessToken);
+        const client = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            {
+                global: { headers: { Authorization: `Bearer ${accessToken}` } },
+                accessToken: () => Promise.resolve(accessToken),
+            }
+        );
+
+        client.realtime.setAuth(accessToken);
+
+        return client;
     }
 
-    const supabaseToken = (await cookies()).get('evToken')?.value
-    const supabase = createServerComponentClient({supabaseToken})
-
-    if (!supabaseToken) {
+    if (!sessionInfoVal || !refreshTokenCookie) {
         return {
-            supabase, auth: {
-                getSession: async () => {
-                }
-            }
+            getSupabase,
+            auth: {
+                getSession: async () => undefined,
+            },
         }
     }
 
-    const user = getLoggedInUserFromAccessToken(supabaseToken)
-    if (!user) {
-        return {
-            supabase, auth: {
-                getSession: async () => {
-                }
-            }
-        }
-    }
+    const selectedCharval = cookiesStore.get(SELECTED_CHARACTER_COOKIE_KEY)?.value
+    const selectedCharacter: SelectedCharacterCookieDTO | null = (() => {
+        if (!selectedCharval) return null
+        return JSON.parse(Buffer.from(selectedCharval, 'base64url').toString('utf8'))
+    })()
 
+    const decodedSessionInfo = Buffer.from(sessionInfoVal, 'base64url').toString('utf8');
+    const decrypted = await decrypt(JSON.parse(decodedSessionInfo));
+    const sessionInfo = JSON.parse(Buffer.from(decrypted, 'base64url').toString('utf8'));
     async function getSession(): Promise<UserProfile> {
-        const {
-            data: roles,
-            error: rolesError
-        } = await supabase.from('ev_member_role').select('role').eq('member_id', user.id)
-        if (rolesError) {
-            throw new Error('Error fetching roles' + JSON.stringify(rolesError))
-        }
-
-        const {
-            data: rolePermissions,
-            error: rolePermissionsError
-        } = await supabase.from('ev_role_permissions').select('id').in('role', roles.map((role: any) => role.role))
-        if (rolePermissionsError) {
-            throw new Error('Error fetching role permissions' + JSON.stringify(rolePermissionsError))
-        }
+        const memberId = sessionInfo.sub
+        const { custom_roles: roles, permissions, isTemporal, isAdmin, isBanned, provider } = sessionInfo
 
         return {
-            ...user,
-            roles: roles ? Array.from(new Set(roles.map((role: any) => role.role)).values()) : [],
-            permissions: rolePermissions ? Array.from(new Set(rolePermissions.map((rolePermission: any) => rolePermission.id)).values()) : []
+            id: memberId,
+            roles,
+            permissions,
+            isTemporal,
+            isAdmin,
+            isBanned,
+            provider,
+            ...(selectedCharacter ? { selectedCharacter } : {}),
         }
     }
 
-
-    return {supabase, auth: {getSession}}
+    return { getSupabase, auth: { getSession } }
 }

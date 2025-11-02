@@ -10,14 +10,14 @@ import {useQuery} from "@tanstack/react-query";
 
 export const ItemWithTooltip = ({item, className}: { item: Item, className?: string }) => {
     const {isOpen, onOpen, onOpenChange, onClose} = useDisclosure()
-    const qualityColor = [
+    const qualityColor = typeof item.quality === 'number' ? [
         'poor',
         'common',
         'uncommon',
         'rare',
         'epic',
         'legendary',
-    ][item.quality]
+    ][item.quality] : item.quality?.name?.toLowerCase() || 'common'
     return (<>
         <Tooltip
             className={`bg-black border border-${qualityColor} rounded-lg max-w-64`}

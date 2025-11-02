@@ -1,28 +1,29 @@
 'use client'
-import React, {useEffect} from "react";
-import {Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button} from "@heroui/react";
+import React, { useEffect } from "react";
+import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button } from "@heroui/react";
 
 
-export default function LookupField({value, onChange, values, icon, title}: {
-    value: string,
+export default function LookupField({ value, onChange, values, icon, title }: {
+    value: string | { label: string, slug: string, icon?: string },
     onChange?: (value: string) => void,
-    values: Set<string>,
-    icon: string,
+    values: Set<string> | Set<{ label: string, slug: string, icon?: string }>,
+    icon?: string,
     title?: string
 }) {
-    const [selectedKeys, setSelectedKeys] = React.useState(new Set([value || title || ""]));
+    const slug = React.useMemo(() => typeof value === "string" ? value : value?.slug, [value]);
+    const label = React.useMemo(() => {
+        if (!slug) return title;
 
-    const [selectedValue, setSelectedValue] = React.useState(value || title || "");
-
-    useEffect(() => {
-        setSelectedValue(Array.from(selectedKeys)[0]);
-    }, [selectedKeys]);
-
-    useEffect(() => {
-        if (selectedValue !== title && onChange) {
-            onChange(selectedValue);
+        for (const val of values) {
+            const valSlug = typeof val === "string" ? val : val.slug;
+            debugger;
+            if (valSlug === slug) {
+                return typeof val === "string" ? val : val.label;
+            }
         }
-    }, [selectedKeys, selectedValue]);
+
+        return title;
+    }, [value, title, slug]);
 
     return (
         <Dropdown className="bg-moss">
@@ -30,8 +31,8 @@ export default function LookupField({value, onChange, values, icon, title}: {
                 <Button
                     className="capitalize bg-moss w-full justify-evenly text-gold font-bold"
                 >
-                    {value || title} {value &&
-                  <img src={icon} alt={value} className="w-6 h-6 rounded-full"/>}
+                    {label} {value && icon &&
+                        <img src={icon} alt={slug} className="w-6 h-6 rounded-full" />}
                 </Button>
             </DropdownTrigger>
             <DropdownMenu
@@ -39,14 +40,28 @@ export default function LookupField({value, onChange, values, icon, title}: {
                 variant="flat"
                 disallowEmptySelection
                 selectionMode="single"
-                selectedKeys={selectedKeys}
+                selectedKeys={new Set([slug])}
                 className={"bg-moss"}
-                onSelectionChange={setSelectedKeys as any}
+                onSelectionChange={(x) => {
+                    const _value = Array.from(x)[0];
+                    for (const val of values) {
+                        const valSlug = typeof val === "string" ? val : val.slug;
+                        if (valSlug === _value) {
+                            if (onChange) {
+                                onChange(valSlug);
+                            }
+                            return;
+                        }
+                    }
+                }}
             >
-                {Array.from(values).map((value: string) => {
+                {[...values].map((value: string | { label: string, slug: string, icon?: string }) => {
                     return (
-                        <DropdownItem key={value}>
-                            {value}
+                        <DropdownItem key={typeof value === "string" ? value : value.slug} className="capitalize flex justify-between items-center">
+                            {typeof value === "string" ? value : value.label}
+                            {typeof value === "object" && value.icon && (
+                                <img src={value.icon} alt={value.label} className="w-6 h-6 rounded-full" />
+                            )}
                         </DropdownItem>
                     );
                 })}

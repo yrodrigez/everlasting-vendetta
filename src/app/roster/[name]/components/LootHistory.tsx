@@ -1,23 +1,21 @@
 'use client'
 import moment from "moment/moment";
-import {ItemWithTooltip} from "@/app/raid/[id]/loot/components/LootItem";
-import {useEffect, useState} from "react";
-import {ScrollShadow, Spinner} from "@heroui/react";
-import {useWoWZamingCss} from "@/app/hooks/useWoWZamingCss";
+import { ItemWithTooltip } from "@/app/raid/[id]/loot/components/LootItem";
+import { useEffect, useState } from "react";
+import { ScrollShadow, Spinner } from "@heroui/react";
+import { useWoWZamingCss } from "@/app/hooks/useWoWZamingCss";
+import api from "@/app/lib/api";
 
 const fetchItemDataById = async (itemId: string) => {
-	const fetchItem = await fetch(`https://nether.wowhead.com/tooltip/item/${itemId}?dataEnv=4&locale=0`)
-	const item = await fetchItem.json()
-	item.icon = `https://wow.zamimg.com/images/wow/icons/medium/${item.icon}.jpg`
-	return item
+	const { data } = await api.get(`/wow/item/${itemId}`);
+	return data.itemDetails;
 }
 
-function Item({id}: { id: string | number }) {
+function Item({ id }: { id: string | number }) {
 	const [item, setItem] = useState<any>(null)
 	const [loading, setLoading] = useState(true)
 	useWoWZamingCss()
 	useEffect(() => {
-
 		fetchItemDataById(id.toString()).then((item) => {
 			setItem(item)
 		}).finally(() => {
@@ -25,14 +23,14 @@ function Item({id}: { id: string | number }) {
 		})
 	}, []);
 
-	return loading ? <Spinner/> : <div className="flex gap-2">
-		<ItemWithTooltip item={item}/>
+	return loading ? <Spinner /> : <div className="flex gap-2">
+		<ItemWithTooltip item={item} />
 		<span className="text-primary self-end">{item.name}</span>
 	</div>
 
 }
 
-export function LootHistory({lootHistory}: {
+export function LootHistory({ lootHistory }: {
 	lootHistory: any
 }) {
 	if (!lootHistory || !Object.values(lootHistory)?.length) {
@@ -58,7 +56,7 @@ export function LootHistory({lootHistory}: {
 							{
 								reset.items.map((item: any, index: number) => {
 									return <div key={index} className="flex">
-										<Item id={item.id}/>
+										<Item id={item.id} />
 									</div>
 								})
 							}

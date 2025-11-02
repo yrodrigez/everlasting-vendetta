@@ -5,7 +5,6 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faArrowLeft, faLock, faLockOpen} from "@fortawesome/free-solid-svg-icons";
 import {ExportToGargul} from "@/app/raid/[id]/soft-reserv/ExportToGargul";
 import {ShowReservations} from "@/app/raid/[id]/soft-reserv/ShowReservations";
-import Link from "next/link";
 import ShowReserveRules from "@/app/raid/[id]/soft-reserv/ShowReserveRules";
 import {Button} from "@/app/components/Button";
 import {ReserveForOthers} from "@/app/raid/[id]/soft-reserv/ReserveForOthers";

@@ -1,4 +1,4 @@
-import {Character, RaidItem, Reservation} from "@/app/raid/[id]/soft-reserv/types";
+import { Character, RaidItem, Reservation } from "@/app/raid/[id]/soft-reserv/types";
 import {
     Button,
     Modal,
@@ -9,13 +9,14 @@ import {
     Tooltip,
     useDisclosure
 } from "@heroui/react";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faArrowRightLong, faClose, faObjectGroup, faTrash, faUserGroup} from "@fortawesome/free-solid-svg-icons";
-import {useEffect, useState} from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowRightLong, faClose, faObjectGroup, faTrash, faUserGroup } from "@fortawesome/free-solid-svg-icons";
+import { useEffect, useState } from "react";
 import Image from "next/image";
-import {ItemTooltip} from "@/app/raid/[id]/soft-reserv/RaidItemCard";
+import { ItemTooltip } from "@/app/raid/[id]/soft-reserv/RaidItemCard";
 import Link from "next/link";
-import {useMessageBox} from "@utils/msgBox";
+import { useMessageBox } from "@utils/msgBox";
+import { useRaidItems } from "./raid-items-context";
 
 const groupByCharacter = (items: Reservation[]): {
     character: Character,
@@ -31,7 +32,7 @@ const groupByCharacter = (items: Reservation[]): {
         } else {
             acc.push({
                 character: item.member.character,
-                reservations: [{...item.item, reservationId: item.id}]
+                reservations: [{ ...item.item, reservationId: item.id }]
             })
         }
         return acc
@@ -53,7 +54,7 @@ const groupByItem = (items: Reservation[]): { item: RaidItem, reservations: Char
     }, [] as { item: RaidItem, reservations: Character[] }[])
 }
 
-const ReservationByItem = ({item}: { item: { item: RaidItem, reservations: Character[] } }) => {
+const ReservationByItem = ({ item }: { item: { item: RaidItem, reservations: Character[] } }) => {
     return (
         <div className={'flex gap-2 justify-between p-2 items-center'}>
             <Tooltip
@@ -66,14 +67,14 @@ const ReservationByItem = ({item}: { item: { item: RaidItem, reservations: Chara
                 content={
                     <div className="flex gap">
                         <ItemTooltip item={item.item}
-                                     qualityColor={[
-                                         'poor',
-                                         'common',
-                                         'uncommon',
-                                         'rare',
-                                         'epic',
-                                         'legendary',
-                                     ][item.item.description.quality ?? 0] as 'poor' | 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'}
+                            qualityColor={[
+                                'poor',
+                                'common',
+                                'uncommon',
+                                'rare',
+                                'epic',
+                                'legendary',
+                            ][item.item.description.quality ?? 0] as 'poor' | 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'}
                         />
                     </div>
                 }
@@ -86,7 +87,7 @@ const ReservationByItem = ({item}: { item: { item: RaidItem, reservations: Chara
                     className={`border-gold border rounded-md`}
                 />
             </Tooltip>
-            <FontAwesomeIcon icon={faArrowRightLong}/>
+            <FontAwesomeIcon icon={faArrowRightLong} />
             <div className="flex gap-2 overflow-auto max-w-40 w-40 scrollbar-pill">
                 {item.reservations.map((character, i) => {
                     return (
@@ -115,13 +116,14 @@ const ReservationByItem = ({item}: { item: { item: RaidItem, reservations: Chara
     )
 }
 
-const ReservationByCharacter = ({item, isAdmin}: {
+const ReservationByCharacter = ({ item, isAdmin }: {
     item: { character: Character, reservations: (RaidItem & { reservationId: string })[] },
     isAdmin?: boolean
 }) => {
-    const {character, reservations} = item
+    const { character, reservations } = item
 
-    const {yesNo, alert} = useMessageBox()
+    const { yesNo, alert } = useMessageBox()
+    const { repository } = useRaidItems()
 
     return (
         <div className={'flex gap-2 justify-between p-2 items-center'}>
@@ -142,26 +144,20 @@ const ReservationByCharacter = ({item, isAdmin}: {
                                 modNo: 'default'
                             })
                             if (confirm !== 'yes') return
-                            const origin = window.location.origin
                             const resetId = window.location.pathname.split('/')[2] // raid id
-                            const response = await fetch(`${origin}/api/v1/services/reserve?resetId=${resetId}&memberId=${item.character.id}`, {
-                                method: 'DELETE'
-                            })
-                            if (!response.ok) {
-                                alert({message: 'Failed to remove reservations', type: 'error'})
+                            const characterId = item.character.id
+                            const success = await repository.removeAllReservationsForCharacter(resetId, characterId)
+                            if (!success) {
+                                alert({ message: 'Failed to remove reservations', type: 'error' })
                                 return
                             }
-                            const data = await response.json()
-                            if (data.error) {
-                                alert({message: data.error, type: 'error'})
-                            } else {
-                                alert({message: 'Reservations removed'})
-                            }
+                            alert({ message: 'Reservations removed' })
+
                         })()
 
                     }}
                 >
-                    <FontAwesomeIcon icon={faClose}/>
+                    <FontAwesomeIcon icon={faClose} />
                 </Button> : null}
                 <Link
                     className={'flex gap-2 items-center'}
@@ -189,14 +185,14 @@ const ReservationByCharacter = ({item, isAdmin}: {
                             content={
                                 <div className="flex gap">
                                     <ItemTooltip item={item}
-                                                 qualityColor={[
-                                                     'poor',
-                                                     'common',
-                                                     'uncommon',
-                                                     'rare',
-                                                     'epic',
-                                                     'legendary',
-                                                 ][item.description.quality ?? 0] as 'poor' | 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'}
+                                        qualityColor={[
+                                            'poor',
+                                            'common',
+                                            'uncommon',
+                                            'rare',
+                                            'epic',
+                                            'legendary',
+                                        ][item.description.quality ?? 0] as 'poor' | 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'}
                                     />
                                 </div>
                             }
@@ -223,21 +219,12 @@ const ReservationByCharacter = ({item, isAdmin}: {
                                             modNo: 'default'
                                         })
                                         if (confirm !== 'yes') return
-
-                                        const response = await fetch(`/api/v1/services/reserve?reservationId=${item.reservationId}`, {
-                                            method: 'DELETE'
-                                        })
-                                        if (!response.ok) {
-                                            alert({message: 'Failed to remove reservation', type: 'error'})
+                                        const success = await repository.removeReservationById(item.reservationId)
+                                        if (!success) {
+                                            alert({ message: 'Failed to remove reservation', type: 'error' })
                                             return
                                         }
-                                        const data = await response.json()
-                                        if (data.error) {
-                                            alert({message: data.error})
-
-                                        } else {
-                                            alert({message: 'Reservation removed'})
-                                        }
+                                        alert({ message: 'Reservation removed' })
                                     }}
                                 />
                             </div>
@@ -249,8 +236,8 @@ const ReservationByCharacter = ({item, isAdmin}: {
     )
 }
 
-export function ShowReservations({items = [], isAdmin}: { items: Reservation[], isAdmin?: boolean }) {
-    const {isOpen, onOpen, onClose, onOpenChange} = useDisclosure()
+export function ShowReservations({ items = [], isAdmin }: { items: Reservation[], isAdmin?: boolean }) {
+    const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure()
     const [reservationsByCharacter, setReservationsByCharacter] = useState<{
         character: Character,
         reservations: (RaidItem & { reservationId: string })[]
@@ -283,7 +270,7 @@ export function ShowReservations({items = [], isAdmin}: { items: Reservation[], 
                         isIconOnly
                         isDisabled={items.length === 0}
                     >
-                        <FontAwesomeIcon icon={faUserGroup}/>
+                        <FontAwesomeIcon icon={faUserGroup} />
                     </Button>
                 </Tooltip>
                 {items?.length ? (
@@ -299,47 +286,47 @@ export function ShowReservations({items = [], isAdmin}: { items: Reservation[], 
                 onOpenChange={onOpenChange}
                 placement="center"
             ><ModalContent>
-                {() => (
-                    <>
-                        <ModalHeader>
-                            <div className="flex justify-between items-center w-full text-default">
-                                Reservations
-                                <div className="flex gap-2 mr-4">
-                                    <Button
-                                        size={'sm'}
-                                        className="text-default"
-                                        variant={'light'}
-                                        isIconOnly
-                                        onPress={() => setIsByCharacter(true)}
-                                    >
-                                        <FontAwesomeIcon icon={faUserGroup}/>
-                                    </Button>
-                                    <Button
-                                        size={'sm'}
-                                        className="text-default"
-                                        variant={'light'}
-                                        isIconOnly
-                                        onPress={() => setIsByCharacter(false)}
-                                    >
-                                        <FontAwesomeIcon icon={faObjectGroup}/>
-                                    </Button>
+                    {() => (
+                        <>
+                            <ModalHeader>
+                                <div className="flex justify-between items-center w-full text-default">
+                                    Reservations
+                                    <div className="flex gap-2 mr-4">
+                                        <Button
+                                            size={'sm'}
+                                            className="text-default"
+                                            variant={'light'}
+                                            isIconOnly
+                                            onPress={() => setIsByCharacter(true)}
+                                        >
+                                            <FontAwesomeIcon icon={faUserGroup} />
+                                        </Button>
+                                        <Button
+                                            size={'sm'}
+                                            className="text-default"
+                                            variant={'light'}
+                                            isIconOnly
+                                            onPress={() => setIsByCharacter(false)}
+                                        >
+                                            <FontAwesomeIcon icon={faObjectGroup} />
+                                        </Button>
+                                    </div>
                                 </div>
-                            </div>
-                        </ModalHeader>
-                        <ModalBody>
-                            <ScrollShadow className="overflow-auto max-h-[600px] w-full scrollbar-pill">
-                                {isByCharacter ? reservationsByCharacter.map((item, i) => {
-                                    return <ReservationByCharacter key={i} item={item} isAdmin={isAdmin}/>
-                                }) : reservationsByItem.map((item, i) => {
-                                    return (
-                                        <ReservationByItem item={item} key={i}/>
-                                    )
-                                })}
-                            </ScrollShadow>
-                        </ModalBody>
-                    </>
-                )}
-            </ModalContent>
+                            </ModalHeader>
+                            <ModalBody>
+                                <ScrollShadow className="overflow-auto max-h-[600px] w-full scrollbar-pill">
+                                    {isByCharacter ? reservationsByCharacter.map((item, i) => {
+                                        return <ReservationByCharacter key={i} item={item} isAdmin={isAdmin} />
+                                    }) : reservationsByItem.map((item, i) => {
+                                        return (
+                                            <ReservationByItem item={item} key={i} />
+                                        )
+                                    })}
+                                </ScrollShadow>
+                            </ModalBody>
+                        </>
+                    )}
+                </ModalContent>
             </Modal>
 
         </>

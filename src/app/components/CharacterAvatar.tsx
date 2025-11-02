@@ -14,7 +14,8 @@ const CharacterAvatar = ({
                              className = `rounded-full md:w-24 w-16 border-2 border-gold`,
                              width = 80,
                              height = 80,
-                             role
+                             role,
+                             avatarUrl
                          }: {
     token?: { name: string, value: string } | string,
     realm: string,
@@ -22,7 +23,8 @@ const CharacterAvatar = ({
     width?: number,
     height?: number,
     className?: string,
-    role?: CharacterRoleType
+    role?: CharacterRoleType,
+    avatarUrl?: string
 }) => {
     const tokenFromCookie = getCookie(BNET_COOKIE_NAME)
     const currentToken = !token && tokenFromCookie ? {
@@ -46,11 +48,15 @@ const CharacterAvatar = ({
 
             return avatar
         },
-        enabled: true
+        enabled: true && !avatarUrl
     })
 
 
     useEffect(() => {
+        if (avatarUrl) {
+            setAvatar(avatarUrl)
+            return
+        }
         if (data) {
             setAvatar(data)
         }

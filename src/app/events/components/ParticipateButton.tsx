@@ -1,17 +1,23 @@
 'use client'
 
-import {Button} from "@/app/components/Button";
-import {useSession} from "@hooks/useSession";
-import {useCallback, useEffect, useState} from "react";
-import {toast} from "sonner";
-import {useRouter} from "next/navigation";
+import { Button } from "@/app/components/Button";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { useShallow } from "zustand/react/shallow";
+import { useCharacterStore } from "@/app/components/characterStore";
+import { useAuth } from "@/app/context/AuthContext";
+import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
 
-export default function ParticipateButton({sound, children, eventId}: {
+export default function ParticipateButton({ sound, children, eventId }: {
     sound: string,
     children: string,
     eventId?: number
 }) {
-    const {supabase, selectedCharacter} = useSession();
+    const { accessToken } = useAuth();
+    const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
+
+    const selectedCharacter = useCharacterStore(useShallow(state => state.selectedCharacter));
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
 
@@ -22,7 +28,7 @@ export default function ParticipateButton({sound, children, eventId}: {
             event_id: eventId,
             member_id: selectedCharacter.id,
             position: selectedCharacter.name === 'Felsargon' ? 1 : 999,
-        }).then(({error}) => {
+        }).then(({ error }: { error?: any }) => {
             if (error) {
                 console.error(error);
                 toast.error('Failed to participate in event');

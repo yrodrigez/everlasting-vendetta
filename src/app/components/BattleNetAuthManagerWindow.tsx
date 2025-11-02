@@ -1,29 +1,23 @@
 'use client'
-import {useCallback, useEffect, useRef} from "react";
-import {Modal, ModalBody, ModalContent, ModalHeader, useDisclosure} from "@heroui/react";
 import AvailableCharactersList from "@/app/components/AvailableCharactersList";
-import {useCharacterStore} from "@/app/components/characterStore";
-import {toast} from "sonner";
-import {logout} from "@/app/util";
-import {Character} from "@/app/util/blizzard/battleNetWoWAccount/types";
-import {GUILD_REALM_NAME} from "@/app/util/constants";
-import {useQuery} from "@tanstack/react-query";
-
-async function fetchBattleNetProfile(): Promise<{ characters: Character[] }> {
-    const response = await fetch('/api/v1/services/wow/getUserCharacters')
-    return await response.json();
-}
+import { useCharacterStore } from "@/app/components/characterStore";
+import { logout } from "@/app/util";
+import { Character } from "@/app/util/blizzard/battleNetWoWAccount/types";
+import { GUILD_REALM_NAME } from "@/app/util/constants";
+import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from "@heroui/react";
+import { useQuery } from "@tanstack/react-query";
+import { useCallback, useEffect, useRef } from "react";
+import { toast } from "sonner";
+import api from "../lib/axios";
 
 async function getBnetCharacters(): Promise<Character[] | null> {
-
-    const profile = await fetchBattleNetProfile();
-    const {characters} = profile;
+    const { data: { characters } } = await api.get('/user-characters')
+    console.log('Fetched characters from Battle.net:', characters);
     const validCharacters = characters?.filter((character: Character) => character.level >= 10) ?? [];
     return validCharacters.sort((a: Character, b: Character) => b.level - a.level);
-
 }
 
-const useFetchCharacters = (token: { value: string }, onOpen: () => void, logout: (force: any) => void) => {
+const useFetchCharacters = (onOpen: () => void, logout: (force: any) => void) => {
     const setCharacters = useCharacterStore(state => state.setCharacters);
     const selectedCharacter = useCharacterStore(state => state.selectedCharacter);
     const setSelectedCharacter = useCharacterStore(state => state.setSelectedCharacter);
@@ -45,12 +39,7 @@ const useFetchCharacters = (token: { value: string }, onOpen: () => void, logout
     }, [clearCharacterStore, logout]);
 
     const updateCharacters = useCallback((heroes: any[], shouldOpen: boolean) => {
-        setCharacters(
-            heroes.map(character => ({
-                ...character,
-                avatar: '/avatar-anon.png',
-            }))
-        );
+        setCharacters(heroes);
 
         const updatedSelectedCharacter = heroes.find(character => character.id === selectedCharacter?.id);
         const selectedRole = selectedCharacter?.selectedRole;
@@ -58,9 +47,7 @@ const useFetchCharacters = (token: { value: string }, onOpen: () => void, logout
         if (updatedSelectedCharacter) {
             setSelectedCharacter({
                 ...updatedSelectedCharacter,
-                avatar: '/avatar-anon.png',
                 selectedRole,
-                isAdmin: selectedCharacter?.isAdmin
             });
         }
 
@@ -68,12 +55,11 @@ const useFetchCharacters = (token: { value: string }, onOpen: () => void, logout
         if (shouldOpen) onOpen();
     }, [onOpen, selectedCharacter, setCharacters, setLastUpdated, setSelectedCharacter]);
 
-    const {data: heroes, error, isFetching} = useQuery({
-        queryKey: ['bnetCharacters', token?.value],
-        enabled: !!token?.value,
+    const { data: heroes, error, isFetching } = useQuery({
+        queryKey: ['bnetCharacters'],
         queryFn: async () => {
             if (selectedCharacter && selectedCharacter.isTemporal) {
-                return [{...selectedCharacter}]
+                return [{ ...selectedCharacter }]
             }
 
             return (await getBnetCharacters())?.map(character => ({
@@ -97,7 +83,7 @@ const useFetchCharacters = (token: { value: string }, onOpen: () => void, logout
     });
 
     useEffect(() => {
-        if (!token?.value || isFetching || errorOccurred.current || hasFetchedData.current) return;
+        if (isFetching || errorOccurred.current || hasFetchedData.current) return;
 
         if (heroes) {
             if (!heroes?.length) {
@@ -115,26 +101,31 @@ const useFetchCharacters = (token: { value: string }, onOpen: () => void, logout
         }
 
         hasFetchedData.current = true;
-    }, [token?.value, isFetching, error, heroes, errorOccurred, hasFetchedData]);
+    }, [isFetching, error, heroes, errorOccurred, hasFetchedData]);
 
     useEffect(() => {
-        if (!token?.value || isFetching || errorOccurred.current || hasFetchedData.current) return;
+        if (isFetching || errorOccurred.current || hasFetchedData.current) return;
 
         hasFetchedData.current = true;
-    }, [token?.value, isFetching, errorOccurred, hasFetchedData]);
+    }, [isFetching, errorOccurred, hasFetchedData]);
 };
 
-export function BattleNetAuthManagerWindow({token, open, setExternalOpen}: {
-    token: { name: string, value: string },
+export function BattleNetAuthManagerWindow({ open, setExternalOpen }: {
     open?: boolean,
     setExternalOpen?: (value: boolean) => void
 }) {
-    const {isOpen, onOpen, onOpenChange, onClose} = useDisclosure();
+    const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
     const characters = useCharacterStore(state => state.characters);
     const selectedCharacter = useCharacterStore(state => state.selectedCharacter);
     const setSelectedCharacter = useCharacterStore(state => state.setSelectedCharacter);
 
-    useFetchCharacters(token, onOpen, logout);
+    useEffect(() => {
+        if (open) {
+            onOpen();
+        }
+    }, [open]);
+
+    useFetchCharacters(onOpen, logout);
 
     return (
         <Modal
@@ -144,7 +135,7 @@ export function BattleNetAuthManagerWindow({token, open, setExternalOpen}: {
             backdrop="blur"
             hideCloseButton
             placement="center"
-            isDismissable={!!selectedCharacter}>
+            isDismissable={selectedCharacter?.name ? true : false}>
             <ModalContent className={
                 `bg-wood max-h-96`
             }>
@@ -158,10 +149,10 @@ export function BattleNetAuthManagerWindow({token, open, setExternalOpen}: {
                                 <AvailableCharactersList
                                     characters={characters}
                                     onCharacterSelect={(character) => {
-                                        setSelectedCharacter({...character})
+                                        setSelectedCharacter({ ...character })
                                         setExternalOpen && setExternalOpen(false)
                                         onClose()
-                                    }}/>
+                                    }} />
                             </div>
                         </ModalBody>
                     </>

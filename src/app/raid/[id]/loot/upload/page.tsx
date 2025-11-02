@@ -1,10 +1,10 @@
 import createServerSession from "@utils/supabase/createServerSession";
-import {cookies} from "next/headers";
+import { cookies } from "next/headers";
 import NotLoggedInView from "@/app/components/NotLoggedInView";
-import {Button} from "@/app/components/Button";
+import { Button } from "@/app/components/Button";
 import LootHistoPreview from "@/app/raid/[id]/loot/upload/LootHistoPreview";
-import {convertLootCsvToObjects, parseLootCsv} from "@/app/raid/[id]/loot/util";
-import {redirect} from "next/navigation";
+import { convertLootCsvToObjects, parseLootCsv } from "@/app/raid/[id]/loot/util";
+import { redirect } from "next/navigation";
 
 export const dynamic = 'force-dynamic'
 const requiredPermissions = 'loot_history.create'
@@ -25,14 +25,15 @@ async function handleSubmit(formData: FormData) {
 		const csv = parseLootCsv(loot as string)
 		const lootObjects = convertLootCsvToObjects(csv)
 
-		const {supabase} = await createServerSession({cookies})
+		const { getSupabase } = await createServerSession();
 
-		const {error} = await supabase
-		.from('ev_loot_history')
-		.insert(lootObjects.map((loot) => ({
-			...loot,
-			raid_id
-		})))
+		const supabase = await getSupabase();
+		const { error } = await supabase
+			.from('ev_loot_history')
+			.insert(lootObjects.map((loot) => ({
+				...loot,
+				raid_id
+			})))
 
 		if (error) {
 			console.error(error)
@@ -44,13 +45,13 @@ async function handleSubmit(formData: FormData) {
 	}
 }
 
-export default async function Page({params}: { params: Promise<{ id: string }> }) {
-	const {auth} = await createServerSession({cookies})
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+	const { auth } = await createServerSession();
 	const user = await auth.getSession()
-	const {id: resetId} = await params
+	const { id: resetId } = await params
 
 	if (!user) {
-		return <NotLoggedInView/>
+		return <NotLoggedInView />
 	}
 
 	if (!user.permissions.includes(requiredPermissions)) {
@@ -59,9 +60,9 @@ export default async function Page({params}: { params: Promise<{ id: string }> }
 
 	return (
 		<form className="flex flex-col gap-4 w-full h-full" action={handleSubmit}>
-			<input type="hidden" name="raid_id" value={resetId}/>
+			<input type="hidden" name="raid_id" value={resetId} />
 			<div className="flex h-[90%] w-full">
-				<LootHistoPreview reset_id={resetId}/>
+				<LootHistoPreview reset_id={resetId} />
 			</div>
 			<Button type="submit" className="mt-4">
 				Submit

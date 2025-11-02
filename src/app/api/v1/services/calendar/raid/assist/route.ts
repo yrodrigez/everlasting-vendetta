@@ -1,34 +1,31 @@
-import {NextRequest, NextResponse} from "next/server";
-import {cookies} from "next/headers";
-import {redirect} from "next/navigation";
-import {fetchBattleNetWoWAccounts} from "@/app/lib/fetchBattleNetWoWaccounts";
-import {registerOnRaid} from "@/app/lib/database/raid_resets/registerOnRaid";
+import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { fetchBattleNetWoWAccounts } from "@/app/lib/fetchBattleNetWoWaccounts";
+import { registerOnRaid } from "@/app/lib/database/raid_resets/registerOnRaid";
 import createServerSession from "@utils/supabase/createServerSession";
 
 
 export async function POST(request: NextRequest) {
-    const {id: raidId, currentCharacter, details} = await request.json()
+    const { id: raidId, currentCharacter, details } = await request.json()
 
 
     if (!raidId) {
-        return NextResponse.json({error: 'Error - raidId is mandatory!'})
+        return NextResponse.json({ error: 'Error - raidId is mandatory!' })
     }
 
-    const token = (await cookies()).get(process.env.BNET_COOKIE_NAME!)
-    if (!token) {
+    const authorization = request.headers.get('authorization')?.split(' ').pop()
+    if (!authorization) {
         const origin = new URL(request.url).origin
         return redirect(origin + '/api/v1/oauth/bnet/auth')
     }
 
-    const supabaseToken = (await cookies()).get('evToken')
-    if (!supabaseToken) {
-        return NextResponse.json({error: 'Error - supabase token is mandatory!'})
-    }
-    const {supabase} = await createServerSession({cookies})
+    const { getSupabase } = await createServerSession();
+    const supabase = await getSupabase();
     if (!currentCharacter.isTemporal) {
-        const currentUserCharacters = await fetchBattleNetWoWAccounts(token.value)
+        const currentUserCharacters = await fetchBattleNetWoWAccounts(authorization)
         if (!currentUserCharacters) {
-            return NextResponse.json({error: 'Error fetching wow characters'}, {
+            return NextResponse.json({ error: 'Error fetching wow characters' }, {
                 status: 500
             })
         }
@@ -39,7 +36,7 @@ export async function POST(request: NextRequest) {
             }
         })
         if (!isCharacterOwned) {
-            return NextResponse.json({error: 'Error - character not owned!'}, {
+            return NextResponse.json({ error: 'Error - character not owned!' }, {
                 status: 403
             })
         }
@@ -51,14 +48,14 @@ export async function POST(request: NextRequest) {
     } = await registerOnRaid(currentCharacter.id, raidId, details, supabase)
     if (errorOnRegister) {
 
-        if(errorOnRegister.code === '42501') {
-            return NextResponse.json({error: 'You are currently benched and cannot update your status.'}, {
+        if (errorOnRegister.code === '42501') {
+            return NextResponse.json({ error: 'You are currently benched and cannot update your status.' }, {
                 status: 403
             })
         }
 
         console.error('Error registering on raid', errorOnRegister)
-        return NextResponse.json({error: `Error registering on raid ${errorOnRegister.message}`}, {
+        return NextResponse.json({ error: `Error registering on raid ${errorOnRegister.message}` }, {
             status: 500
         })
     }

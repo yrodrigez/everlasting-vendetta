@@ -1,11 +1,11 @@
 'use client'
-import {Input} from "@heroui/react";
-import {useApplyFormStore} from "@/app/apply/components/store";
-import {useEffect, useState} from "react";
-import {useShallow} from "zustand/shallow";
+import { useApplyFormStore } from "@/app/apply/components/store";
+import { useFetchCharacter } from "@/app/hooks/api/use-fetch-character";
+import { Input, Tooltip } from "@heroui/react";
+import { useEffect, useState } from "react";
+import { useShallow } from "zustand/shallow";
 
-
-export function CharacterNameInput() {
+export function CharacterNameInput({ isDisabled }: { isDisabled: boolean }) {
     const {
         setName,
         setClass,
@@ -20,83 +20,86 @@ export function CharacterNameInput() {
 
     const name = useApplyFormStore(state => state.name)
     const characterExists = useApplyFormStore(state => state.characterExists)
+    const realm = useApplyFormStore(state => state.realm)
     const [characterAvatar, setCharacterAvatar] = useState('')
     const [isBlurred, setIsBlurred] = useState(false)
 
     const [level, setLevel] = useState(0)
     const [isWriting, setIsWriting] = useState(false)
 
+    const { fetchCharacter, character } = useFetchCharacter()
 
     useEffect(() => {
         setCharacterExists(false)
-        if ((isBlurred || name.length > 2) && !isWriting) {
-            (async () => {
-                const response = await fetch(`/api/v1/services/member/avatar/get?characterName=${name}`)
-                const data = await response.json()
-                setRole('')
-                if (!data.avatar || data.avatar === 'unknown') {
-                    return setCharacterAvatar('')
-                }
-
-                setCharacterAvatar(data.avatar)
-
-                const characterInfoResponse = await fetch(`/api/v1/services/member/character?characterName=${name}`)
-                const characterInfoData = await characterInfoResponse.json()
-                if (characterInfoData.error) return
-
-                const characterClass = characterInfoData?.character?.character_class?.name ?? ''
-                if (!characterClass) return
-
-                setClass(characterClass)
-
-                setLevel(characterInfoData.character.level)
-                setCharacterExists(true)
-            })()
+        if ((isBlurred || name.length > 2) && !isWriting && realm) {
+            fetchCharacter({ realm, name })
         }
         if (isBlurred && name.length <= 2) {
             setCharacterAvatar('')
         }
-    }, [isBlurred, name]);
+    }, [isBlurred, name, isWriting, realm, fetchCharacter, setCharacterExists]);
+
+    useEffect(() => {
+        if (character) {
+            setCharacterAvatar(character.avatar)
+            setClass(character.character_class.name)
+            setLevel(character.level)
+            setCharacterExists(true)
+        } else {
+            setCharacterAvatar('')
+            setClass('')
+            setLevel(0)
+            setCharacterExists(false)
+        }
+    }, [character]);
 
     return (
         <div
             className={`relative`}>
-            <Input
-                onFocus={() => setIsBlurred(false)}
-                onBlur={() => {
-                    setIsBlurred(true)
-                    setIsWriting(false)
-                }}
-                onInput={() => {
-                    setIsWriting(true)
-                }}
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                label="Character's name *" id="character-name"
-                required
-                validate={() => {
-                    if (name?.length >= 3 || characterExists) {
-                        return ''
-                    }
+            <Tooltip
+                content={isDisabled ? 'Select a realm first' : null}
+                hidden={!isDisabled}
+                placement="right"
+            >
+                <div>
+                    <Input
+                        isDisabled={isDisabled}
+                        onFocus={() => setIsBlurred(false)}
+                        onBlur={() => {
+                            setIsBlurred(true)
+                            setIsWriting(false)
+                        }}
+                        onInput={() => {
+                            setIsWriting(true)
+                        }}
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        label="Character's name *" id="character-name"
+                        required
+                        validate={() => {
+                            if (name?.length >= 3 || characterExists) {
+                                return ''
+                            }
 
-                    return 'Invalid character name'
-                }}
-            />
+                            return 'Invalid character name'
+                        }}
+                    />
+                </div>
+            </Tooltip>
             {characterAvatar &&
-                <div className="w-10 h-10 bg-red-500 absolute top-2.5 -right-12 rounded-full border border-green-500"
-                     style={{
-                         backgroundImage: `url(${characterAvatar})`,
-                         backgroundSize: 'cover',
-                         backgroundPosition: 'center',
-                         backgroundRepeat: 'no-repeat'
-                     }}>
-
-                    <div className="relative">
-                  <span className="absolute -bottom-16 right-2">
-                      {level || null}
-                  </span>
-                    </div>
-
+                <div className="absolute top-2.5 -right-12 w-10 flex flex-col items-center">
+                    <div 
+                        className="w-10 h-10 rounded-full border border-green-500"
+                        style={{
+                            backgroundImage: `url(${characterAvatar})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            backgroundRepeat: 'no-repeat'
+                        }}
+                    />
+                    <span className="text-xs text-gold mt-1 font-bold">
+                        {level}
+                    </span>
                 </div>
             }
         </div>

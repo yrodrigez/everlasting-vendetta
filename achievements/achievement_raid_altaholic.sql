@@ -6,26 +6,31 @@ as
 $$
 BEGIN
 RETURN QUERY
-    WITH main_character AS (
-        SELECT wow_account_id
+    WITH user_id AS (
+        SELECT user_id
         FROM ev_member
         WHERE character ->> 'name' = character_name
           AND character -> 'guild' ->> 'name' = 'Everlasting Vendetta'
-          AND wow_account_id <> 0
+          AND user_id is not null
         LIMIT 1
     ),
          alts AS (
              SELECT
-                 m.wow_account_id AS account_id,
+                 m.user_id AS user_id,
                  COUNT(DISTINCT m.character ->> 'name') AS alt_count
              FROM ev_member m
-                      JOIN raid_loot_reservation rlr ON rlr.member_id = m.id
-                      JOIN raid_resets rr ON rr.id = rlr.reset_id
-                      JOIN ev_loot_history lh ON lh.character = m.character ->> 'name'
-             WHERE m.character -> 'guild' ->> 'name' = 'Everlasting Vendetta'
-               AND wow_account_id <> 0
+             WHERE m.user_id = (SELECT user_id FROM user_id LIMIT 1)
+               AND m.character -> 'guild' ->> 'name' = 'Everlasting Vendetta'
                AND m.character ->> 'name' <> character_name
-             GROUP BY m.wow_account_id
+               AND EXISTS (
+                   SELECT 1 FROM raid_loot_reservation rlr
+                   WHERE rlr.member_id = m.id
+               )
+               AND EXISTS (
+                   SELECT 1 FROM ev_loot_history lh
+                   WHERE lh.character = m.character ->> 'name'
+               )
+             GROUP BY m.user_id
          )
     SELECT
         CASE
@@ -34,10 +39,10 @@ RETURN QUERY
             END AS has_two_alts_raided,
         CASE
         WHEN COALESCE(a.alt_count, 0) >= 2 THEN 100.0
-        ELSE COALESCE(a.alt_count, 0.0)*50.0 END AS progres
-    FROM main_character mc
+        ELSE COALESCE(a.alt_count, 0.0)*50.0 END AS progress
+    FROM user_id mc
              LEFT JOIN alts a
-                       ON mc.wow_account_id = a.account_id;
+                       ON mc.user_id = a.user_id;
 END;
 $$;
 

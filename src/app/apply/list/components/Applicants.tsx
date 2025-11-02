@@ -1,17 +1,21 @@
 'use client'
-import {Button} from "@/app/components/Button";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faCheck, faTrash} from "@fortawesome/free-solid-svg-icons";
-import {Chip, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip} from "@heroui/react";
-import React, {useCallback, useEffect} from "react";
+import { Button } from "@/app/components/Button";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheck, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { Chip, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip } from "@heroui/react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import Link from "next/link";
-import {getClassIcon, getRoleIcon} from "@/app/apply/components/utils";
-import {useSession} from "@hooks/useSession";
-import {useQuery} from "@tanstack/react-query";
-import {useRouter} from "next/navigation";
+import { getClassIcon, getRoleIcon } from "@/app/apply/components/utils";
+import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import GearScore from "@/app/components/GearScore";
+import { useAuth } from "@/app/context/AuthContext";
+import { useCharacterStore } from "@/app/components/characterStore";
+import { useShallow } from "zustand/react/shallow";
+import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
+import api from "@/app/lib/api";
 
-export function Applicants({applicants}: {
+export function Applicants({ applicants }: {
     applicants: {
         created_at: string,
         id: string,
@@ -23,39 +27,39 @@ export function Applicants({applicants}: {
         reviewer: any
     }[]
 }) {
-    const {supabase, selectedCharacter} = useSession()
+    const { accessToken } = useAuth();
+    const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
 
+    const selectedCharacter = useCharacterStore(useShallow(state => state.selectedCharacter));
     const columns = [
-        {name: 'Name', uid: 'name'},
-        {name: 'Role', uid: 'role'},
-        {name: 'Gear Score', uid: 'gearScore'},
-        {name: 'Status', uid: 'status'},
-        {name: 'Message', uid: 'message'},
-        {name: 'Reviewer', uid: 'reviewer'},
-        {name: 'Review', uid: 'review'},
+        { name: 'Name', uid: 'name' },
+        { name: 'Role', uid: 'role' },
+        { name: 'Gear Score', uid: 'gearScore' },
+        { name: 'Status', uid: 'status' },
+        { name: 'Message', uid: 'message' },
+        { name: 'Reviewer', uid: 'reviewer' },
+        { name: 'Review', uid: 'review' },
     ]
 
-    const {data: withAvatar} = useQuery({
+    const { data: withAvatar = [] } = useQuery({
         queryKey: ['applications', 'get'],
         queryFn: async () => {
             return await Promise.all(applicants.map(async (x) => {
-                const avatar = await fetch(`/api/v1/services/member/avatar/get?characterName=${encodeURIComponent(x.name)}`)
-                    .then(res => res.json())
-                    .then(data => data.avatar)
-                    .catch(() => '/avatar-anon.png')
+                try {
+                    const { data } = await api.get(`/wow/character/avatar/living-flame/${encodeURIComponent(x.name.toLowerCase())}`);
 
-                return {
-                    ...x,
-                    avatar
+                    return {
+                        ...x,
+                        avatar: data.avatarUrl || '/avatar-anon.png'
+                    }
+                } catch {
+                    return {
+                        ...x,
+                        avatar: '/avatar-anon.png'
+                    }
                 }
             }))
         },
-        initialData: applicants.map((x) => {
-            return {
-                ...x,
-                avatar: '/avatar-anon.png'
-            }
-        })
     })
     const router = useRouter()
     useEffect(() => {
@@ -89,7 +93,7 @@ export function Applicants({applicants}: {
 
 
     const renderCell = useCallback((registration: any, columnKey: React.Key) => {
-        const {name, message, className, role, status, reviewer, avatar, gearScore, id} = registration;
+        const { name, message, className, role, status, reviewer, avatar, gearScore, id } = registration;
 
         switch (columnKey) {
             case "name":
@@ -149,8 +153,8 @@ export function Applicants({applicants}: {
                     })(status);
                     return (
                         <Chip className={`capitalize text-${color || 'default'}`} color={color}
-                              size="sm"
-                              variant="flat">
+                            size="sm"
+                            variant="flat">
                             {status}
                         </Chip>
                     );
@@ -198,7 +202,7 @@ export function Applicants({applicants}: {
 
             case "gearScore":
                 return (
-                    <GearScore characterName={name}/>
+                    <GearScore characterName={name} />
                 );
 
             case "review":
@@ -215,7 +219,7 @@ export function Applicants({applicants}: {
                                 review(id, 'accepted')
                             }}
                         >
-                            <FontAwesomeIcon icon={faCheck}/>
+                            <FontAwesomeIcon icon={faCheck} />
                         </Button>
                         <Button
                             isIconOnly={true}
@@ -227,7 +231,7 @@ export function Applicants({applicants}: {
                                 review(id, 'declined')
                             }}
                         >
-                            <FontAwesomeIcon icon={faTrash}/>
+                            <FontAwesomeIcon icon={faTrash} />
                         </Button>
                     </div>
                 );
@@ -253,7 +257,7 @@ export function Applicants({applicants}: {
                 columns={columns}>
                 {(column) => (
                     <TableColumn key={column.uid} align={"start"}>
-                        <div className="border-y border-moss-100 absolute h-full w-full top-0 left-0 inline-block"/>
+                        <div className="border-y border-moss-100 absolute h-full w-full top-0 left-0 inline-block" />
                         {column.name}
                     </TableColumn>
                 )}

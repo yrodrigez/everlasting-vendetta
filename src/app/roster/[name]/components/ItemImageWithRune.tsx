@@ -5,7 +5,6 @@ import {Button, Modal, ModalBody, ModalContent, Tooltip, useDisclosure} from "@h
 import {ItemDetailedView} from "@/app/roster/[name]/components/ItemDetailedView";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faClose} from "@fortawesome/free-solid-svg-icons";
-import {itemTypeInfo} from "@/app/roster/[name]/ilvl";
 
 export function ItemImageWithRune({
                                       item, itemIconUrl, borderColor, reverse = false, bottom = false
@@ -52,7 +51,7 @@ export function ItemImageWithRune({
                     {!rune && isShoulder ? (
                         <>
                             <div
-                                className="absolute bottom-0 right-0 w-6 h-6 rounded-sm border border-black bg-cover filter grayscale border border-red-500"
+                                className="absolute bottom-0 right-0 w-6 h-6 rounded-sm bg-cover filter grayscale border border-red-500"
                                 style={{
                                     backgroundImage: 'url(https://wow.zamimg.com/images/wow/icons/large/spell_holy_divinespirit.jpg)',
                                 }}

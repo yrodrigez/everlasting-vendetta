@@ -1,36 +1,38 @@
 "use client";
-import {useSession} from "@hooks/useSession";
-import {useMutation, useQuery} from "@tanstack/react-query";
-import {type Role} from "@/app/components/characterStore";
-import {useCallback, useEffect, useMemo, useState} from "react";
-import {Spinner, Tooltip} from "@heroui/react";
-import {Button} from "@/app/components/Button";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faBrain} from "@fortawesome/free-solid-svg-icons";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { type Role } from "@/app/components/characterStore";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Spinner, Tooltip } from "@heroui/react";
+import { Button } from "@/app/components/Button";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBrain } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
-import {aiGroupExport} from "@/app/lib/supa-functions/config";
-import {useMessageBox} from "@utils/msgBox";
+import { aiGroupExport } from "@/app/lib/supa-functions/config";
+import { useMessageBox } from "@utils/msgBox";
+import { useAuth } from "@/app/context/AuthContext";
+import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
 
-export default function GroupExport({resetId}: { resetId: string }) {
-    const {supabase, tokenUser} = useSession();
+export default function GroupExport({ resetId }: { resetId: string }) {
+    const { accessToken, user } = useAuth();
+    const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
     const [copySuccess, setCopySuccess] = useState("");
     const [generateRoster, setGenerateRoster] = useState("");
 
-    const {data: participants} = useQuery({
+    const { data: participants } = useQuery({
         queryKey: ["resetExport", resetId],
         queryFn: async () => {
             if (!supabase) {
                 return [];
             }
 
-            const {data, error} = await supabase
+            const { data, error } = await supabase
                 .from("ev_raid_participant")
                 .select("member:ev_member!inner(character), details, updated_at, created_at")
                 .eq("raid_id", resetId)
                 .neq("details->>status", "declined")
                 .neq("details->>status", "bench")
-                .order("created_at", {ascending: false})
-                .order("updated_at", {ascending: false})
+                .order("created_at", { ascending: false })
+                .order("updated_at", { ascending: false })
                 .overrideTypes<{
                     member: {
                         character: {
@@ -106,11 +108,11 @@ export default function GroupExport({resetId}: { resetId: string }) {
     }, [participants]);
 
     const userHasPermission = useMemo(() => {
-        if (!tokenUser) return false;
-        const {custom_roles: roles} = tokenUser;
+        if (!user) return false;
+        const { roles } = user;
 
         return roles?.includes("GUILD_MASTER") || roles?.includes("RAID_LEADER") || roles?.includes("LOOT_MASTER");
-    }, [tokenUser])
+    }, [user])
 
     const copyToClipboard = useCallback(() => {
         if (!generateRoster) return;
@@ -119,24 +121,24 @@ export default function GroupExport({resetId}: { resetId: string }) {
             () => setCopySuccess("Failed to copy.")
         );
     }, [generateRoster]);
-    const {alert} = useMessageBox()
+    const { alert } = useMessageBox()
 
-    const {mutate: sortRosterAi, isPending} = useMutation({
+    const { mutate: sortRosterAi, isPending } = useMutation({
         mutationKey: ["sortRosterAi", resetId],
         mutationFn: async () => {
             if (!supabase) {
-                return {error: "No supabase client"};
+                return { error: "No supabase client" };
             }
 
             try {
-                const {data} = await axios.get(`${aiGroupExport}?resetId=${resetId}`, {
+                const { data } = await axios.get(`${aiGroupExport}?resetId=${resetId}`, {
                     headers: {
                         Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
                     }
                 })
 
                 if (!data) {
-                    return {error: "No data"};
+                    return { error: "No data" };
                 }
                 if (data.error) {
                     alert({
@@ -144,10 +146,10 @@ export default function GroupExport({resetId}: { resetId: string }) {
                         message: data.error,
                         type: "error",
                     })
-                    return {error: data.error};
+                    return { error: data.error };
                 }
 
-                const {composition} = data;
+                const { composition } = data;
                 setGenerateRoster(composition);
 
             } catch (e: any) {
@@ -156,7 +158,7 @@ export default function GroupExport({resetId}: { resetId: string }) {
                     message: "Failed to fetch AI group export. Please try again.",
                     type: "error",
                 })
-                return {error: "Error fetching AI group export"};
+                return { error: "Error fetching AI group export" };
             }
 
 
@@ -189,13 +191,13 @@ export default function GroupExport({resetId}: { resetId: string }) {
             </div>
             {participants ? (
                 <>
-          <textarea
-              readOnly
-              value={generateRoster}
-              rows={10}
-              onClick={() => copyToClipboard()}
-              className="w-full p-2 mb-4 border rounded-md resize-none focus:ring-2 focus:ring-gold bg-wood overflow-hidden text-sm"
-          ></textarea>
+                    <textarea
+                        readOnly
+                        value={generateRoster}
+                        rows={10}
+                        onClick={() => copyToClipboard()}
+                        className="w-full p-2 mb-4 border rounded-md resize-none focus:ring-2 focus:ring-gold bg-wood overflow-hidden text-sm"
+                    ></textarea>
                     {copySuccess && <div className="mt-1 text-sm text-green-600">{copySuccess}</div>}
                 </>
             ) : (
@@ -214,8 +216,8 @@ export default function GroupExport({resetId}: { resetId: string }) {
                     placement="top"
                 >
                     <Button isIconOnly size="lg" onPress={() => sortRosterAi()} isLoading={isPending}
-                            isDisabled={!userHasPermission || isPending}>
-                        <FontAwesomeIcon icon={faBrain} className="text-gold"/>
+                        isDisabled={!userHasPermission || isPending}>
+                        <FontAwesomeIcon icon={faBrain} className="text-gold" />
                     </Button>
                 </Tooltip>
             </div>

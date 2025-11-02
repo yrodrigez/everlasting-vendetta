@@ -1,25 +1,26 @@
 import createServerSession from "@utils/supabase/createServerSession";
-import {cookies} from "next/headers";
+import { cookies } from "next/headers";
 import NotLoggedInView from "@/app/components/NotLoggedInView";
-import {Applicants} from "@/app/apply/list/components/Applicants";
+import { Applicants } from "@/app/apply/list/components/Applicants";
 
 export const dynamic = 'force-dynamic'
 
 export default async function Page() {
 
-    const {supabase, auth} = await createServerSession({cookies})
+    const { getSupabase, auth } = await createServerSession();
 
     const user = await auth.getSession()
 
     if (!user) {
-        return <NotLoggedInView/>
+        return <NotLoggedInView />
     }
 
+    const supabase = await getSupabase();
     const {
         data,
         error
     } = await supabase.from('ev_application').select('created_at, id, name, message, class, role, status, reviewer:ev_member(character)')
-        .returns<{
+        .overrideTypes<{
             created_at: string,
             id: string,
             name: string,
@@ -43,7 +44,7 @@ export default async function Page() {
                     className: x.class,
                     reviewer: x.reviewer?.character
                 }
-            })}/>
+            })} />
         </div>
     )
 }

@@ -1,12 +1,13 @@
 'use client'
-import {ItemImageWithRune} from "@/app/roster/[name]/components/ItemImageWithRune";
-import {useMemo, useState} from "react";
-import {useCharacterItemsStore} from "@/app/roster/[name]/characterItemsStore";
-import {Skeleton, Tooltip} from "@heroui/react";
-import {itemTypeInfo} from "@/app/roster/[name]/ilvl";
-import {useQuery} from "@tanstack/react-query";
-import {faWandMagic, faWandMagicSparkles} from "@fortawesome/free-solid-svg-icons";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import { ItemImageWithRune } from "@/app/roster/[name]/components/ItemImageWithRune";
+import { useMemo, useState } from "react";
+import { useCharacterItemsStore } from "@/app/roster/[name]/characterItemsStore";
+import { Skeleton, Tooltip } from "@heroui/react";
+import { itemTypeInfo } from "@/app/roster/[name]/ilvl";
+import { useQuery } from "@tanstack/react-query";
+import { faWandMagic, faWandMagicSparkles } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import api from "../lib/api";
 
 
 interface APIReference {
@@ -159,39 +160,40 @@ function getItemRarityHexColor(quality: string) {
     return rarityColors[quality] || '#ffffff';
 }
 
-export default function ({item: _item, token, reverse, bottom}: {
+export default function ({ item: _item, reverse, bottom }: {
     item: ItemDetails
-    token: string
     reverse?: boolean
     bottom?: boolean
 }) {
     const items = useCharacterItemsStore(state => state.items)
     const [item] = useState<any>(items.find((i: any) => i.item?.id === _item.item.id) ?? _item)
-    const {id,} = item?.item || {} as any
-    const {name, quality, slot} = item || {};
+    const { id, } = item?.item || {} as any
+    const { name, quality, slot } = item || {};
     const [itemIconUrl, setItemIconUrl] = useState<string>(item?.itemIconUrl ?? '');
-    const [itemDetails, setItemDetails] = useState<any>(item?.details ?? {level: '??'});
+    const [itemDetails, setItemDetails] = useState<any>(item?.details ?? { level: '??' });
     const updateItem = useCharacterItemsStore(state => state.updateItem)
 
     const [_, isEnchantable] = itemTypeInfo[`INVTYPE_${item.inventory_type?.type}`] ?? [0, false];
     const isEnchanted = item.enchantments?.filter((enchant: any) => enchant.enchantment_slot.type !== 'TEMPORARY').length && isEnchantable
 
-    const {isLoading: loading} = useQuery({
+    const { isLoading: loading } = useQuery({
         queryKey: ['item', item],
         queryFn: async () => {
 
-            const url = `/api/v1/services/wow/fetchItem?itemId=${id}`
             updateItem({
                 ...item,
                 loading: true
             })
-            const response = await fetch(
-                url
-            );
-            if (!response.ok) {
-                throw new Error('Failed to fetch item')
-            }
-            const {itemIconUrl, itemDetails, displayId} = await response.json()
+
+            const { itemIconUrl, itemDetails, displayId } = await (async () => {
+                try {
+                    const { data } = await api.get(`/wow/item/${id}`);
+                    return data;
+                } catch (e) {
+                    console.error('Error fetching item:', e);
+                    return { itemIconUrl: '', itemDetails: { level: '??' }, displayId: 0 };
+                }
+            })()
             setItemIconUrl(itemIconUrl);
             setItemDetails(itemDetails);
             updateItem({
@@ -203,7 +205,7 @@ export default function ({item: _item, token, reverse, bottom}: {
                 loading: false
             })
 
-            return {itemIconUrl, itemDetails, displayId}
+            return { itemIconUrl, itemDetails, displayId }
         },
         enabled: !!id,
         staleTime: 1000 * 60 * 5, // 5 minutes
@@ -211,7 +213,6 @@ export default function ({item: _item, token, reverse, bottom}: {
     })
 
     const isShoulderAndNotRuned = useMemo(() => {
-        console.log(item)
         const isShoulder = item?.inventory_type?.type === 'SHOULDER'
         if (!isShoulder) return false
         const rune = item?.enchantments?.find((enchant: any) => enchant?.enchantment_slot?.type === 'TEMPORARY')
@@ -222,7 +223,7 @@ export default function ({item: _item, token, reverse, bottom}: {
     return (
         <div className={`flex items-center gap-4 ${reverse ? 'flex-row-reverse' : ''}`}>
             <Skeleton isLoaded={!loading}
-                      className={`w-12 h-12 relative rounded-lg  ${loading ? 'bg-wood rounded-lg' : 'bg-transparent'} transition-all duration-300 shadow-lg ${isShoulderAndNotRuned ? 'shadow-red-500': 'shadow-moss-900'}`}>
+                className={`w-12 h-12 relative rounded-lg  ${loading ? 'bg-wood rounded-lg' : 'bg-transparent'} transition-all duration-300 shadow-lg ${isShoulderAndNotRuned ? 'shadow-red-500' : 'shadow-moss-900'}`}>
                 <ItemImageWithRune
                     item={item}
                     itemIconUrl={itemIconUrl}
@@ -237,19 +238,19 @@ export default function ({item: _item, token, reverse, bottom}: {
                         placement={bottom ? 'top' : 'right'}
                     >
                         {!isEnchantable ? null : isEnchanted ?
-                            <FontAwesomeIcon className={`text-gold`} icon={faWandMagicSparkles}/> :
-                            <FontAwesomeIcon className="text-gray-500" icon={faWandMagic}/>}
+                            <FontAwesomeIcon className={`text-gold`} icon={faWandMagicSparkles} /> :
+                            <FontAwesomeIcon className="text-gray-500" icon={faWandMagic} />}
                     </Tooltip>
                 </div>
             </Skeleton>
             <div className={`flex-col gap-10 ${reverse ? 'text-right' : 'text-left'} break-all relative`}>
                 <Skeleton isLoaded={!loading}
-                          className={`h-4 bg-transparent ${loading ? 'bg-wood rounded-full' : 'transition-all duration-300'}`}>
+                    className={`h-4 bg-transparent ${loading ? 'bg-wood rounded-full' : 'transition-all duration-300'}`}>
                     <h3 className="font-semibold text-sm hidden md:flex">{name}</h3>
                     <h3 className="font-semibold text-sm md:hidden">{slot.name}</h3>
                 </Skeleton>
                 <Skeleton isLoaded={!loading}
-                          className={`h-4 bg-transparent mt-1 ${loading ? 'bg-wood rounded-full' : 'transition-all duration-300'}`}>
+                    className={`h-4 bg-transparent mt-1 ${loading ? 'bg-wood rounded-full' : 'transition-all duration-300'}`}>
                     <p className="text-xs text-muted">Item Level {itemDetails.level}</p>
                 </Skeleton>
             </div>

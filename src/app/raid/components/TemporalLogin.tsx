@@ -1,22 +1,22 @@
 'use client'
-import {Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure} from "@heroui/react";
-import React, {useCallback, useMemo} from "react";
-import {CharacterRoleType} from "@/app/types/CharacterRole";
-import {useRouter} from "next/navigation";
-import {Character, useCharacterStore} from "@/app/components/characterStore";
-import {useQuery} from "@tanstack/react-query";
-import {BnetCharacterResponse, createEmptyBnetCharacterResponse} from "@/app/types/BnetCharacterResponse";
-import {fetchCharacterByName} from "@/app/raid/[id]/soft-reserv/ReserveForOthers";
-import {PLAYABLE_ROLES} from "@utils/constants";
-import {isRoleAssignable} from "@/app/components/ProfileManager";
-import {performTemporalLogin} from "@hooks/SessionManager";
-import {toast} from "sonner";
-import {Button} from "@/app/components/Button";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faUser} from "@fortawesome/free-solid-svg-icons";
+import { Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from "@heroui/react";
+import React, { useCallback, useMemo } from "react";
+import { CharacterRoleType } from "@/app/types/CharacterRole";
+import { useRouter } from "next/navigation";
+import { Character, useCharacterStore } from "@/app/components/characterStore";
+import { useQuery } from "@tanstack/react-query";
+import { BnetCharacterResponse, createEmptyBnetCharacterResponse } from "@/app/types/BnetCharacterResponse";
+import { fetchCharacterByName } from "@/app/raid/[id]/soft-reserv/ReserveForOthers";
+import { PLAYABLE_ROLES } from "@utils/constants";
+import { isRoleAssignable } from "@/app/components/ProfileManager";
+import { performTemporalLogin } from "@hooks/SessionManager";
+import { toast } from "sonner";
+import { Button } from "@/app/components/Button";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUser } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
-import {getRoleIcon} from "@/app/apply/components/utils";
-import {useShallow} from "zustand/react/shallow";
+import { getRoleIcon } from "@/app/apply/components/utils";
+import { useShallow } from "zustand/react/shallow";
 
 function createTemporalLoginPayload(character: BnetCharacterResponse, role: CharacterRoleType): Character {
     return {
@@ -35,10 +35,10 @@ function createTemporalLoginPayload(character: BnetCharacterResponse, role: Char
     }
 }
 export function TemporalLogin() {
-    const {isOpen, onOpen, onClose} = useDisclosure()
+    const { isOpen, onOpen, onClose } = useDisclosure()
     const [characterName, setCharacterName] = React.useState<string>()
     const [_, setIsWriting] = React.useState(false)
-    const timoutRef = React.useRef<any>()
+    const timeoutRef = React.useRef<any>(null)
     const lowerCaseCharacterName = useMemo(() => characterName?.toLowerCase(), [characterName])
     const [characterRole, setRole] = React.useState<CharacterRoleType>('dps')
     const [isLogging, setIsLogging] = React.useState<boolean>(false)
@@ -53,7 +53,7 @@ export function TemporalLogin() {
         setSelectedCharacter: state.setSelectedCharacter
     })))
 
-    const {data: character, isLoading, isFetching} = useQuery({
+    const { data: character, isLoading, isFetching } = useQuery({
         queryKey: ['character', lowerCaseCharacterName],
         queryFn: async () => {
             if (!lowerCaseCharacterName) {
@@ -80,7 +80,7 @@ export function TemporalLogin() {
     const setIntoStore = useCallback(async () => {
         if (character && character?.id !== 0 && characterRole) {
             setIsLogging(true)
-            const {error, ok} = await performTemporalLogin(character)
+            const { error, ok } = await performTemporalLogin(character)
             if (!ok) {
                 toast.error(`Failed to install session: ${error}`, {
                     duration: 2500,
@@ -112,7 +112,7 @@ export function TemporalLogin() {
             onPress={onOpen}
             size="lg"
             className={`font-bold p-5 border border-moss-100 hover:border-gold hover:bg-dark rounded-lg`}
-            startContent={<FontAwesomeIcon icon={faUser}/>}>
+            startContent={<FontAwesomeIcon icon={faUser} />}>
             Login with char name
         </Button>
         <Modal
@@ -136,12 +136,12 @@ export function TemporalLogin() {
                             <div>
                                 You can login without a Battle.net account, just type the character name and select a
                                 role.
-                                <br/>
-                                <br/>
+                                <br />
+                                <br />
                                 However, we recommend you to login with Battle.net to get the security provided by
                                 the <Link
-                                href={'https://develop.battle.net/documentation/guides/using-oauth'} target={'_blank'}
-                                className="text-battlenet">battle.net API</Link>.
+                                    href={'https://develop.battle.net/documentation/guides/using-oauth'} target={'_blank'}
+                                    className="text-battlenet">battle.net API</Link>.
                             </div>
                             <Input
                                 label="Character name"
@@ -150,11 +150,11 @@ export function TemporalLogin() {
                                 onChange={(e) => {
                                     setIsWriting(true)
                                     setCharacterName(e.target.value)
-                                    if (timoutRef.current) {
-                                        clearTimeout(timoutRef.current)
+                                    if (timeoutRef.current) {
+                                        clearTimeout(timeoutRef.current)
                                     }
                                     // @ts-ignore
-                                    timoutRef.current = setTimeout(() => {
+                                    timeoutRef.current = setTimeout(() => {
                                         setIsWriting(false)
                                     }, 2000)
                                 }}
@@ -184,20 +184,20 @@ export function TemporalLogin() {
                                                                         if (characterRole !== role.value) setRole(role.value as CharacterRoleType)
                                                                     }}
                                                                 ><span className="relative min-w-6 max-w-12 h-6 group">
-                            {role.value.split('-').map((roleValue, i, arr) => (
-                                <img
-                                    key={i}
-                                    className={`
+                                                                        {role.value.split('-').map((roleValue, i, arr) => (
+                                                                            <img
+                                                                                key={i}
+                                                                                className={`
                                         absolute top-0 ${(i === 0 && arr.length === 1) ? 'left-0' : (i === 0 && arr.length > 1) ? '-left-1.5' : 'left-2.5'}
                                         w-6 h-6
                                         rounded-full border border-gold
                                         
                                     `}
-                                    src={getRoleIcon(roleValue)}
-                                    alt={roleValue}
-                                />
-                            ))}
-                            </span>
+                                                                                src={getRoleIcon(roleValue)}
+                                                                                alt={roleValue}
+                                                                            />
+                                                                        ))}
+                                                                    </span>
                                                                 </Button>
                                                             )
                                                         }
@@ -207,7 +207,7 @@ export function TemporalLogin() {
                                         </div>
                                         <div className="flex gap-2">
                                             <img src={character.avatar} alt={character.name}
-                                                 className="rounded-full w-20 h-20"/>
+                                                className="rounded-full w-20 h-20" />
                                             <div className="flex flex-col gap-2">
                                                 <Link
                                                     className={'text-gold underline'}

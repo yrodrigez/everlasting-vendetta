@@ -92,6 +92,8 @@ const config: Config = {
         'bg-pink-900',
         'border-stone-100',
         'bg-wood-900',
+        'bg-discord',
+        'bg-discord-50'
     ],
     theme: {
         extend: {
@@ -157,6 +159,11 @@ const config: Config = {
                 ['battlenet-10']: "rgba(77,165,232,1)",
                 ['battlenet-100']: "rgba(0,116,224,1)",
                 discord: "#7289da",
+                ['discord-900']: "rgba(114,137,218,0.3)",
+                ['discord-50']: "rgba(114,137,218,0.5)",
+                ['discord-25']: "rgba(114,137,218,0.75)",
+                ['discord-10']: "rgba(114,137,218,0.9)",
+                ['discord-100']: "rgba(114,137,218,1)",
                 warrior: "#C79C6E",
                 paladin: "#F58CBA",
                 hunter: "#ABD473",

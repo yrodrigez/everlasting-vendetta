@@ -1,8 +1,7 @@
 import CharacterItem from "@/app/components/CharacterItem";
 
-export function CharacterGear({gear, token }: {
+export function CharacterGear({gear }: {
     gear: { group1: any[], group2: any[], group3: any[] },
-    token: string,
     characterName: string,
 }) {
     const {group1, group2, group3} = gear
@@ -12,14 +11,14 @@ export function CharacterGear({gear, token }: {
                 <div className="flex flex-1 gap-4 flex-col">
                     {group1.map((item: any, index: number) => {
                         return <CharacterItem key={'item-' + index} item={item}
-                                              token={token}/>
+                                              />
                     })}
                 </div>
 
                 <div className="flex flex-1 flex-col gap-4 self-baseline">
                     {group2.map((item: any, index: number) => {
                         return <CharacterItem  key={'item-' + index} reverse item={item}
-                                              token={token}/>
+                                            />
                     })}
                 </div>
             </div>
@@ -27,7 +26,7 @@ export function CharacterGear({gear, token }: {
                 {group3.map((item: any, index: number) => {
                     return <CharacterItem key={'item-' + index} reverse={index === 0}
                                           bottom item={item}
-                                          token={token}/>
+                                          />
                 })}
             </div>
         </div>

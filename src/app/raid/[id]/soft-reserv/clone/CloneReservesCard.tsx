@@ -1,23 +1,26 @@
 'use client'
-import {Button} from "@/app/components/Button";
-import {useMutation} from "@tanstack/react-query";
-import {useSession} from "@hooks/useSession";
-import {useMessageBox} from "@utils/msgBox";
-import {useRouter} from "next/navigation";
-import {useEffect, useRef} from "react";
+import { Button } from "@/app/components/Button";
+import { useAuth } from "@/app/context/AuthContext";
+import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
+import { useMutation } from "@tanstack/react-query";
+import { useMessageBox } from "@utils/msgBox";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useRef } from "react";
 
-export default function CloneReservesCard({originalResetId, reset, reserves}: {
+export default function CloneReservesCard({ originalResetId, reset, reserves }: {
     originalResetId: string,
     reset: { id: string, image: string, name: string, date: string },
     reserves: { member_id: number, item_id: number }[]
 }) {
 
-    const {supabase} = useSession()
-    const {yesNo, alert} = useMessageBox()
+    const { accessToken } = useAuth()
+    const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
+
+    const { yesNo, alert } = useMessageBox()
     const router = useRouter()
     const refTimeout = useRef<NodeJS.Timeout | null>(null)
 
-    const {isPending, mutate} = useMutation({
+    const { isPending, mutate } = useMutation({
         mutationKey: ['clone-reserves'],
         mutationFn: async () => {
             // Perform the clone operation here
@@ -36,7 +39,7 @@ export default function CloneReservesCard({originalResetId, reset, reserves}: {
                 return false
             }
 
-            const {error: deletionError} = await supabase
+            const { error: deletionError } = await supabase
                 .from('raid_loot_reservation')
                 .delete()
                 .eq('reset_id', originalResetId)
@@ -51,7 +54,7 @@ export default function CloneReservesCard({originalResetId, reset, reserves}: {
                 return false
             }
 
-            const {error: cloneError} = await supabase
+            const { error: cloneError } = await supabase
                 .from('raid_loot_reservation')
                 .insert(reserves.map((reserve) => ({
                     ...reserve,
@@ -101,7 +104,7 @@ export default function CloneReservesCard({originalResetId, reset, reserves}: {
             }}
         >
             <div
-                className="absolute inset-0 bg-black opacity-30 group-hover:opacity-70 transition-opacity duration-300"/>
+                className="absolute inset-0 bg-black opacity-30 group-hover:opacity-70 transition-opacity duration-300" />
 
             <div
                 className="absolute inset-0 flex flex-col  justify-between text-white z-10 p-3 rounded-md"

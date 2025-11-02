@@ -1,21 +1,21 @@
-import {useSession} from "@hooks/useSession";
-import {useQuery} from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
     type Achievement,
     type AchievementCondition,
     type MemberAchievement, Reducer,
     type TableCondition
 } from "@/app/types/Achievements";
-import {useEffect} from "react";
-import {type SupabaseClient} from "@supabase/supabase-js";
-import {type Character} from "@/app/components/characterStore";
-import useToast from "@utils/useToast";
+import { useEffect, useMemo } from "react";
+import { type SupabaseClient } from "@supabase/supabase-js";
+import { useCharacterStore, type Character } from "@/app/components/characterStore";
 import mustache from "mustache";
-import Image from "next/image";
 import moment from "moment";
-import {applyReducer} from "@/app/lib/achievements";
-import {GUILD_NAME} from "@utils/constants";
-import {toast} from "sonner";
+import { applyReducer } from "@/app/lib/achievements";
+import { GUILD_NAME } from "@utils/constants";
+import { toast } from "sonner";
+import { useAuth } from "../context/AuthContext";
+import { useShallow } from "zustand/shallow";
+import { createClientComponentClient } from "../util/supabase/createClientComponentClient";
 
 export function displayAchievement(achievement: Achievement) {
 
@@ -26,7 +26,7 @@ export function displayAchievement(achievement: Achievement) {
             className="flex items-center gap-4 w-[600px] h-[180px] justify-between rounded-xl bg-wood border border-wood-100 p-8 glow-animation">
             <div className="flex gap-4 items-center w-full h-full">
                 <img src={achievement.img} alt={achievement.name} width={192} height={192}
-                     className="rounded-full min-w-16 min-h-16 shadow-gold shadow-lg"
+                    className="rounded-full min-w-16 min-h-16 shadow-gold shadow-lg"
                 />
                 <div className="flex flex-col gap-1 text-default p-3 bg-dark border border-dark-100 shadow rounded-xl">
                     <h4 className="font-bold text-large text-gold">{achievement.name}</h4>
@@ -34,7 +34,7 @@ export function displayAchievement(achievement: Achievement) {
                 </div>
             </div>
             <div
-                className="flex flex-col items-center justify-center bg-ocean border border-moss-100 rounded-xl w-20 text-xs h-full gap-1 text-gold p-2 h-full shadow shadow-xl">
+                className="flex flex-col items-center justify-center bg-ocean border border-moss-100 rounded-xl w-20 text-xs h- gap-1 text-gold p-2 h-full shadow-xl">
                 <span className="text-3xl font-bold">{achievement.points}</span>
                 <span>Points</span>
                 <span>{moment(achievement.created_at).format('YY-MM-DD')}</span>
@@ -51,7 +51,7 @@ async function createQuery(supabase: SupabaseClient, table: string, conditions: 
     operation?: 'select' | 'insert',
     select?: string,
     payload?: any,
-} = {operation: 'select', select: '*'}) {
+} = { operation: 'select', select: '*' }) {
 
     let query = supabase.from(table)
     switch (options.operation) {
@@ -69,7 +69,7 @@ async function createQuery(supabase: SupabaseClient, table: string, conditions: 
     }
 
     conditions.forEach((condition: TableCondition) => {
-        const {value, operator, column} = condition
+        const { value, operator, column } = condition
         switch (operator) {
             case 'eq':
                 // @ts-ignore
@@ -159,27 +159,29 @@ export const executeCondition = async (supabase: SupabaseClient, condition: Achi
             data,
             error
         } = await supabase.rpc(`achievement_${condition.rpc}`, personalize(condition.rpcParams, selectedCharacter))
+
         if (error) {
-            console.error('Error executing RPC:', error)
-            return {data: null, error}
+            console.error('Error executing RPC:', condition.rpc, error)
+            return { data: null, error }
         }
-        return {data: data[0], error}
+
+        return { data: data[0], error }
     }
 
     const parsedCondition = personalize(condition, selectedCharacter) as AchievementCondition
 
     const table = parsedCondition.table
     const select = parsedCondition.select
-    const {conditions} = parsedCondition
+    const { conditions } = parsedCondition
 
     // @ts-ignore it creates a query based on the conditions
-    const {data, error} = await createQuery(supabase, table, conditions, {
+    const { data, error } = await createQuery(supabase, table, conditions, {
         select: select ?? '*',
         operation: 'select'
     })
 
-    const {count} = parsedCondition
-    const {reducer, extractProp} = count ?? {}
+    const { count } = parsedCondition
+    const { reducer, extractProp } = count ?? {}
     let val = extractProp ? data[0] : data
     const path = extractProp?.split('.')
     if (path && val) {
@@ -189,26 +191,26 @@ export const executeCondition = async (supabase: SupabaseClient, condition: Achi
     }
 
     if (reducer && data && Array.isArray(data)) {
-        return {data: applyReducer(val, reducer), error}
+        return { data: applyReducer(val, reducer), error }
     }
 
-    return {data: val, error}
+    return { data: val, error }
 }
 
 
 async function canAchieve(supabase: SupabaseClient, achievement: Achievement, selectedCharacter: Character): Promise<boolean> {
     try {
         if (selectedCharacter.guild?.name !== GUILD_NAME) return false
-        const {condition} = achievement
+        const { condition } = achievement
         if (condition.isTest && process.env.NODE_ENV !== 'development') return false // skip test conditions in production
-        const {data, error} = await executeCondition(supabase, condition, selectedCharacter)
+        const { data, error } = await executeCondition(supabase, condition, selectedCharacter)
         if (error) {
             console.error('Error fetching data:', error)
             return false
         }
 
         if (condition?.count && data?.length !== undefined) {
-            const {countNumber, operator} = condition.count
+            const { countNumber, operator } = condition.count
             switch (operator) {
                 case 'eq':
                     return data.length === countNumber
@@ -238,8 +240,8 @@ async function canAchieve(supabase: SupabaseClient, achievement: Achievement, se
 }
 
 function saveLoginDate(supabase: SupabaseClient, characterId: number) {
-    supabase.rpc('insert_login_if_not_exists', {_member_id: characterId})
-        .then(({data, error}) => {
+    supabase.rpc('insert_login_if_not_exists', { _member_id: characterId })
+        .then(({ data, error }) => {
             if (error) {
                 console.error('Error while inserting login:', error);
             } else {
@@ -249,7 +251,7 @@ function saveLoginDate(supabase: SupabaseClient, characterId: number) {
 }
 
 async function recentlyLoggedIn(supabase: SupabaseClient, characterId: number) {
-    const {data, error} = await supabase
+    const { data, error } = await supabase
         .from('login')
         .select('id')
         .eq('member_id', characterId)
@@ -270,9 +272,12 @@ async function recentlyLoggedIn(supabase: SupabaseClient, characterId: number) {
 }
 
 export default function useAchievements() {
-    const {supabase, selectedCharacter, session} = useSession()
+    const { accessToken } = useAuth();
+    const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
 
-    const {data: achievements, error, isLoading: loadingAchievements} = useQuery({
+    const selectedCharacter = useCharacterStore(useShallow(state => state.selectedCharacter));
+
+    const { data: achievements, error, isLoading: loadingAchievements } = useQuery({
         queryKey: ['achievements', selectedCharacter?.id],
         queryFn: async () => {
             if (!supabase || !selectedCharacter) return {}
@@ -285,7 +290,7 @@ export default function useAchievements() {
 
             console.log('Fetching achievements')
 
-            const {data: achievements, error: achievementsError} = await supabase.from('achievements')
+            const { data: achievements, error: achievementsError } = await supabase.from('achievements')
                 .select('*')
                 .overrideTypes<Achievement[], { merge: false }>()
 
@@ -330,13 +335,13 @@ export default function useAchievements() {
         if (!achievements?.notAchieved?.length || !selectedCharacter || !supabase || loadingAchievements || error) return
         Promise.all(achievements.notAchieved.map(async achievement => {
             return {
-                canAchieve: (await canAchieve(supabase, achievement, {...session, ...selectedCharacter})),
+                canAchieve: (await canAchieve(supabase, achievement, { ...selectedCharacter })),
                 achievement
             }
         })).then(async achievements => {
-            const achievable = achievements.filter(({canAchieve}) => canAchieve)
-            const earnedAchievements = await Promise.all(achievable.map(async ({achievement}) => {
-                const {error} = await supabase.from('member_achievements')
+            const achievable = achievements.filter(({ canAchieve }) => canAchieve)
+            const earnedAchievements = await Promise.all(achievable.map(async ({ achievement }) => {
+                const { error } = await supabase.from('member_achievements')
                     .insert({
                         member_id: selectedCharacter.id,
                         achievement_id: achievement.id,

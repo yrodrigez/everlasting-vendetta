@@ -1,17 +1,19 @@
-import {cookies} from "next/headers";
+import { cookies } from "next/headers";
 import RaidItemsList from "@/app/raid/[id]/soft-reserv/RaidItemsList";
-import {raidLootReservationsColumns} from "@/app/raid/[id]/soft-reserv/supabase_config";
-import {RaidItem, Reservation} from "@/app/raid/[id]/soft-reserv/types";
-import {getLoggedInUserFromAccessToken} from "@/app/util";
+import { raidLootReservationsColumns } from "@/app/raid/[id]/soft-reserv/supabase_config";
+import { RaidItem, Reservation } from "@/app/raid/[id]/soft-reserv/types";
+import { getLoggedInUserFromAccessToken } from "@/app/util";
 import YourReservations from "@/app/raid/[id]/soft-reserv/YourReservations";
 import React from "react";
 import AdminPanel from "@/app/raid/[id]/soft-reserv/AdminPanel";
 import RaidTimeInfo from "@/app/raid/components/RaidTimeInfo";
 import NotLoggedInView from "@/app/components/NotLoggedInView";
-import {Metadata} from "next";
+import { Metadata } from "next";
 import moment from "moment";
-import {BannedItems, ImportBannedItems} from "@/app/raid/[id]/soft-reserv/BannedItems";
+import { BannedItems, ImportBannedItems } from "@/app/raid/[id]/soft-reserv/BannedItems";
 import createServerSession from "@utils/supabase/createServerSession";
+import { RaidItemsProvider } from "./raid-items-context";
+import { ReservationsRepository } from "./reservations-repository";
 
 type Raid = {
     min_level: number;
@@ -27,14 +29,16 @@ type RaidQueryResult = {
     raid_date: string;
     time: string;
     end_date: string;
+    reservations_closed: boolean;
     end_time: string;
     created_by: number;
 };
 
-export async function generateMetadata({params}: { params: Promise<{ id: string }> }): Promise<Metadata> {
-    const {supabase} = await createServerSession({cookies})
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+    const { getSupabase } = await createServerSession();
     // Fetch the raid reset data
-    const {id: raidId} = await params
+    const { id: raidId } = await params
+    const supabase = await getSupabase();
     const resetData = await supabase
         .from('raid_resets')
         .select('raid:ev_raid(name, image), raid_date, time, end_date, end_time')
@@ -55,8 +59,8 @@ export async function generateMetadata({params}: { params: Promise<{ id: string 
     }
 
 
-    const {raid, raid_date: raidDate, time: raidTime, end_date: raidEndDate} = resetData.data;
-    const {name: raidName} = raid;
+    const { raid, raid_date: raidDate, time: raidTime, end_date: raidEndDate } = resetData.data;
+    const { name: raidName } = raid;
 
     const raidStartDateFormatted = moment(raidDate).format('MMMM D, YYYY');
     const raidEndDateFormatted = moment(raidEndDate).format('MMMM D, YYYY');
@@ -89,20 +93,20 @@ export async function generateMetadata({params}: { params: Promise<{ id: string 
     };
 }
 
-export default async function Page({params}: { params: Promise<{ id: string }> }) {
-    const token = (await cookies()).get(process.env.BNET_COOKIE_NAME!)?.value
-    const evToken = (await cookies()).get(process.env.EV_COOKIE_NAME!)?.value
-    if (!token || !evToken) {
-        return <NotLoggedInView/>
-    }
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
 
-    const {supabase: database} = await createServerSession({cookies})
-    const {id: raidId} = await params
+    const { getSupabase, auth } = await createServerSession();
+    const database = await getSupabase();
+    const loggedInUser = await auth.getSession()
+    if (!loggedInUser) {
+        return <NotLoggedInView />
+    }
+    const { id: raidId } = await params
 
     const {
         data: resetIdData,
         error: resetIdError
-    } = await database.rpc('reset_id_starts_with', {id_prefix: `${raidId}%`})
+    } = await database.rpc('reset_id_starts_with', { id_prefix: `${raidId}%` })
 
     if (resetIdError) {
         return <div>Reset not found</div>
@@ -112,7 +116,7 @@ export default async function Page({params}: { params: Promise<{ id: string }> }
 
     const resetData = await database
         .from('raid_resets')
-        .select('raid_id, raid:ev_raid(min_level, name, image, reservation_amount, id), raid_date, time, end_date, end_time, created_by')
+        .select('raid_id, raid:ev_raid(min_level, name, image, reservation_amount, id), raid_date, time, end_date, end_time, created_by, reservations_closed')
         .eq('id', resetId)
         .single<RaidQueryResult>()
 
@@ -121,16 +125,16 @@ export default async function Page({params}: { params: Promise<{ id: string }> }
     }
 
 
-    const loggedInCharacter = getLoggedInUserFromAccessToken(evToken)
+    const loggedInCharacter = loggedInUser.selectedCharacter
     const raid = resetData.data.raid
     const raidMinLevel = raid?.min_level
-    if (raidMinLevel > loggedInCharacter.level) {
+    if (raidMinLevel > (loggedInCharacter?.level ?? 0)) {
         return <div className="mt-auto mb-auto w-full p-8 bg-dark border border-gold rounded-lg">
             <h1 className="text-center text-2xl mb-2">
                 Character level too low you should be <span className="text-gold font-bold">{raidMinLevel}</span> but
-                you are {loggedInCharacter.level}</h1>
+                you are {loggedInCharacter?.level}</h1>
             <h2>We encourage you to engage in other activities to level up your character which
-                is only <span className="text-gold font-bold">{raidMinLevel - loggedInCharacter.level}</span> levels
+                is only <span className="text-gold font-bold">{raidMinLevel - (loggedInCharacter?.level ?? 0)}</span> levels
                 away from the required level.
             </h2>
             <h4 className="text-xs text-gray-500 mt-2">If you think this is an error please try disconnecting from the
@@ -140,139 +144,111 @@ export default async function Page({params}: { params: Promise<{ id: string }> }
         </div>
     }
 
-    const [hardReservations, databaseItems] = await Promise.all([
-        database.from('reset_hard_reserve')
-            .select('item_id, item:raid_loot_item(*)')
-            .eq('reset_id', resetId)
-            .returns<{ item_id: number, item: any }[]>(),
-        database.from('raid_loot')
-            .select('item:raid_loot_item(*)')
-            .eq('raid_id', resetData.data?.raid_id)
-            .eq('is_visible', true)
-            .returns<{ item: RaidItem }[]>()
-    ])
-
-    const items = (databaseItems.data ?? []).map(function (x) {
-        return {
-            ...x.item,
-            isHardReserved: !!hardReservations?.data?.some(r => r.item_id === x.item.id)
-        }
-    }).reduce(function (acc, item) {
-        if (!acc.find(i => i.id === item.id)) {
-            acc.push(item)
-        }
-        return acc
-    }, [] as RaidItem[])
-
-    const dataBaseReservations = await database.from('raid_loot_reservation')
-        .select(raidLootReservationsColumns)
-        .eq('reset_id', resetId)
-
-
-    const reservations = (dataBaseReservations?.data ?? []) as unknown as Reservation[]
-    let isAdmin = resetData?.data?.created_by === loggedInCharacter?.id
-    if (!isAdmin) {
-        let {data} = await database.from('ev_admin').select('id').eq('id', loggedInCharacter.id).single()
-        if (data) {
-            isAdmin = true
-        }
-    }
+    const repository = new ReservationsRepository(database);
+    const raidIdStr = resetData.data.raid_id;
+    const [items, reservations, hardReservations] = await Promise.all([
+        repository.getRaidItems(resetId, raidIdStr),
+        repository.fetchReservedItems(resetId),
+        repository.getHardReservations(resetId)
+    ]);
+    const isAdmin = loggedInUser.isAdmin
 
     return (
         <div
             className="w-full flex-col flex h-full justify-between relative items-center p-2 gap-2 scrollbar-pill lg:overflow-visible flex-1">
-            <div
-                className={'lg:hidden lg:top-0 lg:-left-72 w-64 h-48 z-50 border-gold border rounded-md inline-flex '}>
-                <div className="relative flex w-full h-full">
-                    <div className="absolute flex p-2 rounded-md background-position-center bg-cover w-full h-full"
-                         style={{
-                             backgroundImage: `url("/${resetData.data?.raid?.image}")`,
-                             backgroundSize: 'cover',
-                             backgroundPosition: 'center',
-                             filter: 'brightness(35%)'
-                         }}/>
-                    <div className="flex flex-col w-full h-full justify-between relative p-2">
-                        <div className="flex items-center gap-2">
-                            <span className="text-lg font-bold">{resetData.data?.raid?.name}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <RaidTimeInfo
-                                raidDate={resetData.data.raid_date}
-                                raidTime={resetData.data.time}
-                                raidEndDate={resetData.data.end_date}
-                                raidEndTime={resetData.data.end_time}
-                            />
-                        </div>
-                        <YourReservations
-                            baseReservationAmount={resetData?.data?.raid?.reservation_amount}
-                            resetId={resetId}
-                            initialReservedItems={reservations}
-                        />
-                    </div>
-                </div>
-            </div>
-            <RaidItemsList
-                items={items}
-                initialReservedItems={reservations}
-                resetId={resetId}
-                isAdmin={isAdmin}
-            />
-            <div
-                className={`self-start lg:self-auto lg:w-fit w-full overflow-visible inline-flex lg:absolute lg:top-0 lg:-right-24 z-50`}>
-                <AdminPanel
-                    isAdmin={isAdmin}
-                    resetId={resetId}
-                />
-            </div>
-            <div
-                className={'lg:inline-flex hidden lg:absolute lg:top-0 lg:-left-72 w-64 h-48 z-50 border-gold border rounded-md'}>
-                <div className="relative flex w-full h-full flex-col gap-4">
-                    <div className="absolute flex p-2 rounded-md background-position-center bg-cover w-full h-full"
-                         style={{
-                             backgroundImage: `url("/${resetData.data?.raid?.image}")`,
-                             backgroundSize: 'cover',
-                             backgroundPosition: 'center',
-                             filter: 'brightness(35%)'
-                         }}/>
-                    <div className="flex flex-col w-full h-full justify-between relative p-2">
-                        <div className="flex items-center gap-2">
-                            <span className="text-lg font-bold">{resetData.data?.raid?.name}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <RaidTimeInfo
-                                raidDate={resetData.data.raid_date}
-                                raidTime={resetData.data.time}
-                                raidEndDate={resetData.data.end_date}
-                                raidEndTime={resetData.data.end_time}
-                            />
-                        </div>
-                        <YourReservations
-                            baseReservationAmount={resetData?.data?.raid?.reservation_amount}
-                            resetId={resetId}
-                            initialReservedItems={reservations}
-                        />
-                    </div>
-                    <div className="flex flex-col gap-2 mt-6">
-                        <span className="text-lg font-bold">Banned items</span>
-                        {!!hardReservations?.data?.length ? (<BannedItems
-                            hardReservations={hardReservations.data}
-                            reset_id={resetId}
-                            isAdmin={isAdmin}
-                            raid_id={resetData.data.raid_id}
-                        />) : (
-                            <div className="flex flex-col gap-2 justify-center items-center relative">
-                                <span className={'text-gray-500 text-sm'}>No items are banned for this raid</span>
-                                {isAdmin && (
-                                    <ImportBannedItems
-                                        raid_id={resetData.data.raid_id}
-                                        reset_id={resetId}
-                                    />
-                                )}
+            <RaidItemsProvider raidId={raidIdStr} initialReservations={reservations} resetId={raidId} initialItems={items} isOpen={!resetData.data.reservations_closed}>
+                <div
+                    className={'lg:hidden lg:top-0 lg:-left-72 w-64 h-48 z-50 border-gold border rounded-md inline-flex '}>
+                    <div className="relative flex w-full h-full">
+                        <div className="absolute flex p-2 rounded-md background-position-center bg-cover w-full h-full"
+                            style={{
+                                backgroundImage: `url("/${resetData.data?.raid?.image}")`,
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
+                                filter: 'brightness(35%)'
+                            }} />
+                        <div className="flex flex-col w-full h-full justify-between relative p-2">
+                            <div className="flex items-center gap-2">
+                                <span className="text-lg font-bold">{resetData.data?.raid?.name}</span>
                             </div>
-                        )}
+                            <div className="flex items-center gap-2">
+                                <RaidTimeInfo
+                                    raidDate={resetData.data.raid_date}
+                                    raidTime={resetData.data.time}
+                                    raidEndDate={resetData.data.end_date}
+                                    raidEndTime={resetData.data.end_time}
+                                />
+                            </div>
+                            <YourReservations
+                                baseReservationAmount={resetData?.data?.raid?.reservation_amount}
+                                resetId={resetId}
+                                initialReservedItems={reservations}
+                            />
+                        </div>
                     </div>
                 </div>
-            </div>
+                <RaidItemsList
+                    initialReservedItems={reservations}
+                    resetId={resetId}
+                    isAdmin={isAdmin}
+                />
+                <div
+                    className={`self-start lg:self-auto lg:w-fit w-full overflow-visible inline-flex lg:absolute lg:top-0 lg:-right-24 z-50`}>
+                    <AdminPanel
+                        isAdmin={isAdmin}
+                        resetId={resetId}
+                    />
+                </div>
+                <div
+                    className={'lg:inline-flex hidden lg:absolute lg:top-0 lg:-left-72 w-64 h-48 z-50 border-gold border rounded-md'}>
+                    <div className="relative flex w-full h-full flex-col gap-4">
+                        <div className="absolute flex p-2 rounded-md background-position-center bg-cover w-full h-full"
+                            style={{
+                                backgroundImage: `url("/${resetData.data?.raid?.image}")`,
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
+                                filter: 'brightness(35%)'
+                            }} />
+                        <div className="flex flex-col w-full h-full justify-between relative p-2">
+                            <div className="flex items-center gap-2">
+                                <span className="text-lg font-bold">{resetData.data?.raid?.name}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <RaidTimeInfo
+                                    raidDate={resetData.data.raid_date}
+                                    raidTime={resetData.data.time}
+                                    raidEndDate={resetData.data.end_date}
+                                    raidEndTime={resetData.data.end_time}
+                                />
+                            </div>
+                            <YourReservations
+                                baseReservationAmount={resetData?.data?.raid?.reservation_amount}
+                                resetId={resetId}
+                                initialReservedItems={reservations}
+                            />
+                        </div>
+                        <div className="flex flex-col gap-2 mt-6">
+                            <span className="text-lg font-bold">Banned items</span>
+                            {!!hardReservations?.length ? (<BannedItems
+                                hardReservations={hardReservations}
+                                reset_id={resetId}
+                                isAdmin={isAdmin}
+                                raid_id={resetData.data.raid_id}
+                            />) : (
+                                <div className="flex flex-col gap-2 justify-center items-center relative">
+                                    <span className={'text-gray-500 text-sm'}>No items are banned for this raid</span>
+                                    {isAdmin && (
+                                        <ImportBannedItems
+                                            raid_id={resetData.data.raid_id}
+                                            reset_id={resetId}
+                                        />
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </RaidItemsProvider>
         </div>
     )
 }

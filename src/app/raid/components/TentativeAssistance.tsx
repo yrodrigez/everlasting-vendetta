@@ -1,24 +1,24 @@
-import {useSession} from "@/app/hooks/useSession";
-import {useAssistanceStore} from "@/app/raid/components/assistanceStore";
-import React, {useState} from "react";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faQuestion} from "@fortawesome/free-solid-svg-icons";
-import {Button, Spinner, useDisclosure} from "@heroui/react";
-import {assistRaid} from "@/app/raid/components/utils";
+import { useAssistanceStore } from "@/app/raid/components/assistanceStore";
+import React, { useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faQuestion } from "@fortawesome/free-solid-svg-icons";
+import { Button, Spinner, useDisclosure } from "@heroui/react";
+import { assistRaid } from "@/app/raid/components/utils";
 import useScreenSize from "@/app/hooks/useScreenSize";
-import {ShouldReserveModal} from "@/app/raid/components/ShouldReserveModal";
+import { ShouldReserveModal } from "@/app/raid/components/ShouldReserveModal";
+import { useCharacterStore } from "@/app/components/characterStore";
+import { useShallow } from "zustand/shallow";
 
-export function TentativeAssistance({raidId, hasLootReservations = false}: {
+export function TentativeAssistance({ raidId, hasLootReservations = false }: {
     raidId: string,
     hasLootReservations: boolean
 }) {
     const [loading, setLoading] = useState(false)
     const selectedDays = useAssistanceStore(state => state.selectedDays)
-    const {selectedCharacter} = useSession()
+    const { selectedCharacter } = useCharacterStore(useShallow(state => ({ selectedCharacter: state.selectedCharacter })));
     const selectedRole = selectedCharacter?.selectedRole
-    const {isMobile} = useScreenSize()
-    const {isOpen, onOpen, onClose, onOpenChange} = useDisclosure()
-
+    const { isMobile } = useScreenSize()
+    const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure()
 
     return (
         <>
@@ -36,13 +36,13 @@ export function TentativeAssistance({raidId, hasLootReservations = false}: {
                     })()
                 }
                 endContent={
-                    loading ? <Spinner size='sm' color='success'/> :
-                        <FontAwesomeIcon icon={faQuestion}/>
+                    loading ? <Spinner size='sm' color='success' /> :
+                        <FontAwesomeIcon icon={faQuestion} />
                 }
             >
                 {isMobile ? '' : 'Tentative'}
             </Button>
-            <ShouldReserveModal raidId={raidId} isOpen={isOpen} onClose={onClose} onOpenChange={onOpenChange}/>
+            <ShouldReserveModal raidId={raidId} isOpen={isOpen} onClose={onClose} onOpenChange={onOpenChange} />
         </>
 
     )

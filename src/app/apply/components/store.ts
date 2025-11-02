@@ -7,11 +7,13 @@ export interface ApplyFormStore {
     message: string;
     characterClass: string;
     characterRole: string;
+    realm: string;
     setName: (name: string) => void;
     setEmail: (email: string) => void;
     setMessage: (message: string) => void;
     setClass: (classType: string) => void;
     setRole: (role: string) => void;
+    setRealm: (realm: string) => void;
     isFormDisabled: boolean;
     setIsFormDisabled: (isDisabled: boolean) => void;
     reset: () => void;
@@ -54,6 +56,7 @@ export const useApplyFormStore = createStore<ApplyFormStore>()(logger(persist((s
     setRole: ((role: string) => set({characterRole: role})),
     setIsFormDisabled: (isDisabled: string) => set({isFormDisabled: isDisabled}),
     setCharacterExists: (exists: boolean) => set({characterExists: exists}),
+    setRealm: (realm: string) => set({realm}),
     reset: () => {
         localStorage.removeItem(persistKey)
         return set(initialState)

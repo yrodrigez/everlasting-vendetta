@@ -1,12 +1,12 @@
 'use client'
-import { useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import useApplicants from "@hooks/useApplicants";
-import {Badge} from "@heroui/badge";
+
 import Link from "next/link";
-import Image from "next/image";
+import { Badge } from "@heroui/react";
 
 
-export default function ApplicantsHeaderButton({text, url, onClick}: {
+export default function ApplicantsHeaderButton({ text, url, onClick }: {
     text: string,
     url?: string,
     onClick?: (() => void) | undefined
@@ -20,7 +20,7 @@ export default function ApplicantsHeaderButton({text, url, onClick}: {
     const [_text, setText] = useState<string>(text)
 
 
-    const {applyCount, canReadApplications} = useApplicants()
+    const { applyCount, canReadApplications } = useApplicants()
 
     useEffect(() => {
         if (key === 'apply' && canReadApplications) {
@@ -47,7 +47,7 @@ export default function ApplicantsHeaderButton({text, url, onClick}: {
                     width="36"
                     height="36"
                     alt={text} src={`/btn-${text.toLowerCase()}.webp`}
-                    className="rounded-full w-9 h-9 min-h-9 max-h-9 min-w-9 max-w-9"/>
+                    className="rounded-full w-9 h-9 min-h-9 max-h-9 min-w-9 max-w-9" />
                 <span className="text-sm">{_text}</span>
             </Link>
         </Badge>

@@ -1,23 +1,24 @@
-import {fetchCharacterProfessionsSpells} from "@/app/roster/[name]/components/professions-api";
-import {cookies} from "next/headers";
+import { fetchCharacterProfessionsSpells } from "@/app/roster/[name]/components/professions-api";
+import { cookies } from "next/headers";
 import createServerSession from "@utils/supabase/createServerSession";
 import WoWService from "@services/wow-service";
 import CharacterProfessions from "@/app/roster/[name]/components/CharacterProfessions";
-import {GUILD_REALM_SLUG} from "@utils/constants";
+import { GUILD_REALM_SLUG } from "@utils/constants";
 import CharacterAvatar from "@/app/components/CharacterAvatar";
-import {getBlizzardToken} from "@/app/lib/getBlizzardToken";
+import { getBlizzardToken } from "@/app/lib/getBlizzardToken";
 
 export const dynamic = 'force-dynamic'
 
-export default async function Page({params}: { params: Promise<{ name: string }> }) {
-    const {name} = await params
+export default async function Page({ params }: { params: Promise<{ name: string }> }) {
+    const { name } = await params
     const characterName = decodeURIComponent(name.toLowerCase())
-    const {fetchMemberInfo} = new WoWService()
+    const { fetchMemberInfo } = new WoWService()
     const characterInfo = await fetchMemberInfo(characterName)
-    const {supabase} = await createServerSession({cookies})
+    const { getSupabase } = await createServerSession();
+    const supabase = await getSupabase();
     const professions = await fetchCharacterProfessionsSpells(supabase, characterInfo.id)
     const cookieToken = (await cookies()).get(process.env.BNET_COOKIE_NAME!)?.value
-    const {token} = (cookieToken ? {token: cookieToken} : (await getBlizzardToken()))
+    const { token } = (cookieToken ? { token: cookieToken } : (await getBlizzardToken()))
 
 
     return (
@@ -26,13 +27,13 @@ export default async function Page({params}: { params: Promise<{ name: string }>
                 <div className="flex items-center gap-4 mb-4 justify-center w-full">
                     <div className="w-20 h-20 rounded-full overflow-hidden min-w-20">
                         <CharacterAvatar token={token} realm={GUILD_REALM_SLUG} characterName={characterInfo.name}
-                                         className={`rounded-full border-3  border-${characterInfo?.character_class?.name?.toLowerCase()}`}/>
+                            className={`rounded-full border-3  border-${characterInfo?.character_class?.name?.toLowerCase()}`} />
                     </div>
                     <div className="grid gap-1.5 w-full">
                         <h1 className="font-semibold text-lg w-full flex items-center justify-between">{characterInfo?.name}'s professions</h1>
                         <p className="text-sm text-muted">
                             Level {characterInfo?.level} {characterInfo?.race?.name} <span
-                            className={`text-${characterInfo?.character_class?.name?.toLowerCase()} font-bold`}>{characterInfo?.character_class?.name}</span>
+                                className={`text-${characterInfo?.character_class?.name?.toLowerCase()} font-bold`}>{characterInfo?.character_class?.name}</span>
                         </p>
 
                     </div>

@@ -10,11 +10,19 @@ as
 $$
 BEGIN
     RETURN QUERY
-        with raids_created as (select count(rs.id) as count
+       with user_id as (
+           select user_id
+           from ev_member
+           where character ->> 'name' = character_name
+                and character -> 'guild' ->> 'name' = 'Everlasting Vendetta'
+                and user_id is not null
+              limit 1
+       ),
+         raids_created as (select count(rs.id) as count
                                from raid_resets rs
                                         join ev_member m on m.id = rs.created_by
                                where
-                                   m.character ->> 'name' = character_name
+                                   m.user_id = (select user_id from user_id)
                                 and  (select count(1)
                                       from ev_raid_participant rp
                                       where rp.raid_id = rs.id and rp.details ->> 'status' = 'confirmed') >= 10
@@ -25,10 +33,10 @@ BEGIN
         SELECT CASE
                    WHEN COALESCE(rc.count, 0) >= 1 THEN TRUE
                    ELSE FALSE
-                   END                              AS has_two_alts_raided,
+                   END AS achieved,
                CASE
                    WHEN COALESCE(rc.count, 0) >= 1 THEN 100.0
-                   ELSE COALESCE(rc.count, 0.0) END AS progres
+                   ELSE COALESCE(rc.count, 0.0) END AS progress
         FROM raids_created rc;
 END;
 $$;

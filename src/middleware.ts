@@ -1,22 +1,20 @@
-import {NextRequest, NextResponse} from 'next/server';
-import moment from "moment";
-import {cookies} from "next/headers";
-import createServerSession, {getLoggedInUserFromAccessToken} from "@utils/supabase/createServerSession";
-import {createServerComponentClient} from "@utils/supabase/createServerComponentClient";
 
-async function isBanned() {
+import createServerSession, { type UserProfile } from "@utils/supabase/createServerSession";
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { attachCachedAccessToken, withRefreshToken } from '@/app/lib/middleware/with-auth';
+import { REFRESH_TOKEN_COOKIE_KEY } from '@/app/util/constants';
+import { NextRequest, NextResponse } from 'next/server';
 
-    const supabaseToken = (await cookies()).get('evToken')?.value;
+async function isBanned(session: UserProfile | undefined, supabase?: SupabaseClient) {
 
-    if (!supabaseToken) {
-        return false;
-    }
-    const session = getLoggedInUserFromAccessToken(supabaseToken);
-    if (!session || !session.id) {
+    if (!supabase) {
         return false;
     }
 
-    const supabase = createServerComponentClient({supabaseToken});
+    if (!session?.id) {
+        return false;
+    }
+
     const {
         data: banned,
         error
@@ -30,14 +28,14 @@ async function isBanned() {
 }
 
 export const config = {
+    runtime: 'nodejs',
     matcher: [
         '/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|.*\\.(?:png|jpe?g|gif|webp|svg|mp4)).*)'
     ]
 }
 
-async function registerClick(urlId: string) {
-    const {supabase} = await createServerSession({cookies})
-    const {data, error: urlError} = await supabase
+async function registerClick(urlId: string, supabase: SupabaseClient) {
+    const { data, error: urlError } = await supabase
         .schema('open_campaign')
         .from('urls')
         .select('id, url')
@@ -49,13 +47,13 @@ async function registerClick(urlId: string) {
         return;
     }
 
-    const {error} = await supabase
+    const { error } = await supabase
         .schema('open_campaign')
         .from('clicks')
         .insert({
-        url_id: urlId,
-        created_at: new Date().toISOString(),
-    });
+            url_id: urlId,
+            created_at: new Date().toISOString(),
+        });
 
     if (error) {
         console.error('Error inserting click:', error);
@@ -67,17 +65,32 @@ async function registerClick(urlId: string) {
 }
 
 
-export async function middleware(req: NextRequest) {
+async function middleware(req: NextRequest, res: NextResponse): Promise<NextResponse> {
+    if (req.url.indexOf('/admin') !== -1) {
+        console.log('Middleware running for', req.url);
+        console.log('Cookies:', req.cookies);
+    }
+    const refreshToken = req.cookies.get(REFRESH_TOKEN_COOKIE_KEY)?.value;
+    attachCachedAccessToken(res, refreshToken);
+
+    const { getSupabase, auth } = await createServerSession();
+
     const url = req.nextUrl;
 
-    if(url.pathname.startsWith('/r/')) {
+    if (url.pathname.startsWith('/r/')) {
         const urlId = url.pathname.split('/')[2];
-        return await registerClick(urlId);
+        const redirect = await registerClick(urlId, (await getSupabase()));
+        if (redirect) {
+            return redirect;
+        }
     }
 
-    if (await isBanned() && url.pathname !== '/banned') {
+    const session = await auth.getSession();
+    if (await isBanned(session, (await getSupabase())) && url.pathname !== '/banned') {
         return NextResponse.redirect(`${url.origin}/banned`);
     }
 
-    return NextResponse.next();
+    return res;
 }
+
+export default withRefreshToken(middleware as any);

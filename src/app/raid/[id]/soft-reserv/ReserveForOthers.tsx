@@ -1,6 +1,6 @@
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faCartPlus, faUserTie} from "@fortawesome/free-solid-svg-icons";
-import {Button} from "@/app/components/Button";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCartPlus, faUserTie } from "@fortawesome/free-solid-svg-icons";
+import { Button } from "@/app/components/Button";
 import {
     Input,
     Modal,
@@ -10,20 +10,21 @@ import {
     ModalHeader,
     useDisclosure
 } from "@heroui/react";
-import {useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {useReservations} from "@/app/raid/[id]/soft-reserv/useReservations";
-import {toast} from "sonner";
-import {Character} from "@/app/util/blizzard/battleNetWoWAccount/types";
-import {useSession} from "@/app/hooks/useSession";
-import {useQuery} from '@tanstack/react-query'
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useReservations } from "@/app/raid/[id]/soft-reserv/useReservations";
+import { toast } from "sonner";
+import { Character } from "@/app/util/blizzard/battleNetWoWAccount/types";
+import { useQuery } from '@tanstack/react-query'
 import Link from "next/link";
-import {insertCharacterIfNotExists} from "@/app/lib/database/ev_member/insertCharacterIfNotExists";
-import {fetchItems} from "@/app/lib/database/raid_loot_item/fetchItems";
-import {getRaidIdByResetId} from "@/app/lib/database/raid_resets/getRaidIdByResetId";
-import {Item} from "@/app/components/item/Item";
-import {BnetCharacterResponse} from "@/app/types/BnetCharacterResponse";
+import { insertCharacterIfNotExists } from "@/app/lib/database/ev_member/insertCharacterIfNotExists";
+import { fetchItems } from "@/app/lib/database/raid_loot_item/fetchItems";
+import { getRaidIdByResetId } from "@/app/lib/database/raid_resets/getRaidIdByResetId";
+import { Item } from "@/app/components/item/Item";
+import { BnetCharacterResponse } from "@/app/types/BnetCharacterResponse";
+import { useAuth } from "@/app/context/AuthContext";
+import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
 
-export async function fetchCharacterByName(characterName: string, source: string | undefined = undefined) : Promise<BnetCharacterResponse> {
+export async function fetchCharacterByName(characterName: string, source: string | undefined = undefined): Promise<BnetCharacterResponse> {
     const url = `/api/v1/services/wow/getCharacterByName?name=${characterName}${source ? `&temporal=true` : ''}`
     const response = await fetch(url)
 
@@ -35,10 +36,9 @@ export async function fetchCharacterByName(characterName: string, source: string
 }
 
 
-export function ReserveForOthers({resetId}: { resetId: string }) {
-    const {isOpen, onOpen, onClose, onOpenChange} = useDisclosure()
+export function ReserveForOthers({ resetId }: { resetId: string }) {
+    const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure()
     const {
-        isReservationsOpen,
         reserve,
     } = useReservations(resetId)
 
@@ -46,11 +46,12 @@ export function ReserveForOthers({resetId}: { resetId: string }) {
     const lowerCaseCharacterName = useMemo(() => characterName?.toLowerCase(), [characterName])
     const [itemId, setItemId] = useState<number | undefined>()
     const [isWriting, setIsWriting] = useState(false)
-    const {supabase} = useSession()
+    const { accessToken } = useAuth()
+    const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
     const timoutRef = useRef<NodeJS.Timeout>(null)
     const [selectedItem, setSelectedItem] = useState<any>(null)
     const [itemName, setItemName] = useState('' as string)
-    const {data: items = [], error, isLoading} = useQuery({
+    const { data: items = [], error, isLoading } = useQuery({
         queryKey: ['raid_loot_item', resetId],
         queryFn: async () => {
             if (!supabase) return []
@@ -102,7 +103,7 @@ export function ReserveForOthers({resetId}: { resetId: string }) {
         })()
     }, [lowerCaseCharacterName, supabase])
 
-    const {data: character, refetch: reFetchUser} = useQuery({
+    const { data: character, refetch: reFetchUser } = useQuery({
         queryKey: ['character', lowerCaseCharacterName],
         queryFn: () => fetchCharacterByName(lowerCaseCharacterName),
         enabled: !!lowerCaseCharacterName,
@@ -130,11 +131,11 @@ export function ReserveForOthers({resetId}: { resetId: string }) {
             <Button
                 isIconOnly
                 disabled={isLoading}
-                onClick={onOpen}
+                onPress={onOpen}
                 isLoading={isLoading}
                 size={'lg'}
             >
-                <FontAwesomeIcon icon={faUserTie}/>
+                <FontAwesomeIcon icon={faUserTie} />
             </Button>
             <Modal
                 isOpen={isOpen}
@@ -174,7 +175,7 @@ export function ReserveForOthers({resetId}: { resetId: string }) {
                                     {character?.name && (
                                         <div className="flex gap-2">
                                             <img src={character.avatar} alt={character.name}
-                                                 className="rounded w-20 h-20"/>
+                                                className="rounded w-20 h-20" />
                                             <div className="flex flex-col gap-2">
                                                 <Link
                                                     target={'_blank'}
@@ -217,11 +218,11 @@ export function ReserveForOthers({resetId}: { resetId: string }) {
                                                 createReserve(character, itemId)
                                             }}
                                         >
-                                            <FontAwesomeIcon icon={faCartPlus}/>
+                                            <FontAwesomeIcon icon={faCartPlus} />
                                         </Button>
                                     </div>
                                     <div className="w-full h-11 flex gap-2">
-                                        {selectedItem && (<Item item={selectedItem}/>)}
+                                        {selectedItem && (<Item item={selectedItem} />)}
                                     </div>
                                 </div>
                             </ModalBody>

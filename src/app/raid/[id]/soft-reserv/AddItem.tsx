@@ -1,20 +1,21 @@
-import {Button} from "@/app/components/Button";
-import {faCloudArrowUp} from "@fortawesome/free-solid-svg-icons";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {useSession} from "@/app/hooks/useSession";
-import {type SupabaseClient} from "@supabase/supabase-js";
-import {Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure} from "@heroui/react";
+import { Button } from "@/app/components/Button";
+import { faCloudArrowUp } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { type SupabaseClient } from "@supabase/supabase-js";
+import { Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from "@heroui/react";
 
-import {useMutation, useQuery} from "@tanstack/react-query";
-import {useRef, useState} from "react";
-import {ItemTooltip} from "@/app/raid/[id]/soft-reserv/RaidItemCard";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMemo, useRef, useState } from "react";
+import { ItemTooltip } from "@/app/raid/[id]/soft-reserv/RaidItemCard";
+import { useAuth } from "@/app/context/AuthContext";
+import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
 
 async function fetchRaidFromResetId(resetId: string, supabase?: SupabaseClient) {
     if (!supabase) {
         return null
     }
 
-    const {error, data} = await supabase
+    const { error, data } = await supabase
         .from('raid_resets')
         .select('raid:ev_raid(id, name)')
         .eq('id', resetId)
@@ -52,7 +53,7 @@ async function addItemToRaid(raidId?: string, item?: any, supabase?: SupabaseCli
         return false
     }
 
-    const {error: lootError} = await supabase
+    const { error: lootError } = await supabase
         .from('raid_loot_item')
         .upsert({
             ...item
@@ -62,7 +63,7 @@ async function addItemToRaid(raidId?: string, item?: any, supabase?: SupabaseCli
         console.error(lootError)
     }
 
-    const {error: raid_loot_error} = await supabase
+    const { error: raid_loot_error } = await supabase
         .from('raid_loot')
         .upsert({
             raid_id: raidId,
@@ -78,9 +79,11 @@ async function addItemToRaid(raidId?: string, item?: any, supabase?: SupabaseCli
     return (lootError === undefined || lootError === null)
 }
 
-export function AddItem({resetId}: { resetId: string }) {
-    const {supabase} = useSession()
-    const {isOpen, onOpen, onClose, onOpenChange} = useDisclosure()
+export function AddItem({ resetId }: { resetId: string }) {
+    const { accessToken } = useAuth()
+    const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
+    
+    const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure()
     const [_, setIsWriting] = useState(false)
     const timoutRef = useRef<NodeJS.Timeout | null>(null)
     const [itemId, setItemId] = useState<string | undefined>()
@@ -95,9 +98,9 @@ export function AddItem({resetId}: { resetId: string }) {
 
     const [qualityColor, setQualityColor] = useState<'poor' | 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'>('common')
 
-    const {isPending, mutate: findItemMetadata, data: item} = useMutation({
+    const { isPending, mutate: findItemMetadata, data: item } = useMutation({
         mutationKey: ['add_item'],
-        mutationFn: async ({itemId}: { itemId: number }) => {
+        mutationFn: async ({ itemId }: { itemId: number }) => {
             const item = await fetchItemMetadata(itemId)
             if (!item) {
                 return null
@@ -107,7 +110,7 @@ export function AddItem({resetId}: { resetId: string }) {
         }
     })
 
-    const {data: raid, isFetching: isRaidFetching} = useQuery({
+    const { data: raid, isFetching: isRaidFetching } = useQuery({
         queryKey: ['raid', resetId],
         enabled: !!supabase,
         queryFn: () => fetchRaidFromResetId(resetId, supabase)
@@ -122,7 +125,7 @@ export function AddItem({resetId}: { resetId: string }) {
             isDisabled={isRaidFetching}
             onPress={onOpen}
         >
-            <FontAwesomeIcon icon={faCloudArrowUp}/>
+            <FontAwesomeIcon icon={faCloudArrowUp} />
         </Button>
         <Modal
             isOpen={isOpen}
@@ -148,19 +151,19 @@ export function AddItem({resetId}: { resetId: string }) {
                                     className="flex gap-2 items-center"
                                 >
                                     <Input label="Item id" type="number" value={itemId}
-                                           onChange={(e) => {
-                                               setItemId(e.target.value)
-                                               if (timoutRef.current) {
-                                                   clearTimeout(timoutRef.current)
-                                               }
-                                               timoutRef.current = setTimeout(() => {
-                                                   setIsWriting(false)
-                                               }, 1000)
-                                           }}
+                                        onChange={(e) => {
+                                            setItemId(e.target.value)
+                                            if (timoutRef.current) {
+                                                clearTimeout(timoutRef.current)
+                                            }
+                                            timoutRef.current = setTimeout(() => {
+                                                setIsWriting(false)
+                                            }, 1000)
+                                        }}
                                     />
                                     <Button
                                         onClick={() => {
-                                            findItemMetadata({itemId: parseInt(itemId ?? '')})
+                                            findItemMetadata({ itemId: parseInt(itemId ?? '') })
                                         }}
                                         isLoading={isPending}
                                         isDisabled={isPending || !itemId}

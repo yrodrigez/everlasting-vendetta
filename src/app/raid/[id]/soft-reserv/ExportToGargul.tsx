@@ -1,13 +1,14 @@
-import {Button, Modal, ModalBody, ModalContent, ModalHeader, Tooltip, useDisclosure} from "@heroui/react";
-import {faFileExport} from "@fortawesome/free-solid-svg-icons";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import type {Character, RaidItem} from "@/app/raid/[id]/soft-reserv/types";
+import { Button, Modal, ModalBody, ModalContent, ModalHeader, Tooltip, useDisclosure } from "@heroui/react";
+import { faFileExport } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import type { Character, RaidItem } from "@/app/raid/[id]/soft-reserv/types";
 import pako from "pako";
-import {toast} from "sonner";
-import {useSession} from "@hooks/useSession";
-import {type SupabaseClient} from "@supabase/supabase-js";
-import {useCallback, useEffect, useState} from "react";
-import {RAID_STATUS} from "@/app/raid/components/utils";
+import { toast } from "sonner";
+import { type SupabaseClient } from "@supabase/supabase-js";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { RAID_STATUS } from "@/app/raid/components/utils";
+import { useAuth } from "@/app/context/AuthContext";
+import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
 
 function generateID(length: number) {
     let result = '';
@@ -20,7 +21,7 @@ function generateID(length: number) {
 }
 
 async function fetchItems(supabase: SupabaseClient, resetId: string) {
-    const {data: items, error} = await supabase.from('raid_loot_reservation')
+    const { data: items, error } = await supabase.from('raid_loot_reservation')
         .select('member:ev_member(character), item:raid_loot_item(id)')
         .eq('reset_id', resetId)
         .neq('status', RAID_STATUS.BENCH)
@@ -46,7 +47,7 @@ async function fetchItems(supabase: SupabaseClient, resetId: string) {
 }
 
 async function fetchRaidShortName(supabase: SupabaseClient, resetId: string) {
-    const {data, error} = await supabase.from('raid_resets')
+    const { data, error } = await supabase.from('raid_resets')
         .select('raid:ev_raid(short_name)')
         .eq('id', resetId)
         .single<{ raid: { short_name: string } }>()
@@ -59,7 +60,7 @@ async function fetchRaidShortName(supabase: SupabaseClient, resetId: string) {
 }
 
 async function fetchHrItems(supabase: SupabaseClient, resetId: string) {
-    const {data: items, error} = await supabase.from('reset_hard_reserve')
+    const { data: items, error } = await supabase.from('reset_hard_reserve')
         .select('item_id')
         .eq('reset_id', resetId)
         .returns<{ item_id: number }[]>()
@@ -75,14 +76,16 @@ async function fetchHrItems(supabase: SupabaseClient, resetId: string) {
 }
 
 
-export function ExportToGargul({isReservationsOpen, reservationsByItem, loading, resetId}: {
+export function ExportToGargul({ isReservationsOpen, reservationsByItem, loading, resetId }: {
     isReservationsOpen: boolean,
     reservationsByItem: { item: RaidItem, reservations: Character[] }[]
     loading: boolean,
     resetId: string
 }) {
-    const {isOpen, onOpen, onOpenChange} = useDisclosure();
-    const {supabase} = useSession();
+    const { isOpen, onOpen, onOpenChange } = useDisclosure();
+    const { accessToken } = useAuth();
+    const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
+
 
     const [raidShortName, setRaidShortName] = useState<string | null>(null)
     const [internalLoading, setInternalLoading] = useState(false)
@@ -122,7 +125,7 @@ export function ExportToGargul({isReservationsOpen, reservationsByItem, loading,
                     fetchItems(supabase, resetId),
                     fetchHrItems(supabase, resetId)
                 ])
-                return {items, hrItems}
+                return { items, hrItems }
             } catch (e: any) {
                 toast.error(e.message ?? 'Error fetching data')
                 throw e
@@ -131,7 +134,7 @@ export function ExportToGargul({isReservationsOpen, reservationsByItem, loading,
             }
         }
 
-        execute().then(({items, hrItems}) => {
+        execute().then(({ items, hrItems }) => {
             if (!items) {
                 toast.error('Error fetching items')
                 return
@@ -221,7 +224,7 @@ export function ExportToGargul({isReservationsOpen, reservationsByItem, loading,
                             exportToGargul()
                         }}
                     >
-                        <FontAwesomeIcon icon={faFileExport}/>
+                        <FontAwesomeIcon icon={faFileExport} />
                     </Button>
                 </div>
             </Tooltip>

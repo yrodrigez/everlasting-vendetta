@@ -1,14 +1,13 @@
 import Link from "next/link";
-import {cookies} from "next/headers";
-import {type Character, getGuildRosterFromGuildInfo} from "@/app/lib/fetchGuildInfo";
-import {CURRENT_MAX_LEVEL, GUILD_NAME, GUILD_REALM_NAME} from "@/app/util/constants";
-import moment from "moment";
+import { cookies } from "next/headers";
+import { type Character, getGuildRosterFromGuildInfo } from "@/app/lib/fetchGuildInfo";
+import { CURRENT_MAX_LEVEL, GUILD_NAME, GUILD_REALM_NAME } from "@/app/util/constants";
 import createServerSession from "@utils/supabase/createServerSession";
 
 export const dynamic = 'force-dynamic'
 
-const MemberView = ({member}: { member: Character & { icon: string, className: string } }) => {
-    const {name, level, icon, className,} = member
+const MemberView = ({ member }: { member: Character & { icon: string, className: string } }) => {
+    const { name, level, icon, className, } = member
 
     const classColors = {
         warrior: "#C79C6E",
@@ -32,7 +31,7 @@ const MemberView = ({member}: { member: Character & { icon: string, className: s
             <pixel-canvas
                 data-gap="8"
                 /* @ts-ignore*/
-                 data-colors={`${classColors[className.toLowerCase()]}`}
+                data-colors={`${classColors[className.toLowerCase()]}`}
             />
         </div>
         <h1 className="font-bold text-xl text-gold">{name}</h1>
@@ -40,8 +39,8 @@ const MemberView = ({member}: { member: Character & { icon: string, className: s
             <div
                 className="relative w-16 h-16 rounded-full">
                 <img src={icon}
-                     alt={className}
-                     className="rounded-full h-5 absolute -top-1 -right-1 z-50 border border-gold"/>
+                    alt={className}
+                    className="rounded-full h-5 absolute -top-1 -right-1 z-50 border border-gold" />
                 <img
                     src={member.avatar}
                     alt={`${member.name}'s portrait`}
@@ -76,13 +75,14 @@ const RANKS = {
 
 export default async function Page() {
 
-    const {supabase} = await createServerSession({cookies})
-    const {data, error} = await supabase.from('ev_member')
+    const { getSupabase } = await createServerSession();
+    const supabase = await getSupabase();
+    const { data, error } = await supabase.from('ev_member')
         .select('updated_at, character')
         .filter('character->>level', 'gte', CURRENT_MAX_LEVEL - 10)
         .filter('character->guild->>name', 'eq', GUILD_NAME)
         //.filter('updated_at', 'gte', moment().subtract(60, 'days').format('YYYY-MM-DD')) // Uncomment this line to filter characters updated in the last 60 days
-        .order('updated_at', {ascending: false})
+        .order('updated_at', { ascending: false })
         .returns<{ updated_at: string, character: Character }[]>()
 
     if (error) {
@@ -90,11 +90,11 @@ export default async function Page() {
         return <div>Error {error.message}</div>
     }
 
-    const {data: roles, error: errorRoles} = await supabase.from('ev_member_role').select('member_id, role')
-        .returns<{member_id: number, role: string }[]>()
+    const { data: roles, error: errorRoles } = await supabase.from('ev_member_role').select('member_id, role')
+        .returns<{ member_id: number, role: string }[]>()
 
 
-    const guildRoster = getGuildRosterFromGuildInfo(data.map(({character, updated_at}) => ({
+    const guildRoster = getGuildRosterFromGuildInfo(data.map(({ character, updated_at }) => ({
         ...character,
         updated_at
     })).reduce((acc, character) => {
@@ -127,7 +127,7 @@ export default async function Page() {
                         // @ts-ignore
                         return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
                     }).map((member) => {
-                        return <MemberView key={member.id} member={member}/>
+                        return <MemberView key={member.id} member={member} />
                     })}
                 </div>
             </div>

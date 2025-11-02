@@ -1,5 +1,5 @@
 "use client"
-import React, {useEffect, useMemo, useState} from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
     Input,
     Textarea,
@@ -13,17 +13,17 @@ import {
 } from "@heroui/react";
 import LookupField from "@/app/components/LookupField";
 import Link from "next/link";
-import {onForm, getClassIcon, getRoleIcon} from "@/app/apply/components/utils";
-import {useApplyFormStore} from "@/app/apply/components/store";
-import {CharacterNameInput} from "@/app/apply/components/CharacterNameInput";
-import {PLAYABLE_ROLES} from "@/app/util/constants";
-import {isRoleAssignable} from "@/app/components/ProfileManager";
-import {useShallow} from "zustand/react/shallow";
+import { onForm, getClassIcon, getRoleIcon } from "@/app/apply/components/utils";
+import { useApplyFormStore } from "@/app/apply/components/store";
+import { CharacterNameInput } from "@/app/apply/components/CharacterNameInput";
+import { PLAYABLE_ROLES } from "@/app/util/constants";
+import { isRoleAssignable } from "@/app/components/ProfileManager";
+import { useShallow } from "zustand/react/shallow";
 
 
 export default function ApplyForm() {
 
-    const {isOpen, onOpen, onOpenChange} = useDisclosure();
+    const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const [modalContent, setModalContent] = useState({
         title: '',
         body: '',
@@ -33,8 +33,13 @@ export default function ApplyForm() {
     const contactWith = [
         'Alveric',
         'Felsargon',
-        'Utrivelig',
         'Templaari',
+        'Mephius'
+    ]
+
+    const allowedRealms = [
+        { label: 'Living Flame', slug: 'living-flame' },
+        { label: 'Spineshatter', slug: 'spineshatter' }
     ]
 
     const name = useApplyFormStore(state => state.name)
@@ -44,6 +49,8 @@ export default function ApplyForm() {
     const characterRole = useApplyFormStore(state => state.characterRole)
     const isFormDisabled = useApplyFormStore(state => state.isFormDisabled)
     const characterExists = useApplyFormStore(state => state.characterExists)
+    const realm = useApplyFormStore(state => state.realm)
+    const setRealm = useApplyFormStore(state => state.setRealm)
     //get functions in one line
     const {
         setIsFormDisabled,
@@ -67,19 +74,27 @@ export default function ApplyForm() {
     }, [name, characterClass, characterRole, characterExists])
 
     const assignableRoles = useMemo(() => {
-        return Object.values(PLAYABLE_ROLES).filter(role => role.value.split('-').every((x: string) => isRoleAssignable(x.toLowerCase(), characterClass?.toLowerCase())))
-    }, [characterClass, name])
+        return Object.values(PLAYABLE_ROLES).filter(role => role.value.split('-').every((x: string) => isRoleAssignable(x.toLowerCase(), characterClass?.toLowerCase(), realm)))
+    }, [characterClass, name, realm])
 
     return (
         <div className="space-y-4 lg:w-[300px] w-[450px]">
             <div className="grid gap-2">
-                <CharacterNameInput/>
+                <LookupField
+                    title="Realm"
+                    value={realm}
+                    onChange={(selectedValue: string) => selectedValue !== 'Realm' && setRealm(selectedValue)}
+                    values={new Set(allowedRealms)}
+                />
+            </div>
+            <div className="grid gap-2">
+                <CharacterNameInput isDisabled={!realm} />
             </div>
             <div className="grid gap-2">
                 <Input
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    label="Email" id="email" type="email"/>
+                    label="Email" id="email" type="email" />
             </div>
             <div className="grid gap-2">
                 <LookupField
@@ -102,36 +117,37 @@ export default function ApplyForm() {
             <div className="grid gap-2">
                 <div
                     className="flex gap-2 p-2 w-full flex-wrap justify-center items-center">
-                    {assignableRoles.map(
+                    {Object.values(PLAYABLE_ROLES).map(
                         (role, i) => {
+                            const isDisabled = assignableRoles.findIndex(r => r.value === role.value) === -1;
                             return (
                                 <Button
                                     key={i}
-                                    style={{
-                                        opacity: 1
-                                    }}
+                                    
+                                    isDisabled={isDisabled}
                                     className={
-                                        `bg-moss text-gold rounded border border-moss-100 relative hover:bg-dark hover:border-dark-100 opacity-100`
+                                        `bg-moss opacity-100 text-gold rounded border border-moss-100 relative hover:bg-dark hover:border-dark-100 `
                                         + ` ${characterRole === role.value ? 'bg-dark text-gold border-gold' : ''}`
+                                        + ` ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`
                                     }
                                     onPress={() => {
                                         if (characterRole !== role.value) setRole(role.value)
                                     }}
                                 ><span className="relative min-w-6 max-w-12 h-6 group">
-                            {role.value.split('-').map((roleValue, i, arr) => (
-                                <img
-                                    key={i}
-                                    className={`
+                                        {role.value.split('-').map((roleValue, i, arr) => (
+                                            <img
+                                                key={i}
+                                                className={`
                                         absolute top-0 ${(i === 0 && arr.length === 1) ? 'left-0' : (i === 0 && arr.length > 1) ? '-left-1.5' : 'left-2.5'}
                                         w-6 h-6
                                         rounded-full border border-gold
                                         
                                     `}
-                                    src={getRoleIcon(roleValue)}
-                                    alt={roleValue}
-                                />
-                            ))}
-                            </span>
+                                                src={getRoleIcon(roleValue)}
+                                                alt={roleValue}
+                                            />
+                                        ))}
+                                    </span>
                                 </Button>
                             )
                         }
@@ -143,11 +159,12 @@ export default function ApplyForm() {
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     rows={20}
-                    id="message" placeholder="Enter your message"/>
+                    id="message"
+                    placeholder="Why do you want to join Everlasting Vendetta? Tell us about your WoW experience, what you enjoy doing, raid availability, and what kind of player you are..." />
             </div>
             <div className="flex items-center">
                 <Button isDisabled={isFormDisabled} onPress={() => {
-                    onForm({name, email, characterRole, characterClass, message}).then((response) => {
+                    onForm({ name, email, characterRole, characterClass, message }).then((response) => {
                         if (response?.error) {
                             setModalContent({
                                 title: (
@@ -170,7 +187,7 @@ export default function ApplyForm() {
                                     <p>In the meantime, you can contact us in game to speed up the process.</p>
                                     <p>You can reach out to any of our officers: {contactWith.map(((x, i) => {
                                         return <span key={x}><Link className={'text-gold'}
-                                                                   href={`/roster/${x.toLowerCase()}`}>{x}</Link>{i === contactWith.length - 1 ? '' : i === contactWith.length - 2 ? ' or ' : ', '}</span>
+                                            href={`/roster/${x.toLowerCase()}`}>{x}</Link>{i === contactWith.length - 1 ? '' : i === contactWith.length - 2 ? ' or ' : ', '}</span>
                                     }))}</p>
                                     <p>Good luck!</p>
                                 </>),
@@ -182,7 +199,7 @@ export default function ApplyForm() {
                     })
 
                 }} className="bg-moss text-gold w-full font-bold"
-                        type="submit">
+                    type="submit">
                     Submit Application
                 </Button>
             </div>

@@ -7,6 +7,11 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "11.2.0 (c820efb)"
+  }
   public: {
     Tables: {
       achievements: {
@@ -47,16 +52,19 @@ export type Database = {
           created_at: string
           id: number
           member_id: number | null
+          user_id: string | null
         }
         Insert: {
           created_at?: string
           id?: number
           member_id?: number | null
+          user_id?: string | null
         }
         Update: {
           created_at?: string
           id?: number
           member_id?: number | null
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -64,6 +72,13 @@ export type Database = {
             columns: ["member_id"]
             isOneToOne: false
             referencedRelation: "ev_member"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "banned_member_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -245,6 +260,47 @@ export type Database = {
           },
         ]
       }
+      discord_members: {
+        Row: {
+          created_at: string
+          discord_user: Json
+          discord_user_id: string
+          guild_id: string | null
+          id: number
+          member_id: number
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          discord_user: Json
+          discord_user_id: string
+          guild_id?: string | null
+          id?: number
+          member_id: number
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          discord_user?: Json
+          discord_user_id?: string
+          guild_id?: string | null
+          id?: number
+          member_id?: number
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "discord_member_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "ev_member"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ev_admin: {
         Row: {
           created_at: string
@@ -320,6 +376,7 @@ export type Database = {
           given_by: number | null
           id: number
           reset_id: string
+          source: string | null
           updated_at: string | null
         }
         Insert: {
@@ -329,6 +386,7 @@ export type Database = {
           given_by?: number | null
           id?: number
           reset_id: string
+          source?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -338,6 +396,7 @@ export type Database = {
           given_by?: number | null
           id?: number
           reset_id?: string
+          source?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -427,7 +486,7 @@ export type Database = {
           id: number
           registration_source: string | null
           updated_at: string | null
-          user_id: string
+          user_id: string | null
           wow_account_id: number | null
         }
         Insert: {
@@ -436,7 +495,7 @@ export type Database = {
           id?: number
           registration_source?: string | null
           updated_at?: string | null
-          user_id?: string
+          user_id?: string | null
           wow_account_id?: number | null
         }
         Update: {
@@ -445,10 +504,17 @@ export type Database = {
           id?: number
           registration_source?: string | null
           updated_at?: string | null
-          user_id?: string
+          user_id?: string | null
           wow_account_id?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "ev_member_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "ev_member_wow_account_id_fkey"
             columns: ["wow_account_id"]
@@ -465,6 +531,7 @@ export type Database = {
           member_id: number | null
           member_name: string | null
           role: string | null
+          user_id: string | null
         }
         Insert: {
           created_at?: string
@@ -472,6 +539,7 @@ export type Database = {
           member_id?: number | null
           member_name?: string | null
           role?: string | null
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -479,6 +547,7 @@ export type Database = {
           member_id?: number | null
           member_name?: string | null
           role?: string | null
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -493,6 +562,13 @@ export type Database = {
             columns: ["role"]
             isOneToOne: false
             referencedRelation: "ev_role"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ev_member_role_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -719,16 +795,19 @@ export type Database = {
       gs_cache: {
         Row: {
           color: string | null
+          created_at: string | null
           gs: number | null
           md5: string
         }
         Insert: {
           color?: string | null
+          created_at?: string | null
           gs?: number | null
           md5: string
         }
         Update: {
           color?: string | null
+          created_at?: string | null
           gs?: number | null
           md5?: string
         }
@@ -823,6 +902,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      highest_gs: {
+        Row: {
+          character_name: string
+          created_at: string
+          details: Json
+          id: number
+          updated_at: string | null
+        }
+        Insert: {
+          character_name: string
+          created_at?: string
+          details: Json
+          id?: number
+          updated_at?: string | null
+        }
+        Update: {
+          character_name?: string
+          created_at?: string
+          details?: Json
+          id?: number
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       last_raid: {
         Row: {
@@ -923,6 +1026,32 @@ export type Database = {
         }
         Relationships: []
       }
+      login: {
+        Row: {
+          created_at: string
+          id: number
+          member_id: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          member_id: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          member_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "login_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "ev_member"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       member_achievements: {
         Row: {
           achievement_id: string
@@ -964,21 +1093,21 @@ export type Database = {
           created_at: string
           id: number
           member_id: number
-          member_proffession_id: number | null
+          profession_id: number
           spell_id: number | null
         }
         Insert: {
           created_at?: string
           id?: number
           member_id: number
-          member_proffession_id?: number | null
+          profession_id: number
           spell_id?: number | null
         }
         Update: {
           created_at?: string
           id?: number
           member_id?: number
-          member_proffession_id?: number | null
+          profession_id?: number
           spell_id?: number | null
         }
         Relationships: [
@@ -990,8 +1119,8 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "member_profession_spells_member_proffession_id_fkey"
-            columns: ["member_proffession_id"]
+            foreignKeyName: "member_profession_spells_profession_id_fkey"
+            columns: ["profession_id"]
             isOneToOne: false
             referencedRelation: "professions"
             referencedColumns: ["id"]
@@ -1542,16 +1671,22 @@ export type Database = {
       }
       wow_account: {
         Row: {
+          battletag: string | null
           created_at: string
           id: number
+          modified: string | null
         }
         Insert: {
+          battletag?: string | null
           created_at?: string
           id?: number
+          modified?: string | null
         }
         Update: {
+          battletag?: string | null
           created_at?: string
           id?: number
+          modified?: string | null
         }
         Relationships: []
       }
@@ -1585,270 +1720,224 @@ export type Database = {
     }
     Functions: {
       achievement_loot_cursed_rng: {
-        Args: {
-          character_name: string
-        }
+        Args: { character_name: string }
         Returns: {
           achieved: boolean
           progress: number
         }[]
       }
       achievement_loot_greedy_fingers: {
-        Args: {
-          character_name: string
-        }
+        Args: { character_name: string }
         Returns: {
           achieved: boolean
           progress: number
         }[]
       }
       achievement_loot_oportunist: {
-        Args: {
-          character_name: string
-        }
+        Args: { character_name: string }
         Returns: {
           achieved: boolean
           progress: number
         }[]
       }
       achievement_loot_rnggesus_loves_you: {
-        Args: {
-          character_name: string
-        }
+        Args: { character_name: string }
         Returns: {
           achieved: boolean
           progress: number
         }[]
       }
       achievement_loot_sniper: {
-        Args: {
-          character_name: string
-        }
+        Args: { character_name: string }
         Returns: {
           achieved: boolean
           progress: number
         }[]
       }
       achievement_raid_altaholic: {
-        Args: {
-          character_name: string
-        }
+        Args: { character_name: string }
         Returns: {
           achieved: boolean
           progress: number
         }[]
       }
       achievement_raid_architect: {
-        Args: {
-          character_name: string
-        }
+        Args: { character_name: string }
         Returns: {
           achieved: boolean
           progress: number
         }[]
       }
       achievement_raid_breaker_of_wings: {
-        Args: {
-          character_name: string
-        }
+        Args: { character_name: string }
         Returns: {
           achieved: boolean
           progress: number
         }[]
       }
       achievement_raid_commander_chaos: {
-        Args: {
-          character_name: string
-        }
+        Args: { character_name: string }
+        Returns: {
+          achieved: boolean
+          progress: number
+        }[]
+      }
+      achievement_raid_crusader_crushed: {
+        Args: { character_name: string }
         Returns: {
           achieved: boolean
           progress: number
         }[]
       }
       achievement_raid_father: {
-        Args: {
-          character_name: string
-        }
+        Args: { character_name: string }
         Returns: {
           achieved: boolean
           progress: number
         }[]
       }
       achievement_raid_firestarter: {
-        Args: {
-          character_name: string
-        }
+        Args: { character_name: string }
+        Returns: {
+          achieved: boolean
+          progress: number
+        }[]
+      }
+      achievement_raid_frostbitten_finale: {
+        Args: { character_name: string }
         Returns: {
           achieved: boolean
           progress: number
         }[]
       }
       achievement_raid_frozen_vanguard: {
-        Args: {
-          character_name: string
-        }
+        Args: { character_name: string }
         Returns: {
           achieved: boolean
           progress: number
         }[]
       }
       achievement_raid_gnomish_vanguard: {
-        Args: {
-          character_name: string
-        }
+        Args: { character_name: string }
         Returns: {
           achieved: boolean
           progress: number
         }[]
       }
       achievement_raid_jungle_trailblazer: {
-        Args: {
-          character_name: string
-        }
+        Args: { character_name: string }
         Returns: {
           achieved: boolean
           progress: number
         }[]
       }
       achievement_raid_king: {
-        Args: {
-          character_name: string
-        }
+        Args: { character_name: string }
         Returns: {
           achieved: boolean
           progress: number
         }[]
       }
       achievement_raid_late_comer: {
-        Args: {
-          character_name: string
-        }
+        Args: { character_name: string }
         Returns: {
           achieved: boolean
           progress: number
         }[]
       }
       achievement_raid_maestro: {
-        Args: {
-          character_name: string
-        }
+        Args: { character_name: string }
         Returns: {
           achieved: boolean
           progress: number
         }[]
       }
       achievement_raid_master_strategist: {
-        Args: {
-          character_name: string
-        }
+        Args: { character_name: string }
         Returns: {
           achieved: boolean
           progress: number
         }[]
       }
       achievement_raid_rookie: {
-        Args: {
-          character_name: string
-        }
+        Args: { character_name: string }
         Returns: {
           achieved: boolean
           progress: number
         }[]
       }
       achievement_raid_ruins_raider: {
-        Args: {
-          character_name: string
-        }
+        Args: { character_name: string }
         Returns: {
           achieved: boolean
           progress: number
         }[]
       }
       achievement_raid_scarab_vanguard: {
-        Args: {
-          character_name: string
-        }
+        Args: { character_name: string }
+        Returns: {
+          achieved: boolean
+          progress: number
+        }[]
+      }
+      achievement_raid_scarlet_pioneers: {
+        Args: { character_name: string }
         Returns: {
           achieved: boolean
           progress: number
         }[]
       }
       achievement_raid_secrets_of_dead: {
-        Args: {
-          character_name: string
-        }
+        Args: { character_name: string }
         Returns: {
           achieved: boolean
           progress: number
         }[]
       }
       achievement_raid_temple_pioneer: {
-        Args: {
-          character_name: string
-        }
+        Args: { character_name: string }
         Returns: {
           achieved: boolean
           progress: number
         }[]
       }
       achievement_raid_unicorn_hunter: {
-        Args: {
-          character_name: string
-        }
+        Args: { character_name: string }
         Returns: {
           achieved: boolean
           progress: number
         }[]
       }
       achievement_raid_whelp_wrangler: {
-        Args: {
-          character_name: string
-        }
+        Args: { character_name: string }
         Returns: {
           achieved: boolean
           progress: number
         }[]
       }
       achievement_reserve_unicorn_hunter: {
-        Args: {
-          character_name: string
-        }
+        Args: { character_name: string }
         Returns: {
           achieved: boolean
           progress: number
         }[]
       }
       calculate_total_reservations: {
-        Args: {
-          reset_uuid: string
-          char_id: number
-        }
+        Args: { char_id: number; reset_uuid: string }
         Returns: number
       }
-      count_reservations:
-        | {
-            Args: {
-              member_id_arg: number
-              reset_id_arg: number
-            }
-            Returns: number
-          }
-        | {
-            Args: {
-              member_id_arg: number
-              reset_id_arg: string
-            }
-            Returns: number
-          }
+      count_reservations: {
+        Args:
+          | { member_id_arg: number; reset_id_arg: number }
+          | { member_id_arg: number; reset_id_arg: string }
+        Returns: number
+      }
       duplicate_molten_core_raid: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
       duplicate_raid: {
-        Args: {
-          p_interval: unknown
-          p_raid_id: string
-        }
+        Args: { p_interval: unknown; p_raid_id: string }
         Returns: undefined
       }
       execute_raid_nagger: {
@@ -1856,9 +1945,7 @@ export type Database = {
         Returns: Json
       }
       get_accessible_rooms: {
-        Args: {
-          user_id: string
-        }
+        Args: { user_id: string }
         Returns: string[]
       }
       get_character_id: {
@@ -1870,19 +1957,27 @@ export type Database = {
         Returns: Json
       }
       get_last_raid_date: {
-        Args: {
-          p_raid_id: string
-        }
+        Args: { p_raid_id: string }
         Returns: string
+      }
+      get_member_item_count: {
+        Args: { _item_id: number; _member_id: number; _reset_id: string }
+        Returns: number
+      }
+      get_member_profession_spell_count: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          member_name: string
+          profession_name: string
+          spell_count: number
+        }[]
       }
       get_permissions: {
         Args: Record<PropertyKey, never>
         Returns: string
       }
       has_permission: {
-        Args: {
-          verify_permission: string
-        }
+        Args: { verify_permission: string }
         Returns: boolean
       }
       id_admin: {
@@ -1890,13 +1985,15 @@ export type Database = {
         Returns: boolean
       }
       id_text: {
-        Args: {
-          id_column: string
-        }
+        Args: { id_column: string }
         Returns: string
       }
       initialize_permissions: {
         Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      insert_login_if_not_exists: {
+        Args: { _member_id: number }
         Returns: undefined
       }
       is_admin_deprecated: {
@@ -1904,45 +2001,43 @@ export type Database = {
         Returns: boolean
       }
       is_role: {
-        Args: {
-          verify_role: string
-        }
+        Args: { verify_role: string }
         Returns: boolean
       }
       is_user_alloed_to_see_members: {
-        Args: {
-          tu_puta_madre_id: boolean
-        }
+        Args: { tu_puta_madre_id: boolean }
         Returns: boolean
       }
       is_user_allowed_to_see_members: {
-        Args: {
-          tu_puta_madre_id: string
-        }
+        Args: { tu_puta_madre_id: string }
         Returns: boolean
       }
       is_user_owner_of_room: {
-        Args: {
-          user_id: string
-          room_id: string
-        }
+        Args: { room_id: string; user_id: string }
+        Returns: boolean
+      }
+      member_participated_reset: {
+        Args: { member_name: string; reset_id: string }
+        Returns: {
+          achieved: boolean
+          progress: number
+        }[]
+      }
+      owns_character: {
+        Args: { character_id: number; user_id: string }
         Returns: boolean
       }
       raid_attendance: {
-        Args: {
-          character_name: string
-        }
+        Args: { character_name: string }
         Returns: {
-          raid_name: string
-          raid_date: string
-          participated: boolean
           id: string
+          participated: boolean
+          raid_date: string
+          raid_name: string
         }[]
       }
       reset_id_starts_with: {
-        Args: {
-          id_prefix: string
-        }
+        Args: { id_prefix: string }
         Returns: {
           created_at: string
           created_by: number | null
@@ -1982,27 +2077,33 @@ export type Database = {
   }
 }
 
-type PublicSchema = Database[Extract<keyof Database, "public">]
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
-  PublicTableNameOrOptions extends
-    | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-        Database[PublicTableNameOrOptions["schema"]]["Views"])
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
     : never
-  : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] &
-        PublicSchema["Views"])
-    ? (PublicSchema["Tables"] &
-        PublicSchema["Views"])[PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
         Row: infer R
       }
       ? R
@@ -2010,20 +2111,24 @@ export type Tables<
     : never
 
 export type TablesInsert<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
     : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Insert: infer I
       }
       ? I
@@ -2031,20 +2136,24 @@ export type TablesInsert<
     : never
 
 export type TablesUpdate<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
     : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Update: infer U
       }
       ? U
@@ -2052,29 +2161,41 @@ export type TablesUpdate<
     : never
 
 export type Enums<
-  PublicEnumNameOrOptions extends
-    | keyof PublicSchema["Enums"]
-    | { schema: keyof Database },
-  EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
-> = PublicEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
-    ? PublicSchema["Enums"][PublicEnumNameOrOptions]
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof PublicSchema["CompositeTypes"]
-    | { schema: keyof Database },
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
-    ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
+
+export const Constants = {
+  public: {
+    Enums: {},
+  },
+} as const

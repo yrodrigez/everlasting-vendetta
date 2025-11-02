@@ -1,45 +1,44 @@
-import {ChatContainer} from "@/app/raid/[id]/chat/components/ChatContainer";
-import {Button} from "@/app/components/Button";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faArrowLeft} from "@fortawesome/free-solid-svg-icons";
+import { ChatContainer } from "@/app/raid/[id]/chat/components/ChatContainer";
+import { Button } from "@/app/components/Button";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
-import {cookies} from "next/headers";
+import { cookies } from "next/headers";
 import NotLoggedInView from "@/app/components/NotLoggedInView";
 import React from "react";
 import createServerSession from "@utils/supabase/createServerSession";
-import {BnetLoginButton} from "@/app/components/BnetLoginButton";
+import { BnetLoginButton } from "@/app/components/BnetLoginButton";
 
 export const dynamic = 'force-dynamic'
 
-export default async function ({params}: { params: Promise<{ id: string }> }) {
-    const {id} = await params
+export default async function ({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params
     if (!id) return null
 
-    const {auth} = await createServerSession({cookies})
+    const { auth } = await createServerSession();
     if (!auth) {
         return (
-            <NotLoggedInView/>
-
+            <NotLoggedInView />
         )
     }
 
     const user = await auth.getSession()
     if (!user) {
         return (
-            <NotLoggedInView/>
+            <NotLoggedInView />
         )
     }
-    if (user.source !== 'bnet_oauth') {
+    if (user?.provider?.indexOf('oauth') !== -1) {
         return (
             <div className="w-full h-full flex flex-col gap-2 items-center justify-center">
                 <h1>Only Blizzard OAuth users can access this chat</h1>
-                <BnetLoginButton/>
+                <BnetLoginButton />
                 <Link
                     href={`/raid/${id}`}
                     scroll={false}
                 >
                     <Button>
-                        <FontAwesomeIcon icon={faArrowLeft}/> Back
+                        <FontAwesomeIcon icon={faArrowLeft} /> Back
                     </Button>
                 </Link>
             </div>
@@ -48,7 +47,7 @@ export default async function ({params}: { params: Promise<{ id: string }> }) {
 
     return (
         <div className="w-full h-full flex flex-col gap-2 relative items-center justify-center">
-            <ChatContainer resetId={id}/>
+            <ChatContainer resetId={id} />
             <div
                 className="absolute top-0 left-0 flex flex-col gap-2">
                 <Link
@@ -56,7 +55,7 @@ export default async function ({params}: { params: Promise<{ id: string }> }) {
                     scroll={false}
                 >
                     <Button isIconOnly>
-                        <FontAwesomeIcon icon={faArrowLeft}/>
+                        <FontAwesomeIcon icon={faArrowLeft} />
                     </Button>
                 </Link>
             </div>

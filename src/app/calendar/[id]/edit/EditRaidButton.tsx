@@ -1,15 +1,17 @@
 'use client'
 
 import useCreateRaidStore from "@/app/calendar/new/Components/useCreateRaidStore";
-import {Button} from "@/app/components/Button";
-import {useSession} from "@/app/hooks/useSession";
-import {useCallback} from "react";
-import {useRouter} from "next/navigation";
+import { Button } from "@/app/components/Button";
+import { useCallback, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import moment from "moment";
-import {useShallow} from "zustand/shallow";
+import { useShallow } from "zustand/shallow";
+import { useCharacterStore } from "@/app/components/characterStore";
+import { useAuth } from "@/app/context/AuthContext";
+import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
 
-export function EditRaidButton({reset}: { reset: any }) {
-    const {raid, endTime, startTime, startDate, endDate, days} = useCreateRaidStore(useShallow(state => ({
+export function EditRaidButton({ reset }: { reset: any }) {
+    const { raid, endTime, startTime, startDate, endDate, days } = useCreateRaidStore(useShallow(state => ({
         raid: state.raid,
         endTime: state.endTime,
         startTime: state.startTime,
@@ -17,7 +19,10 @@ export function EditRaidButton({reset}: { reset: any }) {
         endDate: state.endDate,
         days: state.days
     })))
-    const {supabase, selectedCharacter} = useSession()
+    const { accessToken } = useAuth();
+    const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
+
+    const selectedCharacter = useCharacterStore(useShallow(state => state.selectedCharacter));
     const router = useRouter()
 
     const createReset = useCallback(async () => {
@@ -26,7 +31,7 @@ export function EditRaidButton({reset}: { reset: any }) {
         if (raid.id !== reset.raid_id) {
             const confirmation = confirm('Changing the raid will delete all participants and reservations. Are you sure you want to continue?')
             if (!confirmation) return
-            const {error: errorParticipants} = await supabase
+            const { error: errorParticipants } = await supabase
                 .from('ev_raid_participant')
                 .delete()
                 .eq('raid_id', reset.id)
@@ -36,7 +41,7 @@ export function EditRaidButton({reset}: { reset: any }) {
                 alert('Error updating raid participants: ' + errorParticipants.message)
             }
 
-            const {error: errorReservations} = await supabase
+            const { error: errorReservations } = await supabase
                 .from('raid_loot_reservation')
                 .delete()
                 .eq('reset_id', reset.id)
@@ -59,7 +64,7 @@ export function EditRaidButton({reset}: { reset: any }) {
             days
         }
 
-        const {data, error} = await supabase.from('raid_resets')
+        const { data, error } = await supabase.from('raid_resets')
             .update(payload)
             .eq('id', reset.id)
             .select('id')

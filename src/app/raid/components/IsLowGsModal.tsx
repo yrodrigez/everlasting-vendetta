@@ -1,20 +1,21 @@
 'use client'
-import {useSession} from "@hooks/useSession";
-import {Button} from "@/app/components/Button";
-import {Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure} from "@heroui/react";
-import {useEffect, useState} from "react";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faTriangleExclamation} from "@fortawesome/free-solid-svg-icons";
+import { Button } from "@/app/components/Button";
+import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from "@heroui/react";
+import { useEffect, useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 import GearScore from "@/app/components/GearScore";
+import { useCharacterStore } from "@/app/components/characterStore";
+import { useShallow } from "zustand/shallow";
 
 
-export function IsLowGsModal({isLowGs, characterGearScore, minGs}: {
+export function IsLowGsModal({ isLowGs, characterGearScore, minGs }: {
     isLowGs: boolean,
     characterGearScore: number,
     minGs?: number
 }) {
-    const {selectedCharacter} = useSession()
-    const {isOpen, onOpen, onClose} = useDisclosure()
+    const { selectedCharacter } = useCharacterStore(useShallow(state => ({ selectedCharacter: state.selectedCharacter })))
+    const { isOpen, onOpen, onClose } = useDisclosure()
 
     const delay = 30000
     const [canClose, setCanClose] = useState(true)
@@ -51,11 +52,11 @@ export function IsLowGsModal({isLowGs, characterGearScore, minGs}: {
             <div
                 className="text-red-600 hover:cursor-pointer cursor-pointer rounded-full"
                 onClick={onOpen}>
-            <FontAwesomeIcon icon={faTriangleExclamation}  beat/>
+                <FontAwesomeIcon icon={faTriangleExclamation} beat />
             </div>
             <Modal isOpen={isOpen} onClose={onClose} title="Low Gear Score"
-                   isDismissable={canClose}
-                   hideCloseButton={!canClose}>
+                isDismissable={canClose}
+                hideCloseButton={!canClose}>
                 <ModalContent>
                     {() => (
                         <>
@@ -68,19 +69,19 @@ export function IsLowGsModal({isLowGs, characterGearScore, minGs}: {
                                         flex gap-1
                                     "
                                 >
-                                <p>
-                                    Hey <span className="font-bold">{selectedCharacter?.name}</span>, your gear score is
-                                    currently</p> {selectedCharacter?.name ? <span><GearScore
-                                    characterName={selectedCharacter?.name}
-                                    min={minGs}
-                                    allowForce={true}
-                                /></span> : characterGearScore} </div> <p>while
-                                    the minimum recommended gear score for this raid is <span
-                                    className="text-red-600 font-bold">{minGs}</span>.
+                                    <p>
+                                        Hey <span className="font-bold">{selectedCharacter?.name}</span>, your gear score is
+                                        currently</p> {selectedCharacter?.name ? <span><GearScore
+                                            characterName={selectedCharacter?.name}
+                                            min={minGs}
+                                            allowForce={true}
+                                        /></span> : characterGearScore} </div> <p>while
+                                            the minimum recommended gear score for this raid is <span
+                                                className="text-red-600 font-bold">{minGs}</span>.
                                 </p>
                                 <p>
                                     <span className="font-bold">Reminder:</span> You can still sign up, but <span
-                                    className="text-yellow-600 font-bold">priority will be given</span> to
+                                        className="text-yellow-600 font-bold">priority will be given</span> to
                                     guild members who meet the gear score requirement, especially since our raids are
                                     typically limited to <span className="font-bold">20–25 participants</span>.
                                 </p>
@@ -93,11 +94,11 @@ export function IsLowGsModal({isLowGs, characterGearScore, minGs}: {
                                 </p>
                                 <p>
                                     If you really want to join, we recommend reaching out to the <span
-                                    className="font-bold">raid leader</span> to discuss your inclusion.
+                                        className="font-bold">raid leader</span> to discuss your inclusion.
                                 </p>
                                 <p>
                                     If you believe this is a mistake or have any questions, please contact an <span
-                                    className="font-bold">officer</span> for clarification.
+                                        className="font-bold">officer</span> for clarification.
                                 </p>
                                 <p className="text-yellow-600 font-bold">
                                     Disclaimer: This is a friendly reminder to ensure fair and efficient raid runs for

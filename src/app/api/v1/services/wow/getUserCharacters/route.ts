@@ -1,25 +1,24 @@
-import {cookies} from "next/headers";
-import {NextRequest, NextResponse} from "next/server";
-import {getRealmCharacters} from "@/app/util/blizzard/battleNetWoWAccount";
-import {BNET_COOKIE_NAME} from "@/app/util/constants";
+import { NextRequest, NextResponse } from "next/server";
+import { getRealmCharacters } from "@/app/util/blizzard/battleNetWoWAccount";
 import createServerSession from "@utils/supabase/createServerSession";
 
 
 export async function GET(request: NextRequest) {
-    const token = (await cookies()).get(BNET_COOKIE_NAME)
-    const {auth} = await createServerSession({cookies})
+    const authorizationHeader = request.headers.get('authorization') || ''
+    const token = authorizationHeader?.replace('Bearer ', '')
+    const { auth } = await createServerSession();
     const user = await auth.getSession()
 
     if (user && user.isTemporal) {
-        return NextResponse.json({characters: [user]})
+        return NextResponse.json({ characters: [user] })
     }
 
     const requestUrl = new URL(request.url)
-    if (!token?.value) return NextResponse.redirect(requestUrl.origin + '/api/v1/oauth/bnet/auth')
+    if (!token) return NextResponse.redirect(requestUrl.origin + '/api/v1/oauth/bnet/auth')
 
     try {
-        const characters = await getRealmCharacters({token: token.value}) ?? []
-        return NextResponse.json({characters})
+        const characters = await getRealmCharacters({ token }) ?? []
+        return NextResponse.json({ characters })
     } catch (e) {
         console.error('Error fetching realm characters', e)
         return NextResponse.error()

@@ -1,20 +1,22 @@
 'use client';
 
-import {Button} from "@/app/components/Button";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faArrowUpRightFromSquare, faEye, faEyeSlash} from "@fortawesome/free-solid-svg-icons";
-import {useRouter} from "next/navigation";
-import {ChatControls} from "@/app/raid/[id]/chat/components/ChatControls";
-import {ChatMessages} from "@/app/raid/[id]/chat/components/ChatMessages";
-import {useSession} from "@hooks/useSession";
-import {SupabaseClient} from "@supabase/supabase-js";
-import {useCallback, useEffect, useState} from "react";
-import {useChatStore} from "@/app/raid/[id]/chat/components/chatStore";
+import { Button } from "@/app/components/Button";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowUpRightFromSquare, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { useRouter } from "next/navigation";
+import { ChatControls } from "@/app/raid/[id]/chat/components/ChatControls";
+import { ChatMessages } from "@/app/raid/[id]/chat/components/ChatMessages";
+import { SupabaseClient } from "@supabase/supabase-js";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useChatStore } from "@/app/raid/[id]/chat/components/chatStore";
 import moment from "moment/moment";
 import useScreenSize from "@hooks/useScreenSize";
-import {useQuery} from "@tanstack/react-query";
-import {useReactions} from "@/app/raid/[id]/chat/components/useReactions";
-import {useShallow} from "zustand/shallow";
+import { useQuery } from "@tanstack/react-query";
+import { useReactions } from "@/app/raid/[id]/chat/components/useReactions";
+import { useShallow } from "zustand/shallow";
+import { useAuth } from "@/app/context/AuthContext";
+import { useCharacterStore } from "@/app/components/characterStore";
+import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
 
 const tableFields = `*, character:ev_member(id,character)`;
 const table = 'reset_messages';
@@ -36,11 +38,11 @@ function chatMessageMapper(message: any) {
 }
 
 async function fetchMessages(supabase: SupabaseClient, resetId: string) {
-    const {data, error} = await supabase
+    const { data, error } = await supabase
         .from(table)
         .select(tableFields)
         .eq('reset_id', resetId)
-        .order('created_at', {ascending: true})
+        .order('created_at', { ascending: true })
         .limit(100)
 
     if (error) {
@@ -52,28 +54,32 @@ async function fetchMessages(supabase: SupabaseClient, resetId: string) {
 }
 
 
-export function ChatContainer({resetId: id, showRedirect = false, raidName}: {
+export function ChatContainer({ resetId: id, showRedirect = false, raidName }: {
     resetId: string,
     showRedirect?: boolean,
     raidName?: string
 }) {
     const router = useRouter()
-    const {supabase, selectedCharacter} = useSession()
-    const {messages, addMessage, setMessages} = useChatStore(useShallow(state=> ({
+    const { accessToken } = useAuth()
+    const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
+    const { selectedCharacter } = useCharacterStore(useShallow(state => ({
+        selectedCharacter: state.selectedCharacter
+    })))
+    const { messages, addMessage, setMessages } = useChatStore(useShallow(state => ({
         messages: state.messages,
         addMessage: state.addMessage,
         setMessages: state.setMessages
     })))
     const [shouldHide, setShouldHide] = useState(false)
 
-    const {isDesktop} = useScreenSize()
+    const { isDesktop } = useScreenSize()
     useEffect(() => {
         if (isDesktop) {
             setShouldHide(!isDesktop)
         }
     }, [isDesktop]);
 
-    const {emojis = [], reactions = [], addReaction, removeReaction} = useReactions(id)
+    const { emojis = [], reactions = [], addReaction, removeReaction } = useReactions(id, supabase)
     useEffect(() => {
         if (!reactions?.length || !messages?.length) return
 
@@ -107,7 +113,7 @@ export function ChatContainer({resetId: id, showRedirect = false, raidName}: {
 
             setMessages(messages.map(m => {
                 const _reactions = reactions?.filter(r => r.message?.id === m.id) ?? []
-                return {...m, reactions: _reactions}
+                return { ...m, reactions: _reactions }
             }))
             return messages
         },
@@ -118,11 +124,11 @@ export function ChatContainer({resetId: id, showRedirect = false, raidName}: {
         if (!supabase) return
         const channel = supabase.channel(`raid_chat:${id}`)
             .on('postgres_changes', {
-                    event: '*',
-                    schema: 'public',
-                    table: table,
-                    filter: `reset_id=eq.${id}`
-                },
+                event: '*',
+                schema: 'public',
+                table: table,
+                filter: `reset_id=eq.${id}`
+            },
                 async (payload: any) => {
                     const messageId = parseInt(payload.new.id)
                     if (!messageId || isNaN(messageId)) return
@@ -130,7 +136,7 @@ export function ChatContainer({resetId: id, showRedirect = false, raidName}: {
                     if (messages.find(m => m.id === messageId)) {
                         return
                     }
-                    const {data: message, error} = await supabase
+                    const { data: message, error } = await supabase
                         .from(table)
                         .select(tableFields)
                         .eq('id', messageId)
@@ -148,7 +154,12 @@ export function ChatContainer({resetId: id, showRedirect = false, raidName}: {
 
                     addMessage(chatMessageMapper(message))
                 }
-            ).subscribe()
+            ).subscribe((status, err) => {
+                console.log('Subscription to extra_reservations status:', status)
+                if (err) {
+                    console.error('Error subscribing to extra_reservations channel', err)
+                }
+            })
 
         return () => {
             channel.unsubscribe().then(
@@ -163,14 +174,14 @@ export function ChatContainer({resetId: id, showRedirect = false, raidName}: {
         supabase.from(table).insert([
             {
                 content: message.trim().replace(/([^\s\r\n]+)/gim, (_, $1) => {
-                    const {emoji} = emojis.find(e => e.shortcut === $1) || {}
+                    const { emoji } = emojis.find(e => e.shortcut === $1) || {}
                     return emoji ? `${emoji}` : $1
                 }),
                 reset_id: id,
                 character_id: selectedCharacter.id,
                 created_at: new Date()
             }
-        ]).select(tableFields).then(({data, error}) => {
+        ]).select(tableFields).then(({ data, error }) => {
             if (error) {
                 console.error(error)
                 alert(error.message)
@@ -189,9 +200,9 @@ export function ChatContainer({resetId: id, showRedirect = false, raidName}: {
             {!shouldHide ? (
                 <>
                     <ChatMessages messages={messages} addReaction={addReaction} emojis={emojis}
-                                  removeReaction={removeReaction}/>
+                        removeReaction={removeReaction} />
                     <div className="w-full h-12 flex flex-col gap-2 items-baseline justify-end">
-                        <ChatControls showRedirect={showRedirect} onSubmit={insertMessage}/>
+                        <ChatControls showRedirect={showRedirect} onSubmit={insertMessage} />
                     </div>
                 </>
             ) : null}
@@ -201,18 +212,18 @@ export function ChatContainer({resetId: id, showRedirect = false, raidName}: {
                     size="sm"
                     className="text-default bg-transparent lg:hidden"
                     variant="light"
-                    onClick={() => {
+                    onPress={() => {
                         setShouldHide(!shouldHide)
                     }}
                 >
-                    <FontAwesomeIcon icon={shouldHide ? faEye : faEyeSlash}/>
+                    <FontAwesomeIcon icon={shouldHide ? faEye : faEyeSlash} />
                 </Button>
                 <Button isIconOnly size="sm" className="text-default bg-transparent rounded-tr-xl" variant="light"
-                        onClick={() => {
-                            router.push(`/raid/${id}/chat`)
-                        }}
+                    onPress={() => {
+                        router.push(`/raid/${id}/chat`)
+                    }}
                 >
-                    <FontAwesomeIcon icon={faArrowUpRightFromSquare}/>
+                    <FontAwesomeIcon icon={faArrowUpRightFromSquare} />
                 </Button>
             </div>)}
         </div>

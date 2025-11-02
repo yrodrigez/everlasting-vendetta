@@ -29,7 +29,7 @@ export async function GET(request: NextRequest, context: any) {
         return NextResponse.json({error: "Invalid spellId"}, {status: 400});
     }
 /*
-    const {supabase} = await  createServerSession({cookies})
+    const {supabase} = await  createServerSession()
     const initialSpells = Array.from(new Set([]));
     const data = await Promise.all(initialSpells.map(x=> limit(() => fetchProfessionSpell(x))));
     const {data:insertStatus, error} = await supabase.from('profession_spells').insert(

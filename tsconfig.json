@@ -23,6 +23,7 @@
       "@utils/*": ["./src/app/util/*"],
       "@services/*": ["./src/app/services/*"],
       "@hooks/*": ["./src/app/hooks/*"],
+      "@context/*": ["./src/app/context/*"],
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

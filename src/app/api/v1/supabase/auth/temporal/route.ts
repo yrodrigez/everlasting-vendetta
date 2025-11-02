@@ -1,23 +1,24 @@
-import {NextRequest, NextResponse} from "next/server";
-import {cookies} from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
 
-import {ANON_KEY, FUNCTION_BASE_URL} from "@/app/api/v1/supabase/util";
+import { ANON_KEY, FUNCTION_BASE_URL } from "@/app/api/v1/supabase/util";
 import createServerSession from "@utils/supabase/createServerSession";
 
 
 export async function POST(request: NextRequest) {
 
-    const {character} = await request.json()
+    const { character } = await request.json()
     if (!character) {
-        return NextResponse.json({error: 'Error - character is mandatory!'})
+        return NextResponse.json({ error: 'Error - character is mandatory!' })
     }
 
-    const {supabase} = await createServerSession({cookies})
-    const {data} = await supabase.functions.invoke('everlasting-vendetta', {});
+    const { getSupabase } = await createServerSession();
+    const supabase = await getSupabase()
+    const { data } = await supabase.functions.invoke('everlasting-vendetta', {});
 
     const evToken = await fetch(`${FUNCTION_BASE_URL}/functions/v1/ev_token_generate`, {
         method: 'POST',
-        body: JSON.stringify({blizzardToken: data.token, selectedCharacter: character, source: 'temporal'}),
+        body: JSON.stringify({ blizzardToken: data.token, selectedCharacter: character, source: 'temporal' }),
         headers: {
             'Authorization': 'Bearer ' + ANON_KEY,
         },
@@ -25,14 +26,14 @@ export async function POST(request: NextRequest) {
 
     if (!evToken.ok) {
         (await cookies()).delete(process.env.BNET_COOKIE_NAME!)
-        const {error} = await evToken.json()
+        const { error } = await evToken.json()
         let errorText = 'Error: ' + error || evToken.statusText
-        if(error && error.indexOf && error.indexOf('bnet_oauth') > -1) {
+        if (error && error.indexOf && error.indexOf('bnet_oauth') > -1) {
             errorText = 'This character is already linked to a Battle.net account. Please log in with the correct account.'
         }
         return NextResponse.json(
-            {error: errorText},
-            {status: 500}
+            { error: errorText },
+            { status: 500 }
         )
     }
 
@@ -40,7 +41,7 @@ export async function POST(request: NextRequest) {
     const evTokenData = await evToken.json()
     if (evTokenData.error) {
         (await cookies()).delete(process.env.BNET_COOKIE_NAME!)
-        return NextResponse.json({error: 'Error fetching EV token: ' + evTokenData.error}, {
+        return NextResponse.json({ error: 'Error fetching EV token: ' + evTokenData.error }, {
             status: 500
         })
     }
@@ -68,5 +69,5 @@ export async function POST(request: NextRequest) {
     })
 
 
-    return NextResponse.json({...evTokenData, character})
+    return NextResponse.json({ ...evTokenData, character })
 }

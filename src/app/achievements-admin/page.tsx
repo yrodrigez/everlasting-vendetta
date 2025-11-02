@@ -1,18 +1,17 @@
 // /.achievements-admin/Page
 import createServerSession from "@utils/supabase/createServerSession";
-import {cookies} from "next/headers";
-import {ROLE} from "@utils/constants";
-import {Achievement, AchievementCondition} from "@/app/types/Achievements";
-import {Input, Textarea} from "@heroui/react";
-import {revalidatePath} from "next/cache"
-import {redirect} from "next/navigation";
-import {Button} from "@/app/components/Button";
-import {ConditionEditor} from "@/app/achievements-admin/ConditionEditor";
+import { ROLE } from "@utils/constants";
+import { Achievement } from "@/app/types/Achievements";
+import { Input } from "@heroui/react";
+import { revalidatePath } from "next/cache"
+import { redirect } from "next/navigation";
+import { Button } from "@/app/components/Button";
+import { ConditionEditor } from "@/app/achievements-admin/ConditionEditor";
 import DeleteAchievementButton from "@/app/achievements-admin/DeleteAchievementButton";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faPencil} from "@fortawesome/free-solid-svg-icons";
-import {SupabaseClient} from "@supabase/supabase-js";
-import {TestDisplayAchievement} from "@/app/achievements-admin/TestDisplayachievement";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPencil } from "@fortawesome/free-solid-svg-icons";
+import { SupabaseClient } from "@supabase/supabase-js";
+import { TestDisplayAchievement } from "@/app/achievements-admin/TestDisplayachievement";
 
 const ALLOWED_ROLES = [ROLE.ADMIN]
 export const dynamic = 'force-dynamic';
@@ -20,15 +19,15 @@ export const dynamic = 'force-dynamic';
 function createOrUpdateAchievement(supabase: SupabaseClient, achievement: Achievement) {
 	if (achievement.id) {
 		return supabase.from('achievements')
-		.update(achievement)
-		.eq('id', achievement.id)
-		.select('id')
-		.maybeSingle()
+			.update(achievement)
+			.eq('id', achievement.id)
+			.select('id')
+			.maybeSingle()
 	} else {
 		return supabase.from('achievements')
-		.insert(achievement)
-		.select('id')
-		.maybeSingle()
+			.insert(achievement)
+			.select('id')
+			.maybeSingle()
 	}
 }
 
@@ -37,41 +36,42 @@ function createOrUpdateImage(supabase: SupabaseClient, achievement: Achievement,
 	const fileExtension = file.name.split('.').pop()
 	const fileName = `${imagePath}${fileExtension ? `.${fileExtension}` : ''}`
 	return supabase.storage
-	.from('achievement-image')
-	.upload(fileName, file)
+		.from('achievement-image')
+		.upload(fileName, file)
 }
 
 async function updateAchievementImage(supabase: SupabaseClient, achievement: Achievement, file: File) {
-	if (!achievement.id) return {error: 'No achievement id provided'}
-	const {data: {publicUrl}} = supabase.storage.from('achievement-image').getPublicUrl(achievement.id)
+	if (!achievement.id) return { error: 'No achievement id provided' }
+	const { data: { publicUrl } } = supabase.storage.from('achievement-image').getPublicUrl(achievement.id)
 	if (!publicUrl) {
 		console.error('Error getting public url', publicUrl)
-		return {error: 'Error getting public url'}
+		return { error: 'Error getting public url' }
 	}
 
-	return supabase.from('achievements').update({img: publicUrl})
-	.eq('id', achievement.id)
+	return supabase.from('achievements').update({ img: publicUrl })
+		.eq('id', achievement.id)
 }
 
 async function createAchievement(formData: FormData) {
 	'use server'
-	const {supabase} = await createServerSession({cookies});
+	const { getSupabase } = await createServerSession();
+	const supabase = await getSupabase();
 	const name = formData.get('name') as string
 	const description = formData.get('description') as string
 	const points = formData.get('points') ?? 0 as number
 	const condition = formData.get('condition') as string
 	const category = formData.get('category') as string
 
-	const {data: achievement, error} = await supabase.from('achievements')
-	.insert({
-		name,
-		description,
-		points,
-		category,
-		condition: JSON.parse(condition)
-	})
-	.select('id')
-	.single()
+	const { data: achievement, error } = await supabase.from('achievements')
+		.insert({
+			name,
+			description,
+			points,
+			category,
+			condition: JSON.parse(condition)
+		})
+		.select('id')
+		.single()
 
 	if (error || !achievement?.id) {
 		console.error('Error creating achievement:', error)
@@ -83,9 +83,9 @@ async function createAchievement(formData: FormData) {
 	const fileExtension = file?.name.split('.').pop()
 	const fileName = `${imagePath}${fileExtension ? `.${fileExtension}` : ''}`
 	if (file) {
-		const {data: uploadData, error: uploadError} = await supabase.storage
-		.from('achievement-image')
-		.upload(fileName, file)
+		const { data: uploadData, error: uploadError } = await supabase.storage
+			.from('achievement-image')
+			.upload(fileName, file)
 
 		if (uploadError) {
 			console.error('Error uploading image:', uploadError)
@@ -93,16 +93,16 @@ async function createAchievement(formData: FormData) {
 			return
 		}
 
-		const {data: {publicUrl}} = supabase.storage.from('achievement-image').getPublicUrl(uploadData.path)
+		const { data: { publicUrl } } = supabase.storage.from('achievement-image').getPublicUrl(uploadData.path)
 		if (!publicUrl) {
 			console.error('Error getting public url', publicUrl)
 			await supabase.storage.from('achievement-image').remove([uploadData.path])
 			await supabase.from('achievements').delete().eq('id', achievement.id)
 			return
 		}
-		const {data: updateImage, error: updateError} = await supabase.from('achievements').update({img: publicUrl})
-		.eq('id', achievement.id)
-		.select('img')
+		const { data: updateImage, error: updateError } = await supabase.from('achievements').update({ img: publicUrl })
+			.eq('id', achievement.id)
+			.select('img')
 
 		if (updateError || !updateImage) {
 			console.error('Error updating image:', updateError)
@@ -117,16 +117,17 @@ async function createAchievement(formData: FormData) {
 
 async function deleteAchievement(formData: FormData) {
 	'use server'
-	const {supabase} = await createServerSession({cookies});
+	const { getSupabase } = await createServerSession();
+	const supabase = await getSupabase();
 	const id = formData.get('id') as string
 	if (!id) {
 		console.error('No id provided')
 		return
 	}
-	const {data, error} = await supabase.from('achievements')
-	.delete()
-	.eq('id', id)
-	.single()
+	const { data, error } = await supabase.from('achievements')
+		.delete()
+		.eq('id', id)
+		.single()
 
 	if (error) {
 		console.error('Error deleting achievement:', error)
@@ -134,7 +135,7 @@ async function deleteAchievement(formData: FormData) {
 	}
 
 
-	const {error: removeError} = await supabase.storage.from('achievement-image').remove([id])
+	const { error: removeError } = await supabase.storage.from('achievement-image').remove([id])
 	if (removeError) {
 		console.error('Error removing image:', removeError)
 	}
@@ -154,10 +155,11 @@ async function redirectToEdit(formData: FormData) {
 }
 
 
-export default async function Page({searchParams}: {
+export default async function Page({ searchParams }: {
 	searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
-	const {supabase, auth} = await createServerSession({cookies});
+	const { getSupabase, auth } = await createServerSession();
+	const supabase = await getSupabase();
 	const user = await auth.getSession();
 
 	const id = (await searchParams)?.edit as string | undefined
@@ -180,10 +182,10 @@ export default async function Page({searchParams}: {
 		)
 	}
 
-	const {data: achievements, error: achievementsError} = await supabase.from('achievements')
-	.select('*')
-	.order('created_at', {ascending: false})
-	.returns<Achievement[]>();
+	const { data: achievements, error: achievementsError } = await supabase.from('achievements')
+		.select('*')
+		.order('created_at', { ascending: false })
+		.overrideTypes<Achievement[]>();
 	let achievement = null
 	if (id) {
 		achievement = achievements?.find(achievement => achievement.id === id)
@@ -239,15 +241,15 @@ export default async function Page({searchParams}: {
 							</div>
 							<div className={'col-span-1 flex gap-2 items-center justify-center'}>
 								<form action={redirectToEdit}>
-									<input type={'hidden'} name={'id'} value={achievement.id}/>
+									<input type={'hidden'} name={'id'} value={achievement.id} />
 									<Button size="sm" isIconOnly type="submit">
-										<FontAwesomeIcon icon={faPencil}/>
+										<FontAwesomeIcon icon={faPencil} />
 									</Button>
 								</form>
-								<TestDisplayAchievement achievement={achievement}/>
+								<TestDisplayAchievement achievement={achievement} />
 								<form action={deleteAchievement}>
-									<input  type={'hidden'} name={'id'} value={achievement.id}/>
-									<DeleteAchievementButton/>
+									<input type={'hidden'} name={'id'} value={achievement.id} />
+									<DeleteAchievementButton />
 								</form>
 							</div>
 						</div>
@@ -271,23 +273,23 @@ export default async function Page({searchParams}: {
 								value={achievement?.description}
 								label={'Description'}
 								isRequired
-								name={'description'}/>
+								name={'description'} />
 							<Input
 								label={'Points'}
 								isRequired
 								type={'number'}
-								name={'points'}/>
+								name={'points'} />
 							<Input
 								value={achievement?.category}
 								label={'Category'}
 								isRequired
 								type={'text'}
-								name={'category'}/>
+								name={'category'} />
 							<Input
 								accept={'image/*'}
 								type="file"
 								label={'Icon'}
-								name={'img'}/>
+								name={'img'} />
 						</div>
 						<div
 							className={'w-full flex flex-col gap-2'}>

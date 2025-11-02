@@ -1,29 +1,29 @@
+
 import moment from "moment/moment";
 
-import {type SupabaseClient} from "@supabase/supabase-js";
-import {cookies} from "next/headers";
+import { type SupabaseClient } from "@supabase/supabase-js";
 import React from "react";
 
 import RaidParticipants from "@/app/raid/components/RaidParticipants";
 import AssistActions from "@/app/raid/components/AssistActions";
 import RaidTimeInfo from "@/app/raid/components/RaidTimeInfo";
-import {KpisView} from "@/app/raid/components/KpisView";
-import {faCartPlus, faGift} from "@fortawesome/free-solid-svg-icons";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import Link from "next/link";
-import {RaidOptions} from "@/app/raid/components/RaidOptions";
-import {Tooltip} from "@heroui/react";
-import {faDiscord} from "@fortawesome/free-brands-svg-icons";
-import {Metadata} from "next";
+import { KpisView } from "@/app/raid/components/KpisView";
+import { faCartPlus, faGift } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { RaidOptions } from "@/app/raid/components/RaidOptions";
+import { Tooltip } from "@heroui/react";
+import { faDiscord } from "@fortawesome/free-brands-svg-icons";
+import { Metadata } from "next";
 import createServerSession from "@utils/supabase/createServerSession";
-import {Button} from "@/app/components/Button";
-import {ChatContainer} from "@/app/raid/[id]/chat/components/ChatContainer";
-import {fetchResetParticipants} from "@/app/raid/api/fetchParticipants";
-import {ClassSummary} from "@/app/raid/components/ClassSummary";
+import { Button } from "@/app/components/Button";
+import { ChatContainer } from "@/app/raid/[id]/chat/components/ChatContainer";
+import { fetchResetParticipants } from "@/app/raid/api/fetchParticipants";
+import { ClassSummary } from "@/app/raid/components/ClassSummary";
 import * as process from "node:process";
-import {IsLowGsModal} from "@/app/raid/components/IsLowGsModal";
+import { IsLowGsModal } from "@/app/raid/components/IsLowGsModal";
 import ParticipantsManager from "@/app/raid/components/ParticipantsManager";
 import axios from "axios";
+import { GUILD_REALM_SLUG } from "@/app/util/constants";
 
 const raidResetAttr = 'raid_date, id, raid:ev_raid(name, min_level, image, min_gs), time, end_date, end_time, days, status'
 export const dynamic = 'force-dynamic'
@@ -48,7 +48,7 @@ async function fetchNextReset(supabase: any) {
         .select(raidResetAttr)
         .gte('end_date', moment().format('YYYY-MM-DD'))
         .gte('raid_date', nextWednesday)
-        .order('raid_date', {ascending: true})
+        .order('raid_date', { ascending: true })
         .limit(1)
         .single()
 }
@@ -57,17 +57,17 @@ async function fetchCurrentReset(supabase: any) {
     return supabase.from('raid_resets')
         .select(raidResetAttr)
         .gte('end_date', moment().format('YYYY-MM-DD'))
-        .order('raid_date', {ascending: true})
+        .order('raid_date', { ascending: true })
         .limit(1)
         .single()
 }
 
 
 async function fetchResetFromId(supabase: any, id: string) {
-    const {data, error} = await supabase.rpc('reset_id_starts_with', {id_prefix: `${id}%`})
+    const { data, error } = await supabase.rpc('reset_id_starts_with', { id_prefix: `${id}%` })
 
     if (error) {
-        return {error}
+        return { error }
     }
 
     return supabase.from('raid_resets')
@@ -84,23 +84,24 @@ function findPreviousAndNextReset(supabase: SupabaseClient, resetDate: string) {
             .select('id')
             .lt('raid_date', resetDate)
             .gte('raid_date', '2024-03-21')
-            .order('raid_date', {ascending: false})
+            .order('raid_date', { ascending: false })
             .limit(1)
             .single(),
         supabase.from('raid_resets')
             .select('id')
             .gt('raid_date', resetDate)
-            .order('raid_date', {ascending: true})
+            .order('raid_date', { ascending: true })
             .limit(1)
             .single()
     ])
 }
 
-export async function generateMetadata({params}: { params: Promise<{ id: string }> }): Promise<Metadata> {
-    const {supabase} = await createServerSession({cookies})
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
 
-    const {id: raidId} = await params
+    const { id: raidId } = await params
     // Fetch the raid data based on the ID
+    const { getSupabase } = await createServerSession();
+    const supabase = await getSupabase();
     const {
         data,
         error
@@ -113,8 +114,8 @@ export async function generateMetadata({params}: { params: Promise<{ id: string 
         };
     }
 
-    const {raid, raid_date: raidDate, time: raidTime, end_date} = data;
-    const {name: raidName, image} = raid;
+    const { raid, raid_date: raidDate, time: raidTime, end_date } = data;
+    const { name: raidName, image } = raid;
 
     const raidStartDate = moment(raidDate).format('MMMM D, YYYY');
     const raidEndDate = moment(end_date).format('MMMM D, YYYY');
@@ -152,14 +153,20 @@ export async function generateMetadata({params}: { params: Promise<{ id: string 
 
 async function getCharacterGearScore(characterName: string | undefined) {
     if (!characterName) return 99999
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/services/member/character/${encodeURIComponent(characterName.toLowerCase())}/gs`)
+    const response = await fetch(`${process.env.NEXT_PUBLIC_EV_API_URL}/gearscore`, {
+        method: 'POST',
+        body: JSON.stringify({ characters: [{ name: characterName, realm: GUILD_REALM_SLUG }] }),
+        headers: {
+            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_EV_ANON_TOKEN}`
+        }
+    })
     if (!response.ok) {
         console.error('Error fetching gear score:', response.status, response.statusText)
         return 99999
     }
 
-    const data = await response.json()
-    return data.gs as number
+    const { data: [{ score: gs }] = [] } = await response.json()
+    return gs as number
 }
 
 async function fetchHasLootReservations(supabase: any, resetId: string, memberId: number | undefined) {
@@ -174,14 +181,15 @@ async function fetchHasLootReservations(supabase: any, resetId: string, memberId
 
 async function getCharactersSanctifiedCount(characterNames: string[] | undefined) {
     if (!characterNames || !characterNames.length) return undefined
-    const {data} = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/services/wow/sanctified/count`, characterNames)
+    const { data } = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/services/wow/sanctified/count`, characterNames)
     return data as { characterName: string; count: number; characterId: string; }[] | undefined
 }
 
-export default async function ({params}: { params: Promise<{ id: string }> }) {
-    const {supabase, auth} = await createServerSession({cookies})
+export default async function ({ params }: { params: Promise<{ id: string }> }) {
+    const { getSupabase, auth } = await createServerSession();
     const isLoggedInUser = await auth.getSession()
-    const {id: raidId} = await params
+    const { id: raidId } = await params
+    const supabase = await getSupabase();
     const {
         data: reset,
         error
@@ -195,14 +203,14 @@ export default async function ({params}: { params: Promise<{ id: string }> }) {
     const [participants, [previousReset, nextReset], hasLootReservations, hasLootHistory, characterGearScore] = await Promise.all([
         fetchResetParticipants(supabase, reset.id),
         findPreviousAndNextReset(supabase, reset.raid_date),
-        fetchHasLootReservations(supabase, reset.id, isLoggedInUser?.id),
+        fetchHasLootReservations(supabase, reset.id, isLoggedInUser?.selectedCharacter?.id),
         supabase.from('ev_loot_history').select('id').eq('raid_id', reset.id).limit(1),
-        getCharacterGearScore(isLoggedInUser?.name)
+        getCharacterGearScore(isLoggedInUser?.selectedCharacter?.name)
     ])
 
 
-    const {id, raid_date: raidDate, raid, time: raidTime, end_date, end_time: endTime, days, status} = reset
-    const {name: raidName, min_level: min_lvl} = raid
+    const { id, raid_date: raidDate, raid, time: raidTime, end_date, end_time: endTime, days, status } = reset
+    const { name: raidName, min_level: min_lvl } = raid
     const raidStartDate = moment(raidDate)
     const raidEndDate = moment(end_date)
     const raidInProgress = moment().isBetween(raidStartDate, raidEndDate)
@@ -214,7 +222,6 @@ export default async function ({params}: { params: Promise<{ id: string }> }) {
         isLoggedInUserLowGear = characterGearScore < reset.raid.min_gs
     }
 
-    // @ts-ignore
     return (
         <div className="w-full h-full flex flex-col relative scrollbar-pill grow-0 overflow-auto gap-4">
             <ParticipantsManager resetId={id} initialParticipants={participants}>
@@ -244,7 +251,7 @@ export default async function ({params}: { params: Promise<{ id: string }> }) {
                     </div>
                     <div className="flex w-full h-40 mr-14 justify-end">
                         <div className="h-full flex flex-wrap w-32">
-                            <ClassSummary raidId={id}/>
+                            <ClassSummary raidId={id} />
                         </div>
                     </div>
                 </div>
@@ -269,7 +276,7 @@ export default async function ({params}: { params: Promise<{ id: string }> }) {
                         minGs={reset.raid.min_gs}
                     />
                     {!!isLoggedInUser ? (<div className="w-full lg:max-w-80 flex-grow-0 max-h-fit">
-                        <ChatContainer raidName={`${raidName} (${raidDate})`} resetId={id} showRedirect={true}/>
+                        <ChatContainer raidName={`${raidName} (${raidDate})`} resetId={id} showRedirect={true} />
                     </div>) : null}
                 </div>
                 {status !== 'offline' ? (
@@ -291,7 +298,7 @@ export default async function ({params}: { params: Promise<{ id: string }> }) {
                                 href={`https://discord.gg/fYw9WCNFDU`}
                                 as="a"
                                 className={`bg-moss text-default font-bold rounded`} isIconOnly>
-                                <FontAwesomeIcon icon={faDiscord}/>
+                                <FontAwesomeIcon icon={faDiscord} />
                             </Button>
                         </Tooltip>
                         <Tooltip
@@ -303,7 +310,7 @@ export default async function ({params}: { params: Promise<{ id: string }> }) {
                                 as="a"
                                 className={`bg-moss text-default font-bold rounded ${!hasLootReservations && isLoggedInUser ? 'shadow-2xl shadow-gold border-2 animate-blink-and-glow' : ''}`}
                                 isIconOnly>
-                                <FontAwesomeIcon icon={faCartPlus}/>
+                                <FontAwesomeIcon icon={faCartPlus} />
                             </Button>
                         </Tooltip>
                         {!!hasLootHistory?.data?.length && (
@@ -315,7 +322,7 @@ export default async function ({params}: { params: Promise<{ id: string }> }) {
                                     as="a"
                                     href={`/raid/${id}/loot`}
                                     className="bg-moss text-default font-bold rounded" isIconOnly>
-                                    <FontAwesomeIcon icon={faGift}/>
+                                    <FontAwesomeIcon icon={faGift} />
                                 </Button>
                             </Tooltip>
                         )}

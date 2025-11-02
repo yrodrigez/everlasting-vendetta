@@ -1,6 +1,6 @@
-import {toast} from "sonner";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faTriangleExclamation} from "@fortawesome/free-solid-svg-icons";
+import { toast } from "sonner";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 
 export const RAID_STATUS = {
     CONFIRMED: 'confirmed',
@@ -36,7 +36,7 @@ export async function assistRaid(raidId: string, selectedDays: any = [], selecte
             rounded-lg shadow-lg border border-red-600 shadow-red-500
             ">
                 <div className="flex-shrink-0">
-                    <FontAwesomeIcon icon={faTriangleExclamation}/>
+                    <FontAwesomeIcon icon={faTriangleExclamation} />
                 </div>
                 <div className="ml-3">
                     <p className="text-sm font-medium ">{`Failed to assist raid: ${error.error}`}</p>

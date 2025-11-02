@@ -1,23 +1,28 @@
 'use client'
-import {Skeleton, Tooltip} from "@heroui/react";
-import {useQuery} from "@tanstack/react-query";
+import { GUILD_REALM_SLUG } from "@/app/util/constants";
+import { Skeleton, Tooltip } from "@heroui/react";
+import { useQuery } from "@tanstack/react-query";
 
-export default function GearScore({character, isGuildMember}: { character: string, isGuildMember: boolean }) {
-    const {data, isLoading} = useQuery({
+export default function GearScore({ character, isGuildMember }: { character: string, isGuildMember: boolean }) {
+    const { data, isLoading } = useQuery({
         queryKey: ['gearScore', character],
         queryFn: async () => {
-            if (!isGuildMember) return {gs: 'Porco!', color: 'common'}
-            const response = await fetch(`/api/v1/services/member/character/${character}/gs`)
-            return response.json()
+            if (!isGuildMember) return { gs: 'Porco!', color: 'common' }
+            const response = await fetch(`${process.env.NEXT_PUBLIC_EV_API_URL!}/gearscore`, {
+                method: 'POST',
+                body: JSON.stringify({ characters: [{ name: character, realm: GUILD_REALM_SLUG }] }),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${process.env.NEXT_PUBLIC_EV_ANON_TOKEN}`
+                }
+            })
+            const { data: [{ score: gs, color, isFullEnchanted }] = [] } = await response.json()
+            return { gs, color, isFullEnchanted }
         },
         enabled: !!character,
         staleTime: 1000 * 60 * 5, // 5 minutes
         retry: 3,
     })
-
-    if (!isGuildMember) {
-
-    }
 
     return (
         <div className="flex gap-1 items-center">

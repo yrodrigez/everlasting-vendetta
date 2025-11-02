@@ -1,26 +1,32 @@
 'use client'
-import {Input} from "@heroui/react";
+import { Input } from "@heroui/react";
 import Editor from '@monaco-editor/react';
-import {editor} from "monaco-editor";
-import {useEffect, useState} from "react";
-import {Button} from "@/app/components/Button";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faFlask} from "@fortawesome/free-solid-svg-icons";
-import {useMessageBox} from "@utils/msgBox";
-import {useSession} from "@hooks/useSession";
-import {useQuery} from "@tanstack/react-query";
-import {executeCondition} from "@hooks/useAchievements";
-import {AchievementCondition} from "@/app/types/Achievements";
+import { editor } from "monaco-editor";
+import { useEffect, useMemo, useState } from "react";
+import { Button } from "@/app/components/Button";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFlask } from "@fortawesome/free-solid-svg-icons";
+import { useMessageBox } from "@utils/msgBox";
+import { useAuth } from "@context/AuthContext";
+import { useQuery } from "@tanstack/react-query";
+import { executeCondition } from "@hooks/useAchievements";
+import { AchievementCondition } from "@/app/types/Achievements";
+import { useShallow } from "zustand/react/shallow";
+import { useCharacterStore } from "../components/characterStore";
+import { createClientComponentClient } from "../util/supabase/createClientComponentClient";
 
-function ConditionTestWindow({condition}: { condition: AchievementCondition }) {
-	const {selectedCharacter, supabase} = useSession()
-	const {data} = useQuery({
-		queryKey:['testCondition', selectedCharacter?.id],
-		queryFn: async ()=>{
-			if(!selectedCharacter || !condition || !supabase) return {count: 0, result: []}
+function ConditionTestWindow({ condition }: { condition: AchievementCondition }) {
+	const { accessToken } = useAuth();
+	const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
+
+	const selectedCharacter = useCharacterStore(useShallow(state => state.selectedCharacter));
+	const { data } = useQuery({
+		queryKey: ['testCondition', selectedCharacter?.id],
+		queryFn: async () => {
+			if (!selectedCharacter || !condition || !supabase) return { count: 0, result: [] }
 			// @ts-ignore
-			const {data, error} = await executeCondition(supabase, condition, selectedCharacter)
-			return error || {count: data.length, result: data}
+			const { data, error } = await executeCondition(supabase, condition, selectedCharacter)
+			return error || { count: data.length, result: data }
 		}
 	})
 	return (
@@ -38,7 +44,7 @@ function ConditionTestWindow({condition}: { condition: AchievementCondition }) {
 				defaultValue={JSON.stringify(data, null, 2)}
 				value={JSON.stringify(data, null, 2)}
 				options={{
-					minimap: {enabled: false},
+					minimap: { enabled: false },
 					scrollBeyondLastLine: false,
 					readOnly: true,
 				}}
@@ -47,7 +53,7 @@ function ConditionTestWindow({condition}: { condition: AchievementCondition }) {
 	)
 }
 
-export function ConditionEditor({code, name}: { code?: string, name: string }) {
+export function ConditionEditor({ code, name }: { code?: string, name: string }) {
 	function handleEditorChange(value?: string, event?: editor.IModelContentChangedEvent) {
 		setEditorValue(value || '')
 		setInputValue(value || '')
@@ -61,7 +67,7 @@ export function ConditionEditor({code, name}: { code?: string, name: string }) {
 		setInputValue(code ?? '')
 	}, [code])
 
-	const {alert} = useMessageBox()
+	const { alert } = useMessageBox()
 
 	return (
 		<div className="w-full h-full flex gap-1">
@@ -72,7 +78,7 @@ export function ConditionEditor({code, name}: { code?: string, name: string }) {
 					type="hidden"
 					name={name}
 					value={inputValue}
-					isRequired/>
+					isRequired />
 				<Editor
 					className={'w-full h-full'}
 					defaultLanguage="json"
@@ -81,7 +87,7 @@ export function ConditionEditor({code, name}: { code?: string, name: string }) {
 					defaultValue={editorValue}
 					value={editorValue}
 					options={{
-						minimap: {enabled: false},
+						minimap: { enabled: false },
 						scrollBeyondLastLine: false,
 					}}
 					onChange={handleEditorChange}
@@ -91,12 +97,12 @@ export function ConditionEditor({code, name}: { code?: string, name: string }) {
 				size="sm"
 				onPress={() => {
 					alert({
-						message: <ConditionTestWindow condition={JSON.parse(inputValue)}/>,
+						message: <ConditionTestWindow condition={JSON.parse(inputValue)} />,
 						type: 'window'
 					})
 				}}
 				isIconOnly
-				>
+			>
 				<FontAwesomeIcon icon={faFlask} />
 			</Button>
 		</div>

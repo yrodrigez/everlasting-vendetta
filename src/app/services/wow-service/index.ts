@@ -1,11 +1,8 @@
-import {cookies} from "next/headers";
-import {fetchGuildInfo} from "@/app/lib/fetchGuildInfo";
-import {getBlizzardToken} from "@/app/lib/getBlizzardToken";
+import { getBlizzardToken } from "@/app/lib/getBlizzardToken";
 import {
     BLIZZARD_API_LOCALE,
     BLIZZARD_API_NAMESPACE,
     BLIZZARD_API_REGION,
-    BNET_COOKIE_NAME,
     createProfileCharacterFetchUrl,
     GUILD_ID,
     GUILD_NAME,
@@ -45,7 +42,7 @@ export default class WoWService_Impl implements WoWService {
     headers: Headers;
     namespace: string;
 
-    constructor({token}: { token?: { value: string } } = {}) {
+    constructor({ token }: { token?: { value: string } } = {}) {
         this.token = token?.value
         this.guild = GUILD_NAME!
         this.guildId = GUILD_ID
@@ -72,7 +69,7 @@ export default class WoWService_Impl implements WoWService {
             }
         })
         if (!response.ok) {
-            return {error: 'Character not found: ' + characterName}
+            return { error: 'Character not found: ' + characterName }
         }
         const responseJson = await response.json()
 
@@ -132,14 +129,14 @@ export default class WoWService_Impl implements WoWService {
     }
 
     isLoggedUserInGuild = async () => {
-        const {auth} = await  createServerSession({cookies})
+        const { auth } = await createServerSession();
         const session = await auth.getSession()
 
         if (!session) {
             return false
         }
 
-        const sessionGuildId = session.guild.id
+        const sessionGuildId = session.selectedCharacter?.guild?.id
         return sessionGuildId === this.guildId && !session.isTemporal
     }
 
@@ -160,7 +157,7 @@ export default class WoWService_Impl implements WoWService {
             }
         })
 
-        if(!response.ok) {
+        if (!response.ok) {
             console.error('Error fetching character talents:', response.status, response.statusText, await response.text())
             return {}
         }

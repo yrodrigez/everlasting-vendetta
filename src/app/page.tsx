@@ -1,9 +1,8 @@
-import {Card, CardFooter} from "@heroui/react";
-import {Metadata} from "next";
-import {Button} from "@/app/components/Button";
+import { Card, CardFooter } from "@heroui/react";
+import { Metadata } from "next";
+import { Button } from "@/app/components/Button";
 import Link from "next/link";
 import createServerSession from "@utils/supabase/createServerSession";
-import {cookies} from "next/headers";
 import LoopingVideo from "@/app/components/LoopingVideo";
 
 
@@ -31,7 +30,7 @@ const intro = [
     },
 ]
 
-const CustomSection = ({header, paragraphs, img}: { header: string, paragraphs: string[], img: string }) => {
+const CustomSection = ({ header, paragraphs, img }: { header: string, paragraphs: string[], img: string }) => {
     return (
         <Card
             isFooterBlurred
@@ -39,7 +38,7 @@ const CustomSection = ({header, paragraphs, img}: { header: string, paragraphs: 
         >
             <div
                 className="w-80 h-[170px] bg-cover bg-center bg-no-repeat overflow-hidden shadow-small border border-gold/50 rounded-t border-b-0"
-                style={{backgroundImage: `url(${img})`}}
+                style={{ backgroundImage: `url(${img})` }}
             ></div>
             <CardFooter
                 className="scrollbar-pill flex-col bg-dark border-gold/50 min-h-[calc(50%)] border overflow-hidden py-2 absolute rounded rounded-t-none bottom-0 w-[calc(100%)] shadow-small z-10">
@@ -83,28 +82,18 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Home() {
-    const {auth} = await createServerSession({cookies})
+    const { auth } = await createServerSession();
     const session = await auth.getSession()
 
     return (
         <main className="flex w-full h-full justify-evenly flex-col">
             <div className="hidden lg:block h-full w-full">
                 <div className="absolute top-2 right-4 flex flex-col z-50">
-                    {/*<Link href="/events/atiesh">
-                        <div
-                            className="bg-legendary shadow-md hover:shadow-legendary hover:shadow-xl py-3 px-5 rounded-md cursor-pointer hover:opacity-95 shadow-gold flex gap-4 items-center justify-between transition-all duration-300 border border-gold">
-                            <img
-                                className="w-12 h-12 rounded-full"
-                                src="https://ijzwizzfjawlixolcuia.supabase.co/storage/v1/object/public/achievement-image/e464c747-64a4-4f19-af97-8cd17cf8e46d.webp"
-                                alt="Atiesh"
-                            />
-                            <h1 className="text-white text-xl font-bold">The Path to Atiesh</h1>
-                        </div>
-                    </Link>*/}
+                    {/* will be shown in top right */}
                 </div>
                 <div className={
                     "absolute bottom-[51%] left-0 w-full top-0 bg-cover bg-center bg-no-repeat backdrop-filter backdrop-blur-md border-bottom-image"
-                } style={{backgroundImage: "url('/banner-cropped.webp')"}}>
+                } style={{ backgroundImage: "url('/banner-cropped.webp')" }}>
                     <div className="absolute top-0 left-0 w-full h-full -z-10 ">
                         {<LoopingVideo />}
                     </div>
@@ -113,18 +102,17 @@ export default async function Home() {
                         <div
                             className="flex flex-col items-center justify-center bg-opacity-100 opacity-100">
                             <img alt={'center-img'} src={`/center-img.webp`}
-                                 className="flex-1 rounded-full w-60"/>
-                            {!session && <Link href="/apply">
-                                <Button className="mt-4 glow-animation border-gold bg-opacity-100 hover:bg-opacity-100"
-                                        size="lg">Apply Now</Button>
-                            </Link>}
+                                className="flex-1 rounded-full w-60" />
+                            {!session &&
+                                <Button as='a' href="/apply" className="mt-4 glow-animation border-gold bg-opacity-100 hover:bg-opacity-100"
+                                    size="lg">Apply Now</Button>}
                         </div>
                     </div>
                 </div>
             </div>
             <div
                 className="flex flex-col h-full p-2 gap-3 items-center lg:flex-row lg:flex-wrap lg:items-start lg:justify-center lg:max-w-[1000px]">
-                {intro.map((section, index) => <CustomSection key={index} {...section}/>)}
+                {intro.map((section, index) => <CustomSection key={index} {...section} />)}
             </div>
         </main>
     );

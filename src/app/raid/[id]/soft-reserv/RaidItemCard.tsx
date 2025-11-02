@@ -1,9 +1,9 @@
-import {Character, RaidItem} from "@/app/raid/[id]/soft-reserv/types";
-import {useWoWZamingCss} from "@/app/hooks/useWoWZamingCss";
+import { Character, RaidItem } from "@/app/raid/[id]/soft-reserv/types";
+import { useWoWZamingCss } from "@/app/hooks/useWoWZamingCss";
 import Image from "next/image";
-import {useEffect, useRef, useState} from "react";
-import {Button, Modal, ModalContent, Tooltip} from "@heroui/react";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import { useEffect, useRef, useState } from "react";
+import { Button, Modal, ModalContent, Tooltip } from "@heroui/react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faBan,
     faCartPlus,
@@ -16,7 +16,7 @@ import {
 import Link from "next/link";
 import useScreenSize from "@/app/hooks/useScreenSize";
 
-export const ItemTooltip = ({item, qualityColor}: {
+export const ItemTooltip = ({ item, qualityColor }: {
     item: RaidItem,
     qualityColor: 'poor' | 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'
 }) => {
@@ -25,23 +25,24 @@ export const ItemTooltip = ({item, qualityColor}: {
         <div
             className={`flex gap-2 relative`}>
             <img src={item.description.icon} alt={item.name} width={40} height={40}
-                   className={`max-h-[40px] max-w-[40px] w-[40px] h-[40px] border border-${qualityColor} rounded absolute top-0 -left-10 ${item.isHardReserved ? 'grayscale' :''}`}/>
+                className={`max-h-[40px] max-w-[40px] w-[40px] h-[40px] border border-${qualityColor} rounded absolute top-0 -left-10 ${item.isHardReserved ? 'grayscale' : ''}`} />
             <div
                 className={`bg-black border border-${qualityColor} rounded max-w-64 p-2 select-none`}
                 dangerouslySetInnerHTML={{
                     __html: item.description.tooltip.replaceAll(/<a/g, '<span').replaceAll(/<\/a/g, '</span')
-                }}/>
+                }} />
         </div>
     );
 }
 
-const ReservedByList = ({reservedBy}: { reservedBy: Character[] }) => {
+const ReservedByList = ({ reservedBy }: { reservedBy: Character[] }) => {
     return <div
         className={`flex flex-col gap-2 w-full h-full`}>
         <h1 className="text-lg font-bold">Reserved by:</h1>
         <div className="flex flex-col gap-2 w-full h-full overflow-auto scrollbar-pill">
             {reservedBy.map((character) => (
                 <Link
+                    key={character.id}
                     href={`/roster/${encodeURIComponent(character.name.toLowerCase())}`}
                     target={'_blank'}
                     className="flex justify-between items-center gap-2 p-2 min-w-56">
@@ -61,19 +62,19 @@ const ReservedByList = ({reservedBy}: { reservedBy: Character[] }) => {
 }
 
 export function RaidItemCard({
-                                 item,
-                                 reserve,
-                                 remove,
-                                 reservedBy,
-                                 isClicked,
-                                 setIsClicked,
-                                 hardReserve,
-                                 removeHardReserve,
+    item,
+    reserve,
+    remove,
+    reservedBy,
+    isClicked,
+    setIsClicked,
+    hardReserve,
+    removeHardReserve,
     isLoading
-                             }: {
+}: {
     item: RaidItem,
     reserve?: (itemId: number) => Promise<void>,
-    remove?: (itemId: number) => Promise<void>
+    remove?: () => Promise<void> | void,
     hardReserve?: (itemId: number) => Promise<void>
     removeHardReserve?: (itemId: number) => Promise<void>
     reservedBy?: Character[]
@@ -103,10 +104,10 @@ export function RaidItemCard({
     const TooltipContent = () => {
         return (<div
             ref={ref}
-            className={`flex items-center justify-center gap-2 bg-gradient-${item.isHardReserved ? 'poor': qualityColor} border-${qualityColor} p-2 rounded min-h-64 w-full h-full`}
+            className={`flex items-center justify-center gap-2 bg-gradient-${item.isHardReserved ? 'poor' : qualityColor} border-${qualityColor} p-2 rounded min-h-64 w-full h-full`}
         >
-            {showReservedBy ? <ReservedByList reservedBy={reservedBy ?? []}/> : <>
-                <div className="w-8"/>
+            {showReservedBy ? <ReservedByList reservedBy={reservedBy ?? []} /> : <>
+                <div className="w-8" />
                 <div className="flex flex-col gap-2">
                     {item.isHardReserved ?
                         <div className="text-xs font-bold text-center text-gray-800 transition-all flex items-center gap-2 justify-center">
@@ -114,7 +115,7 @@ export function RaidItemCard({
                             <span
                                 className="animate-pulse text-red-500"
                             >
-                                <FontAwesomeIcon icon={faLock}/>
+                                <FontAwesomeIcon icon={faLock} />
                             </span>
                         </div> : null}
                     <ItemTooltip
@@ -130,78 +131,76 @@ export function RaidItemCard({
                     isIconOnly
                     variant="light"
                     className={`text-default rounded`}
-                    onClick={() => {
+                    onPress={() => {
                         setIsClicked(0)
                     }}
-                ><FontAwesomeIcon icon={faClose}/></Button>
+                ><FontAwesomeIcon icon={faClose} /></Button>
                     <Button
                         isIconOnly
                         isDisabled={!reservedBy?.length}
                         className={'text-default rounded'}
                         variant={'light'}
-                        onClick={() => setShowReservedBy(!showReservedBy)}
+                        onPress={() => setShowReservedBy(!showReservedBy)}
                     >
-                        {showReservedBy ? <FontAwesomeIcon icon={faObjectGroup}/> :
-                            <FontAwesomeIcon icon={faUserGroup}/>}
+                        {showReservedBy ? <FontAwesomeIcon icon={faObjectGroup} /> :
+                            <FontAwesomeIcon icon={faUserGroup} />}
                     </Button>
                 </div>
                 <div className="flex flex-col gap-2 h-fit">
                     {hardReserve && !item.isHardReserved ? (
-                            <Tooltip content={'Hard reserve'}>
-                                <Button
-                                    onClick={() => {
-                                        hardReserve(item.id).then(() => {
-                                        })
-                                    }}
-                                    isIconOnly
-                                    className={`bg-red-600 text-default rounded border border-red-700`}
-                                    isDisabled={isLoading}
-                                    isLoading={isLoading}
-                                >
-                                    <FontAwesomeIcon icon={faBan}/>
-                                </Button>
-                            </Tooltip>)
+                        <Tooltip content={'Hard reserve'}>
+                            <Button
+                                onPress={() => {
+                                    hardReserve(item.id).then(() => {
+                                    })
+                                }}
+                                isIconOnly
+                                className={`bg-red-600 text-default rounded border border-red-700`}
+                                isDisabled={isLoading}
+                                isLoading={isLoading}
+                            >
+                                <FontAwesomeIcon icon={faBan} />
+                            </Button>
+                        </Tooltip>)
                         : null}
                     {removeHardReserve && item.isHardReserved ? (
-                            <Tooltip content={'Remove hard reserve'}>
-                                <Button
-                                    onClick={() => {
-                                        removeHardReserve(item.id).then(() => {
-                                        })
-                                    }}
-                                    isIconOnly
-                                    isDisabled={isLoading}
-                                    isLoading={isLoading}
-                                    className={`bg-green-500 text-default rounded border border-moss`}
-                                >
-                                    <FontAwesomeIcon icon={faCheck}/>
-                                </Button>
-                            </Tooltip>
-                        )
+                        <Tooltip content={'Remove hard reserve'}>
+                            <Button
+                                onPress={() => {
+                                    removeHardReserve(item.id).then(() => {
+                                    })
+                                }}
+                                isIconOnly
+                                isDisabled={isLoading}
+                                isLoading={isLoading}
+                                className={`bg-green-500 text-default rounded border border-moss`}
+                            >
+                                <FontAwesomeIcon icon={faCheck} />
+                            </Button>
+                        </Tooltip>
+                    )
                         : null}
                     {remove ? (<Button
-                        onClick={() => {
-                            remove(item.id).then(() => {
-
-                            })
+                        onPress={() => {
+                            remove()
                         }}
                         isIconOnly
                         isDisabled={isLoading}
                         className={`bg-red-600 text-default rounded border border-red-700`}
                     >
-                        <FontAwesomeIcon icon={faTrash}/>
+                        <FontAwesomeIcon icon={faTrash} />
                     </Button>) : null}
                     {reserve && !item.isHardReserved ? (<Button
-                            onClick={() => {
-                                reserve(item.id).then(() => {
-                                })
-                            }}
-                            isDisabled={isLoading}
-                            isIconOnly
-                            className={`bg-moss text-default rounded border border-moss-100`}
-                        >
-                            <FontAwesomeIcon icon={faCartPlus}/>
-                        </Button>)
+                        onPress={() => {
+                            reserve(item.id).then(() => {
+                            })
+                        }}
+                        isDisabled={isLoading}
+                        isIconOnly
+                        className={`bg-moss text-default rounded border border-moss-100`}
+                    >
+                        <FontAwesomeIcon icon={faCartPlus} />
+                    </Button>)
                         : null}
                 </div>
             </div>
@@ -214,19 +213,19 @@ export function RaidItemCard({
                 onClick={() => {
                     setIsClicked(item.id)
                 }}
-                className={`flex justify-center p-2 mt-4 rounded-md w-40 lg:w-32 h-24 bg-gradient-to-b border-2 border-${item.isHardReserved ? 'poor': qualityColor} transition-all cursor-pointer bg-gradient-${item.isHardReserved ? 'poor': qualityColor}`}>
+                className={`flex justify-center p-2 mt-4 rounded-md w-40 lg:w-32 h-24 bg-gradient-to-b border-2 border-${item.isHardReserved ? 'poor' : qualityColor} transition-all cursor-pointer bg-gradient-${item.isHardReserved ? 'poor' : qualityColor}`}>
                 <div className="relative flex flex-col gap-2 items-center justify-center pt-6">
                     <img src={item.description.icon} alt={item.name}
-                           width={46} height={46}
-                           className={`absolute -top-5 rounded-md border border-${qualityColor} min-w-10 max-w-10 min-h-10 max-h-10 ${item.isHardReserved ? 'grayscale' :''}`}
+                        width={46} height={46}
+                        className={`absolute -top-5 rounded-md border border-${qualityColor} min-w-10 max-w-10 min-h-10 max-h-10 ${item.isHardReserved ? 'grayscale' : ''}`}
                     />
                     <span className="text-xs font-bold">{item.name}</span>
                     {
                         item.isHardReserved ?
-                        <div className="text-[.5em] font-bold text-center text-gray-800 transition-all flex items-center gap-2 justify-center absolute -bottom-2">
-                            <div>Hard Reserved</div>
-                            <span className="animate-pulse text-red-500"><FontAwesomeIcon icon={faLock}/></span>
-                        </div> : null
+                            <div className="text-[.5em] font-bold text-center text-gray-800 transition-all flex items-center gap-2 justify-center absolute -bottom-2">
+                                <div>Hard Reserved</div>
+                                <span className="animate-pulse text-red-500"><FontAwesomeIcon icon={faLock} /></span>
+                            </div> : null
                     }
                 </div>
             </div>
@@ -238,7 +237,7 @@ export function RaidItemCard({
                 hideCloseButton={true}
             >
                 <ModalContent>
-                    {() => <TooltipContent/>}
+                    {() => <TooltipContent />}
                 </ModalContent>
             </Modal>
         </>

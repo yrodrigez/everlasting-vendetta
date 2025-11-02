@@ -1,11 +1,11 @@
-import {cookies} from "next/headers";
 import createServerSession from "@utils/supabase/createServerSession";
-import {GUILD_ID, ROLE} from "@utils/constants";
-import {MemberRole, Role, RolePermission, UserProfile} from "@/app/admin/types";
+import { GUILD_ID, ROLE } from "@utils/constants";
+import { MemberRole, Role, RolePermission, UserProfile } from "@/app/admin/types";
 import PermissionManagement from "@/app/admin/PermissionManagement";
 
 export default async function Page() {
-    const {auth, supabase} = await createServerSession({cookies})
+    const { auth, getSupabase } = await createServerSession();
+    const supabase = await getSupabase();
     const session = await auth.getSession()
 
     if (!session || !session.id || !session.roles?.includes(ROLE.ADMIN)) {
@@ -17,9 +17,9 @@ export default async function Page() {
         </div>
     }
 
-    const {data: members, error: membersError} = await supabase.from('ev_member').select('*')
+    const { data: members, error: membersError } = await supabase.from('ev_member').select('*')
         .filter('character->guild->id', 'eq', GUILD_ID)
-        .returns<UserProfile[]>()
+        .overrideTypes<UserProfile[]>()
 
     if (membersError) {
         return <div
@@ -30,9 +30,9 @@ export default async function Page() {
         </div>
     }
 
-    const {data: roles, error: rolesError} = await supabase.from('ev_role').select('*')
+    const { data: roles, error: rolesError } = await supabase.from('ev_role').select('*')
         .filter('id', 'neq', ROLE.ADMIN)
-        .returns<Role[]>()
+        .overrideTypes<Role[]>()
 
     if (rolesError) {
         return <div
@@ -46,7 +46,7 @@ export default async function Page() {
     const {
         data: rolePermissions,
         error: rolePermissionsError
-    } = await supabase.from('ev_role_permissions').select('*').returns<RolePermission[]>()
+    } = await supabase.from('ev_role_permissions').select('*').overrideTypes<RolePermission[]>()
 
     if (rolePermissionsError) {
         return <div
@@ -60,7 +60,18 @@ export default async function Page() {
     const {
         data: memberRoles,
         error: memberRolesError
-    } = await supabase.from('ev_member_role').select('*').returns<MemberRole[]>()
+    } = await supabase.from('ev_member_role').select('*').overrideTypes<MemberRole[]>()
+    if (memberRolesError) {
+        return <div
+            className="w-full h-full flex items-center justify-center text-4xl text-red-500 font-bold flex-col gap-4"
+        >
+            <span className="text-9xl">🚫</span>
+            <span>Error fetching member roles</span>
+        </div>
+    }
+
+
+    console.log({ roles })
 
     return <PermissionManagement
         users={members ?? []}

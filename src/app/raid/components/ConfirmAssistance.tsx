@@ -1,34 +1,34 @@
-import {Popover, PopoverContent, PopoverTrigger, useDisclosure} from "@heroui/react";
-import {useAssistanceStore} from "@/app/raid/components/assistanceStore";
-import {useSession} from "@/app/hooks/useSession";
-import React, {useCallback, useEffect, useMemo, useState} from "react";
-import {assistRaid} from "@/app/raid/components/utils";
+import { Popover, PopoverContent, PopoverTrigger, useDisclosure } from "@heroui/react";
+import { useAssistanceStore } from "@/app/raid/components/assistanceStore";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { assistRaid } from "@/app/raid/components/utils";
 
-import {ShouldReserveModal} from "@/app/raid/components/ShouldReserveModal";
-import {getRoleIcon} from "@/app/apply/components/utils";
-import {PLAYABLE_ROLES} from "@utils/constants";
-import {isRoleAssignable} from "@/app/components/ProfileManager";
-import {useCharacterStore} from "@/app/components/characterStore";
-import {Button} from "@/app/components/Button";
-import {useRouter} from "next/navigation";
+import { ShouldReserveModal } from "@/app/raid/components/ShouldReserveModal";
+import { getRoleIcon } from "@/app/apply/components/utils";
+import { PLAYABLE_ROLES } from "@utils/constants";
+import { isRoleAssignable } from "@/app/components/ProfileManager";
+import { useCharacterStore } from "@/app/components/characterStore";
+import { Button } from "@/app/components/Button";
+import { useRouter } from "next/navigation";
+import { useShallow } from "zustand/react/shallow";
 
 
-export function ConfirmAssistance({raidId, hasLootReservations = false}: {
+export function ConfirmAssistance({ raidId, hasLootReservations = false }: {
     raidId: string,
     hasLootReservations?: boolean
 }) {
     const selectedDays = useAssistanceStore(state => state.selectedDays)
-    const {selectedCharacter} = useSession()
+    const selectedCharacter = useCharacterStore(useShallow(state => state.selectedCharacter));
     const selectedRole = useMemo(() => selectedCharacter?.selectedRole, [selectedCharacter])
     const [loading, setLoading] = useState(false)
-    const {isOpen, onOpen, onClose, onOpenChange} = useDisclosure()
+    const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure()
     const className = useMemo(() => selectedCharacter?.playable_class?.name, [selectedCharacter])
     const setRole = useCharacterStore(state => state.setRole)
     const assignableRoles = useMemo(() => {
         return Object.values(PLAYABLE_ROLES).filter(role => role.value.split('-').every((x: string) => isRoleAssignable(x.toLowerCase(), className?.toLowerCase())))
     }, [className, selectedRole, selectedCharacter])
 
-    const {isOpen: isOpenRoles, onOpenChange: onOpenChangeRoles, onOpen: onOpenRoles} = useDisclosure()
+    const { isOpen: isOpenRoles, onOpenChange: onOpenChangeRoles, onOpen: onOpenRoles } = useDisclosure()
     const [isHovering, setIsHovering] = useState(false)
     const [showHint, setShowHint] = useState(false)
     const timeoutRef = React.useRef<NodeJS.Timeout | null>(null)
@@ -119,20 +119,20 @@ export function ConfirmAssistance({raidId, hasLootReservations = false}: {
                                                     setTimeout(() => confirmRaid(role.value), 400)
                                                 }}
                                             ><span className="relative min-w-6 max-w-12 h-6 group">
-                            {role.value.split('-').map((roleValue, i, arr) => (
-                                <img
-                                    key={i}
-                                    className={`
+                                                    {role.value.split('-').map((roleValue, i, arr) => (
+                                                        <img
+                                                            key={i}
+                                                            className={`
                                         absolute top-0 ${(i === 0 && arr.length === 1) ? 'left-0' : (i === 0 && arr.length > 1) ? '-left-1.5' : 'left-2.5'}
                                         w-6 h-6
                                         rounded-full border border-gold
                                         
                                     `}
-                                    src={getRoleIcon(roleValue)}
-                                    alt={roleValue}
-                                />
-                            ))}
-                            </span>
+                                                            src={getRoleIcon(roleValue)}
+                                                            alt={roleValue}
+                                                        />
+                                                    ))}
+                                                </span>
                                             </Button>
                                         )
                                     }
