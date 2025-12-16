@@ -3,14 +3,14 @@ import { GUILD_REALM_SLUG } from "@/app/util/constants";
 import { Skeleton, Tooltip } from "@heroui/react";
 import { useQuery } from "@tanstack/react-query";
 
-export default function GearScore({ character, isGuildMember }: { character: string, isGuildMember: boolean }) {
+export default function GearScore({ character, isGuildMember, realm }: { character: string, isGuildMember: boolean, realm?: string }) {
     const { data, isLoading } = useQuery({
         queryKey: ['gearScore', character],
         queryFn: async () => {
             if (!isGuildMember) return { gs: 'Porco!', color: 'common' }
             const response = await fetch(`${process.env.NEXT_PUBLIC_EV_API_URL!}/gearscore`, {
                 method: 'POST',
-                body: JSON.stringify({ characters: [{ name: character, realm: GUILD_REALM_SLUG }] }),
+                body: JSON.stringify({ characters: [{ name: character, realm: realm ?? GUILD_REALM_SLUG }] }),
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${process.env.NEXT_PUBLIC_EV_ANON_TOKEN}`

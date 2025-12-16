@@ -1,40 +1,37 @@
 'use client'
-import React, { useCallback, useEffect, useMemo, useState } from "react";
 import CharacterAvatar from "@/app/components/CharacterAvatar";
-import { BattleNetAuthManagerWindow } from "@/app/components/BattleNetAuthManagerWindow";
+import { AuthManagerWindow } from "@/app/components/auth-manager-window";
 import { useCharacterStore } from "@/app/components/characterStore";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-    Modal,
-    ModalBody,
-    ModalContent,
-    ModalHeader,
     Popover,
     PopoverContent,
-    PopoverTrigger, ScrollShadow,
+    PopoverTrigger,
     Spinner, Tooltip
 } from "@heroui/react";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-import {
-    faRightLeft,
-    faPersonCircleQuestion,
-    faUser,
-    faRightFromBracket,
-    type IconDefinition,
-} from '@fortawesome/free-solid-svg-icons'
 import { getRoleIcon } from "@/app/apply/components/utils";
-import { toast } from "sonner";
+import {
+    faLink,
+    faPersonCircleQuestion,
+    faRightFromBracket,
+    faRightLeft,
+    faUser,
+    type IconDefinition,
+} from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from "next/navigation";
-import { PLAYABLE_ROLES } from "@utils/constants";
 import { useAuth } from "../context/AuthContext";
+import { useAuthManagerWindowStore } from "../stores/auth-manager-window-store";
 import { createClientComponentClient } from "../util/supabase/createClientComponentClient";
+import { useVistaStore } from "./character-selection/vista-store";
 
 export function isRoleAssignable(role: 'tank' | 'healer' | 'dps' | string, characterClass: string | undefined, realmSlug: string = 'living-flame'): boolean {
     if (!characterClass) return false
     const healingClasses = realmSlug === 'living-flame' ? ['priest', 'paladin', 'shaman', 'druid', 'mage'] : ['priest', 'paladin', 'shaman', 'druid']
     const tankClasses = realmSlug === 'living-flame' ? ['warrior', 'paladin', 'druid', 'rogue', 'warlock'] : ['warrior', 'paladin', 'druid']
     const rdpsClasses = realmSlug === 'living-flame' ? ['druid', 'priest', 'mage', 'warlock', 'hunter'] : ['druid', 'priest', 'mage', 'warlock', 'hunter']
-    const dpsClasses = realmSlug === 'living-flame' ? ['warrior', 'paladin', 'hunter', 'rogue', 'shaman', 'druid'] : ['warrior', 'paladin','rogue', 'shaman', 'druid'] // melee dps
+    const dpsClasses = realmSlug === 'living-flame' ? ['warrior', 'paladin', 'hunter', 'rogue', 'shaman', 'druid'] : ['warrior', 'paladin', 'rogue', 'shaman', 'druid'] // melee dps
 
     if (role === 'tank') {
         return tankClasses.includes(characterClass)
@@ -67,14 +64,10 @@ const MenuItem = ({ text, onClick, icon }: { text: string, onClick: () => void, 
 
 
 export default function ProfileManager() {
-    const [isCharacterSelectWindowOpen, setIsCharacterSelectWindowOpen] = useState(false)
-    const [isRoleSelectWindowOpen, setIsRoleSelectWindowOpen] = useState(false)
     const selectedCharacter = useCharacterStore(state => state.selectedCharacter)
-    const setSelectedCharacter = useCharacterStore(state => state.setSelectedCharacter)
     const [popoverOpen, setPopoverOpen] = useState(false)
     const { accessToken, isAuthenticated, user, logout } = useAuth()
     const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
-
 
     const router = useRouter()
 
@@ -84,37 +77,22 @@ export default function ProfileManager() {
         setPopoverOpen(false)
     }, [logout, router])
 
+    const openAuthManagerWindow = useAuthManagerWindowStore(state => state.onOpen);
+    const setVista = useVistaStore(state => state.setVista);
+
     useEffect(() => {
         if (!user || !isAuthenticated || !supabase) return
 
         if (!selectedCharacter) {
-            console.log('No character selected, opening character select window')
-            if (!isCharacterSelectWindowOpen) {
-                setIsCharacterSelectWindowOpen(true)
-            }
+            openAuthManagerWindow()
             return
         }
 
-        // Close character select if a character is now selected
-        if (selectedCharacter && isCharacterSelectWindowOpen) {
-            setIsCharacterSelectWindowOpen(false)
-        }
-
-        if (!selectedCharacter.selectedRole && !isRoleSelectWindowOpen) {
-            setIsRoleSelectWindowOpen(true)
+        if (!selectedCharacter.selectedRole) {
+            openAuthManagerWindow()
             return
-        }
-
-        if (selectedCharacter.selectedRole && isRoleSelectWindowOpen) {
-            setIsRoleSelectWindowOpen(false)
         }
     }, [selectedCharacter, user, isAuthenticated, supabase, router])
-
-    const assignableRoles = useMemo(() => {
-        if (!selectedCharacter) return []
-        return Object.values(PLAYABLE_ROLES).filter(role => role.value.split('-').every((x: string) => isRoleAssignable(x.toLowerCase(), selectedCharacter.playable_class?.name?.toLowerCase())))
-    }, [selectedCharacter])
-
 
     return (<>
         <Popover isOpen={popoverOpen} onOpenChange={setPopoverOpen}>
@@ -151,7 +129,8 @@ export default function ProfileManager() {
                         <MenuItem
                             text="Switch character"
                             onClick={() => {
-                                setIsCharacterSelectWindowOpen(true)
+                                setVista('list')
+                                openAuthManagerWindow()
                                 setPopoverOpen(false)
                             }}
                             icon={faRightLeft}
@@ -159,95 +138,32 @@ export default function ProfileManager() {
                         <MenuItem
                             text="Select your role"
                             onClick={() => {
-                                setIsRoleSelectWindowOpen(true)
+                                setVista('role-selection')
+                                openAuthManagerWindow()
                                 setPopoverOpen(false)
                             }}
                             icon={selectedCharacter && selectedCharacter.selectedRole ? getRoleIcon(selectedCharacter.selectedRole) : faPersonCircleQuestion}
                         />
+                        {user?.provider?.indexOf('bnet') === -1 && (
+                            <MenuItem
+                                text="Link a character"
+                                onClick={() => {
+                                    setVista('link')
+                                    openAuthManagerWindow()
+                                    setPopoverOpen(false)
+                                }}
+                                icon={faLink}
+                            />
+                        )}
                         <MenuItem text={'My armory'} onClick={() => {
-                            window.location.href = `/roster/${selectedCharacter.name.toLowerCase()}`
+                            window.location.href = `/roster/${encodeURIComponent(selectedCharacter.name.toLowerCase())}-${selectedCharacter.realm.slug}`;
+                            setPopoverOpen(false)
                         }} icon={faUser} />
                         <MenuItem text={'Logout'} onClick={handleLogout} icon={faRightFromBracket} />
                     </div>
                 )}
             </PopoverContent>
         </Popover>
-        <BattleNetAuthManagerWindow
-            open={isCharacterSelectWindowOpen}
-            setExternalOpen={setIsCharacterSelectWindowOpen}
-        />
-        <Modal
-            placement={'center'}
-            hideCloseButton
-            isOpen={
-                isRoleSelectWindowOpen
-            }>
-            <ModalContent
-                className="bg-wood max-h-96"
-            >
-                <ModalHeader>
-                    <h1>Select your role</h1>
-                </ModalHeader>
-                <ModalBody
-                    className="max-h-96 overflow-auto scrollbar-pill"
-                >
-                    {!supabase || !selectedCharacter ? <div>Loading...</div> :
-                        <ScrollShadow className="flex flex-col gap-2 scrollbar-pill overflow-auto">
-                            {assignableRoles.map(({ value: role, label: roleLabel }) => {
-                                const roleKey = role
-                                return (
-                                    <div
-                                        onClick={() => {
-                                            async function updateRole() {
-                                                if (!selectedCharacter || !user) return
-                                                await supabase?.from('ev_member').update({
-                                                    character: { ...selectedCharacter, selectedRole: roleKey }
-                                                }).eq('id', selectedCharacter.id)
-
-                                                setSelectedCharacter({
-                                                    ...selectedCharacter,
-                                                    selectedRole: roleKey
-                                                })
-
-                                                setIsRoleSelectWindowOpen(false);
-                                                router.refresh()
-                                            }
-
-                                            updateRole().then(() => {
-                                                toast.success('Role updated')
-                                            }).catch(() => {
-                                                toast.error('Error updating role')
-                                            })
-                                        }}
-                                        key={role}
-                                        className={`flex gap-4 items-center justify-between hover:bg-gold hover:bg-opacity-20 py-2 px-4 rounded cursor-pointer`}>
-                                        <div className={'flex gap-4 items-center'}>
-                                            <div className={`relative min-w-14 min-h-14 ${role.split('-').length > 1 ? 'min-w-20' : ''} `}>
-                                                {
-                                                    role.split('-').map((roleValue, i) => (
-                                                        <img
-                                                            key={roleValue}
-                                                            className={`
-                                            absolute top-0 ${i === 0 ? 'left-0' : 'left-7'}
-                                            w-14 h-14
-                                            rounded-full
-                                            transition-all duration-300
-                                        `}
-                                                            src={getRoleIcon(roleValue)}
-                                                            alt={roleValue}
-                                                        />
-                                                    ))}
-                                            </div>
-                                            <div className={'flex flex-col gap-1'}>
-                                                <h2 className={'text-gold font-bold text-xl'}>{roleLabel}</h2>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )
-                            })}
-                        </ScrollShadow>}
-                </ModalBody>
-            </ModalContent>
-        </Modal>
+        <AuthManagerWindow />
     </>)
 }

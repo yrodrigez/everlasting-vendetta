@@ -1,9 +1,7 @@
-import { Card, CardFooter } from "@heroui/react";
-import { Metadata } from "next";
 import { Button } from "@/app/components/Button";
-import Link from "next/link";
-import createServerSession from "@utils/supabase/createServerSession";
 import LoopingVideo from "@/app/components/LoopingVideo";
+import createServerSession from "@utils/supabase/createServerSession";
+import { Metadata } from "next";
 
 
 const intro = [
@@ -32,21 +30,21 @@ const intro = [
 
 const CustomSection = ({ header, paragraphs, img }: { header: string, paragraphs: string[], img: string }) => {
     return (
-        <Card
-            isFooterBlurred
+        <div
+            //isFooterBlurred
             className="border-none text-defaul bg-dark shadow-small w-80 min-h-[340px] rounded border-1 border-gold relative overflow-hidden"
         >
             <div
                 className="w-80 h-[170px] bg-cover bg-center bg-no-repeat overflow-hidden shadow-small border border-gold/50 rounded-t border-b-0"
                 style={{ backgroundImage: `url(${img})` }}
             ></div>
-            <CardFooter
-                className="scrollbar-pill flex-col bg-dark border-gold/50 min-h-[calc(50%)] border overflow-hidden py-2 absolute rounded rounded-t-none bottom-0 w-[calc(100%)] shadow-small z-10">
+            <div
+                className="p-3 scrollbar-pill flex-col bg-dark border-gold/50 min-h-[calc(50%)] border overflow-hidden py-2 absolute rounded rounded-t-none bottom-0 w-[calc(100%)] shadow-small z-10">
                 <h1 className="font-bold text-xl text-gold self-start">{header}</h1>
                 {paragraphs.map((paragraph, i) => <p key={i}>{paragraph}</p>)}
-            </CardFooter>
+            </div>
 
-        </Card>
+        </div>
     )
 }
 
@@ -104,8 +102,12 @@ export default async function Home() {
                             <img alt={'center-img'} src={`/center-img.webp`}
                                 className="flex-1 rounded-full w-60" />
                             {!session &&
-                                <Button as='a' href="/apply" className="mt-4 glow-animation border-gold bg-opacity-100 hover:bg-opacity-100"
-                                    size="lg">Apply Now</Button>}
+                                <Button 
+                                as='a' 
+                                href="/apply" 
+                                className="mt-4 glow-animation border-gold"
+                                size="lg"
+                                >Apply Now</Button>}
                         </div>
                     </div>
                 </div>

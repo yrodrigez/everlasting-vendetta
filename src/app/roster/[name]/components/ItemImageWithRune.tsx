@@ -22,7 +22,7 @@ export function ItemImageWithRune({
         .replace(/[-']/g, '_')
         .toLowerCase() || ''
 
-    const isShoulder = item?.inventory_type?.type === 'SHOULDER'
+    const isShoulder = false; //item?.inventory_type?.type === 'SHOULDER'
 
     const {isOpen, onOpen, onClose, onOpenChange} = useDisclosure()
     return (
@@ -48,19 +48,6 @@ export function ItemImageWithRune({
                                  backgroundImage: isShoulder ? 'url(https://wow.zamimg.com/images/wow/icons/large/spell_holy_divinespirit.jpg)' : `url(/runes/${runeKey}.webp)`,
                              }}
                         />}
-                    {!rune && isShoulder ? (
-                        <>
-                            <div
-                                className="absolute bottom-0 right-0 w-6 h-6 rounded-sm bg-cover filter grayscale border border-red-500"
-                                style={{
-                                    backgroundImage: 'url(https://wow.zamimg.com/images/wow/icons/large/spell_holy_divinespirit.jpg)',
-                                }}
-                            />
-                            <div className="absolute bottom-0 right-0 w-6 h-6 bg-transparent text-red-500 font-bold text-lg flex items-center justify-center">
-                                <FontAwesomeIcon  icon={faClose}/>
-                            </div>
-                        </>
-                    ) : null}
                 </div>
             </Tooltip>
             <Modal

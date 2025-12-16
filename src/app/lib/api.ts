@@ -1,6 +1,4 @@
 import axios from 'axios';
-import { gearScore } from './supa-functions/gearScore';
-import { a } from 'framer-motion/dist/types.d-BJcRxCew';
 import { FetchCharacterOutput } from '../hooks/api/use-fetch-character';
 
 const api = axios.create({
@@ -157,6 +155,28 @@ export const apiService = {
         return data;
       } catch (error) {
         console.error('Error fetching user characters:', error);
+        throw error;
+      }
+    }
+  },
+  realms: {
+    getAllowed: async (): Promise<{ id: number, name: string, slug: string }[]> => {
+      try {
+        const { data } = await api.get(`/realms/allowed`);
+        return data.realms;
+      } catch (error) {
+        console.error('Error fetching allowed realms:', error);
+        throw error;
+      }
+    }
+  },
+  characters: {
+    link: async (characterName: string, realmSlug: string) => {
+      try {
+        const { data } = await api.post(`/characters/link`, { characterName, realmSlug });
+        return data;
+      } catch (error) {
+        console.error('Error linking character:', error);
         throw error;
       }
     }

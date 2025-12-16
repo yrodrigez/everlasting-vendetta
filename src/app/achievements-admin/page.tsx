@@ -1,8 +1,7 @@
-// /.achievements-admin/Page
 import createServerSession from "@utils/supabase/createServerSession";
 import { ROLE } from "@utils/constants";
 import { Achievement } from "@/app/types/Achievements";
-import { Input } from "@heroui/react";
+
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation";
 import { Button } from "@/app/components/Button";
@@ -10,8 +9,9 @@ import { ConditionEditor } from "@/app/achievements-admin/ConditionEditor";
 import DeleteAchievementButton from "@/app/achievements-admin/DeleteAchievementButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPencil } from "@fortawesome/free-solid-svg-icons";
-import { SupabaseClient } from "@supabase/supabase-js";
+import { type SupabaseClient } from "@supabase/supabase-js";
 import { TestDisplayAchievement } from "@/app/achievements-admin/TestDisplayachievement";
+import { Input } from "../components/input";
 
 const ALLOWED_ROLES = [ROLE.ADMIN]
 export const dynamic = 'force-dynamic';

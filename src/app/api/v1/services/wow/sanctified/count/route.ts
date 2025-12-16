@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
         const { fetchEquipment } = new WoWService()
 
         const res = await Promise.all(body.map(async (characterName: string) => {
-            const equipment = await fetchEquipment(characterName?.toLowerCase())
+            const equipment = await fetchEquipment(characterName?.toLowerCase(), 'living-flame')
 
             const itemsIds = equipment?.equipped_items?.map((item: any) => item?.item?.id) ?? []
 

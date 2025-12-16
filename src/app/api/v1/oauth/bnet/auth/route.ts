@@ -1,26 +1,28 @@
-import {type NextRequest, NextResponse} from "next/server";
+import { getEnvironment } from "@/infrastructure/environment";
+import { type NextRequest, NextResponse } from "next/server";
 
 function toBase64(str: string) {
     return Buffer.from(str).toString('base64');
 }
 
 export async function GET(request: NextRequest) {
-    if (!process.env.BNET_CLIENT_ID) throw new Error('BNET_CLIENT_ID not set');
-    if (!process.env.BNET_REDIRECT_URI) throw new Error('BNET_REDIRECT_URI not set');
-    const redirectUri = process.env.BNET_REDIRECT_URI
+    const { bnetClientId, bnetRedirectUri } = getEnvironment();
+    if (!bnetClientId) throw new Error('BNET_CLIENT_ID not set');
+    if (!bnetRedirectUri) throw new Error('BNET_REDIRECT_URI not set');
+    const redirectUri = bnetRedirectUri;
     if (!redirectUri) throw new Error('BNET_REDIRECT_URI not set');
     const url = new URL(request.url);
     const searchParams = url.searchParams;
     const redirectedFrom = searchParams.get('redirectedFrom');
     const isWindowOpener = Boolean(searchParams.get('windowOpener') ?? '');
     const randomValue = Math.ceil(Math.random() * 10000000);
-    const state = toBase64(JSON.stringify({redirectedFrom, randomValue, windowOpener: isWindowOpener}));
+    const state = toBase64(JSON.stringify({ redirectedFrom, randomValue, windowOpener: isWindowOpener }));
     const scopes = ['wow.profile'].join(',');
     const responseType = 'code';
 
     const requestParams = new URLSearchParams({
         response_type: responseType,
-        client_id: process.env.BNET_CLIENT_ID,
+        client_id: bnetClientId,
         redirect_uri: redirectUri,
         scope: scopes,
         state: state,

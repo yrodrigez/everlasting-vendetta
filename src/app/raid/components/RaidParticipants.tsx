@@ -128,7 +128,7 @@ export default function RaidParticipants({ participants, raidId, raidInProgress,
     })
 
     const renderCell = useCallback((registration: { member: RaidParticipant } & any, columnKey: React.Key) => {
-        const { name, avatar, playable_class, id } = registration.member?.character
+        const { name, avatar, playable_class, id, realm = { slug: 'living-flame' } } = registration.member?.character
         const { registration_source } = registration.member
         const registrationDetails = registration.details
         const sanctifiedCount = sanctifiedData?.find(x => x.characterId === id)?.count
@@ -154,7 +154,7 @@ export default function RaidParticipants({ participants, raidId, raidInProgress,
             case "gs":
                 return (
                     /*session?.guild?.id === GUILD_ID ? (*/
-                    <GearScore characterName={name} min={minGs}
+                    <GearScore realm={realm.slug} characterName={name} min={minGs}
                         allowForce={user?.isAdmin || (selectedCharacter?.id || 0) === registration?.member?.character?.id} />
                     /*) : (
                         <Tooltip

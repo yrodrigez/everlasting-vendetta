@@ -9,7 +9,17 @@ const config: Config = {
         "./node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}",
     ],
     safelist: [
+        'top-0',
+        'top-1.5',
+        'top-1',
+        'top-2.5',
+        'top-2',
+        'top-3',
+        'top-4',
+        'top-6',
         'left-3',
+        'group-hover:translate-y-3',
+        'group-hover:translate-y-4',
         'left-6',
         'hover:bg-warrior',
         'hover:bg-paladin',
@@ -93,7 +103,7 @@ const config: Config = {
         'border-stone-100',
         'bg-wood-900',
         'bg-discord',
-        'bg-discord-50'
+        'bg-discord-50',
     ],
     theme: {
         extend: {

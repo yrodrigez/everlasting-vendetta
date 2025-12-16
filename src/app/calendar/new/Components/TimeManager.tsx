@@ -1,9 +1,9 @@
 'use client'
-import {TimeInput} from "@heroui/react";
-import {Time} from "@internationalized/date";
 import useCreateRaidStore from "@/app/calendar/new/Components/useCreateRaidStore";
+import { TimeInput } from "@/app/components/time-input";
+import { Time } from "@internationalized/date";
 import moment from "moment";
-import {useShallow} from "zustand/shallow";
+import { useShallow } from "zustand/shallow";
 
 export default function TimeManager() {
     const {
@@ -39,14 +39,14 @@ export default function TimeManager() {
                 hourCycle={24}
                 value={timeStart}
                 onChange={(time) => setStartTime(moment(time).format('HH:mm'))}
-                label="Start Time" defaultValue={timeStart}/>
+                label="Start Time" defaultValue={timeStart} />
             <TimeInput
                 className="max-w-[400px]"
                 isDisabled={!raid}
                 hourCycle={24}
                 value={timeEnd}
                 onChange={(time) => setEndTime(moment(time).format('HH:mm'))}
-                label="End Time" defaultValue={timeEnd}/>
+                label="End Time" defaultValue={timeEnd} />
         </div>
     );
 }

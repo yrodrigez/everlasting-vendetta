@@ -1,12 +1,12 @@
 'use client';
-import React, {useEffect, useMemo, useState} from 'react';
+import { MemberWithStatistics } from "@/app/stats/page";
+import { useEffect, useMemo, useState } from 'react';
 import ReactApexChart from "react-apexcharts";
-import {MemberWithStatistics} from "@/app/stats/page";
 
 const fontColor = '#dbd2c3';
 
-export default ({members}: { members: MemberWithStatistics[] }) => {
-    const {series, options} = useMemo(() => {
+export default ({ members }: { members: MemberWithStatistics[] }) => {
+    const { series, options } = useMemo(() => {
         const classCounts = members.reduce((acc, member) => {
             acc[member.className] = (acc[member.className] || 0) + 1;
             return acc;
@@ -66,7 +66,7 @@ export default ({members}: { members: MemberWithStatistics[] }) => {
         const series = [{
             data: Object.values(classCounts)
         }];
-        return {series, options};
+        return { series, options };
     }, [members]);
     const [loading, setLoading] = useState(true);
     useEffect(() => {
@@ -77,7 +77,7 @@ export default ({members}: { members: MemberWithStatistics[] }) => {
             className={`bg-moss border border-stone rounded-lg min-h-[340px] backdrop-filter backdrop-blur-md w-full opacity-90 p-4`}>
             <h1 className="font-bold text-xl">Class Distribution</h1>
             {loading ? <div>Loading...</div> :
-                <ReactApexChart options={options} series={series} type="bar" height={350}/>}
+                <ReactApexChart options={options} series={series} type="bar" height={350} />}
 
         </div>
     )

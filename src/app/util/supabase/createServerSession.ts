@@ -1,11 +1,10 @@
 'use server'
-import 'server-only'
-import { cookies, headers } from 'next/headers'
-import { type SupabaseClient, createClient } from '@supabase/supabase-js'
-import { REFRESH_TOKEN_COOKIE_KEY, SELECTED_CHARACTER_COOKIE_KEY, SESSION_INFO_COOKIE_KEY } from '../constants'
 import { SelectedCharacterCookieDTO } from '@/app/components/characterStore'
+import { type SupabaseClient, createClient } from '@supabase/supabase-js'
+import { cookies, headers } from 'next/headers'
+import 'server-only'
 import { decrypt } from '../auth/crypto'
-import { revalidatePath } from 'next/cache'
+import { REFRESH_TOKEN_COOKIE_KEY, SELECTED_CHARACTER_COOKIE_KEY, SESSION_INFO_COOKIE_KEY } from '../constants'
 
 
 export type UserProfile = {
@@ -40,6 +39,7 @@ export default async function createServerSession(): Promise<{
     auth: { getSession: () => Promise<UserProfile | undefined> }
     didSsrRefresh?: boolean
     ssrRefreshedAt?: number
+    accessToken: string | undefined
 }> {
 
     const cookiesStore = await cookies()
@@ -54,7 +54,6 @@ export default async function createServerSession(): Promise<{
                 process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
             );
         }
-        console.log("Creating supabase client with access token", accessToken);
         const client = createClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
             process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -75,6 +74,7 @@ export default async function createServerSession(): Promise<{
             auth: {
                 getSession: async () => undefined,
             },
+            accessToken: accessToken ?? undefined
         }
     }
 
@@ -103,5 +103,5 @@ export default async function createServerSession(): Promise<{
         }
     }
 
-    return { getSupabase, auth: { getSession } }
+    return { getSupabase, auth: { getSession }, accessToken: accessToken ?? undefined };
 }

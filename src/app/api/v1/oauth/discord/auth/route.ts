@@ -1,3 +1,4 @@
+import { getEnvironment } from "@/infrastructure/environment";
 import {type NextRequest, NextResponse} from "next/server";
 
 function toBase64(str: string) {
@@ -5,10 +6,10 @@ function toBase64(str: string) {
 }
 
 export async function GET(request: NextRequest) {
-    if (!process.env.DISCORD_CLIENT_ID) throw new Error('DISCORD_CLIENT_ID not set');
-    if (!process.env.DISCORD_REDIRECT_URI) throw new Error('DISCORD_REDIRECT_URI not set');
+    const { discordClientId, discordRedirectUri } = getEnvironment();
+    if (!discordClientId) throw new Error('DISCORD_CLIENT_ID not set');
+    if (!discordRedirectUri) throw new Error('DISCORD_REDIRECT_URI not set');
 
-    const redirectUri = process.env.DISCORD_REDIRECT_URI;
     const url = new URL(request.url);
     const searchParams = url.searchParams;
     const redirectedFrom = searchParams.get('redirectedFrom');
@@ -20,8 +21,8 @@ export async function GET(request: NextRequest) {
 
     const requestParams = new URLSearchParams({
         response_type: responseType,
-        client_id: process.env.DISCORD_CLIENT_ID,
-        redirect_uri: redirectUri,
+        client_id: discordClientId,
+        redirect_uri: discordRedirectUri,
         scope: scopes,
         state: state,
     });

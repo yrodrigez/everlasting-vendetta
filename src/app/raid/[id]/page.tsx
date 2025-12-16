@@ -2,30 +2,26 @@
 import moment from "moment/moment";
 
 import { type SupabaseClient } from "@supabase/supabase-js";
-import React from "react";
 
-import RaidParticipants from "@/app/raid/components/RaidParticipants";
-import AssistActions from "@/app/raid/components/AssistActions";
-import RaidTimeInfo from "@/app/raid/components/RaidTimeInfo";
-import { KpisView } from "@/app/raid/components/KpisView";
-import { faCartPlus, faGift } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { RaidOptions } from "@/app/raid/components/RaidOptions";
-import { Tooltip } from "@heroui/react";
-import { faDiscord } from "@fortawesome/free-brands-svg-icons";
-import { Metadata } from "next";
-import createServerSession from "@utils/supabase/createServerSession";
 import { Button } from "@/app/components/Button";
 import { ChatContainer } from "@/app/raid/[id]/chat/components/ChatContainer";
 import { fetchResetParticipants } from "@/app/raid/api/fetchParticipants";
+import AssistActions from "@/app/raid/components/AssistActions";
 import { ClassSummary } from "@/app/raid/components/ClassSummary";
-import * as process from "node:process";
 import { IsLowGsModal } from "@/app/raid/components/IsLowGsModal";
+import { KpisView } from "@/app/raid/components/KpisView";
 import ParticipantsManager from "@/app/raid/components/ParticipantsManager";
-import axios from "axios";
+import { RaidOptions } from "@/app/raid/components/RaidOptions";
+import RaidParticipants from "@/app/raid/components/RaidParticipants";
+import RaidTimeInfo from "@/app/raid/components/RaidTimeInfo";
 import { GUILD_REALM_SLUG } from "@/app/util/constants";
+import { faDiscord } from "@fortawesome/free-brands-svg-icons";
+import { faCartPlus, faGift } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import createServerSession from "@utils/supabase/createServerSession";
+import { Metadata } from "next";
 
-const raidResetAttr = 'raid_date, id, raid:ev_raid(name, min_level, image, min_gs), time, end_date, end_time, days, status'
+const raidResetAttr = 'raid_date, id, raid:ev_raid(name, min_level, image, min_gs), time, end_date, end_time, days, status, realm'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60;
 
@@ -179,12 +175,6 @@ async function fetchHasLootReservations(supabase: any, resetId: string, memberId
 
 }
 
-async function getCharactersSanctifiedCount(characterNames: string[] | undefined) {
-    if (!characterNames || !characterNames.length) return undefined
-    const { data } = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/services/wow/sanctified/count`, characterNames)
-    return data as { characterName: string; count: number; characterId: string; }[] | undefined
-}
-
 export default async function ({ params }: { params: Promise<{ id: string }> }) {
     const { getSupabase, auth } = await createServerSession();
     const isLoggedInUser = await auth.getSession()
@@ -209,7 +199,7 @@ export default async function ({ params }: { params: Promise<{ id: string }> }) 
     ])
 
 
-    const { id, raid_date: raidDate, raid, time: raidTime, end_date, end_time: endTime, days, status } = reset
+    const { id, raid_date: raidDate, raid, time: raidTime, end_date, end_time: endTime, days, status, realm } = reset
     const { name: raidName, min_level: min_lvl } = raid
     const raidStartDate = moment(raidDate)
     const raidEndDate = moment(end_date)
@@ -257,6 +247,7 @@ export default async function ({ params }: { params: Promise<{ id: string }> }) 
                 </div>
                 <div className="flex w-full">
                     <AssistActions
+                        realm={realm}
                         status={status}
                         hasLootReservations={hasLootReservations}
                         raidId={id}
@@ -288,43 +279,39 @@ export default async function ({ params }: { params: Promise<{ id: string }> }) 
                             nextResetId={nextReset?.data?.id}
                             raidStarted={raidStarted}
                         />
-
-                        <Tooltip
-                            content="Discord"
-                            placement="right"
-                        >
-                            <Button
-                                target={'_blank'}
-                                href={`https://discord.gg/fYw9WCNFDU`}
-                                as="a"
-                                className={`bg-moss text-default font-bold rounded`} isIconOnly>
-                                <FontAwesomeIcon icon={faDiscord} />
-                            </Button>
-                        </Tooltip>
-                        <Tooltip
-                            content="Soft Reservations"
-                            placement="right"
-                        >
-                            <Button
-                                href={`/raid/${id}/soft-reserv`}
-                                as="a"
-                                className={`bg-moss text-default font-bold rounded ${!hasLootReservations && isLoggedInUser ? 'shadow-2xl shadow-gold border-2 animate-blink-and-glow' : ''}`}
-                                isIconOnly>
-                                <FontAwesomeIcon icon={faCartPlus} />
-                            </Button>
-                        </Tooltip>
+                        <Button
+                            tooltip={{
+                                content: "Join our Discord",
+                                placement: "right"
+                            }}
+                            target={'_blank'}
+                            href={`https://discord.gg/fYw9WCNFDU`}
+                            as="a"
+                            className={`bg-moss text-default font-bold rounded`} isIconOnly>
+                            <FontAwesomeIcon icon={faDiscord} />
+                        </Button>
+                        <Button
+                            tooltip={{
+                                content: "Soft Reservations",
+                                placement: "right"
+                            }}
+                            href={`/raid/${id}/soft-reserv`}
+                            as="a"
+                            className={`bg-moss text-default font-bold rounded ${!hasLootReservations && isLoggedInUser ? 'shadow-2xl shadow-gold border-2 animate-blink-and-glow' : ''}`}
+                            isIconOnly>
+                            <FontAwesomeIcon icon={faCartPlus} />
+                        </Button>
                         {!!hasLootHistory?.data?.length && (
-                            <Tooltip
-                                content="Loot"
-                                placement="right"
-                            >
-                                <Button
-                                    as="a"
-                                    href={`/raid/${id}/loot`}
-                                    className="bg-moss text-default font-bold rounded" isIconOnly>
-                                    <FontAwesomeIcon icon={faGift} />
-                                </Button>
-                            </Tooltip>
+                            <Button
+                                tooltip={{
+                                    content: 'Loot',
+                                    placement: 'right'
+                                }}
+                                as="a"
+                                href={`/raid/${id}/loot`}
+                                className="bg-moss text-default font-bold rounded" isIconOnly>
+                                <FontAwesomeIcon icon={faGift} />
+                            </Button>
                         )}
                     </div>
                 ) : null}

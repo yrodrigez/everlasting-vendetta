@@ -1,4 +1,4 @@
-import {create as createStore} from "zustand";
+import { create as createStore } from "zustand";
 export type Day = 'Sun' | 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat'
 interface RaidStore {
     raid?: {
@@ -20,6 +20,8 @@ interface RaidStore {
     days?: Day[],
     setDays: (days: Day[]) => void
     loading?: boolean
+    realm: string,
+    setRealm: (realm: string) => void
 }
 
 const initialState = {
@@ -29,15 +31,18 @@ const initialState = {
     startTime: '20:30',
     endTime: '23:59',
     days: undefined,
-    loading: false
+    loading: false,
+    realm: 'living-flame',
+    setRealm: (realm: string) => { },
 }
 
 export default createStore<RaidStore>(((set) => ({
     ...initialState,
-    setRaid: (raid) => set({raid}),
-    setStartDate: (startDate) => set({startDate}),
-    setEndDate: (endDate) => set({endDate}),
-    setStartTime: (startTime) => set({startTime}),
-    setEndTime: (endTime) => set({endTime}),
-    setDays: (days) => set({days})
+    setRaid: (raid) => set({ raid }),
+    setStartDate: (startDate) => set({ startDate }),
+    setEndDate: (endDate) => set({ endDate }),
+    setStartTime: (startTime) => set({ startTime }),
+    setEndTime: (endTime) => set({ endTime }),
+    setDays: (days) => set({ days }),
+    setRealm: (realm) => set({ realm })
 })));

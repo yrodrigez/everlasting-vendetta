@@ -1,36 +1,36 @@
-import createServerSession from "@/app/util/supabase/createServerSession";
-import {cookies} from "next/headers";
-import NotLoggedInView from "@/app/components/NotLoggedInView";
+import { EditRaidButton } from "@/app/calendar/[id]/edit/EditRaidButton";
+import { ResetCRUDStoreManager } from "@/app/calendar/[id]/edit/ResetCRUDStoreManager";
+import getAvailableRaids from "@/app/calendar/api/getAvailableRaids";
 import getResetById from "@/app/calendar/api/getResetById";
+import { DaysSelection } from "@/app/calendar/new/Components/DaysSelection";
+import { RaidCard } from "@/app/calendar/new/Components/RaidCard";
 import RaidsSelector from "@/app/calendar/new/Components/RaidsSelector";
 import StartDate from "@/app/calendar/new/Components/StartDate";
 import TimeManager from "@/app/calendar/new/Components/TimeManager";
-import {DaysSelection} from "@/app/calendar/new/Components/DaysSelection";
-import {RaidCard} from "@/app/calendar/new/Components/RaidCard";
-import getAvailableRaids from "@/app/calendar/api/getAvailableRaids";
-import {ResetCRUDStoreManager} from "@/app/calendar/[id]/edit/ResetCRUDStoreManager";
-import {EditRaidButton} from "@/app/calendar/[id]/edit/EditRaidButton";
+import NotLoggedInView from "@/app/components/NotLoggedInView";
+import createServerSession from "@/app/util/supabase/createServerSession";
 import moment from "moment";
+import { RealmSelection } from "../../new/Components/realm-selection";
 
 export const dynamic = 'force-dynamic'
 
-export default async function Page({params}: { params: Promise<{ id: string }> }) {
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
     const { getSupabase, auth } = await createServerSession();
     const supabase = await getSupabase();
     const user = await auth.getSession()
     if (!user) {
-        return <NotLoggedInView/>
+        return <NotLoggedInView />
     }
 
     if (!user.permissions.some(p => p === 'reset.edit')) {
         return <div>Not enough permissions</div>
     }
-    const {id: resetId} = await params
+    const { id: resetId } = await params
 
     const reset = await getResetById(resetId, supabase)
     const raids = await getAvailableRaids(supabase)
 
-    if (moment(reset.raid_date+'T'+reset.time).isBefore(moment())) {
+    if (moment(reset.raid_date + 'T' + reset.time).isBefore(moment())) {
         return <div>Cannot edit past/already started resets</div>
     }
 
@@ -40,19 +40,20 @@ export default async function Page({params}: { params: Promise<{ id: string }> }
                 <div className="flex flex-col lg:flex-row gap-2 w-full overflow-auto">
                     <div
                         className="flex w-full gap-2 items-center lg:items-start flex-col">
-                        <RaidsSelector raids={raids || []}/>
+                        <RaidsSelector raids={raids || []} />
+                        <RealmSelection />
                         <div className="flex w-full justify-between max-w-[400px] gap-2 flex-col">
-                            <StartDate/>
-                            <TimeManager/>
+                            <StartDate />
+                            <TimeManager />
                         </div>
-                        <DaysSelection/>
+                        <DaysSelection />
                     </div>
                     <div
                         className="flex  justify-between gap-2 items-center lg:items-start lg:justify-end flex-col lg:flex-row">
-                        <RaidCard/>
+                        <RaidCard />
                     </div>
                 </div>
-                <EditRaidButton reset={reset}/>
+                <EditRaidButton reset={reset} />
             </div>
         </ResetCRUDStoreManager>
     )

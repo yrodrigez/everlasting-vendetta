@@ -10,6 +10,7 @@ const LoginButton = ({onClick, href, as}: { onClick?: () => any, as?: string, hr
         {...(as ? {as} : {})}
         href={href}
         onPress={() => onClick && onClick()}
+        
         startContent={(
             <span className="font-xl text-white">
         <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" stroke="currentColor"
@@ -21,7 +22,7 @@ const LoginButton = ({onClick, href, as}: { onClick?: () => any, as?: string, hr
         </svg>
         </span>
         )}
-        className="bg-battlenet border border-battlenet-10 text-white rounded-md text-xl"
+        className="bg-battlenet border border-battlenet-10 text-white rounded-md text-xl w-full"
     >
         Log In
     </Button>)
@@ -36,7 +37,9 @@ export function BnetLoginButton() {
 
 
     return isDesktop ? (
-        <div>
+        <div
+        className="w-full"
+        >
             <LoginButton
                 onClick={() => {
                     const authWin = openAuthWindow(loginUrl, 'BattleNet Login', 600, 880);

@@ -31,6 +31,7 @@ export interface FetchCharacterOutput {
     avatar: string;
     last_login_timestamp: number;
     selectedRole?: string;
+    faction: string;
 }
 
 export function useFetchCharacter() {

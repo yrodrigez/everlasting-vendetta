@@ -10,8 +10,6 @@ import { useAuth } from "@/app/context/AuthContext";
 import { useCharacterStore } from "@/app/components/characterStore";
 import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
 
-
-
 export function CreateRaidButton() {
     const { raid, endTime, startTime, startDate, endDate, days } = useCreateRaidStore(useShallow(state => ({
         raid: state.raid,
@@ -19,17 +17,19 @@ export function CreateRaidButton() {
         startTime: state.startTime,
         startDate: state.startDate,
         endDate: state.endDate,
-        days: state.days
+        days: state.days,
+        realm: state.realm,
     })))
 
     const { accessToken } = useAuth()
     const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
     const selectedCharacter = useCharacterStore(useShallow(state => state.selectedCharacter));
+    const realm = useCreateRaidStore(state => state.realm);
 
     const router = useRouter()
 
     const createReset = useCallback(async () => {
-        if (!raid || !startTime || !endTime || !startDate || !endDate || !days?.length || !supabase || !selectedCharacter) return
+        if (!raid || !startTime || !endTime || !startDate || !endDate || !days?.length || !supabase || !selectedCharacter || !realm) return
 
         const shouldAddADay = (
             moment(`${startDate}T${startTime}`).isAfter(
@@ -45,7 +45,8 @@ export function CreateRaidButton() {
             min_lvl: raid.min_level,
             created_by: selectedCharacter?.id,
             modified_by: selectedCharacter?.id,
-            days
+            days,
+            realm,
         }
 
         const { data, error } = await supabase.from('raid_resets').insert(payload)
@@ -60,12 +61,12 @@ export function CreateRaidButton() {
 
         router.push('/raid/' + data?.[0].id)
 
-    }, [raid, endTime, startTime, startDate, endDate, days, selectedCharacter])
+    }, [raid, endTime, startTime, startDate, endDate, days, selectedCharacter, realm, supabase, router])
 
     return (
         <Button
-            isDisabled={!raid || !startTime || !endTime || !startDate || !endDate || !days?.length || !selectedCharacter}
-            onClick={createReset}
+            isDisabled={!raid || !startTime || !endTime || !startDate || !endDate || !days?.length || !selectedCharacter || !realm}
+            onPress={createReset}
         >
             Create Raid
         </Button>

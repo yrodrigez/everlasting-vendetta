@@ -1,17 +1,14 @@
 
-import {type SupabaseClient} from "@supabase/supabase-js";
+import { type SupabaseClient } from "@supabase/supabase-js";
 import Chart from "@/app/stats/Chart";
-import {fetchCharacterAvatar} from "@/app/lib/fetchCharacterAvatar";
-import {Card, CardBody, CardFooter, CardHeader} from "@heroui/react";
-
+import { fetchCharacterAvatar } from "@/app/lib/fetchCharacterAvatar";
+import { Card, CardBody, CardFooter, CardHeader } from "@/app/components/card";
 import moment from "moment";
 import Link from "next/link";
-import {CURRENT_MAX_LEVEL, GUILD_REALM_SLUG} from "@/app/util/constants";
+import { CURRENT_MAX_LEVEL, GUILD_REALM_SLUG } from "@/app/util/constants";
 import createServerSession from "@utils/supabase/createServerSession";
-import { headers } from "next/headers";
 
 export const dynamic = 'force-dynamic'
-
 
 type MemberRecord = {
     id: number,
@@ -112,7 +109,7 @@ function getClassColor(className: string) {
 async function findMembersAvatars(members: MemberWithStatistics[], token: string, supabase: SupabaseClient) {
     return await Promise.all(members.map(async (member: MemberWithStatistics) => {
         let avatar: string;
-        const {data, error} = await supabase.from('ev_member').select('character').eq('id', member.id).single();
+        const { data, error } = await supabase.from('ev_member').select('character').eq('id', member.id).single();
         if (error) {
             avatar = await fetchCharacterAvatar(
                 token,
@@ -136,14 +133,14 @@ export default async function Page() {
     const {
         data,
         error
-    } = await supabase.from('ev_guild_roster_history').select('members:details, created_at').order('created_at', {ascending: false}).limit(15);
+    } = await supabase.from('ev_guild_roster_history').select('members:details, created_at').order('created_at', { ascending: false }).limit(15);
 
     if (error) {
         console.error('Error fetching guild roster historic', error)
         return <div>Error fetching guild roster history</div>
     }
 
-    const {data: blizzardToken} = await supabase.functions.invoke('everlasting-vendetta', {});
+    const { data: blizzardToken } = await supabase.functions.invoke('everlasting-vendetta', {});
     const token = blizzardToken?.token;
 
     const lastUpdate = moment(data?.[0]?.created_at).fromNow();
@@ -209,7 +206,7 @@ export default async function Page() {
             <div
                 className="flex gap-2 w-full h-[400px] overflow-y-auto items-center lg:justify-center overflow-x-hidden flex-col lg:flex-row scrollbar-pill snap-y">
                 <Card shadow="lg"
-                      className="flex flex-col items-center justify-center min-h-[250px] bg-dark border border-dark-100 text-primary min-w-[325px] w-full lg:max-w-[325px] snap-center">
+                    className="flex flex-col items-center justify-center min-h-[250px] bg-dark border border-dark-100 text-primary min-w-[325px] w-full lg:max-w-[325px] snap-center">
                     <CardHeader>
                         <h1 className={'text-xl font-bold'}>Joiners vs leavers</h1>
                     </CardHeader>
@@ -250,7 +247,7 @@ export default async function Page() {
                     </CardFooter>
                 </Card>
                 <Card shadow="lg"
-                      className="flex flex-col items-center justify-center h-[250px] min-h-[250px] bg-green-500 border border-green-300 w-full text-white min-w-[325px] lg:max-w-[325px] snap-center">
+                    className="flex flex-col items-center justify-center h-[250px] min-h-[250px] bg-green-500 border border-green-300 w-full text-white min-w-[325px] lg:max-w-[325px] snap-center">
                     <CardHeader>
                         <h1 className={'text-xl font-bold'}>Joiners</h1>
                     </CardHeader>
@@ -279,7 +276,7 @@ export default async function Page() {
                     </CardFooter>
                 </Card>
                 <Card shadow="lg"
-                      className={'flex flex-col items-center justify-center h-[250px] min-h-[250px] bg-red-500 border border-red-300 w-full text-white min-w-[325px] lg:max-w-[325px] snap-center'}>
+                    className={'flex flex-col items-center justify-center h-[250px] min-h-[250px] bg-red-500 border border-red-300 w-full text-white min-w-[325px] lg:max-w-[325px] snap-center'}>
                     <CardHeader>
                         <h1 className={'text-xl font-bold'}>Leavers</h1>
                     </CardHeader>
@@ -311,7 +308,7 @@ export default async function Page() {
             <div
                 className="flex flex-col w-full h-full"
             >
-                <Chart members={latestMembers.filter((x: MemberWithStatistics) => x.level >= CURRENT_MAX_LEVEL)}/>
+                <Chart members={latestMembers.filter((x: MemberWithStatistics) => x.level >= CURRENT_MAX_LEVEL)} />
             </div>
         </div>
     )

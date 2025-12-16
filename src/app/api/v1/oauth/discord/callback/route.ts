@@ -1,6 +1,6 @@
-import {type NextRequest, NextResponse} from "next/server";
-import {cookies} from "next/headers";
-import {DISCORD_COOKIE_NAME} from "@utils/constants";
+import { type NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { getEnvironment } from "@/infrastructure/environment";
 
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 const PRODUCTION_ORIGIN = 'https://www.everlastingvendetta.com/';
@@ -20,8 +20,8 @@ function toJson(str: string) {
 }
 
 export async function GET(request: NextRequest) {
-    const discordRedirectURI = process.env.DISCORD_REDIRECT_URI;
-    if (!discordRedirectURI) throw new Error('DISCORD_REDIRECT_URI not set');
+    const { refreshTokenCookieKey, discordRedirectUri, discordClientId, discordClientSecret, evApiUrl } = getEnvironment();
+    if (!discordRedirectUri) throw new Error('DISCORD_REDIRECT_URI not set');
 
     const requestURL = new URL(request.url);
     const code = requestURL.searchParams.get('code');
@@ -38,11 +38,11 @@ export async function GET(request: NextRequest) {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: new URLSearchParams({
-            client_id: process.env.DISCORD_CLIENT_ID!,
-            client_secret: process.env.DISCORD_CLIENT_SECRET!,
+            client_id: discordClientId,
+            client_secret: discordClientSecret,
             grant_type: 'authorization_code',
             code,
-            redirect_uri: discordRedirectURI,
+            redirect_uri: discordRedirectUri,
         }),
     });
 
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
     const windowOpener = stateData?.windowOpener;
 
     // Exchange Discord token for your auth system tokens
-    const authResponse = await fetch(`${process.env.NEXT_PUBLIC_EV_API_URL}/auth/login`, {
+    const authResponse = await fetch(`${evApiUrl}/auth/login`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
     const { refreshToken, refreshTokenExpiry } = await authResponse.json();
     console.log('Auth token generated successfully');
 
-    (await cookies()).set('refresh_token', refreshToken, {
+    (await cookies()).set(refreshTokenCookieKey, refreshToken, {
         httpOnly: true,
         secure: true,
         sameSite: 'strict',

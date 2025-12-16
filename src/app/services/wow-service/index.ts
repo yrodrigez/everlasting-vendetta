@@ -26,9 +26,9 @@ interface WoWService {
 
     isLoggedUserInGuild(): Promise<boolean>
 
-    getCharacterTalents(characterName: string): Promise<any>
+    getCharacterTalents(characterName: string, realmSlug: string): Promise<any>
 
-    fetchEquipment(characterName: string): Promise<any>
+    fetchEquipment(characterName: string, realmSlug: string): Promise<any>
 }
 
 export default class WoWService_Impl implements WoWService {
@@ -76,12 +76,12 @@ export default class WoWService_Impl implements WoWService {
         return responseJson
     }
 
-    fetchCharacterStatistics = async (characterName: string) => {
+    fetchCharacterStatistics = async (characterName: string, realmSlug: string) => {
         if (!characterName) {
             throw new Error('WoWService::fetchCharacterStatistics - characterName parameter is required')
         }
         const token = this.token ?? (await getBlizzardToken()).token
-        const url = `https://eu.api.blizzard.com/profile/wow/character/${this.realmSlug}/${characterName}/statistics`
+        const url = `https://eu.api.blizzard.com/profile/wow/character/${realmSlug}/${characterName}/statistics`
         const query = new URLSearchParams({
             namespace: this.namespace,
             locale: this.locale
@@ -131,20 +131,20 @@ export default class WoWService_Impl implements WoWService {
     isLoggedUserInGuild = async () => {
         const { auth } = await createServerSession();
         const session = await auth.getSession()
-
+        console.log('WoWService::isLoggedUserInGuild - session:', session)
         if (!session) {
             return false
         }
 
-        const sessionGuildId = session.selectedCharacter?.guild?.id
-        return sessionGuildId === this.guildId && !session.isTemporal
+        const sessionGuildId = session.selectedCharacter?.guild?.name
+        return sessionGuildId === GUILD_NAME && !session.isTemporal
     }
 
-    getCharacterTalents = async (characterName: string) => {
+    getCharacterTalents = async (characterName: string, realmSlug: string) => {
         if (!characterName) {
             throw new Error('WoWService::getCharacterTalents - characterName parameter is required')
         }
-        const url = `https://eu.api.blizzard.com/profile/wow/character/${this.realmSlug}/${characterName.toLowerCase()}/specializations`
+        const url = `https://eu.api.blizzard.com/profile/wow/character/${realmSlug}/${characterName.toLowerCase()}/specializations`
         const queryParameters = new URLSearchParams({
             locale: this.locale,
             namespace: this.namespace
@@ -165,12 +165,12 @@ export default class WoWService_Impl implements WoWService {
         return await response.json()
     }
 
-    fetchEquipment = async (characterName: string) => {
+    fetchEquipment = async (characterName: string, realmSlug: string) => {
         if (!characterName) {
             throw new Error('WoWService::fetchEquipment - characterName parameter is required')
         }
 
-        const url = `https://eu.api.blizzard.com/profile/wow/character/${this.realmSlug}/${characterName}/equipment`
+        const url = `https://eu.api.blizzard.com/profile/wow/character/${realmSlug}/${characterName}/equipment`
         const query = new URLSearchParams({
             locale: this.locale,
             namespace: this.namespace

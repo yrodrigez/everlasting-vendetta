@@ -1,13 +1,12 @@
 'use client';
-import {Button as MuiButton, type ButtonProps} from "@heroui/react";
-import { prop } from "cheerio/dist/commonjs/api/attributes";
-import {type ReactNode} from "react";
+import { Button as MuiButton, type ButtonProps, Tooltip, TooltipProps } from "@heroui/react";
+import { type ReactNode } from "react";
 
 
-export function Button({children, ...oldprops}: { children?: ReactNode } & ButtonProps) {
+export function Button({ children, tooltip, ...oldprops }: { children?: ReactNode, tooltip?: TooltipProps } & ButtonProps) {
 	const props = { ...oldprops }
 	const defaultClassNames = props.color ? '' : 'bg-moss text-gold rounded border border-moss-100 z-10'
-	
+
 	if (props.variant) {
 		// do nothing
 	} else if (props.className) {
@@ -16,15 +15,21 @@ export function Button({children, ...oldprops}: { children?: ReactNode } & Butto
 		props.className = defaultClassNames
 	}
 	props.variant = props.variant || 'solid'
-	if(props.color === 'danger') {
-		props.className = `${defaultClassNames} bg-red-700 text-white border border-red-600 ${props.className? props.className : ''}`
+	if (props.color === 'danger') {
+		props.className = `${defaultClassNames} bg-red-700 text-white border border-red-600 ${props.className ? props.className : ''}`
 		props.color = undefined
 	}
 
-	if(props.color === 'success') {
-		props.className = `${defaultClassNames} bg-green-800 text-white border border-green-700 ${props.className? props.className : ''}`
+	if (props.color === 'success') {
+		props.className = `${defaultClassNames} bg-green-800 text-white border border-green-700 ${props.className ? props.className : ''}`
 		props.color = undefined
 	}
-	//console.log('Final Button props:', props);
+	
+	if (tooltip) {
+		return <Tooltip {...tooltip}>
+			<MuiButton {...props}>{children}</MuiButton>
+		</Tooltip>
+	}
+
 	return <MuiButton {...props}>{children}</MuiButton>;
 }

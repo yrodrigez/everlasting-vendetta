@@ -1,9 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { fetchBattleNetWoWAccounts } from "@/app/lib/fetchBattleNetWoWaccounts";
 import { registerOnRaid } from "@/app/lib/database/raid_resets/registerOnRaid";
+import { fetchBattleNetWoWAccounts } from "@/app/lib/fetchBattleNetWoWaccounts";
 import createServerSession from "@utils/supabase/createServerSession";
+import { NextRequest, NextResponse } from "next/server";
 
 
 export async function POST(request: NextRequest) {
@@ -14,32 +12,14 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Error - raidId is mandatory!' })
     }
 
-    const authorization = request.headers.get('authorization')?.split(' ').pop()
-    if (!authorization) {
-        const origin = new URL(request.url).origin
-        return redirect(origin + '/api/v1/oauth/bnet/auth')
-    }
-
     const { getSupabase } = await createServerSession();
-    const supabase = await getSupabase();
-    if (!currentCharacter.isTemporal) {
-        const currentUserCharacters = await fetchBattleNetWoWAccounts(authorization)
-        if (!currentUserCharacters) {
-            return NextResponse.json({ error: 'Error fetching wow characters' }, {
-                status: 500
-            })
-        }
 
-        const isCharacterOwned = currentUserCharacters.some((character: any) => {
-            if (character.id === currentCharacter.id) {
-                return true
-            }
+    const supabase = await getSupabase();
+    const accessToken = await supabase.realtime?.accessToken?.()
+    if (!accessToken) {
+        return NextResponse.json({ error: 'Error - no access token!' }, {
+            status: 401
         })
-        if (!isCharacterOwned) {
-            return NextResponse.json({ error: 'Error - character not owned!' }, {
-                status: 403
-            })
-        }
     }
 
     const {

@@ -11,18 +11,19 @@ import { useAuth } from "@/app/context/AuthContext";
 import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
 
 export function EditRaidButton({ reset }: { reset: any }) {
-    const { raid, endTime, startTime, startDate, endDate, days } = useCreateRaidStore(useShallow(state => ({
+    const { raid, endTime, startTime, startDate, endDate, days, realm } = useCreateRaidStore(useShallow(state => ({
         raid: state.raid,
         endTime: state.endTime,
         startTime: state.startTime,
         startDate: state.startDate,
         endDate: state.endDate,
-        days: state.days
+        days: state.days,
+        realm: state.realm,
     })))
     const { accessToken } = useAuth();
     const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
 
-    const selectedCharacter = useCharacterStore(useShallow(state => state.selectedCharacter));
+    const selectedCharacter = useCharacterStore(state => state.selectedCharacter);
     const router = useRouter()
 
     const createReset = useCallback(async () => {
@@ -53,6 +54,7 @@ export function EditRaidButton({ reset }: { reset: any }) {
         }
 
         const payload = {
+            realm,
             raid_id: raid.id,
             time: startTime,
             end_time: endTime,
@@ -61,9 +63,9 @@ export function EditRaidButton({ reset }: { reset: any }) {
             min_lvl: raid.min_level,
             modified_by: selectedCharacter?.id,
             modified_at: new Date().toISOString(),
-            days
+            days,
         }
-
+        
         const { data, error } = await supabase.from('raid_resets')
             .update(payload)
             .eq('id', reset.id)
@@ -78,7 +80,7 @@ export function EditRaidButton({ reset }: { reset: any }) {
 
         router.push('/raid/' + data?.[0].id)
 
-    }, [raid, endTime, startTime, startDate, endDate, days, reset.id, selectedCharacter])
+    }, [raid, endTime, startTime, startDate, endDate, days, reset.id, selectedCharacter, realm])
 
     return (
         <Button

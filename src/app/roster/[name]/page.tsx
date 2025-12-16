@@ -1,37 +1,37 @@
 import CharacterAvatar from "@/app/components/CharacterAvatar";
 import { CharacterGear } from "@/app/roster/[name]/components/CharacterGear";
-import { CharacterViewOptions } from "@/app/roster/[name]/components/CharacterViewOptions";
 import { CharacterTalents } from "@/app/roster/[name]/components/CharacterTalents";
-import moment from "moment";
-import { cookies } from "next/headers";
-import { Tooltip } from "@heroui/react";
-import { getBlizzardToken } from "@/app/lib/getBlizzardToken";
-import WoWService from "@/app/services/wow-service";
+import { CharacterViewOptions } from "@/app/roster/[name]/components/CharacterViewOptions";
 import GearScore from "@/app/roster/[name]/components/GearScore";
-import Link from "next/link";
-import { GUILD_ID, GUILD_NAME, GUILD_REALM_SLUG } from "@/app/util/constants";
 import { LootHistory } from "@/app/roster/[name]/components/LootHistory";
 import { StatisticsView } from "@/app/roster/[name]/components/StatisticsView";
+import WoWService from "@/app/services/wow-service";
+import { GUILD_ID, GUILD_NAME } from "@/app/util/constants";
+import { Tooltip } from "@/app/components/tooltip";
+import moment from "moment";
+import Link from "next/link";
 
-import Head from "next/head";
-import { Metadata } from "next";
 import { BnetLoginButton } from "@/app/components/BnetLoginButton";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBan, faUserXmark } from "@fortawesome/free-solid-svg-icons";
-import createServerSession from "@utils/supabase/createServerSession";
 import { Button } from "@/app/components/Button";
-import { revalidatePath } from "next/cache";
-import CharacterAchievements from "@/app/roster/[name]/components/CharacterAchievements";
-import { SupabaseClient } from "@supabase/supabase-js";
-import { Achievement, MemberAchievement } from "@/app/types/Achievements";
+import { apiService } from "@/app/lib/api";
 import { AttendanceHeatmap } from "@/app/roster/[name]/components/AttendanceHeatmap";
+import CharacterAchievements from "@/app/roster/[name]/components/CharacterAchievements";
 import CharacterProfessions from "@/app/roster/[name]/components/CharacterProfessions";
 import { fetchCharacterProfessionsSpells } from "@/app/roster/[name]/components/professions-api";
+import { Achievement, MemberAchievement } from "@/app/types/Achievements";
+import { faBan, faUserXmark } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { SupabaseClient } from "@supabase/supabase-js";
+import createServerSession from "@utils/supabase/createServerSession";
+import { Metadata } from "next";
+import { revalidatePath } from "next/cache";
+import Head from "next/head";
 
 export const dynamic = 'force-dynamic'
 
-const getPlayerClassById = (classId: number) => {
+const getPlayerClassById = (classId: number | string) => {
     const classes = {
+        0: { name: 'Warrior', icon: 'https://render.worldofwarcraft.com/classic1x-eu/icons/56/classicon_warrior.jpg' },
         1: { name: 'Warrior', icon: 'https://render.worldofwarcraft.com/classic1x-eu/icons/56/classicon_warrior.jpg' },
         2: { name: 'Paladin', icon: 'https://render.worldofwarcraft.com/classic1x-eu/icons/56/classicon_paladin.jpg' },
         3: { name: 'Hunter', icon: 'https://render.worldofwarcraft.com/classic1x-eu/icons/56/classicon_hunter.jpg' },
@@ -42,6 +42,13 @@ const getPlayerClassById = (classId: number) => {
         9: { name: 'Warlock', icon: 'https://render.worldofwarcraft.com/classic1x-eu/icons/56/classicon_warlock.jpg' },
         11: { name: 'Druid', icon: 'https://render.worldofwarcraft.com/classic1x-eu/icons/56/classicon_druid.jpg' },
     } as any
+
+    if (typeof classId === 'string') {
+        return Object.values(classes).find((c: any) => c.name.toLowerCase() === classId.toLowerCase()) || {
+            name: 'Unknown',
+            icon: 'https://wow.zamimg.com/images/wow/icons/large/inv_misc_questionmark.jpg'
+        }
+    }
 
     return classes[classId] || {
         name: 'Unknown',
@@ -222,27 +229,44 @@ const fetchAchievements = async (supabase: SupabaseClient, characterId: number) 
 
 
 export default async function Page({ params }: { params: Promise<{ name: string }> }) {
-    const cookieToken = (await cookies()).get(process.env.BNET_COOKIE_NAME!)?.value
-    const { token } = (cookieToken ? { token: cookieToken } : (await getBlizzardToken()))
-    const { name } = await params
+
+    const { name: characterNameParam } = await params
+    const [name, ...realmSlugParts] = characterNameParam.split('-')
+    const realmSlug = realmSlugParts.join('-') || 'living-flame';
+    const allowedRealms = await apiService.realms.getAllowed()
+    if (!allowedRealms.find(r => r.slug === realmSlug)) {
+        return <div>Realm not allowed</div>
+    }
+
     const characterName = decodeURIComponent(name.toLowerCase()).trim()
 
     const { auth, getSupabase } = await createServerSession();
 
     const {
-        fetchMemberInfo,
         fetchEquipment,
         isLoggedUserInGuild,
         getCharacterTalents,
         fetchCharacterStatistics
     } = new WoWService()
-    const characterInfo = await fetchMemberInfo(characterName)
+    const characterInfo = await (async () => {
+        try {
+            return await apiService.anon.getCharacter(realmSlug, characterName)
+        } catch (e) {
+            console.error('Error fetching character info:', e)
+            return null
+        }
+    })();
+
+    if (!characterInfo) {
+        return <div>Character not found</div>
+    }
+
     const supabase = await getSupabase();
     const [isGuildMember, equipment, talents, characterStatistics, lootHistory, { data: isCharacterBanned }, { data: isMemberPresent }, achievementData, attendance, professions] = await Promise.all([
         isLoggedUserInGuild(),
-        fetchEquipment(characterName),
-        getCharacterTalents(characterName),
-        fetchCharacterStatistics(characterName),
+        fetchEquipment(characterName, realmSlug),
+        getCharacterTalents(characterName, realmSlug),
+        fetchCharacterStatistics(characterName, realmSlug),
         fetchLootHistory(supabase, characterName),
         supabase
             .from('banned_member')
@@ -266,11 +290,11 @@ export default async function Page({ params }: { params: Promise<{ name: string 
     const group2 = findEquipmentBySlotTypes(equipmentData, ['HANDS', 'WAIST', 'LEGS', 'FEET', 'FINGER_1', 'FINGER_2', 'TRINKET_1', 'TRINKET_2'])
     const group3 = findEquipmentBySlotTypes(equipmentData, ['MAIN_HAND', 'OFF_HAND', 'RANGED'])
 
-    if (characterInfo.error) {
+    if (!characterInfo) {
         return <div>Character not found</div>
     }
 
-    if (false && !isGuildMember && characterInfo.guild?.id !== GUILD_ID) {
+    if (false && !isGuildMember && characterInfo?.guild?.id !== GUILD_ID) {
         return <div
             className="text-2xl text-red-500 font-bold p-4 w-full h-full flex items-center justify-center flex-col gap-2">
             <FontAwesomeIcon icon={faBan} />
@@ -296,7 +320,7 @@ export default async function Page({ params }: { params: Promise<{ name: string 
                 <div className="mx-auto max-w-6xl px-4 flex justify-evenly items-center h-36">
                     <div className="flex items-center gap-4 mb-4 ">
                         <div className="w-20 h-20 rounded-full overflow-hidden min-w-20">
-                            <CharacterAvatar token={token} realm={GUILD_REALM_SLUG} characterName={characterInfo.name}
+                            <CharacterAvatar realm={realmSlug} characterName={characterInfo.name}
                                 className={`rounded-full border-3  border-${characterInfo?.character_class?.name?.toLowerCase()}`} />
                         </div>
                         <div className="grid gap-1.5 w-full">
@@ -306,11 +330,11 @@ export default async function Page({ params }: { params: Promise<{ name: string 
                             </h2>
                             {characterInfo?.guild?.name ? (
                                 <Link
-                                    href={characterInfo?.guild?.name === GUILD_NAME ? '/roster' : `/guild/${characterInfo?.guild?.realm?.id}-${characterInfo?.guild?.id}`}
+                                    href={characterInfo?.guild?.name === GUILD_NAME ? '/roster' : `/guild/${characterInfo?.realm?.id}-${characterInfo?.guild?.id}`}
                                     className="text-sm text-gold">{`<${characterInfo?.guild?.name}>`}</Link>
                             ) : null}
                             <p className="text-sm text-muted">
-                                Level {characterInfo?.level} {characterInfo?.race?.name} <span
+                                Level {characterInfo?.level} <span
                                     className={`text-${characterInfo?.character_class?.name?.toLowerCase()} font-bold`}>{characterInfo?.character_class?.name}</span>
                             </p>
                             <p className="text-sm text-muted">Last online: <span className={`font-bold relative`}>
@@ -325,7 +349,7 @@ export default async function Page({ params }: { params: Promise<{ name: string 
                                 </Tooltip> : null}
                             </span>
                             </p>
-                            <GearScore character={characterName} isGuildMember={isGuildMember} />
+                            <GearScore realm={characterInfo.realm?.slug} character={characterName} isGuildMember={isGuildMember} />
                         </div>
                     </div>
                     <img
@@ -333,7 +357,7 @@ export default async function Page({ params }: { params: Promise<{ name: string 
                         height={56}
                         className={'rounded-full'}
                         alt={characterInfo.character_class?.name}
-                        src={getPlayerClassById(characterInfo.character_class?.id).icon} />
+                        src={getPlayerClassById(characterInfo.character_class?.name).icon} />
                 </div>
                 <div className="lg:h-36 hidden lg:flex lg:flex-col">
                     <StatisticsView statistics={characterStatistics} />
@@ -349,7 +373,7 @@ export default async function Page({ params }: { params: Promise<{ name: string 
                                     group1,
                                     group2,
                                     group3
-                                }}/>
+                                }} />
                         },
                         {
                             label: 'Talents', name: 'talents', children: <CharacterTalents

@@ -14,7 +14,7 @@ export async function GET(_: NextRequest, context: any) {
     const supabase = await getSupabase()
     const { fetchEquipment } = new WoWService()
 
-    const equipment = await fetchEquipment(characterName?.toLowerCase())
+    const equipment = await fetchEquipment(characterName?.toLowerCase(), 'living-flame')
 
     const itemsIds = equipment?.equipped_items?.map((item: any) => item?.item?.id) ?? []
 

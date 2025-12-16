@@ -16,7 +16,6 @@ export default function LookupField({ value, onChange, values, icon, title }: {
 
         for (const val of values) {
             const valSlug = typeof val === "string" ? val : val.slug;
-            debugger;
             if (valSlug === slug) {
                 return typeof val === "string" ? val : val.label;
             }

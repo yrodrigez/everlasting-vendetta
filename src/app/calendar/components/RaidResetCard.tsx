@@ -100,7 +100,7 @@ export function RaidResetCard({
 
 	return (
 		<div
-			className={`w-[300px] relative text-default max-h-64 3xl:min-h-64 flex flex-col p-3 rounded-md backdrop-blur backdrop-opacity-90 justify-between border transition-all duration-300 ${(isToday || isRaidCurrent) ? 'border-gold shadow-xl shadow-gold glow-animation ' : 'border-wood-100'
+			className={`w-[300px] relative text-default h-64 3xl:min-h-64 flex flex-col p-3 rounded-md backdrop-blur backdrop-opacity-90 justify-between border transition-all duration-300 ${(isToday || isRaidCurrent) ? 'border-gold shadow-xl shadow-gold glow-animation ' : 'border-wood-100'
 				}`}
 			style={{
 				...((borderColor && status !== 'offline') ? { borderColor } : {}),

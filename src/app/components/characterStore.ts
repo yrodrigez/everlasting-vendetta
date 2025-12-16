@@ -90,7 +90,7 @@ const initialState = {
 export const useCharacterStore = createStore<CharacterStore>()(persist((set, get) => ({
     ...initialState,
     setLastUpdated: (lastUpdated: number) => set({ lastUpdated }),
-    setSelectedCharacter: (character) => {
+    setSelectedCharacter: (character) => {        
         set({ selectedCharacter: character })
         if (!character) { deleteCookie(SELECTED_CHARACTER_COOKIE_KEY); return }
         const toStore = toB64Url(character)

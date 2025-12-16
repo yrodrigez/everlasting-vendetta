@@ -3,7 +3,7 @@ import { AchievementCard } from "@/app/roster/[name]/components/CharacterAchieve
 import createServerSession from "@utils/supabase/createServerSession";
 import { ROLE } from "@utils/constants";
 import NotLoggedInView from "@/app/components/NotLoggedInView";
-import { ScrollShadow } from "@heroui/react";
+import { ScrollShadow } from "@/app/components/scroll-shadow";
 import Sound from "@/app/events/components/Sound";
 import ParticipateButton from "@/app/events/components/ParticipateButton";
 import GearScore from "@/app/components/GearScore";
@@ -173,7 +173,7 @@ export default async function AtieshMomentsPage() {
                 </h2>
                 <p className="leading-relaxed">
                     The first champion has already been chosen —
-                    <Link href={'/roster/felsargon'}><strong className="text-gold"> Felsargon</strong></Link>, honored
+                    <Link href={'/roster/felsargon-living-flame'}><strong className="text-gold"> Felsargon</strong></Link>, honored
                     for his
                     tireless leadership in MC, BWL, and AQ. When the time comes for the second
                     and third Atiesh to arise, fate will decide from among the Worthy.

@@ -4,19 +4,21 @@ import { usePathname, useRouter } from "next/navigation";
 import useScreenSize from "@/app/hooks/useScreenSize";
 import { createHandleAuthMessage, openAuthWindow } from "@/app/util/blizzard/loginOnWindow";
 import { DISCORD_LOGIN_URL } from "@utils/constants";
-import { useState, useRef, useMemo, useCallback } from "react";
+import { useState, useRef, useMemo, useCallback, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDiscord } from "@fortawesome/free-brands-svg-icons";
 import { Button } from "@/app/components/Button";
 import { AnimatedModal } from "@/app/components/AnimatedModal";
+import { useAuthManagerWindowStore } from "../stores/auth-manager-window-store";
+import { useApiHealth } from "../hooks/api/use-api-health";
 
 
 export const LoginButton = ({ battleNetRedirectUrl }: { battleNetRedirectUrl: string }) => {
+    const { isHealthy } = useApiHealth();
     const path = usePathname()
     const { isDesktop } = useScreenSize()
-    const [isOpen, setIsOpen] = useState(false)
+    const { isOpen, onOpen, onClose } = useAuthManagerWindowStore()
     const buttonRef = useRef<HTMLDivElement>(null)
-    const router = useRouter();
 
     const battleNetLoginUrl = useMemo(() => {
         return `${battleNetRedirectUrl}${path ? `?redirectedFrom=${encodeURIComponent(path)}${isDesktop ? '&windowOpener=true' : ''}` : ''}`
@@ -26,6 +28,7 @@ export const LoginButton = ({ battleNetRedirectUrl }: { battleNetRedirectUrl: st
     }, [DISCORD_LOGIN_URL, path, isDesktop]);
 
     const handleLogin = useCallback((url: string, windowTitle: string) => {
+        if (!isHealthy) return onClose();
         if (isDesktop) {
             const authWin = openAuthWindow(url, windowTitle, 600, 880);
             const handleAuthMessage = (event: MessageEvent) => createHandleAuthMessage(event, () => {
@@ -38,8 +41,8 @@ export const LoginButton = ({ battleNetRedirectUrl }: { battleNetRedirectUrl: st
         } else {
             window.location.href = url;
         }
-        setIsOpen(false);
-    }, [isDesktop, openAuthWindow, createHandleAuthMessage]);
+        onClose();
+    }, [isDesktop, openAuthWindow, createHandleAuthMessage, onClose]);
 
     return (
         <>
@@ -51,12 +54,12 @@ export const LoginButton = ({ battleNetRedirectUrl }: { battleNetRedirectUrl: st
                     pointerEvents: isOpen ? 'none' : 'auto'
                 }}
             >
-                <HeaderMenuButton text="Login" onClick={() => setIsOpen(true)} />
+                <HeaderMenuButton text="Login" onClick={onOpen} />
             </div>
 
             <AnimatedModal
                 isOpen={isOpen}
-                onClose={() => setIsOpen(false)}
+                onClose={onClose}
                 triggerRef={buttonRef}
                 title="Login to Everlasting Vendetta"
             >
@@ -78,7 +81,6 @@ export const LoginButton = ({ battleNetRedirectUrl }: { battleNetRedirectUrl: st
                         <span>Login with Battle.net</span>
                     </Button>
                     <Button
-                        isDisabled={true}
                         onPress={() => handleLogin(discordLoginUrl, 'Discord Login')}
                         className="flex items-center gap-3 p-3 rounded cursor-pointer hover:bg-discord transition-colors border border-discord/30 bg-discord text-white"
                     >

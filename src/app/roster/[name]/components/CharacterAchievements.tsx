@@ -3,7 +3,7 @@ import {Achievement} from "@/app/types/Achievements";
 import moment from "moment";
 import {Button, ScrollShadow} from "@heroui/react";
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {createBrowserClient} from "@supabase/ssr"
+import {createBrowserClient} from "@supabase/ssr/dist/main/createBrowserClient"
 import {useQuery} from "@tanstack/react-query";
 import Link from "next/link";
 import Image from "next/image";

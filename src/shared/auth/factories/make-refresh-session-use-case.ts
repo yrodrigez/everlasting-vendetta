@@ -4,6 +4,7 @@ import type { Encryptor } from '../application/ports/encryptor';
 import { RefreshSessionUseCase } from '../application/use-cases/refresh-session.use-case';
 import { HttpAuthGateway } from '../infrastructure/http-auth-gateway';
 import { NextCookiesSessionStore } from '../infrastructure/next-cookies-session-store';
+import { getEnvironment } from '@/infrastructure/environment';
 
 type CookieStore = {
     get(name: string): { name: string; value: string } | undefined;
@@ -23,9 +24,9 @@ type CookieStore = {
 };
 
 export function makeRefreshSessionUseCase(cookieStore: CookieStore) {
-    const apiUrl = process.env.NEXT_PUBLIC_EV_API_URL;
+    const { evApiUrl } = getEnvironment();
 
-    if (!apiUrl) {
+    if (!evApiUrl) {
         throw new Error('NEXT_PUBLIC_EV_API_URL is not set');
     }
 
@@ -47,7 +48,7 @@ export function makeRefreshSessionUseCase(cookieStore: CookieStore) {
         encrypt: (value) => encrypt(value),
     };
 
-    const authGateway = new HttpAuthGateway(apiUrl);
+    const authGateway = new HttpAuthGateway(evApiUrl);
 
     return new RefreshSessionUseCase({
         sessionStore,

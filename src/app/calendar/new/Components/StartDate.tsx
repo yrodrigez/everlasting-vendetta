@@ -17,8 +17,11 @@ export default function StartDate() {
 	return (
 		<DatePicker
 			classNames={{
-				calendar: 'bg-dark',
-				calendarContent: 'text-default',
+				segment:'text-default/60 data-[editable=true]:text-default',
+				inputWrapper: 'transition-all duration-200 bg-wood-900 border border-wood-100 text-default hover:border-wood-100 focus:border-wood-100 focus:ring-2 focus:ring-wood-100 hover:bg-wood data-[hover=true]:border-wood-100 focus-within:hover:ring-wood-100 focus-within:hover:bg-wood',                
+                label: 'text-default/60 group-data-[filled="true"]:text-default/60',
+                description: 'text-default',
+				popoverContent: 'bg-wood-900 border border-wood-100 text-default',
 			}}
 			// @ts-ignore - value is not in the DatePickerProps
 			value={startDate && new InterCalendar(startDate.getFullYear(), startDate.getMonth() + 1, startDate.getDate())}
@@ -29,9 +32,7 @@ export default function StartDate() {
 				current.setHours(0, 0, 0, 0)
 				if (datedDate.getTime() < current.getTime()) return
 
-				setStartDate(
-					datedDate
-				)
+				setStartDate(datedDate)
 			}}
 			isDisabled={!raid}
 			// @ts-ignore - value is not in the DatePickerProps

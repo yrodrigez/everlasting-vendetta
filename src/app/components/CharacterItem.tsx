@@ -211,19 +211,11 @@ export default function ({ item: _item, reverse, bottom }: {
         staleTime: 1000 * 60 * 5, // 5 minutes
         retry: 3
     })
-
-    const isShoulderAndNotRuned = useMemo(() => {
-        const isShoulder = item?.inventory_type?.type === 'SHOULDER'
-        if (!isShoulder) return false
-        const rune = item?.enchantments?.find((enchant: any) => enchant?.enchantment_slot?.type === 'TEMPORARY')
-
-        return !rune
-    }, [item?.enchantments, item?.inventory_type?.name])
-
+    
     return (
         <div className={`flex items-center gap-4 ${reverse ? 'flex-row-reverse' : ''}`}>
             <Skeleton isLoaded={!loading}
-                className={`w-12 h-12 relative rounded-lg  ${loading ? 'bg-wood rounded-lg' : 'bg-transparent'} transition-all duration-300 shadow-lg ${isShoulderAndNotRuned ? 'shadow-red-500' : 'shadow-moss-900'}`}>
+                className={`w-12 h-12 relative rounded-lg  ${loading ? 'bg-wood rounded-lg' : 'bg-transparent'} transition-all duration-300`}>
                 <ItemImageWithRune
                     item={item}
                     itemIconUrl={itemIconUrl}

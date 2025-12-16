@@ -28,7 +28,7 @@ async function isBanned(session: UserProfile | undefined, supabase?: SupabaseCli
 }
 
 export const config = {
-    runtime: 'nodejs',
+    //runtime: 'nodejs',
     matcher: [
         '/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|.*\\.(?:png|jpe?g|gif|webp|svg|mp4)).*)'
     ]
@@ -65,7 +65,7 @@ async function registerClick(urlId: string, supabase: SupabaseClient) {
 }
 
 
-async function middleware(req: NextRequest, res: NextResponse): Promise<NextResponse> {
+async function proxy(req: NextRequest, res: NextResponse): Promise<NextResponse> {
     if (req.url.indexOf('/admin') !== -1) {
         console.log('Middleware running for', req.url);
         console.log('Cookies:', req.cookies);
@@ -93,4 +93,4 @@ async function middleware(req: NextRequest, res: NextResponse): Promise<NextResp
     return res;
 }
 
-export default withRefreshToken(middleware as any);
+export default withRefreshToken(proxy as any);

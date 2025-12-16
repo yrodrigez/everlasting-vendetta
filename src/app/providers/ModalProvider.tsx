@@ -45,35 +45,39 @@ export function ModalProvider({children}: { children: ReactNode }) {
     const [size, setModalSize] = React.useState<"sm" | "md" | "lg" | "xl" | "2xl" | "xs" | "3xl" | "4xl" | "5xl" | "full" | undefined>('lg')
     const [placement, setModalPlacement] = React.useState<"center" | "auto" | "top" | "top-center" | "bottom" | "bottom-center" | undefined>('center')
 
+    const reset = React.useCallback(() => {
+        setHeader(null)
+        setBody(null)
+        setFooter(null)
+        setIsDismissable(true)
+        setHideCloseButton(false)
+        setTitle(undefined)
+        setClassName(undefined)
+        setModalSize('lg')
+        setModalPlacement('center')
+    }, [])
+
+    const contextValue = React.useMemo(() => ({
+        isOpen,
+        onOpen,
+        onClose,
+        setHeader,
+        setBody,
+        setFooter,
+        isDismissable,
+        setIsDismissable,
+        hideCloseButton,
+        setHideCloseButton,
+        setTitle,
+        setClassName,
+        setModalSize,
+        setModalPlacement,
+        reset
+    }), [isOpen, onOpen, onClose, isDismissable, hideCloseButton, reset])
+
     return (
         <>
-            <ModalContext.Provider value={{
-                isOpen,
-                onOpen,
-                onClose,
-                setHeader,
-                setBody,
-                setFooter,
-                isDismissable,
-                setIsDismissable,
-                hideCloseButton,
-                setHideCloseButton,
-                setTitle,
-                setClassName,
-                setModalSize,
-                setModalPlacement,
-                reset: () => {
-                    setHeader(null)
-                    setBody(null)
-                    setFooter(null)
-                    setIsDismissable(true)
-                    setHideCloseButton(false)
-                    setTitle(undefined)
-                    setClassName(undefined)
-                    setModalSize('lg')
-                    setModalPlacement('center')
-                }
-            }}>
+            <ModalContext.Provider value={contextValue}>
                 {children}
                 <Modal
                     onOpenChange={onOpenChange}

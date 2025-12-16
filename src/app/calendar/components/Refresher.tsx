@@ -1,5 +1,5 @@
 'use client'
-import {createBrowserClient as createClientComponentClient} from "@supabase/ssr"
+import {createBrowserClient as createClientComponentClient} from "@supabase/ssr/dist/main/createBrowserClient"
 import {useRouter} from "next/navigation";
 import {useEffect} from "react";
 

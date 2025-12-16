@@ -73,6 +73,7 @@ export function IsLowGsModal({ isLowGs, characterGearScore, minGs }: {
                                         Hey <span className="font-bold">{selectedCharacter?.name}</span>, your gear score is
                                         currently</p> {selectedCharacter?.name ? <span><GearScore
                                             characterName={selectedCharacter?.name}
+                                            realm={selectedCharacter?.realm.slug}
                                             min={minGs}
                                             allowForce={true}
                                         /></span> : characterGearScore} </div> <p>while

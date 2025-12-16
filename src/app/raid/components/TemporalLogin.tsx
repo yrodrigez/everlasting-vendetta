@@ -110,8 +110,9 @@ export function TemporalLogin() {
     return <>
         <Button
             onPress={onOpen}
+            isDisabled={true}
             size="lg"
-            className={`font-bold p-5 border border-moss-100 hover:border-gold hover:bg-dark rounded-lg`}
+            className={`w-full font-bold p-5 border border-moss-100 hover:border-gold hover:bg-dark rounded-lg`}
             startContent={<FontAwesomeIcon icon={faUser} />}>
             Login with char name
         </Button>

@@ -10,14 +10,16 @@ export function ResetCRUDStoreManager({reset, children}: { reset: any, children:
         setEndDate,
         setStartTime,
         setEndTime,
-        setDays
+        setDays,
+        setRealm
     } = useCreateRaidStore(useShallow(state => ({
         setRaid: state.setRaid,
         setStartDate: state.setStartDate,
         setEndDate: state.setEndDate,
         setStartTime: state.setStartTime,
         setEndTime: state.setEndTime,
-        setDays: state.setDays
+        setDays: state.setDays,
+        setRealm: state.setRealm
     })))
 
     useEffect(() => {
@@ -27,6 +29,7 @@ export function ResetCRUDStoreManager({reset, children}: { reset: any, children:
         setStartTime(reset.time ?? '20:30')
         setEndTime(reset.end_time ?? '23:59')
         setDays(reset.days)
+        setRealm(reset.realm ?? 'living-flame')
     }, []);
 
     return children

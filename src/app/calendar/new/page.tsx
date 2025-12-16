@@ -1,13 +1,13 @@
-import createServerSession from "@/app/util/supabase/createServerSession";
-import { cookies } from "next/headers";
-import NotLoggedInView from "@/app/components/NotLoggedInView";
-import RaidsSelector from "@/app/calendar/new/Components/RaidsSelector";
-import { RaidCard } from "@/app/calendar/new/Components/RaidCard";
+import getAvailableRaids from "@/app/calendar/api/getAvailableRaids";
+import { CreateRaidButton } from "@/app/calendar/new/Components/CreateRaidButton";
 import { DaysSelection } from "@/app/calendar/new/Components/DaysSelection";
+import { RaidCard } from "@/app/calendar/new/Components/RaidCard";
+import RaidsSelector from "@/app/calendar/new/Components/RaidsSelector";
 import StartDate from "@/app/calendar/new/Components/StartDate";
 import TimeManager from "@/app/calendar/new/Components/TimeManager";
-import { CreateRaidButton } from "@/app/calendar/new/Components/CreateRaidButton";
-import getAvailableRaids from "@/app/calendar/api/getAvailableRaids";
+import NotLoggedInView from "@/app/components/NotLoggedInView";
+import createServerSession from "@/app/util/supabase/createServerSession";
+import { RealmSelection } from "./Components/realm-selection";
 
 export const dynamic = 'force-dynamic'
 
@@ -34,6 +34,7 @@ export default async function Page() {
                 <div
                     className="flex w-full gap-2 items-center lg:items-start flex-col">
                     <RaidsSelector raids={raids || []} />
+                    <RealmSelection />
                     <div className="flex w-full justify-between max-w-[400px] gap-2 flex-col">
                         <StartDate />
                         <TimeManager />

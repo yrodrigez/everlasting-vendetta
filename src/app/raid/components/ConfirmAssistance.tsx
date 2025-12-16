@@ -24,9 +24,10 @@ export function ConfirmAssistance({ raidId, hasLootReservations = false }: {
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure()
     const className = useMemo(() => selectedCharacter?.playable_class?.name, [selectedCharacter])
     const setRole = useCharacterStore(state => state.setRole)
+    const realm = useMemo(() => selectedCharacter?.realm?.slug, [selectedCharacter])    
     const assignableRoles = useMemo(() => {
-        return Object.values(PLAYABLE_ROLES).filter(role => role.value.split('-').every((x: string) => isRoleAssignable(x.toLowerCase(), className?.toLowerCase())))
-    }, [className, selectedRole, selectedCharacter])
+        return Object.values(PLAYABLE_ROLES).filter(role => role.value.split('-').every((x: string) => isRoleAssignable(x.toLowerCase(), className?.toLowerCase(), realm ?? 'living-flame')));
+    }, [className, selectedRole, selectedCharacter, realm])
 
     const { isOpen: isOpenRoles, onOpenChange: onOpenChangeRoles, onOpen: onOpenRoles } = useDisclosure()
     const [isHovering, setIsHovering] = useState(false)

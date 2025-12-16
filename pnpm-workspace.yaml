@@ -1,5 +1,5 @@
 packages:
-  - '.'
+  - .
 
 ignoredBuiltDependencies:
   - '@vercel/speed-insights'
@@ -8,3 +8,4 @@ ignoredBuiltDependencies:
 
 onlyBuiltDependencies:
   - '@heroui/shared-utils'
+  - supabase

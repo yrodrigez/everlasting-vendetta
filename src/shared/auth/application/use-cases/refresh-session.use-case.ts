@@ -18,7 +18,8 @@ export interface RefreshSessionUseCaseDependencies {
 }
 
 const DEFAULT_PROVIDER_REDIRECTS: Record<string, string> = {
-    bnet: '/api/v1/oauth/bnet/refresh',
+    bnet: '/api/v1/oauth/bnet/auth',
+    discord: '/api/v1/oauth/discord/auth',
 };
 
 export class RefreshSessionUseCase {
