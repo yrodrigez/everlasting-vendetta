@@ -94,7 +94,7 @@ export function RaidOptions({
                         )).then(() => {
                             toast.custom(() => (
                                 <div
-                                    className="flex gap-2 items-center justify-center bg-wood border border-wood-100 p-4 rounded-lg text-default shadow shadow-wood-100 shadow-lg">
+                                    className="flex gap-2 items-center justify-center bg-wood border border-wood-100 p-4 rounded-lg text-default shadow-wood-100 shadow-lg">
                                     <FontAwesomeIcon icon={faCircleInfo}/>
                                     <span>Link copied to clipboard</span>
                                 </div>
@@ -105,7 +105,7 @@ export function RaidOptions({
                         }).catch(() => {
                             toast.custom(() => (
                                 <div
-                                    className="flex gap-2 items-center justify-center bg-red-600 border border-bg-red-500 p-4 rounded-lg text-default shadow shadow-wood-100 shadow-lg">
+                                    className="flex gap-2 items-center justify-center bg-red-600 border border-bg-red-500 p-4 rounded-lg text-default shadow-wood-100 shadow-lg">
                                     <FontAwesomeIcon icon={faTriangleExclamation}/>
                                     <span>An error occurred while copying the link to the clipboard!</span>
                                 </div>
