@@ -1,8 +1,7 @@
-import Link from "next/link";
-import { cookies } from "next/headers";
 import { type Character, getGuildRosterFromGuildInfo } from "@/app/lib/fetchGuildInfo";
 import { CURRENT_MAX_LEVEL, GUILD_NAME, GUILD_REALM_NAME } from "@/app/util/constants";
 import createServerSession from "@utils/supabase/createServerSession";
+import Link from "next/link";
 
 export const dynamic = 'force-dynamic'
 
@@ -24,7 +23,7 @@ const MemberView = ({ member }: { member: Character & { icon: string, className:
     }
 
     return <Link
-        href={`/roster/${name.toLowerCase()}`}
+        href={`/roster/${name.toLowerCase()}-${member.realm?.slug}`}
         className={`flex relative overflow-hidden flex-1 w-64 min-w-64 max-w-64 flex-col mb-4 items-center gap-2 p-4 hover:cursor-pointer  hover:bg-opacity-30 hover:shadow-2xl hover:shadow-${className.toLowerCase()} transition-all  bg-dark backdrop-filter backdrop-blur-md rounded-lg border-[1px] border-gold`}>
         <div className="w-full h-full absolute top-0">
             {/* @ts-ignore*/}
@@ -83,15 +82,15 @@ export default async function Page() {
         .filter('character->guild->>name', 'eq', GUILD_NAME)
         //.filter('updated_at', 'gte', moment().subtract(60, 'days').format('YYYY-MM-DD')) // Uncomment this line to filter characters updated in the last 60 days
         .order('updated_at', { ascending: false })
-        .returns<{ updated_at: string, character: Character }[]>()
-
+        .overrideTypes<{ updated_at: string, character: Character }[]>()
+        
     if (error) {
         console.error(error)
         return <div>Error {error.message}</div>
     }
 
     const { data: roles, error: errorRoles } = await supabase.from('ev_member_role').select('member_id, role')
-        .returns<{ member_id: number, role: string }[]>()
+        .overrideTypes<{ member_id: number, role: string }[]>()
 
 
     const guildRoster = getGuildRosterFromGuildInfo(data.map(({ character, updated_at }) => ({
@@ -116,7 +115,6 @@ export default async function Page() {
         acc[member.rankName].push(member)
         return acc
     }, {} as Record<string, (Character & { icon: string, className: string, rankName: string })[]>)
-
 
     return <main className="flex w-full h-full flex-col items-center">
         {Object.entries(groupByRank).sort(([rankA], [rankB]) => RANKS[rankA as keyof typeof RANKS] - RANKS[rankB as keyof typeof RANKS]).map(([rankName, members]) => {

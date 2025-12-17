@@ -30,7 +30,7 @@ export function ItemImageWithRune({
             <Tooltip
                 isDisabled={item.name === 'Unknown'}
                 placement={bottom ? 'top' : reverse ? 'left' : 'right'}
-                className={`rounded block bg-cover bg-black bg-opacity-95 p-3 border border-${item?.quality?.name?.toLowerCase()}`}
+                className={`rounded block bg-dark p-3 border border-${item?.quality?.name?.toLowerCase()}`}
                 content={
                     <ItemDetailedView item={item}/>
                 }>

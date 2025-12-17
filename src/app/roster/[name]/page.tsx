@@ -153,14 +153,16 @@ async function fetchLootHistory(supabase: SupabaseClient, characterName: string)
 
 export async function generateMetadata({ params }: { params: Promise<{ name: string }> }): Promise<Metadata> {
     // Fetch or compute character information here
-    const { fetchMemberInfo } = new WoWService()
-    const { name } = await params
+    const { name: characterNameParam } = await params
+    const [name, ...realmSlugParts] = characterNameParam.split('-')
+    const realmSlug = realmSlugParts.join('-') || 'living-flame';
     const characterName = decodeURIComponent(name.toLowerCase())
-    const characterInfo = await fetchMemberInfo(characterName);
+
+    const characterInfo = await apiService.anon.getCharacter(realmSlug, characterName);
 
     return {
         title: `${characterInfo.name} - ${characterInfo.guild?.name ?? 'No Guild'} | Everlasting Vendetta`,
-        description: `${characterInfo.name} is a level ${characterInfo.level} ${characterInfo.race?.name} ${characterInfo.character_class?.name}. ${characterInfo.guild?.name ? `A proud member of ${characterInfo.guild.name}` : 'Not part of any guild.'
+        description: `${characterInfo.name} is a level ${characterInfo.level} ${characterInfo.character_class?.name}. ${characterInfo.guild?.name ? `A proud member of ${characterInfo.guild.name}` : 'Not part of any guild.'
             } View gear, talents, and loot history.`,
         keywords: 'wow, world of warcraft, guild recruitment, raiding, pve, pvp, classic, tbc, burning crusade, shadowlands, lone wolf, everlasting vendetta, guild events, guild forum, season of discovery, sod',
     };
@@ -294,28 +296,12 @@ export default async function Page({ params }: { params: Promise<{ name: string 
         return <div>Character not found</div>
     }
 
-    if (false && !isGuildMember && characterInfo?.guild?.id !== GUILD_ID) {
-        return <div
-            className="text-2xl text-red-500 font-bold p-4 w-full h-full flex items-center justify-center flex-col gap-2">
-            <FontAwesomeIcon icon={faBan} />
-            <div>You can only view guild members.</div>
-            <div>Only guild members can view characters from other guilds.</div>
-            <div>You should also login using <span className="text-battlenet">Battle.net</span> to view this page</div>
-            <div className="flex items-center gap-2 text-default">Please <BnetLoginButton /> or <Link href={'/apply'}
-                className="text-default border-moss-100 border px-3 py-2 rounded-lg bg-moss hover:bg-moss-100 hover:border-moss hover:text-gold transition-colors duration-200">Apply</Link> to
-                view this character.
-            </div>
-        </div>
-    }
     const session = await auth.getSession()
     const canBan = !!(session?.permissions.includes('member.ban') && characterInfo.guild?.id !== GUILD_ID && isMemberPresent && !isCharacterBanned) // can ban only if not in the same guild
     const canUnban = !!(session?.permissions.includes('member.unban') && characterInfo.guild?.id !== GUILD_ID && isCharacterBanned) // can unban only if not in the same guild
 
     return (
         <>
-            <Head>
-                <title>{characterInfo.name} - {characterInfo.guild?.name ?? 'No Guild'}</title>
-            </Head>
             <div className="relative w-full h-full flex flex-col">
                 <div className="mx-auto max-w-6xl px-4 flex justify-evenly items-center h-36">
                     <div className="flex items-center gap-4 mb-4 ">
