@@ -128,11 +128,11 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     const loggedInCharacter = loggedInUser.selectedCharacter
     const raid = resetData.data.raid
     const raidMinLevel = raid?.min_level
-    if (raidMinLevel > (loggedInCharacter?.level ?? 0)) {
+    if (Number(raidMinLevel) > Number(loggedInCharacter?.level ?? 0)) {
         return <div className="mt-auto mb-auto w-full p-8 bg-dark border border-gold rounded-lg">
             <h1 className="text-center text-2xl mb-2">
                 Character level too low you should be <span className="text-gold font-bold">{raidMinLevel}</span> but
-                you are {loggedInCharacter?.level}</h1>
+                you are {loggedInCharacter?.level ?? 0}</h1>
             <h2>We encourage you to engage in other activities to level up your character which
                 is only <span className="text-gold font-bold">{raidMinLevel - (loggedInCharacter?.level ?? 0)}</span> levels
                 away from the required level.

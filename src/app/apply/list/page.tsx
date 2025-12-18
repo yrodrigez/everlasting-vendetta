@@ -7,7 +7,11 @@ export const dynamic = 'force-dynamic'
 
 export default async function Page() {
 
-    const { getSupabase, auth } = await createServerSession();
+    const { getSupabase, auth, accessToken } = await createServerSession();
+
+    if (!accessToken) {
+        return <NotLoggedInView />
+    }
 
     const user = await auth.getSession()
 
@@ -19,7 +23,7 @@ export default async function Page() {
     const {
         data,
         error
-    } = await supabase.from('ev_application').select('created_at, id, name, message, class, role, status, reviewer:ev_member(character)')
+    } = await supabase.from('ev_application').select('created_at, id, name, message, class, role, status, reviewer:ev_member(character), realm:realm_slug')
         .overrideTypes<{
             created_at: string,
             id: string,
@@ -29,6 +33,7 @@ export default async function Page() {
             role: string,
             status: string,
             reviewer: { character: { name: string, avatar: string } }
+            realm: string
         }[]>()
 
     if (error) {

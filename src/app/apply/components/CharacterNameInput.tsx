@@ -1,7 +1,8 @@
 'use client'
 import { useApplyFormStore } from "@/app/apply/components/store";
 import { useFetchCharacter } from "@/app/hooks/api/use-fetch-character";
-import { Input, Tooltip } from "@heroui/react";
+import { Input } from "@/app/components/input";
+import { Tooltip } from "@/app/components/tooltip";
 import { useEffect, useState } from "react";
 import { useShallow } from "zustand/shallow";
 
@@ -9,12 +10,10 @@ export function CharacterNameInput({ isDisabled }: { isDisabled: boolean }) {
     const {
         setName,
         setClass,
-        setRole,
         setCharacterExists
     } = useApplyFormStore(useShallow(state => ({
         setName: state.setName,
         setClass: state.setClass,
-        setRole: state.setRole,
         setCharacterExists: state.setCharacterExists
     })))
 

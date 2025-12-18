@@ -25,6 +25,7 @@ export function Applicants({ applicants }: {
         role: string,
         status: string,
         reviewer: any
+        realm: string
     }[]
 }) {
     const { accessToken } = useAuth();
@@ -46,7 +47,7 @@ export function Applicants({ applicants }: {
         queryFn: async () => {
             return await Promise.all(applicants.map(async (x) => {
                 try {
-                    const { data } = await api.get(`/wow/character/avatar/living-flame/${encodeURIComponent(x.name.toLowerCase())}`);
+                    const { data } = await api.get(`/wow/character/avatar/${x.realm ?? 'living-flame'}/${encodeURIComponent(x.name.toLowerCase())}`);
 
                     return {
                         ...x,
@@ -93,13 +94,13 @@ export function Applicants({ applicants }: {
 
 
     const renderCell = useCallback((registration: any, columnKey: React.Key) => {
-        const { name, message, className, role, status, reviewer, avatar, gearScore, id } = registration;
+        const { name, message, className, role, status, reviewer, avatar, id, realm } = registration;
 
         switch (columnKey) {
             case "name":
                 return (
                     <Link
-                        href={`/roster/${encodeURIComponent(name.toLowerCase())}`}
+                        href={`/roster/${encodeURIComponent(name.toLowerCase())}-${realm}`}
                         target={'_blank'}
                     >
                         <div className="flex flex-row items-center gap-2">
@@ -202,7 +203,7 @@ export function Applicants({ applicants }: {
 
             case "gearScore":
                 return (
-                    <GearScore characterName={name} />
+                    <GearScore characterName={name} realm={realm} />
                 );
 
             case "review":
@@ -264,7 +265,7 @@ export function Applicants({ applicants }: {
             </TableHeader>
             <TableBody
                 className="scrollbar-pill"
-                emptyContent={"No one signed up yet."}
+                emptyContent={"No one applied yet."}
                 items={withAvatar
                     ?.sort((a: any, b: any) => {
                         const aCreated = new Date(a.created_at)

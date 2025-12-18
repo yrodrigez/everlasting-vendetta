@@ -176,7 +176,7 @@ export default function RaidParticipants({ participants, raidId, raidInProgress,
             case "name":
                 return (
                     <Link
-                        href={`/roster/${name.toLowerCase()}`}
+                        href={`/roster/${name.toLowerCase()}-${realm.slug}`}
                         target={'_blank'}
                     >
                         <div className="flex flex-row items-center gap-2">

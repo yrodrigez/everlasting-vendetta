@@ -144,9 +144,24 @@ export const apiService = {
     },
 
     getCharacter: async (realmSlug: string, characterName: string) => {
-      const { data } = await api.get(`/wow/character/${realmSlug}/${characterName}`);
-      return data?.character as FetchCharacterOutput;
-    }
+      try {
+        const { data } = await api.get(`/wow/character/${realmSlug}/${characterName}`);
+        return data?.character as FetchCharacterOutput;
+      } catch (error) {
+        console.error('Error fetching character:', error, realmSlug, characterName);
+        throw error;
+      }
+    },
+
+    getGuildRoster: async () => {
+      try {
+        const { data } = await api.get(`/wow/roster`);
+        return data.roster as FetchCharacterOutput[];
+      } catch (error) {
+        console.error('Error fetching guild roster:', error);
+        throw error;
+      }
+    },
   },
   auth: {
     getUserCharacters: async (realmSlug: string): Promise<UserCharactersOutput> => {

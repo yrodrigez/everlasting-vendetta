@@ -9,6 +9,7 @@ export type ApplyFormValues = {
     characterRole: string,
     characterClass: string,
     message: string
+    realm?: string,
 }
 
 export function validateCharactersName(name: string) {

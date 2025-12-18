@@ -1,7 +1,9 @@
 import { type Character, getGuildRosterFromGuildInfo } from "@/app/lib/fetchGuildInfo";
 import { CURRENT_MAX_LEVEL, GUILD_NAME, GUILD_REALM_NAME } from "@/app/util/constants";
+import { type SupabaseClient } from "@supabase/supabase-js";
 import createServerSession from "@utils/supabase/createServerSession";
 import Link from "next/link";
+import { apiService } from "../lib/api";
 
 export const dynamic = 'force-dynamic'
 
@@ -72,22 +74,39 @@ const RANKS = {
     'Member': 4,
 }
 
+async function getRoster(supabase: SupabaseClient) {
+    const [{ data, error }, roster, realms] = await Promise.all([
+        supabase.from('ev_member')
+            .select('updated_at, character')
+            .filter('character->>level', 'gte', CURRENT_MAX_LEVEL - 10)
+            .filter('character->guild->>name', 'eq', GUILD_NAME)
+            //.filter('updated_at', 'gte', moment().subtract(60, 'days').format('YYYY-MM-DD')) // Uncomment this line to filter characters updated in the last 60 days
+            .order('updated_at', { ascending: false })
+            .overrideTypes<{ updated_at: string, character: Character }[]>(),
+        apiService.anon.getGuildRoster(),
+        apiService.realms.getAllowed()
+    ])
+
+    if (error) {
+        console.error(error)
+        return []
+    }
+
+    const toAdd = roster.filter(r => !data.find(d => d.character.id === r.id)).map(r => ({
+        character: r,
+        updated_at: new Date(0).toISOString()
+    }))
+
+    return ([...data, ...toAdd] as { updated_at: string, character: Character }[]).filter(({ character }) =>
+        realms.some(realm => realm.slug === character.realm?.slug)
+    )
+}
+
 export default async function Page() {
 
     const { getSupabase } = await createServerSession();
     const supabase = await getSupabase();
-    const { data, error } = await supabase.from('ev_member')
-        .select('updated_at, character')
-        .filter('character->>level', 'gte', CURRENT_MAX_LEVEL - 10)
-        .filter('character->guild->>name', 'eq', GUILD_NAME)
-        //.filter('updated_at', 'gte', moment().subtract(60, 'days').format('YYYY-MM-DD')) // Uncomment this line to filter characters updated in the last 60 days
-        .order('updated_at', { ascending: false })
-        .overrideTypes<{ updated_at: string, character: Character }[]>()
-        
-    if (error) {
-        console.error(error)
-        return <div>Error {error.message}</div>
-    }
+    const data = await getRoster(supabase);
 
     const { data: roles, error: errorRoles } = await supabase.from('ev_member_role').select('member_id, role')
         .overrideTypes<{ member_id: number, role: string }[]>()

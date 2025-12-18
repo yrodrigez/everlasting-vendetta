@@ -1,6 +1,7 @@
 'use client'
-import React, { useEffect } from "react";
-import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button } from "@heroui/react";
+import React from "react";
+import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/react";
+import { Button } from "@/app/components/Button";
 
 
 export default function LookupField({ value, onChange, values, icon, title }: {

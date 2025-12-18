@@ -1,24 +1,27 @@
 "use client"
-import React, { useEffect, useMemo, useState } from "react";
+import { CharacterNameInput } from "@/app/apply/components/CharacterNameInput";
+import { useApplyFormStore } from "@/app/apply/components/store";
+import { getClassIcon, getRoleIcon, onForm } from "@/app/apply/components/utils";
+import { Button } from "@/app/components/Button";
+import { Input } from "@/app/components/input";
+import LookupField from "@/app/components/LookupField";
+import { isRoleAssignable } from "@/app/components/ProfileManager";
+import { Textarea } from "@/app/components/text-area";
+import { PLAYABLE_ROLES } from "@/app/util/constants";
 import {
-    Input,
-    Textarea,
-    Button,
-    ModalContent,
-    ModalHeader,
-    ModalBody,
-    ModalFooter,
     Modal,
+    ModalBody,
+    ModalContent,
+    ModalFooter,
+    ModalHeader,
+    SelectItem,
     useDisclosure
 } from "@heroui/react";
-import LookupField from "@/app/components/LookupField";
 import Link from "next/link";
-import { onForm, getClassIcon, getRoleIcon } from "@/app/apply/components/utils";
-import { useApplyFormStore } from "@/app/apply/components/store";
-import { CharacterNameInput } from "@/app/apply/components/CharacterNameInput";
-import { PLAYABLE_ROLES } from "@/app/util/constants";
-import { isRoleAssignable } from "@/app/components/ProfileManager";
+import { useEffect, useMemo, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
+import { RealmSelection } from "@/app/components/realm-selection";
+import { Select } from "@/app/components/select";
 
 
 export default function ApplyForm() {
@@ -80,11 +83,9 @@ export default function ApplyForm() {
     return (
         <div className="space-y-4 lg:w-[300px] w-[450px]">
             <div className="grid gap-2">
-                <LookupField
-                    title="Realm"
-                    value={realm}
-                    onChange={(selectedValue: string) => selectedValue !== 'Realm' && setRealm(selectedValue)}
-                    values={new Set(allowedRealms)}
+                <RealmSelection
+                    realm={realm}
+                    onRealmChange={(newRealm) => setRealm(newRealm)}
                 />
             </div>
             <div className="grid gap-2">
@@ -97,11 +98,26 @@ export default function ApplyForm() {
                     label="Email" id="email" type="email" />
             </div>
             <div className="grid gap-2">
-                <LookupField
-                    title="Class"
-                    value={characterClass}
-                    onChange={(selectedValue: string) => selectedValue !== 'Class' && setClass(selectedValue)}
-                    values={new Set([
+                <Select
+                    label="Class"
+                    placeholder="Select your class"
+                    className="w-full"
+                    endContent={characterClass && (<img
+                        className={`
+                                min-w-6 h-6
+                                rounded-full
+                                border border-${characterClass?.toLowerCase()}
+                            `}
+                        src={getClassIcon(characterClass)}
+                        alt={characterClass}
+                    />)}
+                    selectionMode="single"
+                    selectedKeys={characterClass ? [characterClass] : []}
+                    onChange={({ target }) => {
+                        setClass(target.value)
+                    }}
+                >
+                    {[
                         'Warrior',
                         'Paladin',
                         'Hunter',
@@ -110,9 +126,21 @@ export default function ApplyForm() {
                         'Mage',
                         'Warlock',
                         'Druid'
-                    ])}
-                    icon={(characterClass && characterClass !== 'Class') ? getClassIcon(characterClass) : ''}
-                />
+                    ].map((cls) => (
+                        <SelectItem
+                            key={cls}
+                            endContent={<img
+                                className={`
+                                        w-6 h-6
+                                        rounded-full
+                                        border border-${cls.toLowerCase()}
+                                    `}
+                                src={getClassIcon(cls)}
+                                alt={cls}
+                            />}
+                        >{cls}</SelectItem>
+                    ))}
+                </Select>
             </div>
             <div className="grid gap-2">
                 <div
@@ -123,7 +151,7 @@ export default function ApplyForm() {
                             return (
                                 <Button
                                     key={i}
-                                    
+
                                     isDisabled={isDisabled}
                                     className={
                                         `bg-moss opacity-100 text-gold rounded border border-moss-100 relative hover:bg-dark hover:border-dark-100 `
@@ -158,13 +186,12 @@ export default function ApplyForm() {
                 <Textarea
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    rows={20}
                     id="message"
                     placeholder="Why do you want to join Everlasting Vendetta? Tell us about your WoW experience, what you enjoy doing, raid availability, and what kind of player you are..." />
             </div>
             <div className="flex items-center">
                 <Button isDisabled={isFormDisabled} onPress={() => {
-                    onForm({ name, email, characterRole, characterClass, message }).then((response) => {
+                    onForm({ name, email, characterRole, characterClass, message, realm }).then((response) => {
                         if (response?.error) {
                             setModalContent({
                                 title: (

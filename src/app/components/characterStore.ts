@@ -17,7 +17,7 @@ export type SelectedCharacterCookieDTO = {
     avatar: string
 }
 
-function saveSelectedCharacterToCookie(character: Character | null) {
+export function saveSelectedCharacterToCookie(character: Character | null) {
     if (!character) {
         deleteCookie(SELECTED_CHARACTER_COOKIE_KEY);
         return;
@@ -109,4 +109,11 @@ export const useCharacterStore = createStore<CharacterStore>()(persist((set, get
     },
     setCharacters: (characters) => set({ characters }),
     clear: () => set(initialState)
-}), { name: storeKey }))
+}), { 
+    name: storeKey,
+    onRehydrateStorage: () => (state) => {
+        if (state?.selectedCharacter) {
+            saveSelectedCharacterToCookie(state.selectedCharacter)
+        }
+    }
+}))

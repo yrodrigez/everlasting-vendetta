@@ -7,7 +7,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
     console.log('Refresh route called');
-        const cookieStore = await cookies();
+    const cookieStore = await cookies();
 
     try {
         const refreshSessionUseCase = makeRefreshSessionUseCase(cookieStore);

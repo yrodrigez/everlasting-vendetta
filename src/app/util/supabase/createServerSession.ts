@@ -44,7 +44,6 @@ export default async function createServerSession(): Promise<{
 
     const cookiesStore = await cookies()
     const sessionInfoVal = cookiesStore.get(SESSION_INFO_COOKIE_KEY)?.value
-    const refreshTokenCookie = cookiesStore.get(REFRESH_TOKEN_COOKIE_KEY)?.value
     const accessToken = await getFreshAccessToken();
 
     const getSupabase = async () => {
@@ -68,7 +67,7 @@ export default async function createServerSession(): Promise<{
         return client;
     }
 
-    if (!sessionInfoVal || !refreshTokenCookie) {
+    if (!sessionInfoVal) {
         return {
             getSupabase,
             auth: {

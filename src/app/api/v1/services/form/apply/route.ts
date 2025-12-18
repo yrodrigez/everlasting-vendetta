@@ -11,7 +11,8 @@ export async function POST(request: NextRequest) {
             ...(state.email ? { email: state.email } : {}),
             class: state.characterClass,
             role: state.characterRole,
-            message: state.message || ''
+            message: state.message || '',
+            realm_slug: state.realm || null,
         })
         if (response.error) {
             return NextResponse.json({ error: 'Error submitting application please try again with other character\'s name or email.' })
