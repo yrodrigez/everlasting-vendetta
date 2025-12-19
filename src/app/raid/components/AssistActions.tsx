@@ -12,7 +12,7 @@ import { RAID_STATUS } from "@/app/raid/components/utils";
 import { useAuthManagerWindowStore } from "@/app/stores/auth-manager-window-store";
 import { faChair, faCheck } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Key } from "lucide-react";
+import { Accessibility, Ban, Key } from "lucide-react";
 import React, { useEffect, useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 
@@ -82,30 +82,33 @@ export default function AssistActions({
     }
 
     if (status === 'offline') {
-        return <div className="text-red-500">Raid is Cancelled!</div>
+        return <div className="text-red-500 flex items-center min-h-7 gap-2"> <Ban /> Raid is Cancelled!</div>
     }
 
     if (moment.tz('Europe/Madrid').isAfter(moment(`${endDate} ${endTime === '00:00:00' ? '23:59:59' : endTime}`, 'YYYY-MM-DD HH:mm:ss').tz('Europe/Madrid'))) {
-        return <div className="text-red-500 flex items-center min-h-7"></div>
+        return <div className="text-red-500 flex items-center min-h-7 gap-2">
+            <Ban /> Raid sign-ups are closed
+        </div>
     }
 
     if (selectedCharacter?.realm.slug !== (realm ?? 'living-flame')) {
-        return <div className="text-red-500">Selected character's realm does not match raid's realm. <Button size="sm" onPress={openCharacterSelectionWindow}>Change Character</Button></div>
+        return <div className="text-red-500 flex items-center min-h-7 gap-2"><Ban />Selected character's realm does not match raid's realm. <Button size="sm" onPress={openCharacterSelectionWindow}>Change Character</Button></div>
     }
 
     if (!selectedRole) {
-        return <div className="text-red-500">Select a role first</div>
+        return <div className="text-red-500 flex items-center min-h-7 gap-2">Select a role first</div>
     }
 
     if ((selectedCharacter?.level ?? 0) < minLvl) {
-        //return <div className="text-red-500">You must be at least level {minLvl} to assist</div>
+        return <div className="text-red-500 flex items-center gap-2">
+            <Ban />
+            You should be at level {minLvl} to participate
+        </div>
     }
 
     if (participants.find(p => p.member.id === selectedCharacter?.id && p.details.status === RAID_STATUS.BENCH)) {
         return <div className="text-orange-400 flex gap-2">
-            <FontAwesomeIcon icon={faChair}
-                bounce={bounce}
-            />
+            <Accessibility />
             You are benched</div>
     }
 

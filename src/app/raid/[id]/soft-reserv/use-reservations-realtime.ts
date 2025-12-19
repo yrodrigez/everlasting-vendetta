@@ -16,10 +16,27 @@ export const useReservationsRealtime = (
         return createClientComponentClient(accessToken);
     }, [accessToken]);
     const router = useRouter()
+
+    const reservationsChannelName = `reservations:${resetId}`;
+    const resetChannelName = `reset:${resetId}`;
+    const extraReservationsChannelName = `ev_extra_reservations:reset_id=${resetId}`;
+    const raidLootChannelName = `raid_loot:id=${resetId}`;
+    const hardReserveChannelName = `hard_reserve:reset_id=${resetId}`;
+
     useEffect(() => {
         if (!supabase || !resetId || !isAuthenticated) return;
+        supabase?.getChannels().forEach(channel => {
+            const topic = channel.topic
+            if (topic === `realtime:${reservationsChannelName}` ||
+                topic === `realtime:${resetChannelName}` ||
+                topic === `realtime:${extraReservationsChannelName}` ||
+                topic === `realtime:${raidLootChannelName}` ||
+                topic === `realtime:${hardReserveChannelName}`) {
+                supabase.removeChannel(channel)
+            }
+        });
         const reservationsChannel = supabase
-            .channel(`reservations:${resetId}`)
+            .channel(reservationsChannelName)
             .on(
                 'postgres_changes',
                 {
@@ -35,7 +52,7 @@ export const useReservationsRealtime = (
                 });
 
         const resetChannel = supabase
-            .channel(`reset:${resetId}`)
+            .channel(resetChannelName)
             .on(
                 'postgres_changes',
                 {
@@ -49,7 +66,7 @@ export const useReservationsRealtime = (
                     }
                 });
 
-        const extraReservationsChannel = supabase.channel(`ev_extra_reservations:reset_id=${resetId}`)
+        const extraReservationsChannel = supabase.channel(extraReservationsChannelName)
             .on('postgres_changes', {
                 event: '*',
                 schema: 'public',
@@ -61,7 +78,7 @@ export const useReservationsRealtime = (
                 }
             });
 
-        const raid_loot = supabase.channel(`raid_loot:id=${resetId}`)
+        const raid_loot = supabase.channel(raidLootChannelName)
             .on('postgres_changes', {
                 event: '*',
                 schema: 'public',
@@ -76,14 +93,14 @@ export const useReservationsRealtime = (
                 }
             });
 
-        const hardReserveChannel = supabase.channel(`hard_reserve:reset_id=${resetId}`)
+        const hardReserveChannel = supabase.channel(hardReserveChannelName)
             .on('postgres_changes', {
                 event: '*',
                 schema: 'public',
                 table: 'reset_hard_reserve',
                 // filter: 'reset_id=eq.' + resetId
-            }, async (data) => {      
-                onHardReserveChange(data)          
+            }, async (data) => {
+                onHardReserveChange(data)
                 router.refresh()
             }).subscribe((status, err) => {
                 console.log('Subscription to reset_hard_reserve status:', status);
@@ -100,7 +117,7 @@ export const useReservationsRealtime = (
             supabase.removeChannel(extraReservationsChannel);
             supabase.removeChannel(raid_loot);
             supabase.removeChannel(hardReserveChannel);
-            
+
         };
     }, [resetId, supabase, onReservationsChange, onResetChange, onExtraReserveUpdate, isAuthenticated, router]);
 };

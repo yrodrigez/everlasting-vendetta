@@ -24,21 +24,27 @@ export class ReservationsRepository {
         const [hardReservations, databaseItems] = await Promise.all([
             this.getHardReservations(resetId),
             this.supabase.from('raid_loot')
-                .select('item:raid_loot_item(*)')
+                .select(`
+                    item:raid_loot_item!inner(
+                        *,
+                        bosses:bosses_items(
+                            boss:bosses(*)
+                        )
+                    )
+                `)
                 .eq('raid_id', raidId)
                 .eq('is_visible', true)
-                .overrideTypes<{ item: RaidItem }[]>()
+                .overrideTypes<any[]>()
         ])
-
-        console.log('Fetched raid items from database:', databaseItems.data?.length);
 
         return (databaseItems.data ?? []).map(function (x) {
             return {
                 ...x.item,
+                boss: x.item.bosses?.[0]?.boss,
                 isHardReserved: !!hardReservations?.some(r => r.item_id === x.item.id)
             }
         }).reduce(function (acc, item) {
-            if (!acc.find(i => i.id === item.id)) {
+            if (!acc.find((i: RaidItem) => i.id === item.id)) {
                 acc.push(item)
             }
             return acc

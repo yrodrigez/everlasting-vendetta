@@ -15,6 +15,12 @@ export type RaidItem = {
     };
     raid_id: string;
     isHardReserved?: boolean;
+    boss: {
+        id: number;
+        name: string;
+        avatar_url?: string;
+        info_url?: string;
+    }
 };
 export type RaidReset = {
     id: string;

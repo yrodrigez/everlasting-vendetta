@@ -14,6 +14,8 @@ import { BannedItems, ImportBannedItems } from "@/app/raid/[id]/soft-reserv/Bann
 import createServerSession from "@utils/supabase/createServerSession";
 import { RaidItemsProvider } from "./raid-items-context";
 import { ReservationsRepository } from "./reservations-repository";
+import { SomethingWentWrong } from "@/app/components/something-went-wrong";
+import { Button } from "@/app/components/Button";
 
 type Raid = {
     min_level: number;
@@ -32,6 +34,7 @@ type RaidQueryResult = {
     reservations_closed: boolean;
     end_time: string;
     created_by: number;
+    realm: string;
 };
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -101,6 +104,8 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     if (!loggedInUser) {
         return <NotLoggedInView />
     }
+
+
     const { id: raidId } = await params
 
     const {
@@ -116,7 +121,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 
     const resetData = await database
         .from('raid_resets')
-        .select('raid_id, raid:ev_raid(min_level, name, image, reservation_amount, id), raid_date, time, end_date, end_time, created_by, reservations_closed')
+        .select('raid_id, realm, raid:ev_raid(min_level, name, image, reservation_amount, id), raid_date, time, end_date, end_time, created_by, reservations_closed')
         .eq('id', resetId)
         .single<RaidQueryResult>()
 
@@ -124,24 +129,60 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         return <div>Reset not found</div>
     }
 
+    if (loggedInUser.selectedCharacter?.realmSlug !== resetData.data.realm) {
+        return <SomethingWentWrong
+            header="Realm Mismatch"
+            body={
+                <>
+                    <p>
+                        Your selected character's realm <b>{loggedInUser.selectedCharacter?.realmSlug.split('-').map(x => x.charAt(0).toUpperCase() + x.slice(1)).join(' ')}</b> does not match the raid's realm <b>{resetData.data.realm.split('-').map(x => x.charAt(0).toUpperCase() + x.slice(1)).join(' ')}</b>.
+                    </p>
+                    <p>
+                        Please switch to a character on the correct realm to access the raid reservations.
+                    </p>
+                    <p
+                        className="mt-3 text-xs text-primary/55"
+                    >
+                        If you believe this is an error, please contact support or try again later.
+                    </p>
+                </>
+            }
+            footer={<>
+                <div>
+                    <Button
+                        as="a"
+                        className="w-full"
+                        href={`/raid/${raidId}`}>
+                        Go Back To Raid
+                    </Button>
+                </div>
+            </>
+            }
+        />
+    }
 
     const loggedInCharacter = loggedInUser.selectedCharacter
     const raid = resetData.data.raid
     const raidMinLevel = raid?.min_level
     if (Number(raidMinLevel) > Number(loggedInCharacter?.level ?? 0)) {
-        return <div className="mt-auto mb-auto w-full p-8 bg-dark border border-gold rounded-lg">
-            <h1 className="text-center text-2xl mb-2">
-                Character level too low you should be <span className="text-gold font-bold">{raidMinLevel}</span> but
-                you are {loggedInCharacter?.level ?? 0}</h1>
-            <h2>We encourage you to engage in other activities to level up your character which
-                is only <span className="text-gold font-bold">{raidMinLevel - (loggedInCharacter?.level ?? 0)}</span> levels
-                away from the required level.
-            </h2>
-            <h4 className="text-xs text-gray-500 mt-2">If you think this is an error please try disconnecting from the
-                game and login
-                in a incognito window.
-            </h4>
-        </div>
+        return <SomethingWentWrong
+            header="Character Level Too Low"
+            body={
+                <>
+                    <p>
+                        Your character <b>{loggedInCharacter?.name}</b> is level <b>{loggedInCharacter?.level}</b>, which is below the required level of <b>{raidMinLevel}</b> to participate in this raid.
+                    </p>
+                    <p>
+                        We encourage you to engage in other activities to level up your character which is only <b>{raidMinLevel - (loggedInCharacter?.level ?? 0)}</b> levels away from the required level.
+                    </p>
+                    <p
+                        className="mt-3 text-xs text-primary/55"
+                    >
+                        If you think this is an error please try disconnecting from the game and login in an incognito window.
+                    </p>
+                </>
+            }
+        />
     }
 
     const repository = new ReservationsRepository(database);

@@ -1,17 +1,25 @@
 'use client'
-import { useEffect, useMemo, useState } from "react";
-import { type RaidItem, Reservation } from "@/app/raid/[id]/soft-reserv/types";
-import { useReservations } from "@/app/raid/[id]/soft-reserv/useReservations";
-import { RaidItemCard } from "@/app/raid/[id]/soft-reserv/RaidItemCard";
 import { Filters } from "@/app/raid/[id]/soft-reserv/Filters";
 import { useFiltersStore } from "@/app/raid/[id]/soft-reserv/filtersStore";
+import { RaidItemCard } from "@/app/raid/[id]/soft-reserv/RaidItemCard";
+import { type RaidItem, Reservation } from "@/app/raid/[id]/soft-reserv/types";
+import { useReservations } from "@/app/raid/[id]/soft-reserv/useReservations";
 import { Button, ScrollShadow } from "@heroui/react";
-import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { useShallow } from "zustand/shallow";
-import useReservationsStore from "@/app/raid/[id]/soft-reserv/reservationsStore";
 import { useRaidItems } from "./raid-items-context";
-import { useAuth } from "@/app/context/AuthContext";
-import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
+
+function BossHeader({ boss }: { boss: { name: string, avatar_url?: string, info_url?: string } | null }) {
+    const bossName = boss?.name
+    if(!bossName) return null
+    return (
+        <div className="flex items-center gap-3 mb-3 p-2 w-full">
+            <div className="flex flex-col">
+                <span className="text-gold font-bold text-lg">{bossName}</span>
+            </div>
+        </div>
+    )
+}
 
 export default function RaidItemsList({ initialReservedItems, resetId, isAdmin }: {
     initialReservedItems: Reservation[],
@@ -47,8 +55,6 @@ export default function RaidItemsList({ initialReservedItems, resetId, isAdmin }
         removeHardReserve,
         loading,
     } = useReservations(resetId, initialReservedItems)
-    const { accessToken } = useAuth()
-    const supabase = createClientComponentClient(accessToken)
 
     const filterItems = (items: RaidItem[]) => {
         let filteredItems = [...items]
@@ -111,13 +117,25 @@ export default function RaidItemsList({ initialReservedItems, resetId, isAdmin }
         })
     }, []);
 
+    const groupedByBoss = useMemo<{
+        [bossName: string]: RaidItem[]
+    }>(() => {
+        return filteredItems.reduce((acc, item) => {
+            const bossName = item?.boss?.name || ''
+            if (!acc[bossName]) {
+                acc[bossName] = []
+            }
+            acc[bossName].push(item)
+            return acc
+        }, {} as { [bossName: string]: RaidItem[] })
+    }, [filteredItems])
 
 
     return (
         <div className="flex flex-col gap-3 w-full overflow-auto lg:overflow-visible max-h-full flex-1 pt-2 lg:pt-0">
             <Filters />
             <ScrollShadow
-                className="flex gap-2 p-2 flex-wrap w-full h-full overflow-auto scrollbar-pill justify-center items-center lg:justify-start lg:items-start">
+                className="flex flex-col gap-4 p-2 w-full h-full overflow-auto scrollbar-pill">
                 {filteredItems.length === 0 && <div className="text-center w-full h-full flex flex-col items-center ">
                     <span>No items found. Try removing some filters!</span>
                     <Button
@@ -128,25 +146,39 @@ export default function RaidItemsList({ initialReservedItems, resetId, isAdmin }
                         Clear filters
                     </Button>
                 </div>}
-                {filteredItems.map((item: RaidItem) => {
-                    const toRemove = useMemo(() => yourReservations?.find(r => r.item.id === item.id), [yourReservations, item])
+                {Object.entries(groupedByBoss).sort(([a], [b]) => {
+                    if(a === 'Trash') return 1
+                    if(b === 'Trash') return -1
+                    return a.localeCompare(b)
+                }).map(([bossName, bossItems]) => {
+                    const boss = bossItems[0]?.boss || null
                     return (
-                        <RaidItemCard
-                            key={item.id}
-                            isClicked={isClicked === item.id}
-                            setIsClicked={setIsClicked}
-                            item={item}
-                            reservedBy={reservationsByItem.find((r) => r.item.id === item.id)?.reservations}
-                            remove={toRemove && (async () => {
-                                if (toRemove) {
-                                    remove(toRemove.id)
-                                }
-                            })}
-                            reserve={isReservationsOpen ? reserve : undefined}
-                            hardReserve={isAdmin ? hardReserve : undefined}
-                            removeHardReserve={isAdmin ? removeHardReserve : undefined}
-                            isLoading={loading}
-                        />
+                        <div key={bossName} className="w-full">
+                            <BossHeader boss={boss} />
+                            <div className="flex gap-2 flex-wrap justify-center lg:justify-start">
+                                {bossItems.map((item: RaidItem) => {
+                                    const toRemove = yourReservations?.find(r => r.item.id === item.id)
+                                    return (
+                                        <RaidItemCard
+                                            key={item.id}
+                                            isClicked={isClicked === item.id}
+                                            setIsClicked={setIsClicked}
+                                            item={item}
+                                            reservedBy={reservationsByItem.find((r) => r.item.id === item.id)?.reservations}
+                                            remove={toRemove && (async () => {
+                                                if (toRemove) {
+                                                    remove(toRemove.id)
+                                                }
+                                            })}
+                                            reserve={isReservationsOpen ? reserve : undefined}
+                                            hardReserve={isAdmin ? hardReserve : undefined}
+                                            removeHardReserve={isAdmin ? removeHardReserve : undefined}
+                                            isLoading={loading}
+                                        />
+                                    )
+                                })}
+                            </div>
+                        </div>
                     )
                 })}
             </ScrollShadow>

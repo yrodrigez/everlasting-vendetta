@@ -24,24 +24,44 @@ export function useParticipants(raidId: string, initialParticipants: RaidPartici
 
 	useEffect(() => {
 		if (!supabase) return
-		const raidParticipantChannel = supabase.channel(`raid_participants${raidId}`)
+		
+		const participantChannelName = `raid_participants_${raidId}`
+		const resetChannelName = `reset_channel_${raidId}`
+		
+		// Remove existing channels first to avoid mismatch errors
+		const existingParticipantChannel = supabase.getChannels().find(c => c.topic === `realtime:${participantChannelName}`)
+		const existingResetChannel = supabase.getChannels().find(c => c.topic === `realtime:${resetChannelName}`)
+		
+		if (existingParticipantChannel) {
+			supabase.removeChannel(existingParticipantChannel)
+		}
+		if (existingResetChannel) {
+			supabase.removeChannel(existingResetChannel)
+		}
+		
+		const raidParticipantChannel = supabase.channel(participantChannelName)
 			.on('postgres_changes', {
 				event: '*',
 				schema: 'public',
 				table: 'ev_raid_participant',
 				filter: `raid_id=eq.${raidId}`
-			}, async ({ }) => {
+			}, async () => {
 				refetch()
 				router.refresh()
-			}).subscribe()
+			}).subscribe((status, error)=>{
+				if(error) {
+					console.error('Error subscribing to raid participants channel:', error)
+				}
+				console.log('Raid participants channel subscription status:', status)
+			})
 
-		const resetChannel = supabase.channel(`reset_${raidId}`)
+		const resetChannel = supabase.channel(resetChannelName)
 			.on('postgres_changes', {
 				event: '*',
 				schema: 'public',
 				table: 'raid_resets',
 				filter: `id=eq.${raidId}`
-			}, async ({ }) => {
+			}, async () => {
 				refetch()
 				router.refresh()
 			}).subscribe()
