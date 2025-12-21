@@ -80,11 +80,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (res.status === 401) {
         return { ok: false };
       }
-      console.error('Token refresh failed', (await res.text()));
+      console.error('Token refresh failed', (await res.text()) ?? 'N/A', res.status, res.statusText);
       return { ok: false };
     }
 
-    const { accessToken } = await res.json();
+    const { accessToken, redirectTo } = await res.json();
+
+    if (redirectTo) {
+      const currentPath = window.location.pathname;
+      const url = new URL(redirectTo, window.location.origin);
+      url.searchParams.set('redirectedFrom', currentPath);
+      window.location.href = url.toString();
+      return { ok: false };
+    }
     if (!accessToken) {
       return { ok: false };
     }
@@ -200,7 +208,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     setAccessToken(null);
     setUser(null);
-    router.push('/');
+    //router.push('/');
   }, [accessToken, router]);
 
   const login = useCallback((provider: 'bnet' | 'discord', redirectTo?: string) => {
@@ -215,7 +223,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const popup = window.open(
       url,
-      'OAuth Login',
+      'Login',
       `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes,resizable=yes`
     );
 

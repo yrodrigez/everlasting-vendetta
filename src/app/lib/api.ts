@@ -40,7 +40,15 @@ api.interceptors.response.use(
           throw new Error('Refresh failed');
         }
 
-        const { accessToken: newAccessToken } = await res.json();
+        const { accessToken: newAccessToken, redirectTo } = await res.json();
+
+        if (redirectTo) {
+          const currentPath = window.location.pathname;
+          const url = new URL(redirectTo, window.location.origin);
+          url.searchParams.set('redirectedFrom', currentPath);
+          window.location.href = url.toString();
+          return Promise.reject(new Error('Redirecting to refresh provider token'));
+        }
 
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return api(originalRequest);

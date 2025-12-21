@@ -13,15 +13,10 @@ export async function POST(request: NextRequest) {
         const refreshSessionUseCase = makeRefreshSessionUseCase(cookieStore);
         const result = await refreshSessionUseCase.execute();
 
-        if (result.redirectTo) {
-            const url = request.nextUrl.clone();
-            url.pathname = result.redirectTo;
-            return NextResponse.redirect(url);
-        }
-
         return NextResponse.json({
             accessToken: result.accessToken,
             shouldRefreshProviderToken: result.shouldRefreshProviderToken,
+            redirectTo: result.redirectTo ?? null,
         });
     } catch (error) {
         const clearAllCookies = makeClearAllCookiesUseCase(cookieStore);
