@@ -193,7 +193,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     setAccessToken(null);
     setUser(null);
-    router.push('/');
   }, [accessToken, router]);
 
   const logoutAll = useCallback(async () => {
@@ -208,7 +207,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     setAccessToken(null);
     setUser(null);
-    //router.push('/');
   }, [accessToken, router]);
 
   const login = useCallback((provider: 'bnet' | 'discord', redirectTo?: string) => {
