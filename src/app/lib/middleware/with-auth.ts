@@ -8,10 +8,7 @@ const isProd = process.env.NODE_ENV === 'production';
 const REFRESH_ENDPOINT = `${process.env.NEXT_PUBLIC_EV_API_URL}/auth/refresh`;
 const EXPIRY_MARGIN_MS = 60_000;
 
-/**
- * Sincroniza las cookies y headers de la respuesta al request para que
- * los Route Handlers y Server Components vean los valores actualizados.
- */
+
 function applyCookiesOnNextResponse(req: NextRequest, res: NextResponse) {
   const outgoingCookies = new ResponseCookies(res.headers);
   const incomingHeaders = new Headers(req.headers);
