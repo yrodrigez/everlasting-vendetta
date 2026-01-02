@@ -1,4 +1,5 @@
 import CharacterAvatar from "@/app/components/CharacterAvatar";
+import { Tooltip } from "@/app/components/tooltip";
 import { CharacterGear } from "@/app/roster/[name]/components/CharacterGear";
 import { CharacterTalents } from "@/app/roster/[name]/components/CharacterTalents";
 import { CharacterViewOptions } from "@/app/roster/[name]/components/CharacterViewOptions";
@@ -7,13 +8,11 @@ import { LootHistory } from "@/app/roster/[name]/components/LootHistory";
 import { StatisticsView } from "@/app/roster/[name]/components/StatisticsView";
 import WoWService from "@/app/services/wow-service";
 import { GUILD_ID, GUILD_NAME } from "@/app/util/constants";
-import { Tooltip } from "@/app/components/tooltip";
 import moment from "moment";
 import Link from "next/link";
 
-import { BnetLoginButton } from "@/app/components/BnetLoginButton";
 import { Button } from "@/app/components/Button";
-import { apiService } from "@/app/lib/api";
+import { createAPIService, createServerApiClient } from "@/app/lib/api";
 import { AttendanceHeatmap } from "@/app/roster/[name]/components/AttendanceHeatmap";
 import CharacterAchievements from "@/app/roster/[name]/components/CharacterAchievements";
 import CharacterProfessions from "@/app/roster/[name]/components/CharacterProfessions";
@@ -25,7 +24,6 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import createServerSession from "@utils/supabase/createServerSession";
 import { Metadata } from "next";
 import { revalidatePath } from "next/cache";
-import Head from "next/head";
 
 export const dynamic = 'force-dynamic'
 
@@ -158,7 +156,7 @@ export async function generateMetadata({ params }: { params: Promise<{ name: str
     const realmSlug = realmSlugParts.join('-') || 'living-flame';
     const characterName = decodeURIComponent(name.toLowerCase())
 
-    const characterInfo = await apiService.anon.getCharacter(realmSlug, characterName);
+    const characterInfo = await createAPIService().anon.getCharacter(realmSlug, characterName);
 
     return {
         title: `${characterInfo.name} - ${characterInfo.guild?.name ?? 'No Guild'} | Everlasting Vendetta`,
@@ -235,6 +233,11 @@ export default async function Page({ params }: { params: Promise<{ name: string 
     const { name: characterNameParam } = await params
     const [name, ...realmSlugParts] = characterNameParam.split('-')
     const realmSlug = realmSlugParts.join('-') || 'living-flame';
+    
+    const { accessToken } = await createServerSession();
+    const api = createServerApiClient(accessToken || null);
+    const apiService = createAPIService(api);
+
     const allowedRealms = await apiService.realms.getAllowed()
     if (!allowedRealms.find(r => r.slug === realmSlug)) {
         return <div>Realm not allowed</div>

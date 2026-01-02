@@ -1,4 +1,4 @@
-import { apiService } from "@/app/lib/api";
+import { createAPIService } from "@/app/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
@@ -9,6 +9,8 @@ export interface GearScoreInput {
 export function useGearScore({ name, realm }: { name: string, realm: string }) {
 
     const [forceFetch, setForceFetch] = useState(false);
+
+    const apiService = createAPIService();
 
     const { data, isLoading, isError, refetch } = useQuery({
         queryKey: ['gearScore', name, realm],

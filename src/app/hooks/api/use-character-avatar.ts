@@ -1,4 +1,4 @@
-import { apiService as api } from "@/app/lib/api";
+import { createAPIService as api } from "@/app/lib/api";
 import { useQuery } from "@tanstack/react-query";
 
 export function useCharacterAvatar(realm: string, characterName: string) {

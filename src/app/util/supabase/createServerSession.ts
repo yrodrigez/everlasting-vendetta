@@ -5,6 +5,7 @@ import { cookies, headers } from 'next/headers'
 import 'server-only'
 import { decrypt } from '../auth/crypto'
 import { REFRESH_TOKEN_COOKIE_KEY, SELECTED_CHARACTER_COOKIE_KEY, SESSION_INFO_COOKIE_KEY } from '../constants'
+import { createAPIService, createServerApiClient } from '@/app/lib/api'
 
 
 export type UserProfile = {
@@ -22,10 +23,12 @@ async function getFreshAccessToken(): Promise<string | null> {
     const cookieStore = await cookies()
     const refreshCookie = cookieStore.get(REFRESH_TOKEN_COOKIE_KEY)
     if (!refreshCookie) {
+        console.log('[getFreshAccessToken] No refresh cookie found')
         return null
     }
     const refreshToken = refreshCookie.value
     if (!refreshToken) {
+        console.log('[getFreshAccessToken] Refresh cookie empty')
         return null
     }
 
@@ -40,6 +43,7 @@ export default async function createServerSession(): Promise<{
     didSsrRefresh?: boolean
     ssrRefreshedAt?: number
     accessToken: string | undefined
+    apiService: ReturnType<typeof createAPIService>
 }> {
 
     const cookiesStore = await cookies()
@@ -67,8 +71,12 @@ export default async function createServerSession(): Promise<{
         return client;
     }
 
+    const api = createServerApiClient(accessToken || null);
+    const apiService = createAPIService(api);
+
     if (!sessionInfoVal) {
         return {
+            apiService,
             getSupabase,
             auth: {
                 getSession: async () => undefined,
@@ -102,5 +110,6 @@ export default async function createServerSession(): Promise<{
         }
     }
 
-    return { getSupabase, auth: { getSession }, accessToken: accessToken ?? undefined };
+
+    return { getSupabase, auth: { getSession }, accessToken: accessToken ?? undefined, apiService };
 }

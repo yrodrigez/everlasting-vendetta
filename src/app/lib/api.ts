@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { type AxiosInstance } from 'axios';
 import { FetchCharacterOutput } from '../hooks/api/use-fetch-character';
 
 const api = axios.create({
@@ -121,11 +121,23 @@ type UserCharactersOutput = {
   };
 }[];
 
-export const apiService = {
+export function createServerApiClient(accessToken: string | null) {
+  const serverApi = axios.create({
+    baseURL: process.env.NEXT_PUBLIC_EV_API_URL,
+    withCredentials: true,
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+  });
+
+  return serverApi;
+}
+
+
+
+export const createAPIService = (_api: AxiosInstance = api) => ({
   anon: {
     getCharacterAvatar: async (realmSlug: string, characterName: string): Promise<AvatarOutput> => {
       try {
-        const { data } = await api.get(`/wow/character/avatar/${realmSlug}/${characterName}`);
+        const { data } = await _api.get(`/wow/character/avatar/${realmSlug}/${characterName}`);
         return data;
       } catch (error) {
         console.error('Error fetching character avatar:', error);
@@ -134,7 +146,7 @@ export const apiService = {
     },
     getItem: async (itemId: number): Promise<ItemOutput> => {
       try {
-        const { data } = await api.get(`/wow/item/${itemId}`);
+        const { data } = await _api.get(`/wow/item/${itemId}`);
         return data;
       } catch (error) {
         console.error('Error fetching item:', error);
@@ -143,7 +155,7 @@ export const apiService = {
     },
     gearScore: async (characters: { name: string; realm: string }[], force: boolean | undefined): Promise<GearScoreOutput> => {
       try {
-        const { data } = await api.post(`/gearscore`, { characters, forceRefresh: !!force });
+        const { data } = await _api.post(`/gearscore`, { characters, forceRefresh: !!force });
         return data;
       } catch (error) {
         console.error('Error fetching gear score:', error);
@@ -153,7 +165,7 @@ export const apiService = {
 
     getCharacter: async (realmSlug: string, characterName: string) => {
       try {
-        const { data } = await api.get(`/wow/character/${realmSlug}/${characterName}`);
+        const { data } = await _api.get(`/wow/character/${realmSlug}/${characterName}`);
         return data?.character as FetchCharacterOutput;
       } catch (error) {
         console.error('Error fetching character:', error, realmSlug, characterName);
@@ -163,7 +175,7 @@ export const apiService = {
 
     getGuildRoster: async () => {
       try {
-        const { data } = await api.get(`/wow/roster`);
+        const { data } = await _api.get(`/wow/roster`);
         return data.roster as FetchCharacterOutput[];
       } catch (error) {
         console.error('Error fetching guild roster:', error);
@@ -172,9 +184,18 @@ export const apiService = {
     },
   },
   auth: {
+    getMyProfile: async (): Promise<{ members: any, accounts: any }> => {
+      try {
+        const { data } = await _api.get(`/auth/my-profile`);
+        return data;
+      } catch (error) {
+        console.error('Error fetching my profile:', error);
+        throw error;
+      }
+    },
     getUserCharacters: async (realmSlug: string): Promise<UserCharactersOutput> => {
       try {
-        const { data } = await api.get(`/user/characters?realmSlug=${realmSlug}`);
+        const { data } = await _api.get(`/user/characters?realmSlug=${realmSlug}`);
         return data;
       } catch (error) {
         console.error('Error fetching user characters:', error);
@@ -185,7 +206,7 @@ export const apiService = {
   realms: {
     getAllowed: async (): Promise<{ id: number, name: string, slug: string }[]> => {
       try {
-        const { data } = await api.get(`/realms/allowed`);
+        const { data } = await _api.get(`/realms/allowed`);
         return data.realms;
       } catch (error) {
         console.error('Error fetching allowed realms:', error);
@@ -196,7 +217,7 @@ export const apiService = {
   characters: {
     link: async (characterName: string, realmSlug: string) => {
       try {
-        const { data } = await api.post(`/characters/link`, { characterName, realmSlug });
+        const { data } = await _api.post(`/characters/link`, { characterName, realmSlug });
         return data;
       } catch (error) {
         console.error('Error linking character:', error);
@@ -204,4 +225,4 @@ export const apiService = {
       }
     }
   }
-}
+});

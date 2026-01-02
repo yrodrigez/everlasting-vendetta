@@ -1,8 +1,7 @@
 
 import createServerSession, { type UserProfile } from "@utils/supabase/createServerSession";
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { attachCachedAccessToken, withRefreshToken } from '@/app/lib/middleware/with-auth';
-import { REFRESH_TOKEN_COOKIE_KEY } from '@/app/util/constants';
+import { withRefreshToken } from '@/app/lib/middleware/with-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 async function isBanned(session: UserProfile | undefined, supabase?: SupabaseClient) {
@@ -30,7 +29,7 @@ async function isBanned(session: UserProfile | undefined, supabase?: SupabaseCli
 export const config = {
     //runtime: 'nodejs',
     matcher: [
-        '/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|.*\\.(?:png|jpe?g|gif|webp|svg|mp4)).*)'
+        '/((?!api/v1/auth/refresh|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|.*\\.(?:png|jpe?g|gif|webp|svg|mp4)).*)'
     ]
 }
 
@@ -66,13 +65,6 @@ async function registerClick(urlId: string, supabase: SupabaseClient) {
 
 
 async function proxy(req: NextRequest, res: NextResponse): Promise<NextResponse> {
-    if (req.url.indexOf('/admin') !== -1) {
-        console.log('Middleware running for', req.url);
-        console.log('Cookies:', req.cookies);
-    }
-    const refreshToken = req.cookies.get(REFRESH_TOKEN_COOKIE_KEY)?.value;
-    attachCachedAccessToken(res, refreshToken);
-
     const { getSupabase, auth } = await createServerSession();
 
     const url = req.nextUrl;
@@ -93,4 +85,4 @@ async function proxy(req: NextRequest, res: NextResponse): Promise<NextResponse>
     return res;
 }
 
-export default withRefreshToken(proxy as any);
+export default withRefreshToken(proxy);

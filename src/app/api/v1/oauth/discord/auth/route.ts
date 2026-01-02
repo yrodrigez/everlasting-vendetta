@@ -14,8 +14,9 @@ export async function GET(request: NextRequest) {
     const searchParams = url.searchParams;
     const redirectedFrom = searchParams.get('redirectedFrom');
     const isWindowOpener = Boolean(searchParams.get('windowOpener') ?? '');
+    const isLinkedAccount = Boolean(searchParams.get('linkAccount') ?? '');
     const randomValue = Math.ceil(Math.random() * 10000000);
-    const state = toBase64(JSON.stringify({redirectedFrom, randomValue, windowOpener: isWindowOpener}));
+    const state = toBase64(JSON.stringify({redirectedFrom, randomValue, windowOpener: isWindowOpener, linkAccount: isLinkedAccount}));
     const scopes = ['identify', 'guilds'].join(' ');
     const responseType = 'code';
 

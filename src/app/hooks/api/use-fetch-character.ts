@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { apiService } from "@/app/lib/api";
+import { createAPIService } from "@/app/lib/api";
 
 export interface FetchCharacterInput {
     realm: string;
@@ -35,6 +35,7 @@ export interface FetchCharacterOutput {
 }
 
 export function useFetchCharacter() {
+    const apiService = createAPIService();
 
     const { data, mutate: fetchCharacter, mutateAsync: fetchCharacterAsync, isError, isPending } = useMutation({
         mutationFn: async ({ realm, name }: FetchCharacterInput) => {

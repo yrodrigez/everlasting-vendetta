@@ -1,5 +1,5 @@
 'use client'
-import { ReactNode, useEffect, useState, useRef } from "react";
+import { ReactNode, useEffect, useState, useRef, useCallback } from "react";
 
 interface AnimatedModalProps {
     isOpen: boolean;
@@ -13,19 +13,30 @@ export const AnimatedModal = ({ isOpen, onClose, triggerRef, title, children }: 
     const [isClosing, setIsClosing] = useState(false);
     const [buttonRect, setButtonRect] = useState<DOMRect | null>(null);
 
+    const animationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const animationDuration = 300; // in milliseconds
+
     useEffect(() => {
         if (isOpen && triggerRef.current) {
             setButtonRect(triggerRef.current.getBoundingClientRect());
         }
     }, [isOpen, triggerRef]);
 
-    const handleClose = () => {
+    const handleClose = useCallback(() => {
         setIsClosing(true);
-        setTimeout(() => {
+        animationTimeoutRef.current = setTimeout(() => {
             onClose();
             setIsClosing(false);
-        }, 400);
-    };
+        }, animationDuration);
+    }, [onClose]);
+
+    useEffect(() => {
+        return () => {
+            if (animationTimeoutRef.current) {
+                clearTimeout(animationTimeoutRef.current);
+            }
+        };
+    }, []);
 
     if (!isOpen) return null;
 
@@ -36,8 +47,8 @@ export const AnimatedModal = ({ isOpen, onClose, triggerRef, title, children }: 
                 className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
                 style={{
                     animation: isClosing
-                        ? 'fadeOut 300ms ease-out forwards'
-                        : 'fadeIn 300ms ease-out forwards'
+                        ? `fadeOut ${animationDuration}ms ease-out forwards`
+                        : `fadeIn ${animationDuration}ms ease-out forwards`
                 }}
                 onClick={handleClose}
             />
@@ -51,8 +62,8 @@ export const AnimatedModal = ({ isOpen, onClose, triggerRef, title, children }: 
                     width: buttonRect ? `${buttonRect.width}px` : 'auto',
                     height: buttonRect ? `${buttonRect.height}px` : 'auto',
                     animation: isClosing
-                        ? 'modalCollapse 400ms cubic-bezier(0.4, 0, 0.2, 1) forwards'
-                        : 'modalExpand 400ms cubic-bezier(0.4, 0, 0.2, 1) forwards',
+                        ? `modalCollapse ${animationDuration}ms cubic-bezier(0.4, 0, 0.2, 1) forwards`
+                        : `modalExpand ${animationDuration}ms cubic-bezier(0.4, 0, 0.2, 1) forwards`,
                 }}
             >
                 <div className="p-6 relative">
@@ -148,7 +159,7 @@ export const AnimatedModal = ({ isOpen, onClose, triggerRef, title, children }: 
                 @keyframes fadeIn {
                     from {
                         opacity: 0;
-                        transform: translateY(10px);
+                        transform: translateY(50px);
                     }
                     to {
                         opacity: 1;

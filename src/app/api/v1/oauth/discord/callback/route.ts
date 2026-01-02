@@ -1,6 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { getEnvironment } from "@/infrastructure/environment";
+import { SESSION_INFO_COOKIE_KEY } from "@/app/util/constants";
+import { decrypt } from "@/app/util/auth/crypto";
+import createServerSession from "@/app/util/supabase/createServerSession";
 
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 const PRODUCTION_ORIGIN = 'https://www.everlastingvendetta.com/';
@@ -20,6 +23,7 @@ function toJson(str: string) {
 }
 
 export async function GET(request: NextRequest) {
+
     const { refreshTokenCookieKey, discordRedirectUri, discordClientId, discordClientSecret, evApiUrl } = getEnvironment();
     if (!discordRedirectUri) throw new Error('DISCORD_REDIRECT_URI not set');
 
@@ -29,6 +33,7 @@ export async function GET(request: NextRequest) {
     const stateData = state ? toJson(fromBase64(state)) : null;
 
     if (!code) {
+        console.error('No code provided in Discord OAuth callback');
         return NextResponse.redirect('/');
     }
 
@@ -47,9 +52,65 @@ export async function GET(request: NextRequest) {
     });
 
     const tokenData = await tokenResponse.json();
-    console.log('Discord token response status:', tokenData);
+
     const redirectFrom = stateData?.redirectedFrom || '/';
     const windowOpener = stateData?.windowOpener;
+    const linkAccount = stateData?.linkAccount;
+
+    if (!tokenResponse.ok) {
+        console.error('Discord token exchange failed', tokenData);
+        return NextResponse.redirect(requestURL.origin + '/?error=discord_token_exchange_failed');
+    }
+
+    if (linkAccount) {
+        const { auth, accessToken } = await createServerSession();
+        const session = await auth.getSession();
+        console.log('[Discord Callback] session result:', { hasSession: !!session, sessionId: session?.id });
+
+        if (!session || !accessToken) {
+            console.error('No authenticated session found for linking Discord account');
+            return NextResponse.redirect(requestURL.origin + '/?error=not_logged_in');
+        }
+
+        console.log('Linking Discord account for user:', session.id, tokenData, accessToken);
+        const linkResponse = await fetch(`${evApiUrl}/auth/link-oauth-account`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            },
+            body: JSON.stringify({
+                provider: 'discord',
+                accessToken: tokenData.access_token,
+                tokenExpiresAt: (Date.now() + tokenData.expires_in * 1000) / 1000,
+                refreshToken: tokenData.refresh_token
+            })
+        });
+
+        if (!linkResponse.ok) {
+            console.error('Linking Discord account failed');
+            return NextResponse.redirect(requestURL.origin + '/?error=link_account_failed');
+        }
+
+        if (windowOpener) {
+            return new NextResponse(
+                `<script>
+                window.opener.postMessage({
+                    type: 'LINK_SUCCESS'
+                }, '*');
+                window.close();
+            </script>`,
+                {
+                    headers: {
+                        'Content-Type': 'text/html',
+                    },
+                }
+            );
+        }
+
+        return NextResponse.redirect(requestURL.origin + redirectFrom);
+    }
+
 
     // Exchange Discord token for your auth system tokens
     const authResponse = await fetch(`${evApiUrl}/auth/login`, {
@@ -61,6 +122,7 @@ export async function GET(request: NextRequest) {
             provider: 'discord',
             access_token: tokenData.access_token,
             expires_at: (Date.now() + tokenData.expires_in * 1000) / 1000,
+            refresh_token: tokenData.refresh_token
         })
     });
 

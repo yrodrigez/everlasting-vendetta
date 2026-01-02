@@ -3,7 +3,7 @@ import { CURRENT_MAX_LEVEL, GUILD_NAME, GUILD_REALM_NAME } from "@/app/util/cons
 import { type SupabaseClient } from "@supabase/supabase-js";
 import createServerSession from "@utils/supabase/createServerSession";
 import Link from "next/link";
-import { apiService } from "../lib/api";
+import { createAPIService } from "../lib/api";
 
 export const dynamic = 'force-dynamic'
 
@@ -75,6 +75,7 @@ const RANKS = {
 }
 
 async function getRoster(supabase: SupabaseClient) {
+    const apiService = createAPIService();
     const [{ data, error }, roster, realms] = await Promise.all([
         supabase.from('ev_member')
             .select('updated_at, character')

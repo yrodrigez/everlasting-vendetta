@@ -1,12 +1,51 @@
 import crypto from 'crypto';
 import { encrypt } from '@/app/util/auth/crypto';
 import { REFRESH_TOKEN_COOKIE_KEY, SESSION_INFO_COOKIE_KEY } from '@/app/util/constants';
-import { getMiddleware } from 'with-refresh-token';
 import { type NextFetchEvent, type NextRequest, NextResponse } from 'next/server';
+import { RequestCookies, ResponseCookies } from 'next/dist/compiled/@edge-runtime/cookies';
 
 const isProd = process.env.NODE_ENV === 'production';
 const REFRESH_ENDPOINT = `${process.env.NEXT_PUBLIC_EV_API_URL}/auth/refresh`;
 const EXPIRY_MARGIN_MS = 60_000;
+
+/**
+ * Sincroniza las cookies y headers de la respuesta al request para que
+ * los Route Handlers y Server Components vean los valores actualizados.
+ */
+function applyCookiesOnNextResponse(req: NextRequest, res: NextResponse) {
+  const outgoingCookies = new ResponseCookies(res.headers);
+  const incomingHeaders = new Headers(req.headers);
+  const incomingCookies = new RequestCookies(incomingHeaders);
+
+  outgoingCookies.getAll().forEach((cookie) => incomingCookies.set(cookie));
+
+  const accessHeader = res.headers.get('x-ev-access') ?? res.headers.get('x-middleware-request-x-ev-access');
+  const sessionHeader = res.headers.get('x-ev-session') ?? res.headers.get('x-middleware-request-x-ev-session');
+  if (accessHeader) {
+    incomingHeaders.set('x-ev-access', accessHeader);
+  } else {
+    console.log('No x-ev-access header to set on request');
+  }
+  if (sessionHeader) {
+    incomingHeaders.set('x-ev-session', sessionHeader);
+  } else {
+    console.log('No x-ev-session header to set on request');
+  }
+
+  const nextResponseHeaders = NextResponse.next({
+    request: { headers: incomingHeaders },
+  }).headers;
+
+  nextResponseHeaders.forEach((value, key) => {
+    if (
+      key === 'x-middleware-override-headers' ||
+      key.startsWith('x-middleware-request-') ||
+      key.indexOf('x-ev-') !== -1
+    ) {
+      res.headers.set(key, value);
+    }
+  });
+}
 
 type CachedEntry = {
   exp: number;
@@ -91,122 +130,131 @@ async function requestTokenPair(req: NextRequest): Promise<TokenPair> {
   return data;
 }
 
-type MiddlewareOptions = {
-  shouldRefresh: (req: NextRequest) => boolean;
-  fetchTokenPair: (req: NextRequest) => Promise<TokenPair>;
-  onSuccess: (res: NextResponse, tokenPair: TokenPair) => void;
-  onError?: (req: NextRequest, res: NextResponse, error: unknown) => NextResponse | void;
-};
+type MiddlewareHandler = (req: NextRequest, res: NextResponse, event?: NextFetchEvent) => Promise<NextResponse> | NextResponse;
+type ProxyHandler = (req: NextRequest, event?: NextFetchEvent) => Promise<NextResponse> | NextResponse;
 
-type MiddlewareHandler = (req: NextRequest, res: NextResponse, event: NextFetchEvent) => Promise<NextResponse> | NextResponse;
-
-const createMiddleware = getMiddleware as unknown as (options: MiddlewareOptions) => (middleware?: MiddlewareHandler) => MiddlewareHandler;
-
-export const withRefreshToken = createMiddleware({
-  shouldRefresh: (req: NextRequest) => {
-    const refreshToken = req.cookies.get(REFRESH_TOKEN_COOKIE_KEY)?.value;
-    if (!refreshToken) {
-      return false;
-    }
-
-    const key = resolveCacheKey(refreshToken);
-    if (!key) {
-      return true;
-    }
-
-    const entry = cache.get(key);
-    if (!entry) {
-      return true;
-    }
-
-    return entry.exp - Date.now() <= EXPIRY_MARGIN_MS;
-  },
-  fetchTokenPair: requestTokenPair,
-  onSuccess: (response: NextResponse, tokenPair: TokenPair) => {
-    const {
-      accessToken,
-      refreshToken,
-      refreshTokenExpiry,
-      accessTokenExpiry,
-      sessionCookieValue,
-      previousRefreshToken,
-    } = tokenPair;
-
-    const newKey = resolveCacheKey(refreshToken);
-    if (newKey) {
-      cache.set(newKey, {
-        token: accessToken,
-        exp: computeExpiry(accessTokenExpiry),
-      });
-    }
-
-    if (previousRefreshToken) {
-      const previousKey = resolveCacheKey(previousRefreshToken);
-      if (previousKey && previousKey !== newKey) {
-        cache.delete(previousKey);
-      }
-    }
-
-    response.cookies.set({
-      name: REFRESH_TOKEN_COOKIE_KEY,
-      value: refreshToken,
-      httpOnly: true,
-      secure: isProd,
-      sameSite: 'strict',
-      path: '/',
-      ...(isProd ? { domain: '.everlastingvendetta.com' } : {}),
-      expires: new Date(refreshTokenExpiry * 1000),
-    });
-
-    if (sessionCookieValue) {
-      response.cookies.set({
-        name: SESSION_INFO_COOKIE_KEY,
-        value: sessionCookieValue,
-        httpOnly: true,
-        secure: isProd,
-        sameSite: 'strict',
-        path: '/',
-        ...(isProd ? { domain: '.everlastingvendetta.com' } : {}),
-        expires: new Date(accessTokenExpiry * 1000),
-      });
-    }
-
-    attachAccessHeaders(response, accessToken);
-  },
-  onError: (req: NextRequest, res: NextResponse, error: unknown) => {
-    const refreshToken = req.cookies.get(REFRESH_TOKEN_COOKIE_KEY)?.value;
-    if (refreshToken) {
-      const key = resolveCacheKey(refreshToken);
-      if (key) {
-        cache.delete(key);
-      }
-    }
-
-    const status = (error as { status?: number })?.status;
-    if (status === 401) {
-      res.cookies.delete(REFRESH_TOKEN_COOKIE_KEY);
-      res.cookies.delete(SESSION_INFO_COOKIE_KEY);
-    }
-
-    console.error('Refresh token middleware failed', error);
-    return res;
-  },
-});
-
-export function attachCachedAccessToken(response: NextResponse, refreshToken: string | undefined) {
+function shouldRefresh(req: NextRequest): boolean {
+  const refreshToken = req.cookies.get(REFRESH_TOKEN_COOKIE_KEY)?.value;
   if (!refreshToken) {
-    return;
+    return false;
   }
 
   const key = resolveCacheKey(refreshToken);
   if (!key) {
-    return;
+    return true;
   }
 
   const entry = cache.get(key);
-  if (!entry || entry.exp - Date.now() <= EXPIRY_MARGIN_MS) {
-    return;
+  if (!entry) {
+    return true;
   }
 
-  attachAccessHeaders(response, entry.token);
+  return entry.exp - Date.now() <= EXPIRY_MARGIN_MS;
+}
+
+function handleSuccess(response: NextResponse, tokenPair: TokenPair) {
+  const {
+    accessToken,
+    refreshToken,
+    refreshTokenExpiry,
+    accessTokenExpiry,
+    sessionCookieValue,
+    previousRefreshToken,
+  } = tokenPair;
+
+  const newKey = resolveCacheKey(refreshToken);
+  if (newKey) {
+    cache.set(newKey, {
+      token: accessToken,
+      exp: computeExpiry(accessTokenExpiry),
+    });
+  }
+
+  if (previousRefreshToken) {
+    const previousKey = resolveCacheKey(previousRefreshToken);
+    if (previousKey && previousKey !== newKey) {
+      cache.delete(previousKey);
+    }
+  }
+
+  response.cookies.set({
+    name: REFRESH_TOKEN_COOKIE_KEY,
+    value: refreshToken,
+    httpOnly: true,
+    secure: isProd,
+    sameSite: 'lax',
+    path: '/',
+    ...(isProd ? { domain: '.everlastingvendetta.com' } : {}),
+    expires: new Date(refreshTokenExpiry * 1000),
+  });
+
+  if (sessionCookieValue) {
+    response.cookies.set({
+      name: SESSION_INFO_COOKIE_KEY,
+      value: sessionCookieValue,
+      httpOnly: true,
+      secure: isProd,
+      sameSite: 'lax',
+      path: '/',
+      ...(isProd ? { domain: '.everlastingvendetta.com' } : {}),
+      expires: new Date(accessTokenExpiry * 1000),
+    });
+  }
+
+  attachAccessHeaders(response, accessToken);
+}
+
+function handleError(req: NextRequest, res: NextResponse, error: unknown): NextResponse {
+  const refreshToken = req.cookies.get(REFRESH_TOKEN_COOKIE_KEY)?.value;
+  if (refreshToken) {
+    const key = resolveCacheKey(refreshToken);
+    if (key) {
+      cache.delete(key);
+    }
+  }
+
+  const status = (error as { status?: number })?.status;
+  if (status === 401) {
+    res.cookies.delete(REFRESH_TOKEN_COOKIE_KEY);
+    res.cookies.delete(SESSION_INFO_COOKIE_KEY);
+  }
+
+  console.error('Refresh token middleware failed', error);
+  return res;
+}
+
+export function withRefreshToken(middlewareFn?: MiddlewareHandler): ProxyHandler {
+  return async (req: NextRequest, event?: NextFetchEvent) => {
+    const res = NextResponse.next();
+    const refreshToken = req.cookies.get(REFRESH_TOKEN_COOKIE_KEY)?.value;
+
+
+    if (refreshToken) {
+      if (shouldRefresh(req)) {
+        try {
+          const tokenPair = await requestTokenPair(req);
+          handleSuccess(res, tokenPair);
+        } catch (error) {
+          return handleError(req, res, error);
+        }
+      } else {
+        const key = resolveCacheKey(refreshToken);
+        if (key) {
+          const entry = cache.get(key);
+          if (entry) {
+            attachAccessHeaders(res, entry.token);
+            console.log('[withRefreshToken] using CACHED token');
+          } else {
+            console.log('[withRefreshToken] NO cache entry for key');
+          }
+        } else {
+          console.log('[withRefreshToken] could not resolve cache key');
+        }
+      }
+    }
+
+    applyCookiesOnNextResponse(req, res);
+
+    return middlewareFn ? middlewareFn(req, res, event) : res;
+  };
 }

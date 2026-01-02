@@ -272,7 +272,9 @@ async function recentlyLoggedIn(supabase: SupabaseClient, characterId: number) {
 }
 
 export default function useAchievements() {
-    const { accessToken } = useAuth();
+    const { accessToken, isAuthenticated } = useAuth();
+
+
     const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
 
     const selectedCharacter = useCharacterStore(useShallow(state => state.selectedCharacter));
@@ -280,7 +282,7 @@ export default function useAchievements() {
     const { data: achievements, error, isLoading: loadingAchievements } = useQuery({
         queryKey: ['achievements', selectedCharacter?.id],
         queryFn: async () => {
-            if (!supabase || !selectedCharacter) return {}
+            if (!supabase || !selectedCharacter || !isAuthenticated) return {}
 
             const hasRecentLog = await recentlyLoggedIn(supabase, selectedCharacter.id)
             if (hasRecentLog) {

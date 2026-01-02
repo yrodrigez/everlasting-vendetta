@@ -1,16 +1,16 @@
 'use client'
+import { AnimatedModal } from "@/app/components/AnimatedModal";
+import { Button } from "@/app/components/Button";
 import { HeaderMenuButton } from "@/app/components/HeaderMenuButton";
-import { usePathname, useRouter } from "next/navigation";
 import useScreenSize from "@/app/hooks/useScreenSize";
 import { createHandleAuthMessage, openAuthWindow } from "@/app/util/blizzard/loginOnWindow";
-import { DISCORD_LOGIN_URL } from "@utils/constants";
-import { useState, useRef, useMemo, useCallback, useEffect } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDiscord } from "@fortawesome/free-brands-svg-icons";
-import { Button } from "@/app/components/Button";
-import { AnimatedModal } from "@/app/components/AnimatedModal";
-import { useAuthManagerWindowStore } from "../stores/auth-manager-window-store";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { DISCORD_LOGIN_URL } from "@utils/constants";
+import { usePathname } from "next/navigation";
+import { useCallback, useMemo, useRef } from "react";
 import { useApiHealth } from "../hooks/api/use-api-health";
+import { useAuthManagerWindowStore } from "../stores/auth-manager-window-store";
 
 
 export const LoginButton = ({ battleNetRedirectUrl }: { battleNetRedirectUrl: string }) => {

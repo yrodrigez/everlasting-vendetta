@@ -2,23 +2,26 @@ import type { BnetOAuthGateway } from '../ports/bnet-oauth-gateway';
 import type { AuthGateway } from '../ports/auth-gateway';
 import type { Encryptor } from '../ports/encryptor';
 import type { SessionStore } from '../ports/session-store';
+import createServerSession from '@/app/util/supabase/createServerSession';
+import { getEnvironment } from '@/infrastructure/environment';
 
 type CallbackState = {
     redirectedFrom?: string;
     windowOpener?: boolean;
+    linkAccount?: boolean;
 };
 
 export type BnetCallbackResult =
     | {
-          type: 'redirect';
-          url: string;
-          reason: 'success' | 'missing_code' | 'bnet_oauth_failed' | 'auth_failed';
-          cause?: unknown;
-      }
+        type: 'redirect';
+        url: string;
+        reason: 'success' | 'missing_code' | 'bnet_oauth_failed' | 'auth_failed' | 'link_account_failed' | 'not_logged_in';
+        cause?: unknown;
+    }
     | {
-          type: 'window-opener';
-          reason: 'success';
-      };
+        type: 'window-opener';
+        reason: 'success';
+    };
 
 export interface BnetCallbackUseCaseInput {
     code: string | null;
@@ -96,6 +99,58 @@ export class BnetCallbackUseCase {
                 cause: error,
             };
         }
+
+        if (stateData?.linkAccount) {
+            const { auth, accessToken } = await createServerSession();
+            const session = await auth.getSession();
+
+            if (!session || !accessToken) {
+                console.error('No authenticated session found for linking Battle.net account');
+                return {
+                    type: 'redirect',
+                    url: this.buildErrorUrl(input.origin, 'not_logged_in'),
+                    reason: 'not_logged_in',
+                };
+            }
+            const { evApiUrl } = getEnvironment();
+
+            const linkResponse = await fetch(`${evApiUrl}/auth/link-oauth-account`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
+                },
+                body: JSON.stringify({
+                    provider: 'bnet',
+                    accessToken: tokenResponse.access_token,
+                    tokenExpiresAt: (Date.now() + tokenResponse.expires_in * 1000) / 1000,
+                    refreshToken: ''
+                })
+            });
+
+            if (!linkResponse.ok) {
+                console.error('Linking Battle.net account failed');
+                return {
+                    type: 'redirect',
+                    url: this.buildErrorUrl(input.origin, 'link_account_failed'),
+                    reason: 'link_account_failed',
+                };
+            }
+
+            if (windowOpener) {
+                return {
+                    type: 'window-opener',
+                    reason: 'success',
+                };
+            }
+
+            return {
+                type: 'redirect',
+                url: this.buildSuccessRedirect(input.origin, redirectFrom),
+                reason: 'success',
+            };
+        }
+
         await this.dependencies.sessionStore.setRefreshToken(
             loginResponse.refreshToken,
             loginResponse.refreshTokenExpiry,
