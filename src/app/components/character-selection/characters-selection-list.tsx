@@ -96,9 +96,14 @@ export function CharactersSelectionList() {
     return (
         <ScrollShadow className="flex flex-col gap-3 w-full h-72 overflow-auto scrollbar-pill px-1">
             {characters?.sort((a: any, b: any) => {
+                // Keep selected character on top
                 if (selectedCharacter?.id === a.id) return -1;
                 if (selectedCharacter?.id === b.id) return 1;
-                return 0;
+                // Then sort by level descending
+                if (a.level > b.level) return -1;
+                if (a.level < b.level) return 1;
+                // Finally sort by name ascending
+                return a.name.localeCompare(b.name);
             }).filter((character: any) => allowedRealms.map((realm: { name: string }) => realm.name).includes(character.realm.name)).map((character: any) => (
                 <CharacterView key={character.id} character={character} />
             ))}

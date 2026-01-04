@@ -162,17 +162,15 @@ export default function ProfileManager() {
                             }}
                             icon={selectedCharacter && selectedCharacter.selectedRole ? getRoleIcon(selectedCharacter.selectedRole) : faPersonCircleQuestion}
                         />
-                        {user?.provider?.indexOf('bnet') === -1 && (
-                            <MenuItem
-                                text="Link a character"
-                                onClick={() => {
-                                    setVista('link')
-                                    openAuthManagerWindow()
-                                    setPopoverOpen(false)
-                                }}
-                                icon={faLink}
-                            />
-                        )}
+                        <MenuItem
+                            text="Link a character"
+                            onClick={() => {
+                                setVista('link')
+                                openAuthManagerWindow()
+                                setPopoverOpen(false)
+                            }}
+                            icon={faLink}
+                        />
                         <MenuItem text={'My armory'} onClick={() => {
                             window.location.href = `/roster/${encodeURIComponent(selectedCharacter.name.toLowerCase())}-${selectedCharacter.realm.slug}`;
                             setPopoverOpen(false)

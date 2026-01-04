@@ -16,7 +16,7 @@ const VISTAS = [
 export function CharacterSelection({ isBattlenet }: { isBattlenet?: boolean }) {
     const activeVista = useVistaStore(state => state.vista);
     const setActiveVista = useVistaStore(state => state.setVista);
-    const vistas = useMemo(() => VISTAS.filter(view => !(isBattlenet && view.id === "link")), [isBattlenet]);
+    const vistas = useMemo(() => VISTAS/* .filter(view => !(isBattlenet && view.id === "link")) */, [isBattlenet]);
     const activeIndex = useMemo(() => {
         return vistas.findIndex(view => view.id === activeVista);
     }, [activeVista, vistas]);
@@ -63,7 +63,6 @@ export function CharacterSelection({ isBattlenet }: { isBattlenet?: boolean }) {
                     const isActive = index === activeIndex;
                     return (
                         <button
-                            disabled={isBattlenet && view.id === "link"}
                             key={view.id}
                             className={`flex-1 px-2 py-1 rounded-lg text-sm font-semibold transition-all duration-200
                                 ${isActive

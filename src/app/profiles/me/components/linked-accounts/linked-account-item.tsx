@@ -34,9 +34,14 @@ export function LinkedAccountItem({ account, onLink }: {
             label: "Discord",
             colorClass: "text-[#5865F2]",
         },
+        unknown: {
+            icon: "❓",
+            label: "Unknown",
+            colorClass: "text-stone-400",
+        }
     };
 
-    const providerKey = (account.provider.indexOf('bnet') !== -1 ? 'battlenet' : account.provider.indexOf('discord') !== -1 ? 'discord' : '') as keyof typeof platformConfig;
+    const providerKey = (account.provider.indexOf('bnet') !== -1 ? 'battlenet' : account.provider.indexOf('discord') !== -1 ? 'discord' : 'unknown') as keyof typeof platformConfig;
     const config = platformConfig[providerKey];
 
     const resolvedIcon = useCallback((platform: string) => {

@@ -10,7 +10,10 @@ export function LinkCharacterView({ character, isLoaded, isError, isLoading }: {
 
     return (
         <LinkCharacterContainer characterClassName={character?.playable_class?.name} isError={isError}>
-            <div className="flex flex-col gap-1 grow mr-4">
+            <Skeleton disableAnimation={!isLoading} className={`rounded-full w-16 h-16 ${isError ? 'bg-red-600' : 'bg-wood-100'} border ${isError ? 'border-red-800' : 'border-wood'}`} isLoaded={isLoaded && !isError}>
+                <img src={character?.avatar} alt={`${character?.name} avatar`} className={`w-16 h-16 rounded-full border ${character?.faction === 'ALLIANCE' ? 'border-blue-500' : 'border-red-500'}`} />
+            </Skeleton>
+            <div className="flex flex-col gap-1 grow ml-4">
                 <Skeleton disableAnimation={!isLoading} className={!shouldClassName ? undefined : `rounded-lg w-full min-h-5 ${isError ? 'bg-red-600' : 'bg-wood-100'} border ${isError ? 'border-red-800' : 'border-wood'}`} isLoaded={isLoaded && !isError}>
                     <h2 className={`text-lg font-bold w-full text-${character?.character_class?.name.toLowerCase()}`}>{character?.name}</h2>
                 </Skeleton>
@@ -20,9 +23,6 @@ export function LinkCharacterView({ character, isLoaded, isError, isLoading }: {
                     </p>
                 </Skeleton>
             </div>
-            <Skeleton disableAnimation={!isLoading} className={`rounded-full w-16 h-16 ${isError ? 'bg-red-600' : 'bg-wood-100'} border ${isError ? 'border-red-800' : 'border-wood'}`} isLoaded={isLoaded && !isError}>
-                <img src={character?.avatar} alt={`${character?.name} avatar`} className={`w-16 h-16 rounded-full border ${character?.faction === 'ALLIANCE' ? 'border-blue-500' : 'border-red-500'}`} />
-            </Skeleton>
         </LinkCharacterContainer>
     );
 }
