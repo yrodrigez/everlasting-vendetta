@@ -42,7 +42,7 @@ export default async function Page({ }) {
                     name: x.character.name,
                     className: x.character.character_class.name,
                     level: x.character.level,
-                    realm: x.character.realm.name,
+                    realm: x.character.realm,
                 }
             })}
         />

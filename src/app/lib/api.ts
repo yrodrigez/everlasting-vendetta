@@ -125,7 +125,7 @@ export function createServerApiClient(accessToken: string | null) {
   const serverApi = axios.create({
     baseURL: process.env.NEXT_PUBLIC_EV_API_URL,
     withCredentials: true,
-    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : { Authorization: `Bearer ${process.env.NEXT_PUBLIC_EV_ANON_TOKEN!}` },
   });
 
   return serverApi;

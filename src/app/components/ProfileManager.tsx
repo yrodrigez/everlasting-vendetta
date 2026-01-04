@@ -9,7 +9,7 @@ import {
     PopoverTrigger,
     Spinner, Tooltip
 } from "@heroui/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import { getRoleIcon } from "@/app/apply/components/utils";
 import {
@@ -20,11 +20,13 @@ import {
     faUser,
     type IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
+
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import { useAuthManagerWindowStore } from "../stores/auth-manager-window-store";
 import { createClientComponentClient } from "../util/supabase/createClientComponentClient";
 import { useVistaStore } from "./character-selection/vista-store";
+import { Swords } from "./svg-icons";
 
 export function isRoleAssignable(role: 'tank' | 'healer' | 'dps' | string, characterClass: string | undefined, realmSlug: string = 'living-flame'): boolean {
     if (!characterClass) return false
@@ -47,16 +49,23 @@ export function isRoleAssignable(role: 'tank' | 'healer' | 'dps' | string, chara
     return dpsClasses.includes(characterClass)
 }
 
-const MenuItem = ({ text, onClick, icon }: { text: string, onClick: () => void, icon: IconDefinition | string }) => {
+const MenuItem = ({ text, onClick, icon }: { text: string, onClick: () => void, icon: IconDefinition | string | React.ReactNode }) => {
+    const IconComponent = useMemo(() => {
+        if (!icon) return null;
+        if (typeof icon === 'string') {
+            return <img src={icon} alt={text} className="w-6 h-6 rounded-full border border-gold" />;
+        }
+        if (typeof icon === 'object' && 'iconName' in icon) {
+            return <FontAwesomeIcon icon={icon} />;
+        }
+        return icon;
+    }, [icon, text]);
     return (
         <div
             onClick={onClick}
             className="text-small flex py-2 px-2 gap-2 cursor-pointer rounded items-center justify-between hover:bg-white hover:bg-opacity-20 hover:backdrop-filter hover:backdrop-blur-md">
             {text} {
-                !icon ? null :
-                    typeof icon === 'string' ?
-                        <img src={icon} alt={text} className="w-6 h-6 rounded-full border border-gold" /> :
-                        <FontAwesomeIcon icon={icon} />
+                IconComponent
             }
         </div>
     )
@@ -122,10 +131,19 @@ export default function ProfileManager() {
 
                 </div>
             </PopoverTrigger>
-            <PopoverContent className="bg-wood">
+            <PopoverContent
+                className="bg-wood">
                 {selectedCharacter?.name && selectedCharacter?.selectedRole && (
                     <div className="px-1 py-2 min-w-48">
                         <div className="text-xl font-bold mb-4">Options</div>
+                        <MenuItem
+                            text="My profile"
+                            onClick={() => {
+                                router.push(`/profiles/me`);
+                                setPopoverOpen(false)
+                            }}
+                            icon={faUser}
+                        />
                         <MenuItem
                             text="Switch character"
                             onClick={() => {
@@ -158,7 +176,11 @@ export default function ProfileManager() {
                         <MenuItem text={'My armory'} onClick={() => {
                             window.location.href = `/roster/${encodeURIComponent(selectedCharacter.name.toLowerCase())}-${selectedCharacter.realm.slug}`;
                             setPopoverOpen(false)
-                        }} icon={faUser} />
+                        }} icon={<span
+                            className="w-4 h-4">
+                            <Swords
+                            />
+                        </span>} />
                         <MenuItem text={'Logout'} onClick={handleLogout} icon={faRightFromBracket} />
                     </div>
                 )}

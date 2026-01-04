@@ -17,6 +17,7 @@ export type UserProfile = {
     isAdmin: boolean
     isBanned?: boolean
     selectedCharacter?: SelectedCharacterCookieDTO | null
+    isGuildMember?: boolean
 }
 
 async function getFreshAccessToken(): Promise<string | null> {
@@ -47,7 +48,6 @@ export default async function createServerSession(): Promise<{
 }> {
 
     const cookiesStore = await cookies()
-    const sessionInfoVal = cookiesStore.get(SESSION_INFO_COOKIE_KEY)?.value
     const accessToken = await getFreshAccessToken();
 
     const getSupabase = async () => {
@@ -71,9 +71,10 @@ export default async function createServerSession(): Promise<{
         return client;
     }
 
-    const api = createServerApiClient(accessToken || null);
+    const api = createServerApiClient(accessToken);
     const apiService = createAPIService(api);
 
+    const sessionInfoVal = cookiesStore.get(SESSION_INFO_COOKIE_KEY)?.value
     if (!sessionInfoVal) {
         return {
             apiService,
@@ -96,7 +97,7 @@ export default async function createServerSession(): Promise<{
     const sessionInfo = JSON.parse(Buffer.from(decrypted, 'base64url').toString('utf8'));
     async function getSession(): Promise<UserProfile> {
         const memberId = sessionInfo.sub
-        const { custom_roles: roles, permissions, isTemporal, isAdmin, isBanned, provider } = sessionInfo
+        const { custom_roles: roles, permissions, isTemporal, isAdmin, isBanned, provider, isGuildMember } = sessionInfo
 
         return {
             id: memberId,
@@ -106,6 +107,7 @@ export default async function createServerSession(): Promise<{
             isAdmin,
             isBanned,
             provider,
+            isGuildMember,
             ...(selectedCharacter ? { selectedCharacter } : {}),
         }
     }

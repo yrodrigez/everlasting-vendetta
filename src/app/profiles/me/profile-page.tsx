@@ -21,7 +21,7 @@ export default function ProfilePage({ characters, accounts }: { characters: Char
             <Card className="max-w-4xl mx-auto bg-wood-900 border border-wood-100">
                 <CardHeader className="flex justify-between items-center px-6 py-4 bg-wood border-b border-wood-100">
                     <div className="flex items-center gap-3">
-                        <h1 className="text-xl md:text-2xl font-bold text-gold">MY PROFILE (under construction)</h1>
+                        <h1 className="text-xl md:text-2xl font-bold text-gold">MY PROFILE (Under development)</h1>
                     </div>
                 </CardHeader>
 
@@ -60,7 +60,7 @@ export default function ProfilePage({ characters, accounts }: { characters: Char
                                 <h2 className="text-primary font-semibold">MY CHARACTERS</h2>
                             </div>
                         </CardHeader>
-                        <CardBody className="p-4">
+                        <CardBody className="py-4 px-3 md:px-4">
                             <div className="flex flex-wrap gap-4">
                                 {characters.map((character) => (
                                     <CharacterCard

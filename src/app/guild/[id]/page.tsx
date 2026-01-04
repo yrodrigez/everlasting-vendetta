@@ -9,6 +9,7 @@ import {redirect} from "next/navigation";
 import WoWService from "@services/wow-service";
 import {BnetLoginButton} from "@/app/components/BnetLoginButton";
 import {Button} from "@/app/components/Button";
+import createServerSession from "@/app/util/supabase/createServerSession";
 
 function getClassName(classId: number) {
     const classes = {
@@ -31,8 +32,10 @@ function getClassName(classId: number) {
 
 export default async function Page({params}: { params: Promise<{ id: string }> }) {
 
-    const isGuildMember = await new WoWService().isLoggedUserInGuild()
-    if (!isGuildMember) {
+    const { auth } = await createServerSession();
+    const session = await auth.getSession();
+    
+    if (!session?.isGuildMember) {
         return (
             <div className="flex flex-col items-center justify-center h-screen">
                 <h1 className="text-4xl font-bold text-center mb-4">You should be a member of <span className="text-gold font-bold">{GUILD_NAME}</span> to see others guild's rosters</h1>

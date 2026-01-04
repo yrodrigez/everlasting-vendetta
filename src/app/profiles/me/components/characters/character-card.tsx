@@ -1,5 +1,6 @@
 import { Avatar } from "@heroui/react";
 import { Character } from "./types";
+import Link from "next/link";
 
 const classColors: Record<string, string> = {
     warrior: "warrior",
@@ -24,7 +25,8 @@ export function CharacterCard({ character, isSelected, onSelect }: {
     const colorClass = classColors[character.className.toLowerCase()] || "priest";
 
     return (
-        <div
+        <Link
+            href={`/roster/${encodeURIComponent(character.name.toLowerCase())}-${character.realm.slug}`}
             onClick={onSelect}
             className={`
         relative cursor-pointer rounded-lg border p-3 transition-all duration-200
@@ -49,10 +51,10 @@ export function CharacterCard({ character, isSelected, onSelect }: {
                     <p className={`text-${colorClass} font-semibold text-sm`}>
                         {character.name}
                     </p>
-                    <p className="text-stone-100 text-xs">{character.realm}</p>
+                    <p className="text-stone-100 text-xs">{character.realm.name}</p>
                     <p className="text-stone-100 text-xs">Lvl {character.level}</p>
                 </div>
             </div>
-        </div>
+        </Link>
     );
 }

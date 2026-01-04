@@ -136,8 +136,7 @@ export default class WoWService_Impl implements WoWService {
             return false
         }
 
-        const sessionGuildId = session.selectedCharacter?.guild?.name
-        return sessionGuildId === GUILD_NAME && !session.isTemporal
+        return !!session.isGuildMember
     }
 
     getCharacterTalents = async (characterName: string, realmSlug: string) => {

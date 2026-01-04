@@ -3,6 +3,10 @@ export interface Character {
     name: string;
     className: string;
     level: number;
-    realm: string;
+    realm: {
+        id?: number;
+        name?: string;
+        slug?: string;
+    }
     avatar: string;
 }

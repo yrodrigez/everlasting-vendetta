@@ -249,7 +249,6 @@ export default async function Page({ params }: { params: Promise<{ name: string 
 
     const {
         fetchEquipment,
-        isLoggedUserInGuild,
         getCharacterTalents,
         fetchCharacterStatistics
     } = new WoWService()
@@ -267,8 +266,8 @@ export default async function Page({ params }: { params: Promise<{ name: string 
     }
 
     const supabase = await getSupabase();
-    const [isGuildMember, equipment, talents, characterStatistics, lootHistory, { data: isCharacterBanned }, { data: isMemberPresent }, achievementData, attendance, professions] = await Promise.all([
-        isLoggedUserInGuild(),
+    const [equipment, talents, characterStatistics, lootHistory, { data: isCharacterBanned }, { data: isMemberPresent }, achievementData, attendance, professions] = await Promise.all([
+        
         fetchEquipment(characterName, realmSlug),
         getCharacterTalents(characterName, realmSlug),
         fetchCharacterStatistics(characterName, realmSlug),
@@ -300,6 +299,7 @@ export default async function Page({ params }: { params: Promise<{ name: string 
     }
 
     const session = await auth.getSession()
+    const isGuildMember = session?.isGuildMember || false
     const canBan = !!(session?.permissions.includes('member.ban') && characterInfo.guild?.id !== GUILD_ID && isMemberPresent && !isCharacterBanned) // can ban only if not in the same guild
     const canUnban = !!(session?.permissions.includes('member.unban') && characterInfo.guild?.id !== GUILD_ID && isCharacterBanned) // can unban only if not in the same guild
 
