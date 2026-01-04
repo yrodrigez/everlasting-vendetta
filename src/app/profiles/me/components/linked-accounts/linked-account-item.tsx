@@ -36,7 +36,7 @@ export function LinkedAccountItem({ account, onLink }: {
         },
     };
 
-    const providerKey = (account.provider.indexOf('bnet') !== -1 ? 'battlenet' : account.provider) as keyof typeof platformConfig;
+    const providerKey = (account.provider.indexOf('bnet') !== -1 ? 'battlenet' : account.provider.indexOf('discord') !== -1 ? 'discord' : '') as keyof typeof platformConfig;
     const config = platformConfig[providerKey];
 
     const resolvedIcon = useCallback((platform: string) => {
