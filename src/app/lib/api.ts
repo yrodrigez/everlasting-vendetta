@@ -144,9 +144,9 @@ export const createAPIService = (_api: AxiosInstance = api) => ({
         throw error;
       }
     },
-    getItem: async (itemId: number): Promise<ItemOutput> => {
+    getItem: async (itemId: number, options: { force?: boolean } = {}): Promise<ItemOutput> => {
       try {
-        const { data } = await _api.get(`/wow/item/${itemId}`);
+        const { data } = await _api.get(`/wow/item/${itemId}?force=${options.force}`);
         return data;
       } catch (error) {
         console.error('Error fetching item:', error);

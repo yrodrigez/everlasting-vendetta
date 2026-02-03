@@ -26,4 +26,5 @@ export type CharacterWithLoot = {
     character_id?: number;
     loot: RaidLoot[];
     plusses: number;
+    realm?: string;
 }

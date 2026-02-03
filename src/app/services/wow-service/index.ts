@@ -31,6 +31,39 @@ interface WoWService {
     fetchEquipment(characterName: string, realmSlug: string): Promise<any>
 }
 
+
+const region = process.env.BLIZZARD_REGION || 'eu';
+const locale = process.env.BLIZZARD_LOCALE || 'en_US';
+const classicEraNamespaces = [
+    { type: 'profile', namespace: `profile-classic1x-${region}` },
+    { type: 'static', namespace: `static-classic1x-${region}` },
+    { type: 'dynamic', namespace: `dynamic-classic1x-${region}` },
+];
+const classicAnniversaryNamespaces = [
+    { type: 'profile', namespace: `profile-classicann-${region}` },
+    { type: 'static', namespace: `static-classicann-${region}` },
+    { type: 'dynamic', namespace: `dynamic-classicann-${region}` },
+];
+
+
+const currentRealms = [
+    {
+        slug: 'living-flame', namespaces: classicEraNamespaces
+    },
+    {
+        slug: 'spineshatter', namespaces: classicAnniversaryNamespaces
+    }
+];
+
+export function findNamespace(realmSlug: string, type: 'profile' | 'static' | 'dynamic'): string | null {
+    const realm = currentRealms.find(r => r.slug === realmSlug.toLowerCase());
+    if (!realm) return null;
+    const namespaceObj = realm.namespaces.find(n => n.type === type);
+    return namespaceObj ? namespaceObj.namespace : null;
+}
+
+
+
 export default class WoWService_Impl implements WoWService {
     token: string | undefined;
     guild: string;
@@ -50,7 +83,7 @@ export default class WoWService_Impl implements WoWService {
         this.locale = BLIZZARD_API_LOCALE
         this.realmSlug = GUILD_REALM_SLUG
         this.realmId = REALM_ID
-        this.namespace = BLIZZARD_API_NAMESPACE
+        this.namespace = findNamespace(this.realmSlug, 'profile') || BLIZZARD_API_NAMESPACE
         const headers = new Headers()
         headers.append('Authorization', 'Bearer ' + this.token)
         this.headers = headers
@@ -82,8 +115,9 @@ export default class WoWService_Impl implements WoWService {
         }
         const token = this.token ?? (await getBlizzardToken()).token
         const url = `https://eu.api.blizzard.com/profile/wow/character/${realmSlug}/${characterName}/statistics`
+        const namespace = findNamespace(realmSlug, 'profile') || this.namespace
         const query = new URLSearchParams({
-            namespace: this.namespace,
+            namespace: namespace,
             locale: this.locale
         })
 
@@ -146,7 +180,7 @@ export default class WoWService_Impl implements WoWService {
         const url = `https://eu.api.blizzard.com/profile/wow/character/${realmSlug}/${characterName.toLowerCase()}/specializations`
         const queryParameters = new URLSearchParams({
             locale: this.locale,
-            namespace: this.namespace
+            namespace: findNamespace(realmSlug, 'profile') || this.namespace
         })
 
         const token = this.token || (await getBlizzardToken()).token
@@ -172,7 +206,7 @@ export default class WoWService_Impl implements WoWService {
         const url = `https://eu.api.blizzard.com/profile/wow/character/${realmSlug}/${characterName}/equipment`
         const query = new URLSearchParams({
             locale: this.locale,
-            namespace: this.namespace
+            namespace: findNamespace(realmSlug, 'profile') || this.namespace
         })
 
         const token = this.token || (await getBlizzardToken()).token

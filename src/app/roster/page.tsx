@@ -35,7 +35,10 @@ const MemberView = ({ member }: { member: Character & { icon: string, className:
                 data-colors={`${classColors[className.toLowerCase()]}`}
             />
         </div>
-        <h1 className="font-bold text-xl text-gold">{name}</h1>
+        <div className="z-10 flex flex-col justify-center items-center text-center">
+            <h1 className="font-bold text-xl text-gold">{name}</h1>
+            <h2 className="text-xs text-white/70">({member.realm?.name})</h2>
+        </div>
         <div className="flex flex-col gap-3 justify-center items-center md:w-[186px]">
             <div
                 className="relative w-16 h-16 rounded-full">
@@ -55,7 +58,7 @@ const MemberView = ({ member }: { member: Character & { icon: string, className:
                 <p>Level: {level}</p>
             </div>
         </div>
-    </Link>
+    </Link >
 }
 
 export async function generateMetadata() {
@@ -118,12 +121,12 @@ export default async function Page() {
         updated_at
     })).reduce((acc, character) => {
         // should add the character if it doesn't exist or if the character is more recent
-        const existingCharacter = acc.find((c) => c.name === character.name)
+        const existingCharacter = acc.find((c) => c.name === character.name && c.realm.slug === character.realm.slug)
         if (!existingCharacter) {
             return [...acc, character]
         }
         if (new Date(existingCharacter.updated_at) < new Date(character.updated_at)) {
-            return acc.map((c) => c.id === character.id ? character : c)
+            return acc.map((c) => c.name === character.name && c.realm.slug === character.realm.slug ? character : c)
         }
         return acc
     }, [] as (Character & { updated_at: string })[]), roles)

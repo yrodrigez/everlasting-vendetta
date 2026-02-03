@@ -4,11 +4,11 @@ import { ItemWithTooltip } from "@/app/raid/[id]/loot/components/LootItem";
 import { useEffect, useState } from "react";
 import { ScrollShadow, Spinner } from "@heroui/react";
 import { useWoWZamingCss } from "@/app/hooks/useWoWZamingCss";
-import api from "@/app/lib/api";
+import { createAPIService } from "@/app/lib/api";
 
-const fetchItemDataById = async (itemId: string) => {
-	const { data } = await api.get(`/wow/item/${itemId}`);
-	return data.itemDetails;
+const fetchItemDataById = async (itemId: number) => {
+	const api = createAPIService();	
+	return await api.anon.getItem(itemId, { force: true });
 }
 
 function Item({ id }: { id: string | number }) {
@@ -16,8 +16,8 @@ function Item({ id }: { id: string | number }) {
 	const [loading, setLoading] = useState(true)
 	useWoWZamingCss()
 	useEffect(() => {
-		fetchItemDataById(id.toString()).then((item) => {
-			setItem(item)
+		fetchItemDataById(Number(id)).then((item) => {
+			setItem(item.itemDetails)
 		}).finally(() => {
 			setLoading(false)
 		})
@@ -25,7 +25,7 @@ function Item({ id }: { id: string | number }) {
 
 	return loading ? <Spinner /> : <div className="flex gap-2">
 		<ItemWithTooltip item={item} />
-		<span className="text-primary self-end">{item.name}</span>
+		<span className={`text-${item.quality?.name.toLowerCase() ?? 'default'} self-center`}>{item.name}</span>
 	</div>
 
 }

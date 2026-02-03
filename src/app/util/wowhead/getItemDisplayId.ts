@@ -1,5 +1,5 @@
 export async function getItemDisplayId(id: number): Promise<number> {
-    const baseUrl = `https://www.wowhead.com/classic/item=${id}`;
+    const baseUrl = `https://www.wowhead.com/item=${id}`;
     const response = await fetch(baseUrl);
     if (!response.ok) {
         throw new Error(`Error fetching item display id: '${id}', status: ${response.status}`);

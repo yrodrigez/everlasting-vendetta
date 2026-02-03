@@ -1,28 +1,36 @@
 'use client'
-import {useEffect, useState} from "react";
-import {useCharacterItemsStore} from "@/app/roster/[name]/characterItemsStore";
+import { useCallback, useEffect, useState } from "react";
+import { useCharacterItemsStore } from "@/app/roster/[name]/characterItemsStore";
 import useScreenSize from "@/app/hooks/useScreenSize";
 
 
-export function TDModelViewer({characterAppearance}: {
-    characterAppearance: { race: number, gender: number }
+export function TDModelViewer({ characterAppearance }: {
+    characterAppearance: {
+        race: number
+        gender: number
+        skin: number
+        face: number
+        hairStyle: number
+        hairColor: number
+        facialStyle: number
+    }
 }) {
     const [isClient, setIsClient] = useState(false);
     const items = useCharacterItemsStore(state => state.items);
     const [isLoading, setIsLoading] = useState(true);
     const [modelGenerator, setGenerateModels] = useState<any>(null);
-    const {isDesktop} = useScreenSize();
+    const { isDesktop } = useScreenSize();
 
-    const loadGenerateModels = async () => {
+    const loadGenerateModels = useCallback(async () => {
         // @ts-ignore
         window.CONTENT_PATH = `${window.location.origin}/api/v1/bypass/`;
         // @ts-ignore
         window.WOTLK_TO_RETAIL_DISPLAY_ID_API = `https://wotlk.murlocvillage.com/api/items`
 
-        const {modelGenerator} = await import('@/app/roster/[name]/components/ModelGenerator');
+        const { modelGenerator } = await import('@/app/roster/[name]/components/ModelGenerator');
 
         setGenerateModels(() => modelGenerator);
-    };
+    }, []);
 
     useEffect(() => {
         if (!isDesktop) return;
@@ -37,8 +45,8 @@ export function TDModelViewer({characterAppearance}: {
         if (items.some((item: any) => item.loading)) return
 
         const effectiveItems = items.map((item: any) => {
-            const {slot, displayId, details} = item
-            switch (slot?.type) {
+            const { slot, displayId, details } = item
+            switch (slot?.type.toUpperCase()) {
                 case 'HEAD':
                     return [1, displayId]
                 case 'SHOULDER':
@@ -70,11 +78,11 @@ export function TDModelViewer({characterAppearance}: {
 
         const character = {
             ...characterAppearance,
-            skin: 4, // min 0, max 11
+            /* skin: 4, // min 0, max 11
             face: 9, // min 0, max 11
             hairStyle: 2, // min 0, max 26
             hairColor: 5,
-            facialStyle: 0,
+            facialStyle: 0, */
             items: effectiveItems
         };
 

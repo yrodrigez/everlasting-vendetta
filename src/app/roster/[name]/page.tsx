@@ -24,6 +24,7 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import createServerSession from "@utils/supabase/createServerSession";
 import { Metadata } from "next";
 import { revalidatePath } from "next/cache";
+import { notFound } from "next/navigation";
 
 export const dynamic = 'force-dynamic'
 
@@ -156,14 +157,21 @@ export async function generateMetadata({ params }: { params: Promise<{ name: str
     const realmSlug = realmSlugParts.join('-') || 'living-flame';
     const characterName = decodeURIComponent(name.toLowerCase())
 
-    const characterInfo = await createAPIService().anon.getCharacter(realmSlug, characterName);
+    try {
+        const characterInfo = await createAPIService().anon.getCharacter(realmSlug, characterName);
 
-    return {
-        title: `${characterInfo.name} - ${characterInfo.guild?.name ?? 'No Guild'} | Everlasting Vendetta`,
-        description: `${characterInfo.name} is a level ${characterInfo.level} ${characterInfo.character_class?.name}. ${characterInfo.guild?.name ? `A proud member of ${characterInfo.guild.name}` : 'Not part of any guild.'
-            } View gear, talents, and loot history.`,
-        keywords: 'wow, world of warcraft, guild recruitment, raiding, pve, pvp, classic, tbc, burning crusade, shadowlands, lone wolf, everlasting vendetta, guild events, guild forum, season of discovery, sod',
-    };
+        return {
+            title: `${characterInfo.name} - ${characterInfo.guild?.name ?? 'No Guild'} | Everlasting Vendetta`,
+            description: `${characterInfo.name} is a level ${characterInfo.level} ${characterInfo.character_class?.name}. ${characterInfo.guild?.name ? `A proud member of ${characterInfo.guild.name}` : 'Not part of any guild.'
+                } View gear, talents, and loot history.`,
+            keywords: 'wow, world of warcraft, guild recruitment, raiding, pve, pvp, classic, tbc, burning crusade, shadowlands, lone wolf, everlasting vendetta, guild events, guild forum, season of discovery, sod',
+        };
+    } catch (e) {
+        return {
+            title: `Character Not Found | Everlasting Vendetta`,
+            description: `The character ${characterName} on realm ${realmSlug} was not found. Explore other characters and guilds on Everlasting Vendetta.`,
+        };
+    }
 }
 
 
@@ -233,8 +241,8 @@ export default async function Page({ params }: { params: Promise<{ name: string 
     const { name: characterNameParam } = await params
     const [name, ...realmSlugParts] = characterNameParam.split('-')
     const realmSlug = realmSlugParts.join('-') || 'living-flame';
-    
-    const { accessToken } = await createServerSession();
+
+    const { accessToken, auth, getSupabase } = await createServerSession();
     const api = createServerApiClient(accessToken || null);
     const apiService = createAPIService(api);
 
@@ -245,7 +253,6 @@ export default async function Page({ params }: { params: Promise<{ name: string 
 
     const characterName = decodeURIComponent(name.toLowerCase()).trim()
 
-    const { auth, getSupabase } = await createServerSession();
 
     const {
         fetchEquipment,
@@ -262,12 +269,11 @@ export default async function Page({ params }: { params: Promise<{ name: string 
     })();
 
     if (!characterInfo) {
-        return <div>Character not found</div>
+        return notFound();
     }
 
     const supabase = await getSupabase();
     const [equipment, talents, characterStatistics, lootHistory, { data: isCharacterBanned }, { data: isMemberPresent }, achievementData, attendance, professions] = await Promise.all([
-        
         fetchEquipment(characterName, realmSlug),
         getCharacterTalents(characterName, realmSlug),
         fetchCharacterStatistics(characterName, realmSlug),

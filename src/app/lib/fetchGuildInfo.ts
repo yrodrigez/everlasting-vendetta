@@ -1,4 +1,4 @@
-import {GUILD_ID, REALM_ID, ROLE} from "@/app/util/constants";
+import { GUILD_ID, REALM_ID, ROLE } from "@/app/util/constants";
 
 type Guild = {
     id: number;
@@ -74,7 +74,7 @@ export function getGuildRosterFromGuildInfo(guildInfo: (Character & { updated_at
     className: string;
     icon: string;
     rank: number;
-}) [] {
+})[] {
 
 
     const guildMasterIds = roles?.filter((role) => role.role === ROLE.GUILD_MASTER).map((role) => role.member_id) ?? []
@@ -125,13 +125,13 @@ export function getGuildRosterFromGuildInfo(guildInfo: (Character & { updated_at
     });
 
     const maxLevelMembers = (guildInfo || []).filter((member: any) => {
-        return !guildMasterIds.includes(member.id) && !vipMembersIds.includes(member.id) && !raidersIds.includes(member.id) && member.level === 60 && !altersIds.includes(member.id)
+        return !guildMasterIds.includes(member.id) && !vipMembersIds.includes(member.id) && !raidersIds.includes(member.id) && member.level >= 58 && !altersIds.includes(member.id)
     }).map(function (member: Character) {
         return {
             ...member,
             guild: {
                 ...member.guild,
-                rank: member.guild.rank ?? 6
+                rank: member?.guild?.rank ?? 6
             }
         }
     }).sort((a: any, b: any) => {
@@ -146,18 +146,18 @@ export function getGuildRosterFromGuildInfo(guildInfo: (Character & { updated_at
 
 const getPlayerClassById = (className: string) => {
     const classes = [
-        {name: 'Warrior', icon: 'https://render.worldofwarcraft.com/classic1x-eu/icons/56/classicon_warrior.jpg'},
-        {name: 'Paladin', icon: 'https://render.worldofwarcraft.com/classic1x-eu/icons/56/classicon_paladin.jpg'},
-        {name: 'Hunter', icon: 'https://render.worldofwarcraft.com/classic1x-eu/icons/56/classicon_hunter.jpg'},
-        {name: 'Rogue', icon: 'https://render.worldofwarcraft.com/classic1x-eu/icons/56/classicon_rogue.jpg'},
-        {name: 'Priest', icon: 'https://render.worldofwarcraft.com/classic1x-eu/icons/56/classicon_priest.jpg'},
-        {name: 'Shaman', icon: 'https://render.worldofwarcraft.com/classic1x-eu/icons/56/classicon_shaman.jpg'},
-        {name: 'Mage', icon: 'https://render.worldofwarcraft.com/classic1x-eu/icons/56/classicon_mage.jpg'},
-        {name: 'Warlock', icon: 'https://render.worldofwarcraft.com/classic1x-eu/icons/56/classicon_warlock.jpg'},
-        {name: 'Druid', icon: 'https://render.worldofwarcraft.com/classic1x-eu/icons/56/classicon_druid.jpg'},
+        { name: 'Warrior', icon: 'https://render.worldofwarcraft.com/classic1x-eu/icons/56/classicon_warrior.jpg' },
+        { name: 'Paladin', icon: 'https://render.worldofwarcraft.com/classic1x-eu/icons/56/classicon_paladin.jpg' },
+        { name: 'Hunter', icon: 'https://render.worldofwarcraft.com/classic1x-eu/icons/56/classicon_hunter.jpg' },
+        { name: 'Rogue', icon: 'https://render.worldofwarcraft.com/classic1x-eu/icons/56/classicon_rogue.jpg' },
+        { name: 'Priest', icon: 'https://render.worldofwarcraft.com/classic1x-eu/icons/56/classicon_priest.jpg' },
+        { name: 'Shaman', icon: 'https://render.worldofwarcraft.com/classic1x-eu/icons/56/classicon_shaman.jpg' },
+        { name: 'Mage', icon: 'https://render.worldofwarcraft.com/classic1x-eu/icons/56/classicon_mage.jpg' },
+        { name: 'Warlock', icon: 'https://render.worldofwarcraft.com/classic1x-eu/icons/56/classicon_warlock.jpg' },
+        { name: 'Druid', icon: 'https://render.worldofwarcraft.com/classic1x-eu/icons/56/classicon_druid.jpg' },
     ]
 
-    return classes.find((c) => c.name === className) || {name: 'Unknown', icon: 'unknown'}
+    return classes.find((c) => c.name === className) || { name: 'Unknown', icon: 'unknown' }
 }
 
 function getRankName(rank: number) {
@@ -175,8 +175,8 @@ function getRankName(rank: number) {
 }
 
 function rosterMapper(member: Character) {
-    const {name, realm, id, level, playable_class} = member
-    const {name: className, icon} = getPlayerClassById(playable_class.name)
+    const { name, realm, id, level, playable_class } = member
+    const { name: className, icon } = getPlayerClassById(playable_class.name)
     const rankName = getRankName(member.guild.rank)
 
     return {
