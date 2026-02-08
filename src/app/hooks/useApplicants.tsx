@@ -182,7 +182,7 @@ export default function useApplicants() {
 
     return {
         applyCount,
-        canReadApplications: (user?.permissions?.includes('applications.read') && selectedCharacter?.guild?.id === GUILD_ID),
+        canReadApplications: (user?.permissions?.includes('applications.read')),
         applicants
     }
 }
