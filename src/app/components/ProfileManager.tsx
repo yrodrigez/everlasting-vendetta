@@ -32,7 +32,7 @@ export function isRoleAssignable(role: 'tank' | 'healer' | 'dps' | string, chara
     if (!characterClass) return false
     const healingClasses = realmSlug === 'living-flame' ? ['priest', 'paladin', 'shaman', 'druid', 'mage'] : ['priest', 'paladin', 'shaman', 'druid']
     const tankClasses = realmSlug === 'living-flame' ? ['warrior', 'paladin', 'druid', 'rogue', 'warlock'] : ['warrior', 'paladin', 'druid']
-    const rdpsClasses = realmSlug === 'living-flame' ? ['druid', 'priest', 'mage', 'warlock', 'hunter'] : ['druid', 'priest', 'mage', 'warlock', 'hunter']
+    const rdpsClasses = realmSlug === 'living-flame' ? ['druid', 'priest', 'mage', 'warlock', 'hunter'] : ['druid', 'priest', 'mage', 'warlock', 'hunter', 'shaman']
     const dpsClasses = realmSlug === 'living-flame' ? ['warrior', 'paladin', 'hunter', 'rogue', 'shaman', 'druid'] : ['warrior', 'paladin', 'rogue', 'shaman', 'druid'] // melee dps
 
     if (role === 'tank') {

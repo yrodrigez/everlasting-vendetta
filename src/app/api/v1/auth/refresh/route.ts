@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
 
-export async function POST(request: NextRequest) {
+export async function POST(_: NextRequest) {
     console.log('Refresh route called');
     const cookieStore = await cookies();
 
@@ -20,6 +20,7 @@ export async function POST(request: NextRequest) {
         });
     } catch (error) {
         const clearAllCookies = makeClearAllCookiesUseCase(cookieStore);
+        console.log('Clearing all cookies due to refresh failure');
         await clearAllCookies.execute();
         if (error instanceof RefreshSessionError) {
             const maybeCause = (error as { cause?: unknown }).cause;

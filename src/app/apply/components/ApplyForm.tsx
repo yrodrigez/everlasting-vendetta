@@ -125,7 +125,8 @@ export default function ApplyForm() {
                         'Priest',
                         'Mage',
                         'Warlock',
-                        'Druid'
+                        'Druid',
+                        'Shaman',
                     ].map((cls) => (
                         <SelectItem
                             key={cls}
