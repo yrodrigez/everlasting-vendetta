@@ -155,7 +155,9 @@ export default function PermissionManagement({
                                 return (
                                     <div key={user.id} className="table-row hover:bg-dark-100">
                                         <div className="table-cell p-2 border-b border-stone">
-                                            {user.character?.name ?? `User #${user.id}`}
+                                            {user.character?.name ?? `User #${user.id}`} (<span>{user.character?.level}</span>) <span
+                                                className="text-xs text-white/70"
+                                            >{'{'}{user.character?.realm?.name}{'}'}</span>
                                         </div>
                                         <div className="table-cell p-2 border-b border-stone">
                                             {assignedRoles.length === 0 ? (

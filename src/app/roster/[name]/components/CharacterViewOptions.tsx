@@ -1,18 +1,19 @@
 'use client'
-import {type ReactNode, useEffect, useMemo, useRef, useState} from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 
 
-const Controls = ({availableOptions, onSelect}: { availableOptions: string[], onSelect: (option: string) => void }) => {
+const Controls = ({ availableOptions, onSelect }: { availableOptions: string[], onSelect: (option: string) => void }) => {
 	const [selectedOption, setSelectedOption] = useState(availableOptions[0])
 
 	const ref = useRef<HTMLDivElement>(null)
 	const containerRef = useRef<HTMLDivElement>(null)
 
 	const calculatePosition = () => {
-		if(!ref.current || !containerRef.current) return
-		ref.current.scrollIntoView({behavior: 'smooth', block: 'center'})
+		if (!ref.current || !containerRef.current) return
+		ref.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
 		const selectedElement = document.getElementById(selectedOption)
-		if(!selectedElement) return
+		if (!selectedElement) return
 		const rect = selectedElement.getBoundingClientRect()
 		const containerRect = containerRef.current.getBoundingClientRect()
 
@@ -22,7 +23,7 @@ const Controls = ({availableOptions, onSelect}: { availableOptions: string[], on
 	}
 
 
-	useEffect(()=> {
+	useEffect(() => {
 		calculatePosition()
 		window?.addEventListener('resize', calculatePosition)
 	}, [selectedOption, ref.current, containerRef.current])
@@ -35,18 +36,18 @@ const Controls = ({availableOptions, onSelect}: { availableOptions: string[], on
 				className="flex my-4 gap-3 w-full justify-between overflow-auto scrollbar-pill h-10 relative">
 				<div
 					ref={ref}
-					className="absolute h-full bg-gold transition-all duration-400 rounded-lg border border-gold-100"/>
+					className="absolute h-full bg-gold transition-all duration-400 rounded-lg border border-gold-100" />
 				{availableOptions.map((option, index) => (
 					<button
 						id={option}
 						className={`flex w-fit whitespace-pre flex-col flex-1 items-center ${selectedOption === option ? 'text-wood-900' : 'text-gold'} text-xl font-bold py-2 px-3 transition-all max-h-10
-                            ${selectedOption === option ? '' : 'bg-transparent hover:bg-opacity-20 hover:text-gold hover:border-gold-100 border-opacity-25'} border ${selectedOption!== option ? 'border-transparent' : 'border-gold-100'}
+                            ${selectedOption === option ? '' : 'bg-transparent hover:bg-opacity-20 hover:text-gold hover:border-gold-100 border-opacity-25'} border ${selectedOption !== option ? 'border-transparent' : 'border-gold-100'}
                              border-b-2 border-transparent rounded-lg z-10
                                                         `} key={index}
-					        onClick={() => {
-								setSelectedOption(option);
-								onSelect(option)
-							}}>
+						onClick={() => {
+							setSelectedOption(option);
+							onSelect(option)
+						}}>
 						<span className="text-sm">{option}</span>
 					</button>
 				))}
@@ -56,7 +57,7 @@ const Controls = ({availableOptions, onSelect}: { availableOptions: string[], on
 	)
 }
 
-export function CharacterViewOptions({items, top, bottom, containerClassName, innerContainerClassName}: {
+export function CharacterViewOptions({ items, top, bottom, containerClassName, innerContainerClassName, queryKey }: {
 	items: {
 		label: string
 		name: string,
@@ -66,24 +67,46 @@ export function CharacterViewOptions({items, top, bottom, containerClassName, in
 	bottom?: boolean
 	containerClassName?: string
 	innerContainerClassName?: string
+	queryKey?: string
 }) {
 	const [selectedOption, setSelectedOption] = useState(items[0].label)
 	const availableOptions = useMemo(() => items.map(item => item.label), [items])
+	const query = useSearchParams()
+	const selectedKey = query.get(queryKey || 'view')
+	const router = useRouter()
+
+	useEffect(() => {
+		if (selectedKey && queryKey) {
+			const matchedOption = items.find(item => item.name === selectedKey)
+			if (matchedOption) setSelectedOption(matchedOption.label)
+		} else {
+			const defaultOption = items[0]
+			setSelectedOption(defaultOption.label)
+		}
+	}, [selectedKey, items])
+
+	const handleSelect = (option: string) => {
+		setSelectedOption(option)
+		const matchedItem = items.find(item => item.label === option)
+		if (matchedItem && queryKey) {
+			router.replace(`?${queryKey}=${matchedItem.name}`)
+		}
+	}
 
 	top = top || !top && !bottom
 	bottom = bottom || !top
 
 	return (
 		<div className={containerClassName}>
-			{top && <Controls availableOptions={availableOptions} onSelect={setSelectedOption}/>}
+			{top && <Controls availableOptions={availableOptions} onSelect={handleSelect} />}
 			{
 				<div key={selectedOption}
-				     className={innerContainerClassName}
+					className={innerContainerClassName}
 				>
 					{(items.find(item => item.label === selectedOption)?.children)}
 				</div>
 			}
-			{bottom && <Controls availableOptions={availableOptions} onSelect={setSelectedOption}/>}
+			{bottom && <Controls availableOptions={availableOptions} onSelect={setSelectedOption} />}
 		</div>
 	)
 }

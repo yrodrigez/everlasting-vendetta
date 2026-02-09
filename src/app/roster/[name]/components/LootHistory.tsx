@@ -25,7 +25,7 @@ function Item({ id }: { id: string | number }) {
 
 	return loading ? <Spinner /> : <div className="flex gap-2">
 		<ItemWithTooltip item={item} />
-		<span className={`text-${item.quality?.name.toLowerCase() ?? 'default'} self-center`}>{item.name}</span>
+		<span className={`text-${item?.quality?.name.toLowerCase() ?? 'default'} self-center`}>{item.name}</span>
 	</div>
 
 }

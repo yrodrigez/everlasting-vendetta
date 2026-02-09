@@ -4,6 +4,7 @@ import { type SupabaseClient } from "@supabase/supabase-js";
 import createServerSession from "@utils/supabase/createServerSession";
 import Link from "next/link";
 import { createAPIService } from "../lib/api";
+import { CharacterViewOptions } from "./[name]/components/CharacterViewOptions";
 
 export const dynamic = 'force-dynamic'
 
@@ -72,12 +73,13 @@ export async function generateMetadata() {
 
 const RANKS = {
     'Glorious Leader': 1,
-    'Respected Comrade': 2,
-    'Respected Raider': 3,
-    'Member': 4,
+    'Raid Leader': 2,
+    'Respected Comrade': 3,
+    'Respected Raider': 4,
+    'Member': 5,
 }
 
-async function getRoster(supabase: SupabaseClient) {
+async function getInitialData(supabase: SupabaseClient, realm: string) {
     const apiService = createAPIService();
     const [{ data, error }, roster, realms] = await Promise.all([
         supabase.from('ev_member')
@@ -93,7 +95,10 @@ async function getRoster(supabase: SupabaseClient) {
 
     if (error) {
         console.error(error)
-        return []
+        return {
+            roster: [],
+            realms: []
+        }
     }
 
     const toAdd = roster.filter(r => !data.find(d => d.character.id === r.id)).map(r => ({
@@ -101,22 +106,37 @@ async function getRoster(supabase: SupabaseClient) {
         updated_at: new Date(0).toISOString()
     }))
 
-    return ([...data, ...toAdd] as { updated_at: string, character: Character }[]).filter(({ character }) =>
-        realms.some(realm => realm.slug === character.realm?.slug)
-    )
+    return {
+        roster: ([...data, ...toAdd] as { updated_at: string, character: Character }[]).filter(({ character }) =>
+            realms.some(realm => realm.slug === character.realm?.slug)
+        ).filter(({ character }) => character.realm?.slug === realm),
+        realms
+    }
 }
 
-export default async function Page() {
+export default async function Page({
+    searchParams,
+}: {
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
 
     const { getSupabase } = await createServerSession();
     const supabase = await getSupabase();
-    const data = await getRoster(supabase);
+    const query = await searchParams
+    const { roster, realms } = await getInitialData(supabase, query.realm as string);
 
     const { data: roles, error: errorRoles } = await supabase.from('ev_member_role').select('member_id, role')
         .overrideTypes<{ member_id: number, role: string }[]>()
 
+    if (errorRoles) {
+        console.error(errorRoles)
+        return <div className="flex w-full h-full justify-center items-center">
+            <h1 className="text-2xl text-gold font-bold">Error loading roster</h1>
+        </div>
+    }
 
-    const guildRoster = getGuildRosterFromGuildInfo(data.map(({ character, updated_at }) => ({
+
+    const guildRoster = getGuildRosterFromGuildInfo(roster.map(({ character, updated_at }) => ({
         ...character,
         updated_at
     })).reduce((acc, character) => {
@@ -139,19 +159,28 @@ export default async function Page() {
         return acc
     }, {} as Record<string, (Character & { icon: string, className: string, rankName: string })[]>)
 
-    return <main className="flex w-full h-full flex-col items-center">
-        {Object.entries(groupByRank).sort(([rankA], [rankB]) => RANKS[rankA as keyof typeof RANKS] - RANKS[rankB as keyof typeof RANKS]).map(([rankName, members]) => {
-            return <div key={rankName} className="flex flex-col w-full items-center">
-                <h1 className="text-gold text-2xl font-bold">{rankName}</h1>
-                <div className="flex flex-wrap gap-4 w-full justify-center items-center">
-                    {members.sort((a, b) => {
-                        // @ts-ignore
-                        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-                    }).map((member) => {
-                        return <MemberView key={member.id} member={member} />
-                    })}
-                </div>
+    const rosterView = Object.entries(groupByRank).sort(([rankA], [rankB]) => RANKS[rankA as keyof typeof RANKS] - RANKS[rankB as keyof typeof RANKS]).map(([rankName, members]) => {
+        return <div key={rankName} className="flex flex-col w-full items-center">
+            <h1 className="text-gold text-2xl font-bold">{rankName}</h1>
+            <div className="flex flex-wrap gap-4 w-full justify-center items-center">
+                {members.sort((a, b) => {
+                    // @ts-ignore
+                    return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+                }).map((member) => {
+                    return <MemberView key={member.id} member={member} />
+                })}
             </div>
-        })}
+        </div>
+    })
+
+    return <main className="flex w-full h-full flex-col items-center">
+        <CharacterViewOptions
+            queryKey='realm'
+            items={realms.map(realm => ({
+                label: realm.name,
+                name: realm.slug,
+                children: rosterView
+            }))}
+        />
     </main>
 }

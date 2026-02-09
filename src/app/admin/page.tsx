@@ -1,5 +1,5 @@
 import createServerSession from "@utils/supabase/createServerSession";
-import { GUILD_ID, ROLE } from "@utils/constants";
+import { GUILD_ID, GUILD_NAME, ROLE } from "@utils/constants";
 import { MemberRole, Role, RolePermission, UserProfile } from "@/app/admin/types";
 import PermissionManagement from "@/app/admin/PermissionManagement";
 
@@ -18,10 +18,11 @@ export default async function Page() {
     }
 
     const { data: members, error: membersError } = await supabase.from('ev_member').select('*')
-        .filter('character->guild->id', 'eq', GUILD_ID)
+        .filter('character->guild->>name', 'eq', GUILD_NAME)
         .overrideTypes<UserProfile[]>()
 
     if (membersError) {
+        console.error(membersError)
         return <div
             className="w-full h-full flex items-center justify-center text-4xl text-red-500 font-bold flex-col gap-4"
         >
