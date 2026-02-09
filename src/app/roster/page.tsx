@@ -3,6 +3,7 @@ import { CURRENT_MAX_LEVEL, GUILD_NAME, GUILD_REALM_NAME } from "@/app/util/cons
 import { type SupabaseClient } from "@supabase/supabase-js";
 import createServerSession from "@utils/supabase/createServerSession";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { createAPIService } from "../lib/api";
 import { CharacterViewOptions } from "./[name]/components/CharacterViewOptions";
 
@@ -120,10 +121,15 @@ export default async function Page({
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
 
+    const query = await searchParams
+    if (!query.realm) {
+        redirect('/roster?realm=spineshatter');
+    }
+
     const { getSupabase } = await createServerSession();
     const supabase = await getSupabase();
-    const query = await searchParams
-    const { roster, realms } = await getInitialData(supabase, query.realm as string);
+    const realm = query.realm as string;
+    const { roster, realms } = await getInitialData(supabase, realm);
 
     const { data: roles, error: errorRoles } = await supabase.from('ev_member_role').select('member_id, role')
         .overrideTypes<{ member_id: number, role: string }[]>()
