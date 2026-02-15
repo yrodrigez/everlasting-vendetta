@@ -27,7 +27,7 @@ export const COOKIE_VERSION  = 'v97e5518e46ad'
 export const REFRESH_TOKEN_COOKIE_KEY = `__ev_refresh_${COOKIE_VERSION}__`
 export const SELECTED_CHARACTER_COOKIE_KEY = `__ev_selected_character_${COOKIE_VERSION}__`
 export const SESSION_INFO_COOKIE_KEY = `__ev_session_info_${COOKIE_VERSION}__`
-export const CURRENT_MAX_LEVEL = 60
+export const CURRENT_MAX_LEVEL = 70
 
 export const REGISTRATION_SOURCES = {
     BNET_OAUTH: 'bnet_oauth',
