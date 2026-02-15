@@ -89,8 +89,13 @@ export function clearAllCookies() {
     for (let i = 0; i < cookies.length; i++) {
         const cookie = cookies[i];
         const eqPos = cookie.indexOf("=");
-        const name = eqPos > -1 ? cookie.substring(0, eqPos) : cookie;
-        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        const name = (eqPos > -1 ? cookie.substring(0, eqPos) : cookie).trim();
+        // Must include Path=/ to match cookies that were set with path=/
+        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+        // Also expire domain-scoped cookies in production
+        if (location.hostname.includes('everlastingvendetta.com')) {
+            document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=.everlastingvendetta.com";
+        }
     }
 }
 

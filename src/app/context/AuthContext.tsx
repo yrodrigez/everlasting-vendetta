@@ -4,6 +4,7 @@ import { setAccessTokenGetter } from "@/app/lib/axios";
 import { setAccessTokenGetter as setAccessTokenApi } from "@/app/lib/api";
 import { useRouter } from "next/navigation";
 import { withRefreshMutex } from "../util/auth/refresh-mutex";
+import { clearAllCookies } from "@/app/util";
 
 export interface Session {
   id: string;
@@ -191,8 +192,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         'Content-Type': 'application/json'
       }
     });
+    // Server clears httpOnly cookies; clear non-httpOnly cookies & storage client-side
+    clearAllCookies();
+    sessionStorage?.clear();
+    localStorage?.clear();
     setAccessToken(null);
     setUser(null);
+    router.refresh();
   }, [accessToken, router]);
 
   const logoutAll = useCallback(async () => {
@@ -205,8 +211,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         'Authorization': `Bearer ${accessToken}`
       }
     });
+    // Server clears httpOnly cookies; clear non-httpOnly cookies & storage client-side
+    clearAllCookies();
+    sessionStorage?.clear();
+    localStorage?.clear();
     setAccessToken(null);
     setUser(null);
+    router.refresh();
   }, [accessToken, router]);
 
   const login = useCallback((provider: 'bnet' | 'discord', redirectTo?: string) => {

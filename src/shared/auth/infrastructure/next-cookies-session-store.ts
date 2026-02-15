@@ -34,9 +34,11 @@ interface NextCookiesSessionStoreConfig {
 export class NextCookiesSessionStore implements SessionStore {
     constructor(private readonly cookies: CookieStore, private readonly config: NextCookiesSessionStoreConfig) { }
     clear(): void {
-        this.cookies?.delete(this.config.refreshTokenCookieName);
-        this.cookies?.delete(this.config.sessionInfoCookieName);
-        this.cookies?.delete(this.config.selectedCharacterCookieName!);
+        this.expireCookie(this.config.refreshTokenCookieName);
+        this.expireCookie(this.config.sessionInfoCookieName);
+        if (this.config.selectedCharacterCookieName) {
+            this.expireCookie(this.config.selectedCharacterCookieName);
+        }
     }
     getSessionInfo(): string | null {
         const cookie = this.cookies.get(this.config.sessionInfoCookieName);
@@ -70,13 +72,21 @@ export class NextCookiesSessionStore implements SessionStore {
     }
 
     async clearRefreshToken(key: string) {
-        this.cookies.delete(key);
+        this.expireCookie(key);
     }
 
     async saveSessionInfo(value: string, maxAge: number) {
         const key = this.config.sessionInfoCookieName;
         this.cookies.delete(key);
         this.setCookie(key, value, maxAge);
+    }
+
+    private expireCookie(name: string) {
+        this.cookies.set(name, '', {
+            ...this.config.cookieOptions,
+            maxAge: 0,
+            expires: new Date(0),
+        });
     }
 
     private setCookie(name: string, value: string, maxAge: number) {

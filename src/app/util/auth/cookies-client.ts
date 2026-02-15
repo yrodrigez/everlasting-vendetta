@@ -11,4 +11,8 @@ export function setCookie(name: string, value: string, days = 180) {
 
 export function deleteCookie(name: string) {
     document.cookie = name + '=; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/; SameSite=Lax' + (location.protocol === 'https:' ? '; Secure' : '')
+    // Also expire domain-scoped cookies in production
+    if (location.hostname.includes('everlastingvendetta.com')) {
+        document.cookie = name + '=; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/; SameSite=Lax; Domain=.everlastingvendetta.com' + (location.protocol === 'https:' ? '; Secure' : '')
+    }
 }
