@@ -32,7 +32,7 @@ const initialState = {
     endTime: '23:59',
     days: undefined,
     loading: false,
-    realm: 'living-flame',
+    realm: 'spineshatter',
     setRealm: (realm: string) => { },
 }
 

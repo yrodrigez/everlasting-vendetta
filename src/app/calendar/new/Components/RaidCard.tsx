@@ -1,10 +1,10 @@
 'use client'
 import useCreateRaidStore from "@/app/calendar/new/Components/useCreateRaidStore";
-import {RaidResetCard} from "@/app/calendar/components/RaidResetCard";
+import { RaidResetCard } from "@/app/calendar/components/RaidResetCard";
 import moment from "moment";
-import {CalendarDate as InterCalendar} from "@internationalized/date";
-import {Tooltip, RangeCalendar} from "@heroui/react";
-import {useShallow} from "zustand/shallow";
+import { CalendarDate as InterCalendar } from "@internationalized/date";
+import { Tooltip, RangeCalendar } from "@heroui/react";
+import { useShallow } from "zustand/shallow";
 
 
 export function RaidCard() {
@@ -35,32 +35,6 @@ export function RaidCard() {
 				raidRegistrations={[]}
 				endTime={endTime}
 			/>
-
-			<div className={'flex flex-col'}>
-				<span className={'text-default'}>Raid will be available from to:</span>
-				<Tooltip
-					content="This cant be modified change it in the controls above"
-					showArrow
-				>
-					<RangeCalendar
-						className={'bg-dark text-default'}
-						classNames={{
-							cellButton: 'text-default',
-							title: 'text-default',
-							gridHeaderCell: 'text-default',
-							pickerWrapper: 'bg-dark',
-						}}
-						aria-label="Raid date"
-						isReadOnly
-						//@ts-ignore
-						value={(startDate && endDate) ? {
-							start: new InterCalendar(startDate.getFullYear(), startDate.getMonth() + 1, startDate.getDate()),
-							end: new InterCalendar(endDate.getFullYear(), endDate.getMonth() + 1, endDate.getDate())
-						} : null}
-					/>
-				</Tooltip>
-			</div>
-
 		</div>
 	)
 }

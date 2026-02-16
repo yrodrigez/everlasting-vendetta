@@ -42,7 +42,7 @@ export default async function Page() {
                     <DaysSelection />
                 </div>
                 <div
-                    className="flex  justify-between gap-2 items-center lg:items-start lg:justify-end flex-col lg:flex-row">
+                    className="flex p-12 justify-between gap-2 items-center lg:items-start lg:justify-end flex-col lg:flex-row">
                     <RaidCard />
                 </div>
             </div>

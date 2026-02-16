@@ -48,14 +48,17 @@ export function RaidResetCard({
 	registrationStatus?: string
 	status?: 'online' | 'offline'
 }) {
+	const raidStart = moment(`${raidDate}T${raidTime}`);
+	const raidEnd = moment(`${raidDate}T${endTime}`);
 	const router = useRouter()
 	const participants = id ? useParticipants(id, raidRegistrations) : []
-	const isRaidCurrent = moment().isBetween(moment(raidDate), moment(raidEndDate))
-	const isToday = moment().format('YYYY-MM-DD') === moment(raidDate).format('YYYY-MM-DD')
+	const isRaidCurrent = moment().isBetween(raidStart, raidEnd)
+	const isToday = moment().format('YYYY-MM-DD') === raidStart.format('YYYY-MM-DD')
 	const { accessToken } = useAuth();
 	const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
 	const [borderColor, setBorderColor] = useState<any>()
 	const [shadeColor, setShadeColor] = useState<any>()
+	const isExpired = moment().subtract(12, 'hours').isAfter(raidEnd)
 
 	const registrationStatusIcon = useCallback((registrationStatus: string) => {
 		if (registrationStatus === 'confirmed') {
@@ -103,8 +106,8 @@ export function RaidResetCard({
 			className={`w-[300px] relative text-default h-64 3xl:min-h-64 flex flex-col p-3 rounded-md backdrop-blur backdrop-opacity-90 justify-between border transition-all duration-300 ${(isToday || isRaidCurrent) ? 'border-gold shadow-xl shadow-gold glow-animation ' : 'border-wood-100'
 				}`}
 			style={{
-				...((borderColor && status !== 'offline') ? { borderColor } : {}),
-				...((shadeColor && status !== 'offline') ? {
+				...((borderColor && status !== 'offline' && (!isExpired)) ? { borderColor } : {}),
+				...((shadeColor && status !== 'offline' && (!isExpired)) ? {
 					boxShadow: `
 					0 10px 15px 3px ${shadeColor},
                     0 4px 6px 4px ${shadeColor}
@@ -119,7 +122,7 @@ export function RaidResetCard({
 					backgroundRepeat: 'no-repeat',
 					backgroundImage: `url('${raidImage}')`,
 				}}
-				className={`w-full h-full rounded-md absolute top-0 left-0 -z-10 ${status === 'offline' ? 'grayscale' : ''}`}>
+				className={`w-full h-full rounded-md absolute top-0 left-0 -z-10 ${status === 'offline' || isExpired ? 'grayscale' : ''}`}>
 				<div className="w-full h-full backdrop-brightness-50 backdrop-filter backdrop-blur-xs rounded-md" />
 			</div>
 			<div className="flex flex-col  shadow-xl ">

@@ -2,14 +2,57 @@
 import Link from "next/link";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faAdd} from "@fortawesome/free-solid-svg-icons";
-import {useRef} from "react";
+import {useRef, useState, useEffect, useCallback} from "react";
+import Image from "next/image";
+
+const RAID_BACKGROUNDS = [
+    '/raid/tbc/blacktemple.jpg',
+    '/raid/tbc/hyjal.jpg',
+    '/raid/tbc/sunwellplateau.webp',
+    '/raid/tbc/ssc.webp',
+    '/raid/tbc/tempestkeep.webp',
+    '/raid/tbc/zulaman.jpg',
+    '/raid/tbc/karazhan.webp',
+    '/ahn_qiraj-raid.jpg',
+    '/blackwing-lair-raid.jpg',
+] as const;
+
+const TRANSITION_INTERVAL = 5000; // ms between transitions
 
 export default function CreateNewCard() {
     const ref = useRef<HTMLDivElement>(null);
+    const [activeIndex, setActiveIndex] = useState(0);
+
+    const cycleBackground = useCallback(() => {
+        setActiveIndex((prev) => (prev + 1) % RAID_BACKGROUNDS.length);
+    }, []);
+
+    useEffect(() => {
+        const interval = setInterval(cycleBackground, TRANSITION_INTERVAL);
+        return () => clearInterval(interval);
+    }, [cycleBackground]);
+
     return (
         <Link
             href="/calendar/new"
             className="relative group w-[300px] h-[256px] rounded-md border border-wood-100 bg-wood-900 backdrop-blur p-3 flex flex-col items-center justify-center overflow-hidden">
+            {/* Raid backgrounds crossfade */}
+            <div className="absolute inset-0 z-0">
+                {RAID_BACKGROUNDS.map((src, i) => (
+                    <Image
+                        key={src}
+                        src={src}
+                        alt=""
+                        fill
+                        sizes="300px"
+                        className={`object-cover transition-opacity duration-1000 ease-in-out ${
+                            i === activeIndex ? 'opacity-40' : 'opacity-0'
+                        }`}
+                    />
+                ))}
+                {/* Dark overlay to keep text/icons readable */}
+                <div className="absolute inset-0 bg-black/50" />
+            </div>
             <div
                 ref={ref}
                 className="absolute inset-0 z-10 bg-gradient-to-br from-moss/30 to-transparent opacity-0 transition-opacity duration-700 group-hover:opacity-100">
