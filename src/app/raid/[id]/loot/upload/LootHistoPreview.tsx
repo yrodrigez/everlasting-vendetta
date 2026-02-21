@@ -1,17 +1,18 @@
 'use client';
-import {useMutation} from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import {
     convertLootCsvToObjects,
     fetchItemDataFromWoWHead,
     groupByCharacter,
     parseLootCsv
 } from "@/app/raid/[id]/loot/util";
-import {type CharacterWithLoot, RaidLoot} from "@/app/raid/[id]/loot/components/types";
+import { type CharacterWithLoot, RaidLoot } from "@/app/raid/[id]/loot/components/types";
 import LootHistoryList from "@/app/raid/[id]/loot/components/LootHistoryList";
+import { createAPIService } from "@/app/lib/api";
 
-export default function LootHistoPreview({reset_id}: { reset_id: string }) {
+export default function LootHistoPreview({ reset_id, realm }: { reset_id: string, realm: string }) {
 
-    const {mutate, error, data, isPending} = useMutation({
+    const { mutate, error, data, isPending } = useMutation({
         mutationKey: ['loot_history.create'],
         mutationFn: async (data: string) => {
             if (!data) {
@@ -33,7 +34,7 @@ export default function LootHistoPreview({reset_id}: { reset_id: string }) {
                     }
                 }))
 
-                return groupByCharacter(await Promise.all(lootObjects.map(fetchItemDataFromWoWHead)))
+                return groupByCharacter(await Promise.all(lootObjects.map(fetchItemDataFromWoWHead)), realm)
             } catch (error) {
                 console.error('Error parsing loot csv', error)
                 return []
@@ -61,11 +62,11 @@ export default function LootHistoPreview({reset_id}: { reset_id: string }) {
                 {data?.length ? <div
                     className="w-full h-full overflow-y-auto"
                 ><LootHistoryList
-                    lootHistory={data as CharacterWithLoot[]}
-                /> </div>: null}
+                        lootHistory={data as CharacterWithLoot[]}
+                    /> </div> : null}
                 {isPending && <div
-                  className="absolute bg-[rgba(255,255,255,.3)] top-0 left-0 bottom-0 right-0 w-full h-full flex justify-center items-center">
-                  Loading...
+                    className="absolute bg-[rgba(255,255,255,.3)] top-0 left-0 bottom-0 right-0 w-full h-full flex justify-center items-center">
+                    Loading...
                 </div>}
             </div>
 

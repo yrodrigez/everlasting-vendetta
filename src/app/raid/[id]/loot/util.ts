@@ -1,4 +1,5 @@
-import {CharacterWithLoot, RaidLoot} from "@/app/raid/[id]/loot/components/types";
+import { createAPIService } from "@/app/lib/api";
+import { CharacterWithLoot, RaidLoot } from "@/app/raid/[id]/loot/components/types";
 
 export function parseLootCsv(csv: string): string[][] {
     return csv.trim().split('\n').map((row) => row.split(',').map((cell) => cell.trim().replaceAll('"', '').replaceAll("'", '').replaceAll('\r', '')))
@@ -34,14 +35,15 @@ export function convertLootCsvToObjects(csv: string[][]) {
     }))
 }
 
-export function groupByCharacter(lootHistory: RaidLoot[] = []): CharacterWithLoot[] {
+export function groupByCharacter(lootHistory: RaidLoot[] = [], realm: string): CharacterWithLoot[] {
     return (lootHistory).reduce((acc: CharacterWithLoot[], loot) => {
         const character = acc.find((c) => c.character === loot.character)
         if (!character) {
             acc.push({
                 character: loot.character,
                 loot: [loot],
-                plusses: 0
+                plusses: 0,
+                realm: realm
             })
         } else {
             character.loot.push(loot)
@@ -52,6 +54,8 @@ export function groupByCharacter(lootHistory: RaidLoot[] = []): CharacterWithLoo
 
 const cachedItemData: any[] = []
 export async function fetchItemDataFromWoWHead(loot: RaidLoot) {
+    const apiService = createAPIService();
+
     let itemData = cachedItemData.find((item) => item.itemID === loot.itemID)
     if (itemData) {
         return {
@@ -61,9 +65,12 @@ export async function fetchItemDataFromWoWHead(loot: RaidLoot) {
             }
         }
     }
-    const fetchItem = await fetch(`https://nether.wowhead.com/tooltip/item/${loot.itemID}?dataEnv=4&locale=0`)
-    const item = await fetchItem.json()
-    item.icon = `https://wow.zamimg.com/images/wow/icons/medium/${item.icon}.jpg`
+
+    const fetchItem = await apiService.anon.getItem(loot.itemID)
+    const item = {
+        ...fetchItem,
+        id: loot.itemID
+    }
     cachedItemData.push(item)
     return {
         ...loot,

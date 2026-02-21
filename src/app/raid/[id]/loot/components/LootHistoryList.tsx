@@ -10,7 +10,7 @@ export default function LootHistoryList({ lootHistory }: { lootHistory: Characte
             <ScrollShadow
                 className="flex h-full gap-4 p-2 scrollbar-pill overflow-auto items-start justify-evenly flex-wrap relative">
                 {lootHistory.map((loot, i) => {
-                    return <LootItem key={i} loot={loot} />
+                    return <LootItem key={i} characterWithLoot={loot} />
                 })}
             </ScrollShadow>
         </div>

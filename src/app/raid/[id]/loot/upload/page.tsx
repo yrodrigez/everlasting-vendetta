@@ -4,7 +4,7 @@ import NotLoggedInView from "@/app/components/NotLoggedInView";
 import { Button } from "@/app/components/Button";
 import LootHistoPreview from "@/app/raid/[id]/loot/upload/LootHistoPreview";
 import { convertLootCsvToObjects, parseLootCsv } from "@/app/raid/[id]/loot/util";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 export const dynamic = 'force-dynamic'
 const requiredPermissions = 'loot_history.create'
@@ -46,9 +46,16 @@ async function handleSubmit(formData: FormData) {
 }
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
-	const { auth } = await createServerSession();
+	const { auth, getSupabase } = await createServerSession();
 	const user = await auth.getSession()
+	const supabase = await getSupabase();
 	const { id: resetId } = await params
+	const { data, error } = await supabase.from('raid_resets').select('realm').eq('id', resetId).single()
+
+	if (error) {
+		console.error('Error fetching reset info', error)
+		return notFound()
+	}
 
 	if (!user) {
 		return <NotLoggedInView />
@@ -62,7 +69,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 		<form className="flex flex-col gap-4 w-full h-full" action={handleSubmit}>
 			<input type="hidden" name="raid_id" value={resetId} />
 			<div className="flex h-[90%] w-full">
-				<LootHistoPreview reset_id={resetId} />
+				<LootHistoPreview reset_id={resetId} realm={data.realm} />
 			</div>
 			<Button type="submit" className="mt-4">
 				Submit

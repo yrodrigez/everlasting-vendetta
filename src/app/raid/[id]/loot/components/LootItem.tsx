@@ -67,20 +67,20 @@ export const ItemWithTooltip = ({ item, className }: { item: Item, className?: s
     </>);
 }
 
-export function LootItem({ loot }: { loot: CharacterWithLoot }) {
+export function LootItem({ characterWithLoot }: { characterWithLoot: CharacterWithLoot }) {
     useWoWZamingCss() // This is a custom hook that loads the WoW Zaming CSS
-
     return (
-        <div className={`rounded-lg flex flex-col gap-2 items-center border border-gold w-64 bg-dark relative`}>
-            {loot.plusses > 0 && (
+        <div className={`rounded-lg flex flex-col gap-2 pt-2 items-center border border-gold w-64 bg-dark relative`}>
+            {characterWithLoot.plusses > 0 && (
                 <div
                     className={`absolute top-1 right-1 bg-transparent text-gold border-gold border py-1 px-2 rounded-full text-xs`}>
-                    {loot.plusses}
+                    {characterWithLoot.plusses}
                 </div>
             )}
-            <CharacterAvatar characterName={loot.character} realm={loot.realm ?? 'living-flame'} />
+            <CharacterAvatar width={60} height={60} characterName={characterWithLoot.character.toLowerCase()} realm={characterWithLoot.realm.toLowerCase()} />
+            <span className="text-sm font-semibold">{characterWithLoot.character}</span>
             <div className={`flex gap-2 p-2 m-2 overflow-auto scrollbar-pill w-full justify-around border-2 border-transparent`}>
-                {loot.loot.map((item, i) => {
+                {characterWithLoot.loot.map((item, i) => {
                     return <ItemWithTooltip key={item.id} item={{ ...item.item, id: item.itemID, isPlus: item.isPlus, offspec: item.offspec === 1 }} />
                 })}
             </div>
