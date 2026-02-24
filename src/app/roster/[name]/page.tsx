@@ -240,7 +240,7 @@ export default async function Page({ params }: { params: Promise<{ name: string 
 
     const { name: characterNameParam } = await params
     const [name, ...realmSlugParts] = characterNameParam.split('-')
-    const realmSlug = realmSlugParts.join('-') || 'living-flame';
+    const realmSlug = decodeURIComponent((realmSlugParts.join('-') || 'living-flame').toLowerCase()).trim();
 
     const { accessToken, auth, getSupabase } = await createServerSession();
     const api = createServerApiClient(accessToken || null);
