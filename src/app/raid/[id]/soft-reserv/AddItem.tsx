@@ -82,7 +82,7 @@ async function addItemToRaid(raidId?: string, item?: any, supabase?: SupabaseCli
 export function AddItem({ resetId }: { resetId: string }) {
     const { accessToken } = useAuth()
     const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
-    
+
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure()
     const [_, setIsWriting] = useState(false)
     const timoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -122,7 +122,7 @@ export function AddItem({ resetId }: { resetId: string }) {
             size={'lg'}
             isIconOnly
             isLoading={isRaidFetching}
-            isDisabled={isRaidFetching}
+            isDisabled={isRaidFetching || true} // Disabled until we have a better way to fetch raid info (currently not working due to new TBC raid reset IDs)
             onPress={onOpen}
         >
             <FontAwesomeIcon icon={faCloudArrowUp} />
@@ -166,7 +166,7 @@ export function AddItem({ resetId }: { resetId: string }) {
                                             findItemMetadata({ itemId: parseInt(itemId ?? '') })
                                         }}
                                         isLoading={isPending}
-                                        isDisabled={isPending || !itemId}
+                                        isDisabled={true || isPending || !itemId} // Disabled until we have a better way to fetch item metadata (currently not working due to boss and new TBC item IDs)
                                     >
                                         Find item
                                     </Button>

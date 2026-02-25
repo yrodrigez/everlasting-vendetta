@@ -188,7 +188,7 @@ export function ExportToGargul({ isReservationsOpen, reservationsByItem, loading
                         lockedAt: null,
                         note: "",
                         hidden: !isReservationsOpen,
-                        instances: [raidShortName],
+                        instances: decodeURIComponent(raidShortName ?? '').split(','),
                         id: generateID(6),
                     }
                 }
