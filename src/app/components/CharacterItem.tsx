@@ -177,7 +177,7 @@ export default function ({ item: _item, reverse, bottom, domain }: {
     const updateItem = useCharacterItemsStore(state => state.updateItem)
 
     const [_, isEnchantable] = itemTypeInfo[`INVTYPE_${item.inventory_type?.type}`] ?? [0, false];
-    const isEnchanted = item.enchantments?.filter((enchant: any) => enchant.enchantment_slot.type !== 'TEMPORARY').length && isEnchantable
+    const isEnchanted = item.enchantments?.filter((enchant: any) => enchant.enchantment_slot?.type === 'PERMANENT' && enchant.enchantment_slot?.id === 0).length && isEnchantable
 
     const { isLoading: loading } = useQuery({
         queryKey: ['item', item],
