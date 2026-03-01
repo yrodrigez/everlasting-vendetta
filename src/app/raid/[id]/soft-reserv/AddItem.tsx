@@ -1,83 +1,16 @@
 import { Button } from "@/app/components/Button";
 import { faCloudArrowUp } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { type SupabaseClient } from "@supabase/supabase-js";
 import { Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from "@heroui/react";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { useMemo, useRef, useState } from "react";
-import { ItemTooltip } from "@/app/raid/[id]/soft-reserv/RaidItemCard";
 import { useAuth } from "@/app/context/AuthContext";
+import { useWoWItem } from "@/app/hooks/api/use-wow-item";
 import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
-
-async function fetchRaidFromResetId(resetId: string, supabase?: SupabaseClient) {
-    if (!supabase) {
-        return null
-    }
-
-    const { error, data } = await supabase
-        .from('raid_resets')
-        .select('raid:ev_raid(id, name)')
-        .eq('id', resetId)
-        .single<{ raid: { id: string, name: string } }>()
-
-    if (error) {
-        console.error(error)
-        return null
-    }
-
-    return data?.raid
-}
-
-async function fetchItemMetadata(itemId: number) {
-    if (!itemId) {
-        return null
-    }
-    const response = await fetch(`/api/v1/services/item/metadata/${itemId}`)
-    if (!response.ok) {
-        return null
-    }
-    return response.json()
-}
-
-async function addItemToRaid(raidId?: string, item?: any, supabase?: SupabaseClient) {
-    if (!supabase) {
-        return false
-    }
-
-    if (!item) {
-        return false
-    }
-
-    if (!raidId) {
-        return false
-    }
-
-    const { error: lootError } = await supabase
-        .from('raid_loot_item')
-        .upsert({
-            ...item
-        })
-
-    if (lootError) {
-        console.error(lootError)
-    }
-
-    const { error: raid_loot_error } = await supabase
-        .from('raid_loot')
-        .upsert({
-            raid_id: raidId,
-            item_id: item.id
-        }, {
-            onConflict: 'item_id, raid_id'
-        })
-
-    if (raid_loot_error) {
-        console.error(raid_loot_error)
-    }
-
-    return (lootError === undefined || lootError === null)
-}
+import { useQuery } from "@tanstack/react-query";
+import Link from "next/dist/client/link";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createAPIService } from "@/app/lib/api";
+import { useMessageBox } from "@/app/util/msgBox";
 
 export function AddItem({ resetId }: { resetId: string }) {
     const { accessToken } = useAuth()
@@ -87,34 +20,54 @@ export function AddItem({ resetId }: { resetId: string }) {
     const [_, setIsWriting] = useState(false)
     const timoutRef = useRef<NodeJS.Timeout | null>(null)
     const [itemId, setItemId] = useState<string | undefined>()
-    const qualityColors = [
-        'poor',
-        'common',
-        'uncommon',
-        'rare',
-        'epic',
-        'legendary'
-    ]
-
-    const [qualityColor, setQualityColor] = useState<'poor' | 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'>('common')
-
-    const { isPending, mutate: findItemMetadata, data: item } = useMutation({
-        mutationKey: ['add_item'],
-        mutationFn: async ({ itemId }: { itemId: number }) => {
-            const item = await fetchItemMetadata(itemId)
-            if (!item) {
-                return null
-            }
-            setQualityColor((qualityColors[item.description.quality ?? 0] || 'common') as 'poor' | 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary')
-            return item
-        }
-    })
 
     const { data: raid, isFetching: isRaidFetching } = useQuery({
         queryKey: ['raid', resetId],
         enabled: !!supabase,
-        queryFn: () => fetchRaidFromResetId(resetId, supabase)
+        queryFn: async () => {
+            return supabase.from('raid_resets')
+                .select('raid:ev_raid(id, name)')
+                .eq('id', resetId)
+                .single()
+                .overrideTypes<{ raid: { id: string, name: string } }>()
+                .then(({ data, error }) => {
+                    if (error) {
+                        console.error(error)
+                        throw new Error('Failed to fetch raid info')
+                    }
+                    return data?.raid
+                })
+        }
     })
+    const { alert } = useMessageBox()
+    const [isSaving, setIsSaving] = useState(false)
+    const performSave = useCallback(async () => {
+        if (!raid || !itemId || isNaN(parseInt(itemId, 10)) || isSaving || isRaidFetching) {
+            return
+        }
+        setIsSaving(true)
+        try {
+            const api = createAPIService()
+            const res = await api.raids.addItem({ raidId: raid.id, itemId: parseInt(itemId, 10), bossName: '' })
+
+            if (res?.item) {
+                alert({ message: 'Item added successfully', type: 'success' })
+            } else {
+                throw new Error('Failed to add item')
+            }
+        } catch (error: any) {
+            console.error(error)
+            alert({ message: 'An error occurred while adding the item: ' + (error?.message || 'NO DETAILS'), type: 'error' })
+        } finally {
+            setIsSaving(false)
+        }
+
+    }, [raid, itemId, isSaving, isRaidFetching, alert])
+
+    const { data: item, isLoading: isItemLoading, isError: isItemError } = useWoWItem(parseInt(itemId ?? '', 10))
+    useEffect(() => {
+        console.log({ item })
+    }, [item])
 
     return <>
         <Button
@@ -122,7 +75,7 @@ export function AddItem({ resetId }: { resetId: string }) {
             size={'lg'}
             isIconOnly
             isLoading={isRaidFetching}
-            isDisabled={isRaidFetching || true} // Disabled until we have a better way to fetch raid info (currently not working due to new TBC raid reset IDs)
+            isDisabled={isRaidFetching || !raid}
             onPress={onOpen}
         >
             <FontAwesomeIcon icon={faCloudArrowUp} />
@@ -161,39 +114,22 @@ export function AddItem({ resetId }: { resetId: string }) {
                                             }, 1000)
                                         }}
                                     />
-                                    <Button
-                                        onClick={() => {
-                                            findItemMetadata({ itemId: parseInt(itemId ?? '') })
-                                        }}
-                                        isLoading={isPending}
-                                        isDisabled={true || isPending || !itemId} // Disabled until we have a better way to fetch item metadata (currently not working due to boss and new TBC item IDs)
-                                    >
-                                        Find item
-                                    </Button>
                                 </div>
-                                <div className="flex gap-2 pl-10">
+                                <div className="flex gap-2 pt-4 px4">
                                     {item && (
-                                        <ItemTooltip
-                                            qualityColor={qualityColor}
-                                            item={item}
-                                        />
+                                        <Link href={`https://www.wowhead.com/item=${itemId}`} target="_blank" className="flex gap-2 items-center">
+                                            <img src={item.itemDetails.icon} alt={item.itemDetails.name} className={`rounded border border-${item.itemDetails.quality.name?.toLowerCase()}`} />
+                                            <span>{item.itemDetails.name}</span>
+                                        </Link>
                                     )}
                                 </div>
                             </div>
                         </ModalBody>
                         <ModalFooter>
                             <Button
-                                isLoading={isPending}
-                                isDisabled={isPending || !item?.id}
-                                onClick={() => {
-                                    addItemToRaid(raid?.id, item, supabase).then((success) => {
-                                        if (success) {
-                                            onClose()
-                                        } else {
-                                            alert('An error occurred while adding the item')
-                                        }
-                                    })
-                                }}
+                                isLoading={isItemLoading}
+                                isDisabled={isItemLoading || isItemError || !item}
+                                onPress={performSave}
                             >
                                 Add item
                             </Button>

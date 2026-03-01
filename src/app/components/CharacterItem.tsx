@@ -8,6 +8,8 @@ import { useQuery } from "@tanstack/react-query";
 import { faWandMagic, faWandMagicSparkles } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import api from "../lib/api";
+import WoWHeadItem from "./wow-head-item";
+
 
 
 interface APIReference {
@@ -160,10 +162,11 @@ function getItemRarityHexColor(quality: string) {
     return rarityColors[quality] || '#ffffff';
 }
 
-export default function ({ item: _item, reverse, bottom }: {
+export default function ({ item: _item, reverse, bottom, domain }: {
     item: ItemDetails
     reverse?: boolean
     bottom?: boolean
+    domain: 'classic' | 'tbc' | 'wotlk'
 }) {
     const items = useCharacterItemsStore(state => state.items)
     const [item] = useState<any>(items.find((i: any) => i.item?.id === _item.item.id) ?? _item)
@@ -211,17 +214,24 @@ export default function ({ item: _item, reverse, bottom }: {
         staleTime: 1000 * 60 * 5, // 5 minutes
         retry: 3
     })
-    
+
+    if (domain === 'tbc') {
+        console.log({ item, itemDetails, itemIconUrl })
+    }
+    const gems = item?.enchantments?.filter((enchant: any) => !enchant.enchantment_slot.type && enchant.enchantment_slot.id > 0 && enchant.source_item?.id).map((enchant: any) => enchant.source_item.id) || []
     return (
         <div className={`flex items-center gap-4 ${reverse ? 'flex-row-reverse' : ''}`}>
             <Skeleton isLoaded={!loading}
                 className={`w-12 h-12 relative rounded-lg  ${loading ? 'bg-wood rounded-lg' : 'bg-transparent'} transition-all duration-300`}>
-                <ItemImageWithRune
-                    item={item}
-                    itemIconUrl={itemIconUrl}
-                    reverse={reverse}
-                    bottom={bottom}
-                    borderColor={getItemRarityHexColor(quality.name.toUpperCase())}
+                <WoWHeadItem
+                    itemId={id}
+                    icon={itemIconUrl}
+                    enchant={item?.enchantments?.find?.((x: { enchantment_slot?: { type: string, id: number } }) => x.enchantment_slot?.type === 'PERMANENT' && x.enchantment_slot?.id === 0)?.enchantment_id}
+                    quality={quality.name?.toLowerCase()}
+                    iconSize="large"
+                    domain={domain}
+                    pcs={item?.set?.items?.filter?.((piece: any) => piece.is_equipped).map?.((piece: any) => piece.item.id) || []}
+                    gems={gems}
                 />
                 <div
                     className={`hidden lg:flex absolute ${bottom ? '-top-5 right-4' : !reverse ? '-left-6 bottom-4' : '-right-6 bottom-4'}  flex items-center gap-1`}>

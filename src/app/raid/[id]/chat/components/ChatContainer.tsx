@@ -54,8 +54,9 @@ async function fetchMessages(supabase: SupabaseClient, resetId: string) {
 }
 
 
-export function ChatContainer({ resetId: id, showRedirect = false, raidName }: {
+export function ChatContainer({ resetId: id, realmslug, showRedirect = false, raidName }: {
     resetId: string,
+    realmslug: string,
     showRedirect?: boolean,
     raidName?: string
 }) {
@@ -199,7 +200,7 @@ export function ChatContainer({ resetId: id, showRedirect = false, raidName }: {
             className={`w-full h-full flex flex-col gap-2 relative items-center grow transition-all ${showRedirect && !shouldHide ? 'max-h-40 lg:max-h-full bg-[rgba(66,59,53,.5)] rounded-xl border border-wood-100 p-1' : ''} ${showRedirect && shouldHide ? 'min-h-8' : ''}`}>
             {!shouldHide ? (
                 <>
-                    <ChatMessages messages={messages} addReaction={addReaction} emojis={emojis}
+                    <ChatMessages realmSlug={realmslug} messages={messages} addReaction={addReaction} emojis={emojis}
                         removeReaction={removeReaction} />
                     <div className="w-full h-12 flex flex-col gap-2 items-baseline justify-end">
                         <ChatControls showRedirect={showRedirect} onSubmit={insertMessage} />

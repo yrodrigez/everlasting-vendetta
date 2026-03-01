@@ -8,6 +8,7 @@ import { ChevronDown, ChevronUp, SmilePlus } from "lucide-react";
 import { MessageReaction, Reaction } from "@/app/raid/[id]/chat/components/useReactions";
 import { useCharacterStore } from "@/app/components/characterStore";
 import { useShallow } from "zustand/shallow";
+import { createRosterMemberRoute } from "@/app/util/create-roster-member-route";
 
 const isCharacterAvailable = async (name: string) => {
     if (!name) return false
@@ -15,7 +16,7 @@ const isCharacterAvailable = async (name: string) => {
     return response.ok
 }
 
-const CharacterMention = ({ name }: { name: string }) => {
+const CharacterMention = ({ name, realmSlug }: { name: string, realmSlug: string }) => {
     const capitalize = useCallback((str: string) => {
         return str.charAt(0).toUpperCase() + str.slice(1);
     }, [name]);
@@ -34,7 +35,7 @@ const CharacterMention = ({ name }: { name: string }) => {
             <Spinner size="sm"
                 color="current" />{capitalize(name)}
         </div> : isAvailable ? (
-            <Link href={`/roster/${encodeURIComponent(name.toLowerCase())}`} target="_blank" className="text-blue-500">
+            <Link href={createRosterMemberRoute(name, realmSlug)} target="_blank" className="text-blue-500">
                 @{capitalize(name)}
             </Link>
         ) : (<span>@{name}</span>)
@@ -121,9 +122,11 @@ const ImageLink = ({ src }: { src: string }) => {
 }
 
 const ChatMessageContent = ({
-    children
+    children,
+    realmSlug
 }: {
     children: string | ReactNode
+    realmSlug: string
 }) => {
     if (typeof children !== 'string') return <div className="break-all">{children}</div>;
 
@@ -153,7 +156,7 @@ const ChatMessageContent = ({
                 return part;
             });
         },
-        [children]
+        [children, realmSlug]
     );
 
     const findAtMentions = useCallback(
@@ -165,7 +168,7 @@ const ChatMessageContent = ({
 
                 return item.split(' ').map((part: string, j: number) => {
                     if (part.match(atMentionsPattern)) {
-                        return <CharacterMention key={`mention-${i}-${j}`} name={part.replaceAll('@', '')} />;
+                        return <CharacterMention key={`mention-${i}-${j}`} name={part.replaceAll('@', '')} realmSlug={realmSlug} />;
                     }
 
                     return part;
@@ -181,7 +184,7 @@ const ChatMessageContent = ({
                 }, [] as ReactNode[]);
             });
         },
-        [children]
+        [children, realmSlug]
     );
 
     const processedContent = findAtMentions(findURLs(children));
@@ -190,7 +193,7 @@ const ChatMessageContent = ({
 };
 
 
-const ChatMessageOwner = ({ message, children }: { message: ChatMessage, children?: ReactNode }) => {
+const ChatMessageOwner = ({ message, realmSlug }: { message: ChatMessage, realmSlug: string }) => {
     return (
         <div className="flex gap-1 flex-row-reverse mr-3 ">
             <img src={message.character.avatar}
@@ -202,13 +205,13 @@ const ChatMessageOwner = ({ message, children }: { message: ChatMessage, childre
                         className={`font-bold text-${message.character?.className?.toLowerCase()}`}>{message.character.name}</span>
                     <span className="text-sm text-gray-400">{message.created}</span>
                 </div>
-                <ChatMessageContent>{message.content}</ChatMessageContent>
+                <ChatMessageContent realmSlug={realmSlug}>{message.content}</ChatMessageContent>
             </div>
         </div>
     )
 }
 
-const ChatMessageOther = ({ message, reactionsHandler }: { message: ChatMessage, reactionsHandler: ReactNode }) => {
+const ChatMessageOther = ({ message, realmSlug, reactionsHandler }: { message: ChatMessage, realmSlug: string, reactionsHandler: ReactNode }) => {
 
     return (
         <div className="flex gap-1 ml-3">
@@ -217,13 +220,13 @@ const ChatMessageOther = ({ message, reactionsHandler }: { message: ChatMessage,
                 alt={`${message.character.name}'s avatar`} />
             <div className="flex flex-col gap-1 p-2 rounded-r-xl rounded-tl-xl bg-dark border border-dark-100 relative">
                 <div className="flex gap-1 items-center">
-                    <Link href={`/roster/${encodeURIComponent(message.character.name.toLowerCase())}`} target="_blank">
+                    <Link href={createRosterMemberRoute(message.character.name, realmSlug)} target="_blank">
                         <span
                             className={`font-bold text-${message.character.className?.toLowerCase()}`}>{message.character.name}</span>
                     </Link>
                     <span className="text-sm text-gray-500">{message.created}</span>
                 </div>
-                <ChatMessageContent>{message.content}</ChatMessageContent>
+                <ChatMessageContent realmSlug={realmSlug}>{message.content}</ChatMessageContent>
                 <div className="absolute -top-3 -right-0">
                     {reactionsHandler}
                 </div>
@@ -232,8 +235,9 @@ const ChatMessageOther = ({ message, reactionsHandler }: { message: ChatMessage,
     )
 }
 
-const ChatMessage = ({ message, reactionsHandler }: {
+const ChatMessage = ({ message, realmSlug, reactionsHandler }: {
     message: ChatMessage,
+    realmSlug: string,
     reactionsHandler: ReactNode
 }) => {
 
@@ -241,8 +245,8 @@ const ChatMessage = ({ message, reactionsHandler }: {
     const isCurrentUser = useMemo(() => selectedCharacter?.id === message.character.id, [selectedCharacter, message])
 
     return (
-        isCurrentUser ? <ChatMessageOwner message={message} /> :
-            <ChatMessageOther message={message} reactionsHandler={reactionsHandler} />
+        isCurrentUser ? <ChatMessageOwner message={message} realmSlug={realmSlug} /> :
+            <ChatMessageOther message={message} realmSlug={realmSlug} reactionsHandler={reactionsHandler} />
     )
 }
 
@@ -315,11 +319,12 @@ const AddReactionButton = ({ messageId, addReaction, emojis }: {
     )
 }
 
-export function ChatMessages({ messages, addReaction, emojis, removeReaction }: {
+export function ChatMessages({ messages, addReaction, emojis, removeReaction, realmSlug }: {
     messages: ChatMessage[],
     addReaction: ({ messageId, reactionId }: { messageId: number, reactionId: number }) => void
     removeReaction: ({ messageId }: { messageId: number }) => void
-    emojis: { shortcut: string, emoji: string, description: string, id: number }[]
+    emojis: { shortcut: string, emoji: string, description: string, id: number }[],
+    realmSlug: string
 }) {
 
     const chatRef = useRef<HTMLDivElement>(null)
@@ -353,7 +358,7 @@ export function ChatMessages({ messages, addReaction, emojis, removeReaction }: 
                     const isCurrentUser = message.character.id === selectedCharacter?.id
                     const userReacted = message.reactions?.find(reaction => reaction.character.id === selectedCharacter?.id)
                     return <div key={index} className="flex flex-col gap-0.5 relative">
-                        <ChatMessage message={message} reactionsHandler={
+                        <ChatMessage message={message} realmSlug={realmSlug} reactionsHandler={
                             <AddReactionButton addReaction={addReaction}
                                 messageId={message.id}
                                 emojis={emojis} />
@@ -368,7 +373,7 @@ export function ChatMessages({ messages, addReaction, emojis, removeReaction }: 
                                             character
                                         }) => {
                                             return <Link
-                                                href={`/roster/${encodeURIComponent(character.character?.name.toLowerCase())}`}
+                                                href={createRosterMemberRoute(character.character?.name, realmSlug)}
                                                 key={reaction.id}
                                                 className="text-xs">{reaction.emoji} {character.character?.name}</Link>
                                         })}

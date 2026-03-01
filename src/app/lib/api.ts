@@ -224,5 +224,23 @@ export const createAPIService = (_api: AxiosInstance = api) => ({
         throw error;
       }
     }
+  },
+  raids: {
+    addItem: async ({ raidId, itemId, bossName }: { raidId: string, itemId: number, bossName: string | undefined }): Promise<{
+      item: {
+        id: number;
+        name: string;
+      }
+      raidId: string;
+      request_id: string;
+    }> => {
+      try {
+        const { data } = await _api.post(`/raids/item`, { itemId, bossName, raidId });
+        return data;
+      } catch (error) {
+        console.error('Error adding item to raid:', error);
+        throw error;
+      }
+    }
   }
 });

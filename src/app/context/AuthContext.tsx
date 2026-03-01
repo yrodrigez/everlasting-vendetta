@@ -97,7 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!accessToken) {
       return { ok: false };
     }
-
+    //console.log('Token refreshed successfully', { accessToken });
     setAccessToken(accessToken);
 
     const decoded = jwtDecode(accessToken);

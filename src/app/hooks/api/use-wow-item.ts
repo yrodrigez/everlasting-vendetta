@@ -23,11 +23,15 @@ export type ItemFetchResponse = {
 // /api/wow/item/185986
 
 export function useWoWItem(itemId: number) {
+
     const apiService = createAPIService();
 
     const { data, isLoading, isError } = useQuery({
         queryKey: ['wowItem', itemId],
         queryFn: async () => {
+            if (!itemId) {
+                return null;
+            }
             try {
                 const response = await apiService.anon.getItem(itemId);
                 return response;

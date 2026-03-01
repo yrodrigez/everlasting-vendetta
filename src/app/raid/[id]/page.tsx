@@ -267,7 +267,7 @@ export default async function ({ params }: { params: Promise<{ id: string }> }) 
                         minGs={reset.raid.min_gs}
                     />
                     {!!isLoggedInUser ? (<div className="w-full lg:max-w-80 flex-grow-0 max-h-fit">
-                        <ChatContainer raidName={`${raidName} (${raidDate})`} resetId={id} showRedirect={true} />
+                        <ChatContainer realmslug={realm} raidName={`${raidName} (${raidDate})`} resetId={id} showRedirect={true} />
                     </div>) : null}
                 </div>
                 {status !== 'offline' ? (

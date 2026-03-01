@@ -363,6 +363,7 @@ export default async function Page({ params }: { params: Promise<{ name: string 
                     items={[
                         {
                             label: 'Gear', name: 'gear', children: <CharacterGear
+                                domain={realmSlug === 'living-flame' ? 'classic' : 'tbc'}
                                 characterName={characterName}
                                 gear={{
                                     group1,

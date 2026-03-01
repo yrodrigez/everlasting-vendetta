@@ -17,6 +17,7 @@ import { ItemTooltip } from "@/app/raid/[id]/soft-reserv/RaidItemCard";
 import Link from "next/link";
 import { useMessageBox } from "@utils/msgBox";
 import { useRaidItems } from "./raid-items-context";
+import { createRosterMemberRoute } from "@/app/util/create-roster-member-route";
 
 const groupByCharacter = (items: Reservation[]): {
     character: Character,
@@ -54,7 +55,7 @@ const groupByItem = (items: Reservation[]): { item: RaidItem, reservations: Char
     }, [] as { item: RaidItem, reservations: Character[] }[])
 }
 
-const ReservationByItem = ({ item }: { item: { item: RaidItem, reservations: Character[] } }) => {
+const ReservationByItem = ({ item, realmSlug }: { item: { item: RaidItem, reservations: Character[] }, realmSlug: string }) => {
     return (
         <div className={'flex gap-2 justify-between p-2 items-center'}>
             <Tooltip
@@ -97,7 +98,7 @@ const ReservationByItem = ({ item }: { item: { item: RaidItem, reservations: Cha
                             placement={'top'}
                         >
                             <Link
-                                href={`/roster/${encodeURIComponent(character.name.toLowerCase())}`}
+                                href={createRosterMemberRoute(character.name, realmSlug)}
                                 target={'_blank'}
                             >
                                 <img
@@ -116,9 +117,10 @@ const ReservationByItem = ({ item }: { item: { item: RaidItem, reservations: Cha
     )
 }
 
-const ReservationByCharacter = ({ item, isAdmin }: {
+const ReservationByCharacter = ({ item, isAdmin, realmSlug }: {
     item: { character: Character, reservations: (RaidItem & { reservationId: string })[] },
-    isAdmin?: boolean
+    isAdmin?: boolean,
+    realmSlug: string
 }) => {
     const { character, reservations } = item
 
@@ -161,7 +163,7 @@ const ReservationByCharacter = ({ item, isAdmin }: {
                 </Button> : null}
                 <Link
                     className={'flex gap-2 items-center'}
-                    href={`/roster/${encodeURIComponent(item.character.name.toLowerCase())}`} target={'_blank'}>
+                    href={createRosterMemberRoute(item.character.name, realmSlug)} target={'_blank'}>
                     <img
                         src={item.character.avatar ?? '/avatar-anon.png'}
                         alt={item.character.name}
@@ -236,7 +238,7 @@ const ReservationByCharacter = ({ item, isAdmin }: {
     )
 }
 
-export function ShowReservations({ items = [], isAdmin }: { items: Reservation[], isAdmin?: boolean }) {
+export function ShowReservations({ items = [], isAdmin, realmSlug }: { items: Reservation[], isAdmin?: boolean, realmSlug: string }) {
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure()
     const [reservationsByCharacter, setReservationsByCharacter] = useState<{
         character: Character,
@@ -316,10 +318,10 @@ export function ShowReservations({ items = [], isAdmin }: { items: Reservation[]
                             <ModalBody>
                                 <ScrollShadow className="overflow-auto max-h-[600px] w-full scrollbar-pill">
                                     {isByCharacter ? reservationsByCharacter.map((item, i) => {
-                                        return <ReservationByCharacter key={i} item={item} isAdmin={isAdmin} />
+                                        return <ReservationByCharacter realmSlug={realmSlug} key={i} item={item} isAdmin={isAdmin} />
                                     }) : reservationsByItem.map((item, i) => {
                                         return (
-                                            <ReservationByItem item={item} key={i} />
+                                            <ReservationByItem item={item} key={i} realmSlug={realmSlug} />
                                         )
                                     })}
                                 </ScrollShadow>

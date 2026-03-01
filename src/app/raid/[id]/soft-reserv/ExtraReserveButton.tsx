@@ -10,6 +10,8 @@ import Link from "next/link";
 import { ExtraReserveActions } from "@/app/raid/[id]/soft-reserv/ExtraReserveActions";
 import { useAuth } from "@/app/context/AuthContext";
 import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
+import { create } from "node:domain";
+import { createRosterMemberRoute } from "@/app/util/create-roster-member-route";
 
 
 async function fetchExtraReserves(resetId: string, supabase: SupabaseClient) {
@@ -69,7 +71,7 @@ async function fetchResetMembers(resetId: string, supabase: SupabaseClient) {
 }
 
 
-export function ExtraReserveButton({ resetId }: { resetId: string }) {
+export function ExtraReserveButton({ resetId, realmSlug }: { resetId: string, realmSlug: string }) {
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
     const { accessToken } = useAuth()
     const supabase = React.useMemo(() => createClientComponentClient(accessToken), [accessToken]);
@@ -164,7 +166,7 @@ export function ExtraReserveButton({ resetId }: { resetId: string }) {
                                                     className="rounded-lg border border-gold" />
                                                 <Link
                                                     className="self-end"
-                                                    href={`/roster/${participation.member.character.name.toLowerCase()}`}
+                                                    href={createRosterMemberRoute(participation.member.character.name, realmSlug)}
                                                     target="_blank">
                                                     {participation.member.character.name}
                                                 </Link>

@@ -78,6 +78,8 @@ export default async function RootLayout({
                 <Script src="/scripts/modelviewer.js" strategy="beforeInteractive" />
                 <Script src="/scripts/color-thief.min.js" strategy="beforeInteractive" />
                 <Script src="/scripts/pixel-canvas.js" strategy="beforeInteractive" />
+                <Script src="https://wow.zamimg.com/js/tooltips.js" strategy="beforeInteractive" />
+                <Script src="/scripts/wowhead.js" strategy="beforeInteractive" />
                 <SpeedInsights />
             </body>
         </html>

@@ -1,7 +1,6 @@
 import Image from "next/image";
 import { BnetLoginButton } from "@/app/components/BnetLoginButton";
 import { DiscordLoginButton } from "@/app/components/DiscordLoginButton";
-import { TemporalLogin } from "@/app/raid/components/TemporalLogin";
 
 export default function NotLoggedInView({ hideTitle = false }: { hideTitle?: boolean }) {
     return (
@@ -35,14 +34,6 @@ export default function NotLoggedInView({ hideTitle = false }: { hideTitle?: boo
                         <div className="mt-8 flex w-full flex-col gap-3">
                             <BnetLoginButton />
                             <DiscordLoginButton />
-
-                            <div className="flex w-full items-center justify-center gap-3 py-2">
-                                <div className="h-px w-full bg-gradient-to-l from-gold/70 via-gold/20 to-transparent" />
-                                <span className="text-xs uppercase tracking-widest text-primary/60">or</span>
-                                <div className="h-px w-full bg-gradient-to-r from-gold/70 via-gold/20 to-transparent" />
-                            </div>
-
-                            <TemporalLogin />
                         </div>
 
                         <div className="mt-8 h-px w-full bg-gradient-to-r from-transparent via-gold/20 to-transparent" />

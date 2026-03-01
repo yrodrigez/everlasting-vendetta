@@ -1,6 +1,14 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCartPlus, faUserTie } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "@/app/components/Button";
+import { Item } from "@/app/components/item/Item";
+import { useAuth } from "@/app/context/AuthContext";
+import { useFetchCharacter } from "@/app/hooks/api/use-fetch-character";
+import { fetchItems } from "@/app/lib/database/raid_loot_item/fetchItems";
+import { getRaidIdByResetId } from "@/app/lib/database/raid_resets/getRaidIdByResetId";
+import { useReservations } from "@/app/raid/[id]/soft-reserv/useReservations";
+import { createRosterMemberRoute } from "@/app/util/create-roster-member-route";
+import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
+import { faCartPlus, faUserTie } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     Input,
     Modal,
@@ -10,33 +18,13 @@ import {
     ModalHeader,
     useDisclosure
 } from "@heroui/react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useReservations } from "@/app/raid/[id]/soft-reserv/useReservations";
-import { toast } from "sonner";
-import { Character } from "@/app/util/blizzard/battleNetWoWAccount/types";
-import { useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query';
 import Link from "next/link";
-import { insertCharacterIfNotExists } from "@/app/lib/database/ev_member/insertCharacterIfNotExists";
-import { fetchItems } from "@/app/lib/database/raid_loot_item/fetchItems";
-import { getRaidIdByResetId } from "@/app/lib/database/raid_resets/getRaidIdByResetId";
-import { Item } from "@/app/components/item/Item";
-import { BnetCharacterResponse } from "@/app/types/BnetCharacterResponse";
-import { useAuth } from "@/app/context/AuthContext";
-import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
-
-export async function fetchCharacterByName(characterName: string, source: string | undefined = undefined): Promise<BnetCharacterResponse> {
-    const url = `/api/v1/services/wow/getCharacterByName?name=${characterName}${source ? `&temporal=true` : ''}`
-    const response = await fetch(url)
-
-    if (!response.ok) {
-        throw new Error('Error fetching character details')
-    }
-
-    return response.json()
-}
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 
 
-export function ReserveForOthers({ resetId }: { resetId: string }) {
+export function ReserveForOthers({ resetId, realmSlug }: { resetId: string, realmSlug: string }) {
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure()
     const {
         reserve,
@@ -62,7 +50,7 @@ export function ReserveForOthers({ resetId }: { resetId: string }) {
         enabled: !!supabase,
     })
 
-    const createReserve = useCallback((character: Character & { avatar: string }, itemId: number) => {
+    const createReserve = useCallback(async (character: { id: number }, itemId: number) => {
         if (!character.id) {
             toast.error('Character not found')
             return
@@ -72,42 +60,16 @@ export function ReserveForOthers({ resetId }: { resetId: string }) {
             return
         }
 
-        (async () => {
-            const toUpsertCharacter = {
-                id: character.id,
-                name: character.name,
-                level: character.level,
-                character_class: {
-                    name: character.character_class?.name ?? 'Unknown'
-                },
-                playable_class: {
-                    name: character.character_class?.name ?? 'Unknown'
-                },
-                guild: {
-                    name: character.guild?.name,
-                    id: character.guild?.id,
-                },
-                realm: {
-                    name: character.realm.name,
-                    id: character.realm.id,
-                },
-                avatar: character.avatar,
-            }
 
-            try {
-                const characterId = await insertCharacterIfNotExists(supabase, toUpsertCharacter, 'manual_reservation')
-                await reserve(itemId, characterId)
-            } catch (e: any) {
-                toast.error(e.message ?? 'Error reserving item')
-            }
-        })()
+        try {
+            await reserve(itemId, character.id)
+        } catch (e: any) {
+            toast.error(e.message ?? 'Error reserving item')
+        }
+
     }, [lowerCaseCharacterName, supabase])
 
-    const { data: character, refetch: reFetchUser } = useQuery({
-        queryKey: ['character', lowerCaseCharacterName],
-        queryFn: () => fetchCharacterByName(lowerCaseCharacterName),
-        enabled: !!lowerCaseCharacterName,
-    }) as { data: Character & { avatar: string } | undefined, error: any, isLoading: boolean, refetch: () => void }
+    const { fetchCharacterAsync, character, isPending, isError } = useFetchCharacter()
 
     useEffect(() => {
         if (error) {
@@ -122,7 +84,10 @@ export function ReserveForOthers({ resetId }: { resetId: string }) {
         if (!lowerCaseCharacterName) {
             return
         }
-        reFetchUser()
+        fetchCharacterAsync({
+            name: lowerCaseCharacterName,
+            realm: realmSlug
+        })
     }, [lowerCaseCharacterName, isWriting])
 
 
@@ -150,7 +115,7 @@ export function ReserveForOthers({ resetId }: { resetId: string }) {
                     {() => (
                         <>
                             <ModalHeader>
-                                <h1 className="text-2xl font-bold text-center">Reserva al ignorante</h1>
+                                <h1 className="text-2xl font-bold text-center">Reserve for Others</h1>
                             </ModalHeader>
                             <ModalBody>
                                 <Input
@@ -179,7 +144,7 @@ export function ReserveForOthers({ resetId }: { resetId: string }) {
                                             <div className="flex flex-col gap-2">
                                                 <Link
                                                     target={'_blank'}
-                                                    href={`/roster/${lowerCaseCharacterName}`}>
+                                                    href={createRosterMemberRoute(character.name, realmSlug)}>
                                                     <span>{character.name} ({character.level})</span>
                                                 </Link>
                                                 <span>Class: {character.character_class?.name}</span>
@@ -212,7 +177,7 @@ export function ReserveForOthers({ resetId }: { resetId: string }) {
                                         <Button
                                             isIconOnly
                                             isDisabled={!character?.id || !itemId}
-                                            onClick={() => {
+                                            onPress={() => {
                                                 if (!character?.id) return
                                                 if (!itemId) return
                                                 createReserve(character, itemId)

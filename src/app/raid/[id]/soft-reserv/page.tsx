@@ -1,21 +1,17 @@
-import { cookies } from "next/headers";
-import RaidItemsList from "@/app/raid/[id]/soft-reserv/RaidItemsList";
-import { raidLootReservationsColumns } from "@/app/raid/[id]/soft-reserv/supabase_config";
-import { RaidItem, Reservation } from "@/app/raid/[id]/soft-reserv/types";
-import { getLoggedInUserFromAccessToken } from "@/app/util";
-import YourReservations from "@/app/raid/[id]/soft-reserv/YourReservations";
-import React from "react";
-import AdminPanel from "@/app/raid/[id]/soft-reserv/AdminPanel";
-import RaidTimeInfo from "@/app/raid/components/RaidTimeInfo";
+import { Button } from "@/app/components/Button";
 import NotLoggedInView from "@/app/components/NotLoggedInView";
-import { Metadata } from "next";
-import moment from "moment";
+import { SomethingWentWrong } from "@/app/components/something-went-wrong";
+import AdminPanel from "@/app/raid/[id]/soft-reserv/AdminPanel";
 import { BannedItems, ImportBannedItems } from "@/app/raid/[id]/soft-reserv/BannedItems";
+import RaidItemsList from "@/app/raid/[id]/soft-reserv/RaidItemsList";
+import YourReservations from "@/app/raid/[id]/soft-reserv/YourReservations";
+import RaidTimeInfo from "@/app/raid/components/RaidTimeInfo";
 import createServerSession from "@utils/supabase/createServerSession";
+import moment from "moment";
+import { Metadata } from "next";
 import { RaidItemsProvider } from "./raid-items-context";
 import { ReservationsRepository } from "./reservations-repository";
-import { SomethingWentWrong } from "@/app/components/something-went-wrong";
-import { Button } from "@/app/components/Button";
+import { log } from "node:console";
 
 type Raid = {
     min_level: number;
@@ -129,6 +125,35 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         return <div>Reset not found</div>
     }
 
+    if (!loggedInUser.selectedCharacter) {
+        return <SomethingWentWrong
+            header="No Character Selected"
+            body={
+                <>
+                    <p>
+                        You do not have a character selected. Please select a character to view raid reservations.
+                    </p>
+                    <p
+                        className="mt-3 text-xs text-primary/55"
+                    >
+                        If you believe this is an error, please contact support or try again later.
+                    </p>
+                </>
+            }
+            footer={<>
+                <div>
+                    <Button
+                        as="a"
+                        className="w-full"
+                        href={`/raid/${raidId}`}>
+                        Go Back To Raid
+                    </Button>
+                </div>
+            </>
+            }
+        />
+    }
+
     if (loggedInUser.selectedCharacter?.realmSlug !== resetData.data.realm) {
         return <SomethingWentWrong
             header="Realm Mismatch"
@@ -237,6 +262,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                     className={`self-start lg:self-auto lg:w-fit w-full overflow-visible inline-flex lg:absolute lg:top-0 lg:-right-24 z-50`}>
                     <AdminPanel
                         isAdmin={isAdmin}
+                        realmSlug={resetData.data.realm}
                         resetId={resetId}
                     />
                 </div>
@@ -271,6 +297,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                         <div className="flex flex-col gap-2 mt-6">
                             <span className="text-lg font-bold">Banned items</span>
                             {!!hardReservations?.length ? (<BannedItems
+                                realmSlug={resetData.data.realm}
                                 hardReservations={hardReservations}
                                 reset_id={resetId}
                                 isAdmin={isAdmin}

@@ -12,15 +12,17 @@ import { useMessageBox } from "@utils/msgBox";
 import { useAuth } from "@/app/context/AuthContext";
 import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
 
-export function BannedItems({ hardReservations, reset_id, isAdmin = false, raid_id }: {
+export function BannedItems({ hardReservations, reset_id, isAdmin = false, raid_id, realmSlug }: {
     hardReservations: any,
     reset_id: string,
     isAdmin?: boolean
-    raid_id: string
+    raid_id: string,
+    realmSlug: string
 }) {
     const { removeHardReserve, loading, globalLoading } = useReservations(reset_id, [])
     const { accessToken } = useAuth()
     const supabase = createClientComponentClient(accessToken)
+    const domain = realmSlug === 'living-flame' ? 'classic' : 'tbc'
 
     const [updateLoading, setUpdateLoading] = useState(false)
     const { alert, yesNo } = useMessageBox()
@@ -108,7 +110,7 @@ export function BannedItems({ hardReservations, reset_id, isAdmin = false, raid_
                 {hardReservations.map((hr: any) => (
                     <div key={hr.item_id}
                         className={`flex gap-2 justify-between items-center text-sm text-${getQualityColor(hr?.item?.description?.quality)} p-2 border border-wood rounded`}>
-                        <Link href={`https://www.wowhead.com/classic/item=${hr.item_id}`}
+                        <Link href={`https://www.wowhead.com/${domain}/item=${hr.item_id}`}
                             className="flex gap-2 items-center" target="_blank">
                             <img src={hr.item.description.icon} alt={hr.item.name}
                                 className={`w-6 border border-${getQualityColor(hr?.item?.description?.quality)} rounded`} />
