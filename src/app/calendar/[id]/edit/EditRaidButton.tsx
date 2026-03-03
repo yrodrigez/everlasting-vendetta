@@ -9,9 +9,10 @@ import { useShallow } from "zustand/shallow";
 import { useCharacterStore } from "@/app/components/characterStore";
 import { useAuth } from "@/app/context/AuthContext";
 import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
+import { useMessageBox } from "@/app/util/msgBox";
 
-export function EditRaidButton({ reset }: { reset: any }) {
-    const { raid, endTime, startTime, startDate, endDate, days, realm } = useCreateRaidStore(useShallow(state => ({
+export function EditRaidButton({ reset }: { reset: { raid_id: string, id: string } }) {
+    const { raid, endTime, startTime, startDate, endDate, days, realm, allowSoftReserves, softReservesAmmount, onTimeBonusExtraEnabled, onTimeBonusExtraAmmount, onTimeBonusCutoffHours } = useCreateRaidStore(useShallow(state => ({
         raid: state.raid,
         endTime: state.endTime,
         startTime: state.startTime,
@@ -19,6 +20,11 @@ export function EditRaidButton({ reset }: { reset: any }) {
         endDate: state.endDate,
         days: state.days,
         realm: state.realm,
+        allowSoftReserves: state.allowSoftReserves,
+        softReservesAmmount: state.softReservesAmmount,
+        onTimeBonusExtraEnabled: state.onTimeBonusExtraEnabled,
+        onTimeBonusExtraAmmount: state.onTimeBonusExtraAmmount,
+        onTimeBonusCutoffHours: state.onTimeBonusCutoffHours,
     })))
     const { accessToken } = useAuth();
     const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
@@ -26,12 +32,19 @@ export function EditRaidButton({ reset }: { reset: any }) {
     const selectedCharacter = useCharacterStore(state => state.selectedCharacter);
     const router = useRouter()
 
+    const { alert, yesNo } = useMessageBox()
+
     const createReset = useCallback(async () => {
         if (!raid || !startTime || !endTime || !startDate || !endDate || !days?.length || !supabase || !selectedCharacter) return
 
         if (raid.id !== reset.raid_id) {
-            const confirmation = confirm('Changing the raid will delete all participants and reservations. Are you sure you want to continue?')
-            if (!confirmation) return
+            const confirmation = await yesNo({
+                title: 'Change Raid',
+                message: 'You have changed the raid for this reset. This will remove all existing participants and reservations. Do you want to continue?',
+                yesText: 'Yes, change raid',
+                noText: 'No, keep current raid',
+            })
+            if (confirmation !== 'yes') return
             const { error: errorParticipants } = await supabase
                 .from('ev_raid_participant')
                 .delete()
@@ -39,7 +52,7 @@ export function EditRaidButton({ reset }: { reset: any }) {
 
             if (errorParticipants) {
                 console.error('Error updating raid participants', errorParticipants)
-                alert('Error updating raid participants: ' + errorParticipants.message)
+                alert({ message: 'Error updating raid participants: ' + errorParticipants.message, type: 'error' })
             }
 
             const { error: errorReservations } = await supabase
@@ -49,7 +62,7 @@ export function EditRaidButton({ reset }: { reset: any }) {
 
             if (errorReservations) {
                 console.error('Error updating raid reservations', errorReservations)
-                alert('Error updating raid reservations: ' + errorReservations.message)
+                alert({ message: 'Error updating raid reservations: ' + errorReservations.message, type: 'error' })
             }
         }
 
@@ -64,23 +77,35 @@ export function EditRaidButton({ reset }: { reset: any }) {
             modified_by: selectedCharacter?.id,
             modified_at: new Date().toISOString(),
             days,
+            is_reservations_allowed: allowSoftReserves,
+            reserve_ammount: softReservesAmmount,
+            on_time_bonus_enabled: onTimeBonusExtraEnabled,
+            on_time_bonus_extra_reservations: onTimeBonusExtraAmmount,
+            on_time_bonus_cutoff_hours: onTimeBonusCutoffHours,
         }
-        
-        const { data, error } = await supabase.from('raid_resets')
+
+        console.log('Payload for editing raid reset:', payload)
+
+        const { data, error } = await supabase
+            .from('raid_resets')
             .update(payload)
             .eq('id', reset.id)
             .select('id')
+            .single()
+            .overrideTypes<{ id: string }>()
 
         if (error) {
             console.error('Error editing raid', error)
-            alert('Error editing raid: ' + error.message)
+            alert({ message: 'Error editing raid: ' + error.message, type: 'error' })
         }
 
-        alert('Raid edited successfully')
+        const confirmation = await yesNo({ message: 'Raid edited successfully', title: 'Success', yesText: 'Go to raid', noText: 'Stay on page' })
 
-        router.push('/raid/' + data?.[0].id)
+        if (confirmation === 'yes') {
+            router.push('/raid/' + data?.id)
+        }
 
-    }, [raid, endTime, startTime, startDate, endDate, days, reset.id, selectedCharacter, realm])
+    }, [raid, endTime, startTime, startDate, endDate, days, reset.id, selectedCharacter, realm, allowSoftReserves, softReservesAmmount, onTimeBonusExtraEnabled, onTimeBonusExtraAmmount, onTimeBonusCutoffHours])
 
     return (
         <Button

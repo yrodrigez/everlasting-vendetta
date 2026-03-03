@@ -5,7 +5,7 @@ export default async function getAvailableRaids(supabase: SupabaseClient) {
         .select('*')
         .order('min_level', {ascending: false})
         .order('created_at', {ascending: false})
-        .returns<{
+        .overrideTypes<{
             id: string,
             name: string,
             min_level: number,

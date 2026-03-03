@@ -1,17 +1,16 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
+import { HeaderMenuButton } from "@/app/components/HeaderMenuButton";
 import ResizeManager from "@/app/components/ResizeManager";
 import Providers from "@/app/providers";
-import { config } from '@fortawesome/fontawesome-svg-core'
-import '@fortawesome/fontawesome-svg-core/styles.css'
-import { Toaster } from "sonner";
-import React from "react";
-import { HeaderMenuButton } from "@/app/components/HeaderMenuButton";
+import { config } from '@fortawesome/fontawesome-svg-core';
+import '@fortawesome/fontawesome-svg-core/styles.css';
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import Script from 'next/script';
-import { SpeedInsights } from "@vercel/speed-insights/next"
+import React from "react";
+import { Toaster } from "sonner";
 import { SessionHandler } from "./components/SessionHandler";
-import { createServer } from "http";
+import "./globals.css";
 import createServerSession from "./util/supabase/createServerSession";
 
 config.autoAddCss = false;

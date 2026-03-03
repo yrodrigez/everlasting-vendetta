@@ -31,6 +31,7 @@ type RaidQueryResult = {
     end_time: string;
     created_by: number;
     realm: string;
+    is_reservations_allowed: boolean;
 };
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -117,12 +118,41 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 
     const resetData = await database
         .from('raid_resets')
-        .select('raid_id, realm, raid:ev_raid(min_level, name, image, reservation_amount, id), raid_date, time, end_date, end_time, created_by, reservations_closed')
+        .select('raid_id, realm, raid:ev_raid(min_level, name, image, reservation_amount, id), raid_date, time, end_date, end_time, created_by, reservations_closed, is_reservations_allowed')
         .eq('id', resetId)
         .single<RaidQueryResult>()
 
     if (!resetData.data) {
         return <div>Reset not found</div>
+    }
+
+    if (!resetData.data.is_reservations_allowed) {
+        return <SomethingWentWrong
+            header="Reservations Not Allowed"
+            body={
+                <>
+                    <p>
+                        Reservations are not allowed for this raid. Please check back later or contact support for more information.
+                    </p>
+                    <p
+                        className="mt-3 text-xs text-primary/55"
+                    >
+                        If you believe this is an error, please contact support or try again later.
+                    </p>
+                </>
+            }
+            footer={<>
+                <div>
+                    <Button
+                        as="a"
+                        className="w-full"
+                        href={`/raid/${raidId}`}>
+                        Go Back To Raid
+                    </Button>
+                </div>
+            </>
+            }
+        />
     }
 
     if (!loggedInUser.selectedCharacter) {

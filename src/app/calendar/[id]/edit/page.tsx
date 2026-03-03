@@ -11,6 +11,7 @@ import NotLoggedInView from "@/app/components/NotLoggedInView";
 import createServerSession from "@/app/util/supabase/createServerSession";
 import moment from "moment";
 import { RealmSelection } from "../../new/Components/realm-selection";
+import { SoftReservesManager } from "../../new/Components/soft-reserves-manager";
 
 export const dynamic = 'force-dynamic'
 
@@ -47,6 +48,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                             <TimeManager />
                         </div>
                         <DaysSelection />
+                        <SoftReservesManager />
                     </div>
                     <div
                         className="flex  justify-between gap-2 items-center lg:items-start lg:justify-end flex-col lg:flex-row">

@@ -1,5 +1,4 @@
 'use client'
-import moment from "moment-timezone";
 import { Button } from "@/app/components/Button";
 import { useCharacterStore } from "@/app/components/characterStore";
 import { useAuth } from "@/app/context/AuthContext";
@@ -10,9 +9,10 @@ import { LateAssistance } from "@/app/raid/components/LateAssistance";
 import { TentativeAssistance } from "@/app/raid/components/TentativeAssistance";
 import { RAID_STATUS } from "@/app/raid/components/utils";
 import { useAuthManagerWindowStore } from "@/app/stores/auth-manager-window-store";
-import { faChair, faCheck } from "@fortawesome/free-solid-svg-icons";
+import { faCheck } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Accessibility, Ban, Key } from "lucide-react";
+import { Accessibility, ArrowUpCircle, CalendarOff, CircleOff, Key, Lock, ShieldAlert } from "lucide-react";
+import moment from "moment-timezone";
 import React, { useEffect, useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 
@@ -49,7 +49,7 @@ export default function AssistActions({
     hasLootReservations?: boolean
     days?: string[]
     endTime: string
-    status?: 'online' | 'offline'
+    status?: 'online' | 'offline' | 'locked'
     realm: string
 }) {
     const { isAuthenticated } = useAuth();
@@ -82,17 +82,21 @@ export default function AssistActions({
     }
 
     if (status === 'offline') {
-        return <div className="text-red-500 flex items-center min-h-7 gap-2"> <Ban /> Raid is Cancelled!</div>
+        return <div className="text-red-500 flex items-center min-h-7 gap-2"> <CircleOff size={16} /> Raid is Cancelled!</div>
     }
 
     if (moment.tz('Europe/Madrid').isAfter(moment(`${endDate} ${endTime === '00:00:00' ? '23:59:59' : endTime}`, 'YYYY-MM-DD HH:mm:ss').tz('Europe/Madrid'))) {
         return <div className="text-red-500 flex items-center min-h-7 gap-2">
-            <Ban /> Raid sign-ups are closed
+            <CalendarOff size={16} /> Raid is over
         </div>
     }
 
+    if (status === 'locked') {
+        return <div className="text-yellow-500 flex items-center min-h-7 gap-2"> <Lock size={16} /> Raid is Locked</div>
+    }
+
     if (selectedCharacter?.realm.slug !== (realm ?? 'living-flame')) {
-        return <div className="text-red-500 flex items-center min-h-7 gap-2"><Ban />Selected character's realm does not match raid's realm. <Button size="sm" onPress={openCharacterSelectionWindow}>Change Character</Button></div>
+        return <div className="text-red-500 flex items-center min-h-7 gap-2"><ShieldAlert size={16} />Selected character's realm does not match raid's realm. <Button size="sm" onPress={openCharacterSelectionWindow}>Change Character</Button></div>
     }
 
     if (!selectedRole) {
@@ -101,14 +105,14 @@ export default function AssistActions({
 
     if ((selectedCharacter?.level ?? 0) < minLvl) {
         return <div className="text-red-500 flex items-center gap-2">
-            <Ban />
+            <ArrowUpCircle size={16} />
             You should be at level {minLvl} to participate
         </div>
     }
 
     if (participants.find(p => p.member.id === selectedCharacter?.id && p.details.status === RAID_STATUS.BENCH)) {
         return <div className="text-orange-400 flex gap-2">
-            <Accessibility />
+            <Accessibility size={16} />
             You are benched</div>
     }
 

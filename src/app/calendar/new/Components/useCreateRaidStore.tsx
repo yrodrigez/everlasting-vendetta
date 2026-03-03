@@ -21,7 +21,17 @@ interface RaidStore {
     setDays: (days: Day[]) => void
     loading?: boolean
     realm: string,
-    setRealm: (realm: string) => void
+    setRealm: (realm: string) => void,
+    allowSoftReserves: boolean,
+    setAllowSoftReserves: (allow: boolean) => void
+    softReservesAmmount: number,
+    setSoftReservesAmmount: (ammount: number) => void
+    onTimeBonusExtraEnabled: boolean,
+    setOnTimeBonusExtraEnabled: (enabled: boolean) => void
+    onTimeBonusExtraAmmount: number,
+    setOnTimeBonusExtraAmmount: (ammount: number) => void
+    onTimeBonusCutoffHours: number,
+    setOnTimeBonusCutoffHours: (hours: number) => void
 }
 
 const initialState = {
@@ -33,8 +43,18 @@ const initialState = {
     days: undefined,
     loading: false,
     realm: 'spineshatter',
-    setRealm: (realm: string) => { },
-}
+    setRealm: () => { },
+    allowSoftReserves: true,
+    setAllowSoftReserves: () => { },
+    softReservesAmmount: 0,
+    setSoftReservesAmmount: () => { },
+    onTimeBonusExtraEnabled: false,
+    setOnTimeBonusExtraEnabled: () => { },
+    onTimeBonusExtraAmmount: 1,
+    setOnTimeBonusExtraAmmount: () => { },
+    onTimeBonusCutoffHours: 24,
+    setOnTimeBonusCutoffHours: () => { }
+};
 
 export default createStore<RaidStore>(((set) => ({
     ...initialState,
@@ -44,5 +64,10 @@ export default createStore<RaidStore>(((set) => ({
     setStartTime: (startTime) => set({ startTime }),
     setEndTime: (endTime) => set({ endTime }),
     setDays: (days) => set({ days }),
-    setRealm: (realm) => set({ realm })
+    setRealm: (realm) => set({ realm }),
+    setAllowSoftReserves: (allowSoftReserves) => set({ allowSoftReserves }),
+    setSoftReservesAmmount: (softReservesAmmount) => set({ softReservesAmmount }),
+    setOnTimeBonusExtraEnabled: (onTimeBonusExtraEnabled) => set({ onTimeBonusExtraEnabled }),
+    setOnTimeBonusExtraAmmount: (onTimeBonusExtraAmmount) => set({ onTimeBonusExtraAmmount }),
+    setOnTimeBonusCutoffHours: (onTimeBonusCutoffHours) => set({ onTimeBonusCutoffHours }),
 })));

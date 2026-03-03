@@ -8,6 +8,7 @@ import TimeManager from "@/app/calendar/new/Components/TimeManager";
 import NotLoggedInView from "@/app/components/NotLoggedInView";
 import createServerSession from "@/app/util/supabase/createServerSession";
 import { RealmSelection } from "./Components/realm-selection";
+import { SoftReservesManager } from "./Components/soft-reserves-manager";
 
 export const dynamic = 'force-dynamic'
 
@@ -27,7 +28,6 @@ export default async function Page() {
     const supabase = await getSupabase();
     const raids = await getAvailableRaids(supabase)
 
-
     return (
         <div className="flex flex-col gap-8 w-full h-full p-2 scrollbar-pill">
             <div className="flex flex-col lg:flex-row gap-2 w-full overflow-auto">
@@ -40,6 +40,7 @@ export default async function Page() {
                         <TimeManager />
                     </div>
                     <DaysSelection />
+                    <SoftReservesManager />
                 </div>
                 <div
                     className="flex p-12 justify-between gap-2 items-center lg:items-start lg:justify-end flex-col lg:flex-row">

@@ -11,6 +11,7 @@ import { ClassSummary } from "@/app/raid/components/ClassSummary";
 import { IsLowGsModal } from "@/app/raid/components/IsLowGsModal";
 import { KpisView } from "@/app/raid/components/KpisView";
 import ParticipantsManager from "@/app/raid/components/ParticipantsManager";
+import { LockRaidButton } from "@/app/raid/components/LockRaidButton";
 import { RaidOptions } from "@/app/raid/components/RaidOptions";
 import RaidParticipants from "@/app/raid/components/RaidParticipants";
 import RaidTimeInfo from "@/app/raid/components/RaidTimeInfo";
@@ -21,7 +22,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import createServerSession from "@utils/supabase/createServerSession";
 import { Metadata } from "next";
 
-const raidResetAttr = 'raid_date, id, raid:ev_raid(name, min_level, image, min_gs), time, end_date, end_time, days, status, realm'
+const raidResetAttr = 'raid_date, id, raid:ev_raid(name, min_level, image, min_gs), time, end_date, end_time, days, status, realm, is_reservations_allowed, created_by'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60;
 
@@ -199,7 +200,7 @@ export default async function ({ params }: { params: Promise<{ id: string }> }) 
     ])
 
 
-    const { id, raid_date: raidDate, raid, time: raidTime, end_date, end_time: endTime, days, status, realm } = reset
+    const { id, raid_date: raidDate, raid, time: raidTime, end_date, end_time: endTime, days, status, realm, is_reservations_allowed, created_by } = reset
     const { name: raidName, min_level: min_lvl } = raid
     const raidStartDate = moment(raidDate)
     const raidEndDate = moment(end_date)
@@ -212,13 +213,21 @@ export default async function ({ params }: { params: Promise<{ id: string }> }) 
         isLoggedInUserLowGear = characterGearScore < reset.raid.min_gs
     }
 
+    const canLockReset = !!(isLoggedInUser && (
+        isLoggedInUser.isAdmin ||
+        isLoggedInUser.roles?.includes('RAID_LEADER') ||
+        isLoggedInUser.selectedCharacter?.id === created_by
+    ) && moment(end_date + ' ' + endTime).isAfter(moment()))
+
     return (
         <div className="w-full h-full flex flex-col relative scrollbar-pill grow-0 overflow-auto gap-4">
             <ParticipantsManager resetId={id} initialParticipants={participants}>
                 <div className="w-full flex grow-0 gap-4">
                     <div className="w-full h-full flex flex-col">
                         <h4 className="font-bold text-large text-gold flex gap-2 items-center justify-start">{raidName} {status === 'offline' ?
-                            <span className="text-red-500 ml-2">Cancelled</span> : null}
+                            <span className="text-red-500 ml-2">Cancelled</span> : (
+                                status === 'locked' ? <span className="text-yellow-500 ml-2">Locked</span> : null
+                            )}
                             {isLoggedInUserLowGear && <IsLowGsModal
                                 isLowGs={isLoggedInUserLowGear}
                                 characterGearScore={characterGearScore}
@@ -249,7 +258,7 @@ export default async function ({ params }: { params: Promise<{ id: string }> }) 
                     <AssistActions
                         realm={realm}
                         status={status}
-                        hasLootReservations={hasLootReservations}
+                        hasLootReservations={hasLootReservations || !is_reservations_allowed} // if reservations are not allowed, show as if the user has reservations to encourage them to join
                         raidId={id}
                         minLvl={min_lvl}
                         endDate={end_date}
@@ -290,7 +299,7 @@ export default async function ({ params }: { params: Promise<{ id: string }> }) 
                             className={`bg-moss text-default font-bold rounded`} isIconOnly>
                             <FontAwesomeIcon icon={faDiscord} />
                         </Button>
-                        <Button
+                        {is_reservations_allowed && (<Button
                             tooltip={{
                                 content: "Soft Reservations",
                                 placement: "right"
@@ -300,7 +309,7 @@ export default async function ({ params }: { params: Promise<{ id: string }> }) 
                             className={`bg-moss text-default font-bold rounded ${!hasLootReservations && isLoggedInUser ? 'shadow-2xl shadow-gold border-2 animate-blink-and-glow' : ''}`}
                             isIconOnly>
                             <FontAwesomeIcon icon={faCartPlus} />
-                        </Button>
+                        </Button>)}
                         {!!hasLootHistory?.data?.length && (
                             <Button
                                 tooltip={{
@@ -312,6 +321,9 @@ export default async function ({ params }: { params: Promise<{ id: string }> }) 
                                 className="bg-moss text-default font-bold rounded" isIconOnly>
                                 <FontAwesomeIcon icon={faGift} />
                             </Button>
+                        )}
+                        {canLockReset && (
+                            <LockRaidButton resetId={id} currentStatus={status} />
                         )}
                     </div>
                 ) : null}

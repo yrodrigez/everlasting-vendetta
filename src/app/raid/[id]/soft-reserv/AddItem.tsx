@@ -65,9 +65,6 @@ export function AddItem({ resetId }: { resetId: string }) {
     }, [raid, itemId, isSaving, isRaidFetching, alert])
 
     const { data: item, isLoading: isItemLoading, isError: isItemError } = useWoWItem(parseInt(itemId ?? '', 10))
-    useEffect(() => {
-        console.log({ item })
-    }, [item])
 
     return <>
         <Button

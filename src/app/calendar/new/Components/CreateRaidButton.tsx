@@ -11,7 +11,7 @@ import { useCharacterStore } from "@/app/components/characterStore";
 import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
 
 export function CreateRaidButton() {
-    const { raid, endTime, startTime, startDate, endDate, days } = useCreateRaidStore(useShallow(state => ({
+    const { raid, endTime, startTime, startDate, endDate, days, allowSoftReserves, softReservesAmmount, onTimeBonusExtraEnabled, onTimeBonusExtraAmmount, onTimeBonusCutoffHours } = useCreateRaidStore(useShallow(state => ({
         raid: state.raid,
         endTime: state.endTime,
         startTime: state.startTime,
@@ -19,6 +19,11 @@ export function CreateRaidButton() {
         endDate: state.endDate,
         days: state.days,
         realm: state.realm,
+        allowSoftReserves: state.allowSoftReserves,
+        softReservesAmmount: state.softReservesAmmount,
+        onTimeBonusExtraEnabled: state.onTimeBonusExtraEnabled,
+        onTimeBonusExtraAmmount: state.onTimeBonusExtraAmmount,
+        onTimeBonusCutoffHours: state.onTimeBonusCutoffHours,
     })))
 
     const { accessToken } = useAuth()
@@ -47,6 +52,11 @@ export function CreateRaidButton() {
             modified_by: selectedCharacter?.id,
             days,
             realm,
+            is_reservations_allowed: allowSoftReserves,
+            reserve_ammount: softReservesAmmount,
+            on_time_bonus_enabled: onTimeBonusExtraEnabled,
+            on_time_bonus_extra_reservations: onTimeBonusExtraAmmount,
+            on_time_bonus_cutoff_hours: onTimeBonusCutoffHours,
         }
 
         const { data, error } = await supabase.from('raid_resets').insert(payload)
@@ -61,7 +71,7 @@ export function CreateRaidButton() {
 
         router.push('/raid/' + data?.[0].id)
 
-    }, [raid, endTime, startTime, startDate, endDate, days, selectedCharacter, realm, supabase, router])
+    }, [raid, endTime, startTime, startDate, endDate, days, selectedCharacter, realm, supabase, router, allowSoftReserves, softReservesAmmount, onTimeBonusExtraEnabled, onTimeBonusExtraAmmount, onTimeBonusCutoffHours])
 
     return (
         <Button
