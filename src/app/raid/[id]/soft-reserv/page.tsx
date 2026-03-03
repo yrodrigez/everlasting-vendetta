@@ -32,6 +32,7 @@ type RaidQueryResult = {
     created_by: number;
     realm: string;
     is_reservations_allowed: boolean;
+    status: string | null;
 };
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -118,7 +119,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 
     const resetData = await database
         .from('raid_resets')
-        .select('raid_id, realm, raid:ev_raid(min_level, name, image, reservation_amount, id), raid_date, time, end_date, end_time, created_by, reservations_closed, is_reservations_allowed')
+        .select('raid_id, realm, raid:ev_raid(min_level, name, image, reservation_amount, id), raid_date, time, end_date, end_time, created_by, reservations_closed, is_reservations_allowed, status')
         .eq('id', resetId)
         .single<RaidQueryResult>()
 
@@ -252,7 +253,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     return (
         <div
             className="w-full flex-col flex h-full justify-between relative items-center p-2 gap-2 scrollbar-pill lg:overflow-visible flex-1">
-            <RaidItemsProvider raidId={raidIdStr} initialReservations={reservations} resetId={raidId} initialItems={items} isOpen={!resetData.data.reservations_closed}>
+            <RaidItemsProvider raidId={raidIdStr} initialReservations={reservations} resetId={raidId} initialItems={items} isOpen={!resetData.data.reservations_closed} raidStatus={resetData.data.status}>
                 <div
                     className={'lg:hidden lg:top-0 lg:-left-72 w-64 h-48 z-50 border-gold border rounded-md inline-flex '}>
                     <div className="relative flex w-full h-full">

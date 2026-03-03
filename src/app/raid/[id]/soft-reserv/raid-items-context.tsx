@@ -12,6 +12,7 @@ import { toast } from 'sonner'
 import { registerOnRaid } from '@/app/lib/database/raid_resets/registerOnRaid'
 import { MemberRole } from '@/app/types/Member'
 import { useMessageBox } from '@/app/util/msgBox'
+import { useRouter } from 'next/navigation'
 
 
 interface RaidItemsContextType {
@@ -38,7 +39,7 @@ interface RaidItemsContextType {
 
 const RaidItemsContext = createContext<RaidItemsContextType | null>(null)
 
-export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen, initialReservations, raidId }: { resetId: string, children: ReactNode, initialItems?: RaidItem[], isOpen: boolean, initialReservations: Reservation[], raidId: string }) => {
+export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen, initialReservations, raidId, raidStatus = null }: { resetId: string, children: ReactNode, initialItems?: RaidItem[], isOpen: boolean, initialReservations: Reservation[], raidId: string, raidStatus?: string | null }) => {
     //const [items, setItems] = useState<RaidItem[]>(initialItems)
     const [isReservationsOpen, setIsReservationsOpen] = useState<boolean>(isOpen)
     const { accessToken } = useAuth();
@@ -106,6 +107,8 @@ export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen
         initialData: initialItems,
     });
 
+    const router = useRouter()
+
     useReservationsRealtime(
         resetId,
         async ({ new: newData, old }) => {
@@ -132,8 +135,9 @@ export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen
             }
         },
         async () => {
-            const isOpen = await repository.getReserveOpenStatus(resetId)
-            setIsReservationsOpen(isOpen)
+            const isOpen = await repository.getReserveOpenStatus(resetId);
+            setIsReservationsOpen(isOpen);
+            router.refresh();
         },
         async () => {
             if (!selectedCharacter?.id) return setMaxReservations(0);
@@ -173,6 +177,12 @@ export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen
 
     const reserve = useCallback(async (itemId: number, characterId = selectedCharacter?.id) => {
         if (!characterId || !supabase) return
+
+        if (raidStatus === 'locked' && !isPresent) {
+            toast.error('Raid is locked. You must be a participant to reserve items.')
+            return
+        }
+
         const item = items.find(({ id }) => id === itemId)
         if (!item) {
             console.error(`Item with id ${itemId} not found`)
@@ -248,7 +258,7 @@ export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen
             setReserves(previousReserves);
             toast.error('Error reserving item');
         }
-    }, [resetId, supabase, items, isPresent, selectedCharacter, resetDays, reserves, repository, reserveAudio, maxReservationsAudio]);
+    }, [resetId, supabase, items, isPresent, selectedCharacter, resetDays, reserves, repository, reserveAudio, maxReservationsAudio, raidStatus]);
 
     const remove = useCallback(async (reservationId: string) => {
         if (!selectedCharacter?.id || !supabase) return
