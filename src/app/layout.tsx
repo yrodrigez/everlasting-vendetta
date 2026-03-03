@@ -34,7 +34,8 @@ export default async function RootLayout({
     return (
         <html lang="en" className="light" suppressHydrationWarning>
             <body className={inter.className}
-                style={{ width: '100%', height: '100vh', overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
+                style={{ width: '100%', height: '100vh', overflow: 'auto', display: 'flex', flexDirection: 'column' }}
+                suppressHydrationWarning>
                 <Providers>
                     <div className="block w-full h-full">
                         <div className="block w-full h-[80px] top-0 right-0">

@@ -215,9 +215,7 @@ export default function ({ item: _item, reverse, bottom, domain }: {
         retry: 3
     })
 
-    if (domain === 'tbc') {
-        console.log({ item, itemDetails, itemIconUrl })
-    }
+   
     const gems = item?.enchantments?.filter((enchant: any) => !enchant.enchantment_slot.type && enchant.enchantment_slot.id > 0 && enchant.source_item?.id).map((enchant: any) => enchant.source_item.id) || []
     return (
         <div className={`flex items-center gap-4 ${reverse ? 'flex-row-reverse' : ''}`}>

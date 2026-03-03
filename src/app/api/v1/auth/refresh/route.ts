@@ -6,7 +6,6 @@ import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
 
 export async function POST(_: NextRequest) {
-    console.log('Refresh route called');
     const cookieStore = await cookies();
 
     try {

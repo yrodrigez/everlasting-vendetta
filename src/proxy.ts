@@ -4,26 +4,12 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { withRefreshToken } from '@/app/lib/middleware/with-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
-async function isBanned(session: UserProfile | undefined, supabase?: SupabaseClient) {
-
-    if (!supabase) {
-        return false;
-    }
-
+async function isBanned(session: UserProfile | undefined) {
     if (!session?.id) {
         return false;
     }
 
-    const {
-        data: banned,
-        error
-    } = await supabase.from('banned_member').select('id').eq('member_id', session.id).single();
-
-    if (error) {
-        return false;
-    }
-
-    return !!banned;
+    return !!session?.isBanned;
 }
 
 export const config = {
@@ -78,7 +64,7 @@ async function proxy(req: NextRequest, res: NextResponse): Promise<NextResponse>
     }
 
     const session = await auth.getSession();
-    if (await isBanned(session, (await getSupabase())) && url.pathname !== '/banned') {
+    if (await isBanned(session) && url.pathname !== '/banned') {
         return NextResponse.redirect(`${url.origin}/banned`);
     }
 

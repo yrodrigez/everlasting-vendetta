@@ -97,7 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!accessToken) {
       return { ok: false };
     }
-    //console.log('Token refreshed successfully', { accessToken });
+
     setAccessToken(accessToken);
 
     const decoded = jwtDecode(accessToken);
@@ -121,7 +121,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const decoded = jwtDecode(accessToken);
     const expiresIn = decoded.exp * 1000 - Date.now();
     const refreshAt = Math.max(0, expiresIn - REFRESH_THRESHOLD);
-    console.log(`Token expires in ${Math.round(expiresIn / 1000)}s, scheduling refresh in ${Math.round(refreshAt / 1000)}s`);
     refreshTimerRef.current = setTimeout(() => {
       refreshToken()
     }, refreshAt);

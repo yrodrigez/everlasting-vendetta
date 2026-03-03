@@ -44,9 +44,9 @@ export function useParticipants(raidId: string, initialParticipants: RaidPartici
 				event: '*',
 				schema: 'public',
 				table: 'ev_raid_participant',
-				filter: `raid_id=eq.${raidId}`
+				// filter: `raid_id=eq.${raidId}`
 			}, async () => {
-				refetch()
+				await refetch()
 				router.refresh()
 			}).subscribe((status, error)=>{
 				if(error) {
@@ -60,11 +60,16 @@ export function useParticipants(raidId: string, initialParticipants: RaidPartici
 				event: '*',
 				schema: 'public',
 				table: 'raid_resets',
-				filter: `id=eq.${raidId}`
+				// filter: `id=eq.${raidId}`
 			}, async () => {
-				refetch()
+				await refetch()
 				router.refresh()
-			}).subscribe()
+			}).subscribe((status, error)=>{
+				if(error) {
+					console.error('Error subscribing to raid resets channel:', error)
+				}
+				console.log('Raid resets channel subscription status:', status)
+			})
 		return () => {
 			supabase.removeChannel(raidParticipantChannel)
 			supabase.removeChannel(resetChannel)

@@ -14,6 +14,7 @@ export function ClassSummary({raidId}: { raidId: string }) {
         'rogue',
         'warlock',
         'warrior',
+        'shaman',
     ]
 
     const signupClasses = Object.entries(participants.filter(p => p.details.status === 'confirmed').reduce((acc, participant) => {
@@ -23,7 +24,7 @@ export function ClassSummary({raidId}: { raidId: string }) {
     }, availableClasses.reduce((acc, classType) => {
         acc[classType] = 0
         return acc
-    }, {} as any))).filter(([classType, count]) => availableClasses.includes(classType))
+    }, {} as any))).filter(([classType]) => availableClasses.includes(classType))
 
     return (
         <>

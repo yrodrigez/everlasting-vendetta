@@ -72,7 +72,6 @@ export default async function Page() {
     }
 
 
-    console.log({ roles })
 
     return <PermissionManagement
         users={members ?? []}
