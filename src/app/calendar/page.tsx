@@ -13,6 +13,7 @@ import { fetchResetParticipants } from "@/app/raid/api/fetchParticipants";
 import Refresher from "@/app/calendar/components/Refresher";
 import CreateNewCard from "@/app/calendar/components/CreateNewCard";
 import CalendarPagination from "@/app/calendar/components/CalendarPagination";
+import { PageEvent } from "@/app/hooks/usePageEvent";
 
 export const dynamic = 'force-dynamic'
 
@@ -208,6 +209,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
 
     return (
         <main className="flex flex-col justify-between items-center relative h-full w-full gap-2">
+            <PageEvent name="calendar" />
             <div className="flex gap-3 flex-col md:flex-wrap md:flex-row px-8 md:px-4 h-full overflow-auto scrollbar-pill justify-start items-start self-start">
                 {raidResetsWithParticipants.sort((a, b) => {
                     return moment(a.raid_date).diff(moment(b.raid_date));

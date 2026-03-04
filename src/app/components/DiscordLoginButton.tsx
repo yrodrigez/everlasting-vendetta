@@ -3,6 +3,7 @@ import { Button, type ButtonProps } from "@heroui/react";
 import { usePathname, useRouter } from "next/navigation";
 import useScreenSize from "@/app/hooks/useScreenSize";
 import { createHandleAuthMessage, openAuthWindow } from "@/app/util/blizzard/loginOnWindow";
+import { sendActionEvent } from "@/app/hooks/usePageEvent";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDiscord } from "@fortawesome/free-brands-svg-icons";
 
@@ -35,6 +36,7 @@ export function DiscordLoginButton() {
         className="w-full">
             <LoginButton
                 onClick={() => {
+                    sendActionEvent('login_discord');
                     const authWin = openAuthWindow(loginUrl, 'Discord Login', 600, 800);
                     const handleAuthMessage = (event: MessageEvent) => createHandleAuthMessage(event, () => {
                         window.removeEventListener('message', handleAuthMessage);

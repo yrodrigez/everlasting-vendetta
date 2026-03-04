@@ -21,6 +21,7 @@ import { Achievement, MemberAchievement } from "@/app/types/Achievements";
 import { faBan, faUserXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { SupabaseClient } from "@supabase/supabase-js";
+import { PageEvent } from "@/app/hooks/usePageEvent";
 import createServerSession from "@utils/supabase/createServerSession";
 import { Metadata } from "next";
 import { revalidatePath } from "next/cache";
@@ -311,6 +312,7 @@ export default async function Page({ params }: { params: Promise<{ name: string 
 
     return (
         <>
+            <PageEvent name="character_profile" metadata={{ characterName, realmSlug, className: characterInfo?.character_class?.name }} />
             <div className="relative w-full h-full flex flex-col">
                 <div className="mx-auto max-w-6xl px-4 flex justify-evenly items-center h-36">
                     <div className="flex items-center gap-4 mb-4 ">

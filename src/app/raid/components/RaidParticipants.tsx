@@ -25,6 +25,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/app/context/AuthContext";
 import { useCharacterStore } from "@/app/components/characterStore";
 import { useShallow } from "zustand/react/shallow";
+import { sendActionEvent } from "@/app/hooks/usePageEvent";
 import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
 
 
@@ -361,6 +362,7 @@ export default function RaidParticipants({ participants, raidId, raidInProgress,
                                     yesText: 'Yes'
                                 }).then((response) => {
                                     if (response !== 'yes') return
+                                    sendActionEvent('raid_remove_player', { raidId, memberId, playerName: registration.member.character.name });
                                     supabase?.from('ev_raid_participant')
                                         .delete()
                                         .eq('member_id', memberId)

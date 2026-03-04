@@ -16,9 +16,10 @@ import { RaidOptions } from "@/app/raid/components/RaidOptions";
 import RaidParticipants from "@/app/raid/components/RaidParticipants";
 import RaidTimeInfo from "@/app/raid/components/RaidTimeInfo";
 import { GUILD_REALM_SLUG } from "@/app/util/constants";
-import { faDiscord } from "@fortawesome/free-brands-svg-icons";
 import { faCartPlus, faGift } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { DiscordLink } from "@/app/raid/components/DiscordLink";
+import { PageEvent } from "@/app/hooks/usePageEvent";
 import createServerSession from "@utils/supabase/createServerSession";
 import { Metadata } from "next";
 
@@ -221,6 +222,7 @@ export default async function ({ params }: { params: Promise<{ id: string }> }) 
 
     return (
         <div className="w-full h-full flex flex-col relative scrollbar-pill grow-0 overflow-auto gap-4">
+            <PageEvent name="raid" metadata={{ raidId: id, raidName }} />
             <ParticipantsManager resetId={id} initialParticipants={participants}>
                 <div className="w-full flex grow-0 gap-4">
                     <div className="w-full h-full flex flex-col">
@@ -288,17 +290,7 @@ export default async function ({ params }: { params: Promise<{ id: string }> }) 
                             nextResetId={nextReset?.data?.id}
                             raidStarted={raidStarted}
                         />
-                        <Button
-                            tooltip={{
-                                content: "Join our Discord",
-                                placement: "right"
-                            }}
-                            target={'_blank'}
-                            href={`https://discord.gg/fYw9WCNFDU`}
-                            as="a"
-                            className={`bg-moss text-default font-bold rounded`} isIconOnly>
-                            <FontAwesomeIcon icon={faDiscord} />
-                        </Button>
+                        <DiscordLink raidId={id} />
                         {is_reservations_allowed && (<Button
                             tooltip={{
                                 content: "Soft Reservations",

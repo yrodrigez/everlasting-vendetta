@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faQuestion } from "@fortawesome/free-solid-svg-icons";
 import { Button, Spinner, useDisclosure } from "@heroui/react";
+import { sendActionEvent } from "@/app/hooks/usePageEvent";
 import { assistRaid } from "@/app/raid/components/utils";
 import useScreenSize from "@/app/hooks/useScreenSize";
 import { ShouldReserveModal } from "@/app/raid/components/ShouldReserveModal";
@@ -31,6 +32,7 @@ export function TentativeAssistance({ raidId, hasLootReservations = false }: {
                 onClick={() =>
                     (async () => {
                         setLoading(true)
+                        sendActionEvent('raid_tentative', { raidId, characterName: selectedCharacter?.name });
                         await assistRaid(raidId, selectedDays, selectedCharacter, selectedRole, 'tentative', hasLootReservations, onOpen)
                         setLoading(false)
                     })()

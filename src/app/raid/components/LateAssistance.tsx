@@ -3,6 +3,7 @@ import { faClock } from "@fortawesome/free-solid-svg-icons";
 import { Button, Spinner, useDisclosure } from "@heroui/react";
 import { useAssistanceStore } from "@/app/raid/components/assistanceStore";
 import { useState } from "react";
+import { sendActionEvent } from "@/app/hooks/usePageEvent";
 import { assistRaid } from "@/app/raid/components/utils";
 import useScreenSize from "@/app/hooks/useScreenSize";
 import { ShouldReserveModal } from "@/app/raid/components/ShouldReserveModal";
@@ -28,6 +29,7 @@ export function LateAssistance({ raidId, hasLootReservations }: { raidId: string
                 onClick={() =>
                     (async () => {
                         setLoading(true)
+                        sendActionEvent('raid_late', { raidId, characterName: selectedCharacter?.name });
                         await assistRaid(raidId, selectedDays, selectedCharacter, selectedRole, 'late', hasLootReservations, onOpen)
                         setLoading(false)
                     })()

@@ -2,6 +2,7 @@ import { Button, Spinner } from "@heroui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBan } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
+import { sendActionEvent } from "@/app/hooks/usePageEvent";
 import { assistRaid } from "@/app/raid/components/utils";
 import useScreenSize from "@/app/hooks/useScreenSize";
 import { useShallow } from "zustand/shallow";
@@ -21,6 +22,7 @@ export default function DeclineAssistance({ raidId }: { raidId: string }) {
             onPress={() =>
                 (async () => {
                     setLoading(true)
+                    sendActionEvent('raid_decline', { raidId, characterName: selectedCharacter?.name });
                     await assistRaid(raidId, [], selectedCharacter, selectedRole, 'declined', true, () => { }) // TODO: change the logic here
                     setLoading(false)
                 })()

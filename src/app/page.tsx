@@ -1,5 +1,6 @@
 import { Button } from "@/app/components/Button";
 import LoopingVideo from "@/app/components/LoopingVideo";
+import { PageEvent } from "@/app/hooks/usePageEvent";
 import createServerSession from "@utils/supabase/createServerSession";
 import { Metadata } from "next";
 
@@ -85,6 +86,7 @@ export default async function Home() {
 
     return (
         <main className="flex w-full h-full justify-evenly flex-col">
+            <PageEvent name="home" />
             <div className="hidden lg:block h-full w-full">
                 <div className="absolute top-2 right-4 flex flex-col z-50">
                     {/* will be shown in top right */}

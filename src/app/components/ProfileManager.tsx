@@ -21,6 +21,7 @@ import {
     type IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
 
+import { sendActionEvent } from "@/app/hooks/usePageEvent";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import { useAuthManagerWindowStore } from "../stores/auth-manager-window-store";
@@ -81,10 +82,11 @@ export default function ProfileManager() {
     const router = useRouter()
 
     const handleLogout = useCallback(async () => {
+        sendActionEvent('user_logout', { characterName: selectedCharacter?.name });
         await logout()
         router.refresh()
         setPopoverOpen(false)
-    }, [logout, router])
+    }, [logout, router, selectedCharacter])
 
     const openAuthManagerWindow = useAuthManagerWindowStore(state => state.onOpen);
     const setVista = useVistaStore(state => state.setVista);

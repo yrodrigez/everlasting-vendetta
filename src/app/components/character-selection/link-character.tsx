@@ -6,6 +6,7 @@ import { useFetchCharacter } from "../../hooks/api/use-fetch-character";
 import { Button } from ".././Button";
 import LookupField from ".././LookupField";
 import { LinkCharacterView } from "./link-character-views";
+import { sendActionEvent } from "@/app/hooks/usePageEvent";
 import api from "@/app/lib/api";
 import { useMessageBox } from "@/app/util/msgBox";
 import { useInvalidateUserCharacters } from "@/app/hooks/use-user-charcters";
@@ -78,6 +79,7 @@ export function LinkCharacter() {
             return;
         }
 
+        sendActionEvent('character_link', { realmSlug: selectedRealm, characterName: character.name });
         api.post('auth/characters/link', {
             realmSlug: selectedRealm,
             characterName: character.name,

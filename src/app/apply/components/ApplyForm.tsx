@@ -7,6 +7,7 @@ import { Input } from "@/app/components/input";
 import LookupField from "@/app/components/LookupField";
 import { isRoleAssignable } from "@/app/components/ProfileManager";
 import { Textarea } from "@/app/components/text-area";
+import { sendActionEvent } from "@/app/hooks/usePageEvent";
 import { PLAYABLE_ROLES } from "@/app/util/constants";
 import {
     Modal,
@@ -192,6 +193,7 @@ export default function ApplyForm() {
             </div>
             <div className="flex items-center">
                 <Button isDisabled={isFormDisabled} onPress={() => {
+                    sendActionEvent('guild_application_submit', { characterClass, characterRole, realm });
                     onForm({ name, email, characterRole, characterClass, message, realm }).then((response) => {
                         if (response?.error) {
                             setModalContent({

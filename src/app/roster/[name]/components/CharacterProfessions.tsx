@@ -18,6 +18,7 @@ import { ROLE } from "@utils/constants";
 import { useAuth } from "@/app/context/AuthContext";
 import { useCharacterStore } from "@/app/components/characterStore";
 import { useShallow } from "zustand/react/shallow";
+import { sendActionEvent } from "@/app/hooks/usePageEvent";
 import api from "@/app/lib/api";
 import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
 
@@ -258,6 +259,7 @@ const AddProfession = ({ availableProfessions, characterId }: { availableProfess
     const { error: toastError, success } = useToast()
     const saveRecipe = useCallback(async (spellId: number) => {
         if (!selectedCharacter || !supabase) return
+        sendActionEvent('profession_learn_recipe', { characterId, professionId: selectedProfessionId, spellId });
         const { error } = await supabase.from('member_profession_spells').insert({
             member_id: characterId,
             profession_id: selectedProfessionId,
@@ -416,6 +418,7 @@ export default function CharacterProfessions({ professions, characterId, classNa
         if (!selectedCharacter || !supabase || !isOwn) return
         const answer = await yesNo({ message: 'Are you sure you want to delete this profession?' })
         if (!answer || answer !== 'yes') return
+        sendActionEvent('profession_delete', { characterId, professionId });
         const { error } = await supabase.from('member_profession_spells').delete().eq('member_id', characterId).eq('profession_id', professionId)
         if (error) {
             console.error(error)
@@ -430,6 +433,7 @@ export default function CharacterProfessions({ professions, characterId, classNa
         if (!selectedCharacter || !supabase || !isOwn) return
         const answer = await yesNo({ message: 'Are you sure you want to delete this recipe?' })
         if (!answer || answer !== 'yes') return
+        sendActionEvent('profession_delete_recipe', { characterId, spellId });
         const { error } = await supabase.from('member_profession_spells').delete().eq('member_id', characterId).eq('spell_id', spellId)
         if (error) {
             console.error(error)

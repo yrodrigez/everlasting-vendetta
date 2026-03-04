@@ -4,6 +4,7 @@ import { LootHistory } from "@/app/raid/[id]/loot/components/LootHistory";
 import { CharacterWithLoot, RaidLoot } from "@/app/raid/[id]/loot/components/types";
 import { fetchItemDataFromWoWHead, groupByCharacter } from "@/app/raid/[id]/loot/util";
 import { RaidParticipant } from "@/app/types/RaidParticipant";
+import { PageEvent } from "@/app/hooks/usePageEvent";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { type SupabaseClient } from "@supabase/supabase-js";
@@ -193,6 +194,7 @@ export default async function ({ params }: { params: Promise<{ id: string }> }) 
 
     return (
         <div className="flex flex-col w-full h-full scrollbar-pill">
+            <PageEvent name="loot_history" metadata={{ resetId, raidName: resetInfo?.name }} />
             <div className="flex gap-4 items-center justify-between w-full text-gold rounded-lg bg-dark p-2">
                 <Button
                     as="a"

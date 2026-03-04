@@ -5,6 +5,7 @@ import createServerSession from "@utils/supabase/createServerSession";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createAPIService } from "../lib/api";
+import { PageEvent } from "@/app/hooks/usePageEvent";
 import { CharacterViewOptions } from "./[name]/components/CharacterViewOptions";
 
 export const dynamic = 'force-dynamic'
@@ -180,6 +181,7 @@ export default async function Page({
     })
 
     return <main className="flex w-full h-full flex-col items-center">
+        <PageEvent name="roster" metadata={{ realm }} />
         <CharacterViewOptions
             queryKey='realm'
             items={realms.map(realm => ({

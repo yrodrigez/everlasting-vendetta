@@ -4,6 +4,7 @@ import {faChair, faUser, faUserSlash} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {useMutation} from "@tanstack/react-query";
 import benchParticipant from "@/app/raid/api/benchParticipant";
+import {sendActionEvent} from "@/app/hooks/usePageEvent";
 import {RAID_STATUS} from "@/app/raid/components/utils";
 
 export default function BenchParticipant({supabase, resetId, memberId, currentStatus, currentDetails}: {
@@ -19,6 +20,7 @@ export default function BenchParticipant({supabase, resetId, memberId, currentSt
         mutationKey: [RAID_STATUS.BENCH, resetId, memberId],
         mutationFn: async () => {
             if (!supabase) return
+            sendActionEvent(currentStatus !== RAID_STATUS.BENCH ? 'raid_bench_player' : 'raid_unbench_player', { resetId, memberId });
             await benchParticipant(supabase, resetId, memberId, currentStatus !== RAID_STATUS.BENCH, currentDetails)
         }
     })

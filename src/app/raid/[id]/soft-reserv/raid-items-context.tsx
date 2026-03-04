@@ -11,6 +11,7 @@ import { Day } from '@/app/calendar/new/Components/useCreateRaidStore'
 import { toast } from 'sonner'
 import { registerOnRaid } from '@/app/lib/database/raid_resets/registerOnRaid'
 import { MemberRole } from '@/app/types/Member'
+import { sendActionEvent } from '@/app/hooks/usePageEvent'
 import { useMessageBox } from '@/app/util/msgBox'
 import { useRouter } from 'next/navigation'
 
@@ -189,6 +190,7 @@ export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen
             return
         }
 
+        sendActionEvent('soft_reserve_item', { resetId, itemId, itemName: item?.name, characterName: selectedCharacter?.name });
         console.log('Reserve called for itemId:', itemId);
 
         // Create optimistic reservation
@@ -263,6 +265,7 @@ export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen
     const remove = useCallback(async (reservationId: string) => {
         if (!selectedCharacter?.id || !supabase) return
 
+        sendActionEvent('soft_reserve_remove', { resetId, reservationId, characterName: selectedCharacter?.name });
         console.log('Remove called for reservationId:', reservationId);
 
         // Find the reservation to remove

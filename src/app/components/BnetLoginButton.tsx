@@ -3,6 +3,7 @@ import {Button, type ButtonProps} from "@heroui/react";
 import {usePathname, useRouter} from "next/navigation";
 import useScreenSize from "@/app/hooks/useScreenSize";
 import {createHandleAuthMessage, openAuthWindow} from "@/app/util/blizzard/loginOnWindow";
+import {sendActionEvent} from "@/app/hooks/usePageEvent";
 
 const LoginButton = ({onClick, href, as}: { onClick?: () => any, as?: string, href?: string } & ButtonProps) => {
     return (<Button
@@ -42,6 +43,7 @@ export function BnetLoginButton() {
         >
             <LoginButton
                 onClick={() => {
+                    sendActionEvent('login_bnet');
                     const authWin = openAuthWindow(loginUrl, 'BattleNet Login', 600, 880);
                     const handleAuthMessage = (event: MessageEvent) => createHandleAuthMessage(event, () => {
                         window.removeEventListener('message', handleAuthMessage);

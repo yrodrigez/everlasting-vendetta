@@ -3,6 +3,7 @@ import { useAssistanceStore } from "@/app/raid/components/assistanceStore";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { assistRaid } from "@/app/raid/components/utils";
 
+import { sendActionEvent } from "@/app/hooks/usePageEvent";
 import { ShouldReserveModal } from "@/app/raid/components/ShouldReserveModal";
 import { getRoleIcon } from "@/app/apply/components/utils";
 import { PLAYABLE_ROLES } from "@utils/constants";
@@ -49,6 +50,7 @@ export function ConfirmAssistance({ raidId, hasLootReservations = false }: {
 
     const confirmRaid = useCallback(((role = selectedRole) => {
         setLoading(true)
+        sendActionEvent('raid_confirm', { raidId, role, characterName: selectedCharacter?.name });
         assistRaid(raidId, selectedDays, selectedCharacter, role, 'confirmed', hasLootReservations, onOpen).finally(() => {
             setLoading(false)
             router.refresh()

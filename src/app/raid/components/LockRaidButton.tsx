@@ -3,6 +3,7 @@
 import { Button } from "@/app/components/Button";
 import { useAuth } from "@/app/context/AuthContext";
 import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
+import { sendActionEvent } from "@/app/hooks/usePageEvent";
 import { Lock, LockOpen } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
@@ -19,6 +20,7 @@ export function LockRaidButton({ resetId, currentStatus }: {
 
     const toggleLock = useCallback(async () => {
         setLoading(true)
+        sendActionEvent(isLocked ? 'raid_unlock' : 'raid_lock', { resetId });
         const newStatus = isLocked ? null : 'locked'
         const { error } = await supabase
             .from('raid_resets')

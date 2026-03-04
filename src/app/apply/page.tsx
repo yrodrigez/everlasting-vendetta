@@ -1,10 +1,12 @@
 import ApplyForm from "@/app/apply/components/ApplyForm";
+import { PageEvent } from "@/app/hooks/usePageEvent";
 
 export const dynamic = 'force-dynamic';
 
 export default function Page() {
     return (
         <main className="w-full py-6 md:py-12">
+            <PageEvent name="apply" />
             <div className="container grid gap-6 px-4 md:px-6">
                 <div className="space-y-2 text-center">
                     <h2 className="text-3xl font-bold text-gold tracking-tighter sm:text-4xl">Apply to Everlasting

@@ -6,6 +6,7 @@ import { Card, CardBody, CardFooter, CardHeader } from "@/app/components/card";
 import moment from "moment";
 import Link from "next/link";
 import { CURRENT_MAX_LEVEL, GUILD_REALM_SLUG } from "@/app/util/constants";
+import { PageEvent } from "@/app/hooks/usePageEvent";
 import createServerSession from "@utils/supabase/createServerSession";
 
 export const dynamic = 'force-dynamic'
@@ -200,6 +201,7 @@ export default async function Page() {
         <div
             className="flex flex-col items-center justify-center py-2 h-full w-full"
         >
+            <PageEvent name="stats" />
             <div className="w-full hidden lg:visible">
                 <h1 className="text-4xl font-bold">Statistics</h1>
             </div>

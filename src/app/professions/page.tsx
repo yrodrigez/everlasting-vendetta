@@ -1,3 +1,4 @@
+import { PageEvent } from "@/app/hooks/usePageEvent";
 import createServerSession from "@utils/supabase/createServerSession";
 import Link from "next/link";
 import CharacterAvatar from "@/app/components/CharacterAvatar";
@@ -51,6 +52,7 @@ export default async function ProfessionsPage() {
 
     return (
         <main className="flex w-full h-full flex-col">
+            <PageEvent name="professions" />
             <h1 className="text-4xl font-bold text-center mb-4">Professions</h1>
             {(professions).map((member) => {
                 const {memberName, professions} = member

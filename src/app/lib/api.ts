@@ -1,5 +1,6 @@
 import axios, { type AxiosInstance } from 'axios';
 import { FetchCharacterOutput } from '../hooks/api/use-fetch-character';
+import { send } from 'node:process';
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_EV_API_URL,
@@ -240,6 +241,37 @@ export const createAPIService = (_api: AxiosInstance = api) => ({
       } catch (error) {
         console.error('Error adding item to raid:', error);
         throw error;
+      }
+    }
+  },
+  analytics: {
+    sendEvent: async ({
+      event_name,
+      event_type,
+      page_url,
+      page_path,
+      referrer,
+      metadata,
+    }: {
+      event_name: string;
+      event_type?: string;
+      page_url?: string;
+      page_path?: string;
+      referrer?: string;
+      metadata?: Record<string, any>;
+    }) => {
+      try {
+        _api.post(`/analytics/send`, {
+          event_name,
+          event_type,
+          page_url,
+          page_path,
+          referrer,
+          metadata,
+        });
+      } catch (error) {
+        console.error('Error sending analytics event:', error);
+        // Don't throw error to avoid breaking user experience if analytics fails
       }
     }
   }

@@ -8,6 +8,7 @@ import {
 } from "@/app/raid/[id]/loot/util";
 import { type CharacterWithLoot, RaidLoot } from "@/app/raid/[id]/loot/components/types";
 import LootHistoryList from "@/app/raid/[id]/loot/components/LootHistoryList";
+import { sendActionEvent } from "@/app/hooks/usePageEvent";
 import { createAPIService } from "@/app/lib/api";
 
 export default function LootHistoPreview({ reset_id, realm }: { reset_id: string, realm: string }) {
@@ -18,6 +19,7 @@ export default function LootHistoPreview({ reset_id, realm }: { reset_id: string
             if (!data) {
                 return []
             }
+            sendActionEvent('loot_upload_preview', { resetId: reset_id });
             try {
                 const csv = parseLootCsv(data as string)
                 const lootObjects = convertLootCsvToObjects(csv).map((loot): RaidLoot => ({
