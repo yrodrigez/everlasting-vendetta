@@ -254,7 +254,6 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     return (
         <div
             className="w-full flex-col flex h-full justify-between relative items-center p-2 gap-2 scrollbar-pill lg:overflow-visible flex-1">
-            <PageEvent name="soft_reservations" metadata={{ raidId, raidName: raid?.name }} />
             <RaidItemsProvider raidId={raidIdStr} initialReservations={reservations} resetId={raidId} initialItems={items} isOpen={!resetData.data.reservations_closed} raidStatus={resetData.data.status}>
                 <div
                     className={'lg:hidden lg:top-0 lg:-left-72 w-64 h-48 z-50 border-gold border rounded-md inline-flex '}>
@@ -349,6 +348,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                         </div>
                     </div>
                 </div>
+                <PageEvent name="soft_reservations" metadata={{ raidId, raidName: raid?.name }} />
             </RaidItemsProvider>
         </div>
     )

@@ -40,6 +40,7 @@ type AuthError =
 interface AuthContextType {
   accessToken: string | null;
   isAuthenticated: boolean;
+  authReady: boolean;
   user: User | null;
   login: (provider: 'bnet' | 'discord', redirectTo?: string) => void;
   logout: () => Promise<void>;
@@ -61,6 +62,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [authReady, setAuthReady] = useState(false);
   const refreshTimerRef = useRef<NodeJS.Timeout>(null);
   const router = useRouter();
 
@@ -132,6 +134,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     refreshToken().catch(() => {
       setAccessToken(null);
       setUser(null);
+    }).finally(() => {
+      setAuthReady(true);
     });
   }, [refreshToken]);
 
@@ -299,6 +303,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider value={{
       accessToken,
       isAuthenticated: !!accessToken,
+      authReady,
       user,
       login,
       logout,

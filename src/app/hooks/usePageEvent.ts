@@ -2,15 +2,17 @@
 import { createAPIService } from "@/app/lib/api";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
+import { useAuth } from "../context/AuthContext";
 
 export function usePageEvent(pageName: string, metadata?: Record<string, any>) {
     const pathname = usePathname();
     const hasFired = useRef(false);
-    const api = createAPIService();
-    useEffect(() => {
-        if (hasFired.current) return;
-        hasFired.current = true;
+    const { authReady } = useAuth();
 
+    useEffect(() => {
+        if (!authReady || hasFired.current) return;
+        hasFired.current = true;
+        const api = createAPIService();
         api.analytics.sendEvent({
             event_name: `page_view_${pageName}`,
             event_type: 'page_view',
@@ -19,7 +21,7 @@ export function usePageEvent(pageName: string, metadata?: Record<string, any>) {
             referrer: document.referrer || undefined,
             metadata,
         });
-    }, []);
+    }, [authReady, pathname, pageName, metadata]);
 }
 
 export function sendActionEvent(eventName: string, metadata?: Record<string, any>) {

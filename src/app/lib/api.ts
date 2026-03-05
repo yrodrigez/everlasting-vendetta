@@ -1,6 +1,5 @@
 import axios, { type AxiosInstance } from 'axios';
 import { FetchCharacterOutput } from '../hooks/api/use-fetch-character';
-import { send } from 'node:process';
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_EV_API_URL,
