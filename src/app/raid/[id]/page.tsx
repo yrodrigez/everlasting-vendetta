@@ -23,7 +23,7 @@ import { PageEvent } from "@/app/hooks/usePageEvent";
 import createServerSession from "@utils/supabase/createServerSession";
 import { Metadata } from "next";
 
-const raidResetAttr = 'raid_date, id, raid:ev_raid(name, min_level, image, min_gs), time, end_date, end_time, days, status, realm, is_reservations_allowed, created_by'
+const raidResetAttr = 'raid_date, id, raid:ev_raid(name, min_level, image, min_gs), time, end_date, end_time, days, status, realm, is_reservations_allowed, created_by, raid_id'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60;
 
@@ -192,15 +192,23 @@ export default async function ({ params }: { params: Promise<{ id: string }> }) 
         return <div>Could not find reset</div>
     }
 
-    const [participants, [previousReset, nextReset], hasLootReservations, hasLootHistory, characterGearScore] = await Promise.all([
+    const [participants, [previousReset, nextReset], hasLootReservations, hasLootHistory, characterGearScore, currentResets] = await Promise.all([
         fetchResetParticipants(supabase, reset.id),
         findPreviousAndNextReset(supabase, reset.raid_date),
         fetchHasLootReservations(supabase, reset.id, isLoggedInUser?.selectedCharacter?.id),
         supabase.from('ev_loot_history').select('id').eq('raid_id', reset.id).limit(1),
-        getCharacterGearScore(isLoggedInUser?.selectedCharacter?.name)
+        getCharacterGearScore(isLoggedInUser?.selectedCharacter?.name),
+        supabase
+            .from('raid_resets')
+            .select('id, raid_date')
+            .eq('raid_id', reset.raid_id)
+            .neq('id', reset.id)
+            .gte('raid_date', new Date().toISOString())
+            .order('created_at', { ascending: false })
+            .overrideTypes<{ id: string, raid_date: string }[]>()
     ])
 
-
+    console.log('Current resets', currentResets)
     const { id, raid_date: raidDate, raid, time: raidTime, end_date, end_time: endTime, days, status, realm, is_reservations_allowed, created_by } = reset
     const { name: raidName, min_level: min_lvl } = raid
     const raidStartDate = moment(raidDate)
@@ -273,7 +281,9 @@ export default async function ({ params }: { params: Promise<{ id: string }> }) 
                     <RaidParticipants
                         raidInProgress={raidInProgress}
                         participants={participants}
-                        raidId={id}
+                        currentResets={currentResets.data ?? []}
+                        resetId={id}
+                        raidId={reset.raid_id}
                         days={days}
                         minGs={reset.raid.min_gs}
                     />

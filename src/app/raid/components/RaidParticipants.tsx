@@ -27,6 +27,10 @@ import { useCharacterStore } from "@/app/components/characterStore";
 import { useShallow } from "zustand/react/shallow";
 import { sendActionEvent } from "@/app/hooks/usePageEvent";
 import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
+import { MoveParticipant } from "./move-participant";
+import { useRouter } from "next/navigation";
+import AdminActions from "./admin-actions";
+
 
 
 const BadgeCheckIcon = ({ className }: { className: string }) => {
@@ -68,19 +72,22 @@ const GuildMemberIndicator = (character: any) => {
     )
 }
 
-export default function RaidParticipants({ participants, raidId, raidInProgress, days, minGs, sanctifiedData }: {
+export default function RaidParticipants({ participants, resetId, raidId, raidInProgress, days, minGs, sanctifiedData, currentResets }: {
     participants: RaidParticipant[],
+    resetId: string,
     raidId: string,
     raidInProgress: boolean
     days: string[],
     minGs: number,
+    currentResets: { id: string, raid_date: string }[],
     sanctifiedData?: { characterName: string, count: number, characterId: string }[]
 }) {
     const { accessToken, user } = useAuth()
     const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
     const selectedCharacter = useCharacterStore(useShallow(state => ({ ...state.selectedCharacter })));
+    const router = useRouter();
 
-    const stateParticipants = useParticipants(raidId, participants)
+    const stateParticipants = useParticipants(resetId, participants)
     const { isMobile } = useScreenSize()
     const initialColumns = [
         { name: "NAME", uid: "name" },
@@ -109,7 +116,7 @@ export default function RaidParticipants({ participants, raidId, raidInProgress,
     const [onlyConfirmed, setOnlyConfirmed] = useState(true)
     const { yesNo } = useMessageBox()
     const { data: guildEvent } = useQuery({
-        queryKey: ['guildEvent', raidId],
+        queryKey: ['guildEvent', resetId],
         queryFn: async () => {
             const { data = [], error = false } = (await supabase?.from('guild_events_participants').select('*')
                 .eq('event_id', 1)
@@ -123,7 +130,7 @@ export default function RaidParticipants({ participants, raidId, raidInProgress,
 
             return data
         },
-        enabled: !!raidId && !!supabase,
+        enabled: !!resetId && !!supabase,
         staleTime: 1000 * 60 * 5, // 5 minutes
         retry: 3,
     })
@@ -339,46 +346,56 @@ export default function RaidParticipants({ participants, raidId, raidInProgress,
             case "admin":
                 return (
                     <div className="w-full flex items-center gap-2">
-                        <BenchParticipant
-                            resetId={raidId}
-                            memberId={registration.member.character.id}
-                            currentStatus={registrationDetails?.status}
-                            supabase={supabase}
-                            currentDetails={registrationDetails}
-                        />
-                        <Button
-                            size="sm"
-                            isIconOnly
-                            className="bg-red-800 border border-red-600 text-white rounded"
-                            onPress={() => {
-                                const memberId = registration.member.character.id
-                                const raidId = registration.raid_id
-                                yesNo({
-                                    message: `Are you sure you want to delete ${registration.member.character.name} from this raid?`,
-                                    modYes: 'danger',
-                                    title: `Delete ${registration.member.character.name}`,
-                                    modNo: 'default',
-                                    noText: 'No',
-                                    yesText: 'Yes'
-                                }).then((response) => {
-                                    if (response !== 'yes') return
-                                    sendActionEvent('raid_remove_player', { raidId, memberId, playerName: registration.member.character.name });
-                                    supabase?.from('ev_raid_participant')
-                                        .delete()
-                                        .eq('member_id', memberId)
-                                        .eq('raid_id', raidId)
-                                        .then((response) => {
-                                            const { data, error: err } = response
-                                            if (err) {
-                                                console.error('Error deleting participant', err)
-                                                return
-                                            }
-                                        })
-                                })
-                            }}
-                        >
-                            <FontAwesomeIcon icon={faTrash} />
-                        </Button>
+                        <AdminActions>
+                            <BenchParticipant
+                                resetId={resetId}
+                                memberId={registration.member.character.id}
+                                currentStatus={registrationDetails?.status}
+                                supabase={supabase}
+                                currentDetails={registrationDetails}
+                            />
+                            <MoveParticipant
+                                memberId={registration.member.character.id}
+                                raidId={raidId}
+                                currentResets={currentResets ?? []}
+                                resetId={resetId}
+                                onSuccess={router.refresh}
+                            />
+                            <Button
+                                size="sm"
+                                isIconOnly
+                                className="bg-red-800 border border-red-600 text-white rounded"
+                                onPress={() => {
+                                    const memberId = registration.member.character.id
+                                    const raidId = registration.raid_id
+                                    yesNo({
+                                        message: `Are you sure you want to delete ${registration.member.character.name} from this raid?`,
+                                        modYes: 'danger',
+                                        title: `Delete ${registration.member.character.name}`,
+                                        modNo: 'default',
+                                        noText: 'No',
+                                        yesText: 'Yes'
+                                    }).then((response) => {
+                                        if (response !== 'yes') return
+                                        sendActionEvent('raid_remove_player', { raidId, memberId, playerName: registration.member.character.name });
+                                        supabase?.from('ev_raid_participant')
+                                            .delete()
+                                            .eq('member_id', memberId)
+                                            .eq('raid_id', raidId)
+                                            .then((response) => {
+                                                const { error: err } = response
+                                                if (err) {
+                                                    alert('Error deleting participant');
+                                                    console.error('Error deleting participant', err)
+                                                    return
+                                                }
+                                            })
+                                    })
+                                }}
+                            >
+                                <FontAwesomeIcon icon={faTrash} />
+                            </Button>
+                        </AdminActions>
                     </div>
                 )
 
