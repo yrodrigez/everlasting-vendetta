@@ -1,13 +1,14 @@
 import createServerSession from "@utils/supabase/createServerSession";
 import { ROLE } from "@utils/constants";
 import { Card, CardBody, CardHeader } from "@/app/components/card";
-import { countUniqueUsersByDay, getTopUsers, groupEventsByDayAndName } from "./utils";
+import { aggregateUsersByCountry, countUniqueUsersByDay, getTopUsers, groupEventsByDayAndName } from "./utils";
 import OverviewCards from "./components/OverviewCards";
 import ActiveUsersChart from "./components/ActiveUsersChart";
 import LoginBreakdownChart from "./components/LoginBreakdownChart";
 import SessionActivityChart from "./components/SessionActivityChart";
 import TopUsersTable from "./components/TopUsersTable";
 import RecentEventsFeed from "./components/RecentEventsFeed";
+import UserWorldMap from "./components/UserWorldMap";
 
 export const dynamic = 'force-dynamic';
 
@@ -141,6 +142,16 @@ export default async function DashboardPage() {
         .order('created_at', { ascending: false })
         .limit(50);
 
+    // User geo distribution (exclude auth events — their IPs come from the OAuth host, not the user)
+    const { data: ipData } = await supabase
+        .from('web_events')
+        .select('ip_address')
+        .not('ip_address', 'is', null)
+        .not('event_name', 'in', '("login_bnet","login_discord","login_success","token_refresh","token_revoke")');
+
+    const distinctIps = [...new Set((ipData ?? []).map(e => e.ip_address as string).filter(Boolean))];
+    const geoData = aggregateUsersByCountry(distinctIps);
+
     return (
         <div className="flex flex-col gap-6 p-4 w-full">
             <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
@@ -193,6 +204,15 @@ export default async function DashboardPage() {
                 </CardHeader>
                 <CardBody>
                     <SessionActivityChart refreshData={refreshTrend} revokeData={revokeTrend} />
+                </CardBody>
+            </Card>
+
+            <Card className="bg-dark border border-dark-100 p-4">
+                <CardHeader>
+                    <h2 className="text-xl font-bold text-gray-400">User Locations</h2>
+                </CardHeader>
+                <CardBody>
+                    <UserWorldMap data={geoData} />
                 </CardBody>
             </Card>
 

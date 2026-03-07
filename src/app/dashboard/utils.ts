@@ -1,3 +1,33 @@
+import geoip from 'geoip-lite';
+
+export function aggregateUsersByCountry(ipAddresses: string[]): { country: string; countryName: string; count: number }[] {
+    const countryCounts: Record<string, number> = {};
+    const countryNames: Record<string, string> = {};
+
+    for (const ip of ipAddresses) {
+        const geo = geoip.lookup(ip);
+        if (geo && geo.country) {
+            countryCounts[geo.country] = (countryCounts[geo.country] || 0) + 1;
+            if (!countryNames[geo.country]) {
+                countryNames[geo.country] = getCountryName(geo.country);
+            }
+        }
+    }
+
+    return Object.entries(countryCounts)
+        .map(([country, count]) => ({ country, countryName: countryNames[country], count }))
+        .sort((a, b) => b.count - a.count);
+}
+
+function getCountryName(code: string): string {
+    try {
+        const displayNames = new Intl.DisplayNames(['en'], { type: 'region' });
+        return displayNames.of(code) ?? code;
+    } catch {
+        return code;
+    }
+}
+
 export function groupEventsByDay(events: { created_at: string }[]): { date: string; count: number }[] {
     const counts: Record<string, number> = {};
     for (const event of events) {
