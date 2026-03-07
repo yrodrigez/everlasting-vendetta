@@ -1,20 +1,22 @@
 'use client';
-import { useMutation } from "@tanstack/react-query";
+import { sendActionEvent } from "@/app/hooks/usePageEvent";
+import { createAPIService } from "@/app/lib/api";
+import LootHistoryList from "@/app/raid/[id]/loot/components/LootHistoryList";
+import { type CharacterWithLoot, RaidLoot } from "@/app/raid/[id]/loot/components/types";
 import {
     convertLootCsvToObjects,
     fetchItemDataFromWoWHead,
     groupByCharacter,
     parseLootCsv
 } from "@/app/raid/[id]/loot/util";
-import { type CharacterWithLoot, RaidLoot } from "@/app/raid/[id]/loot/components/types";
-import LootHistoryList from "@/app/raid/[id]/loot/components/LootHistoryList";
-import { sendActionEvent } from "@/app/hooks/usePageEvent";
-import { createAPIService } from "@/app/lib/api";
+import { useMutation } from "@tanstack/react-query";
 
 export default function LootHistoPreview({ reset_id, realm }: { reset_id: string, realm: string }) {
+    const apiService = createAPIService();
 
     const { mutate, error, data, isPending } = useMutation({
         mutationKey: ['loot_history.create'],
+        
         mutationFn: async (data: string) => {
             if (!data) {
                 return []
@@ -36,7 +38,17 @@ export default function LootHistoPreview({ reset_id, realm }: { reset_id: string
                     }
                 }))
 
-                return groupByCharacter(await Promise.all(lootObjects.map(fetchItemDataFromWoWHead)), realm)
+                return groupByCharacter(await Promise.all(lootObjects.map(async (loot) => {
+                    const itemData = await apiService.anon.getItem(loot.itemID)
+                    return {
+                        ...loot,
+                        item: {
+                            ...loot.item,
+                            ...itemData.itemDetails,
+                            id: loot.itemID
+                        }
+                    }
+                })), realm)
             } catch (error) {
                 console.error('Error parsing loot csv', error)
                 return []

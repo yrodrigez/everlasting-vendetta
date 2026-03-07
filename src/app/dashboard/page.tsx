@@ -9,6 +9,8 @@ import SessionActivityChart from "./components/SessionActivityChart";
 import TopUsersTable from "./components/TopUsersTable";
 import RecentEventsFeed from "./components/RecentEventsFeed";
 import UserWorldMap from "./components/UserWorldMap";
+import ClassDistributionChart from "./components/ClassDistributionChart";
+import TopLootByRaid from "./components/TopLootByRaid";
 
 export const dynamic = 'force-dynamic';
 
@@ -153,6 +155,68 @@ export default async function DashboardPage() {
     const distinctIps = [...new Set((ipData ?? []).map(e => e.ip_address as string).filter(Boolean))];
     const geoData = aggregateUsersByCountry(distinctIps);
 
+    // Class distribution (guild members only)
+    const { data: guildMembers } = await supabase
+        .from('ev_member')
+        .select('character')
+        //.eq('character->guild->>name', 'Everlasting Vendetta')
+        .eq('is_selected', true);
+
+    const classDistribution: Record<string, number> = {};
+    for (const m of guildMembers ?? []) {
+        const char = m.character as { character_class?: { name?: string }; guild?: { name?: string } } | null;
+        if (char?.guild?.name !== 'Everlasting Vendetta') continue;
+        const className = char?.character_class?.name;
+        if (className) {
+            classDistribution[className] = (classDistribution[className] || 0) + 1;
+        }
+    }
+
+    // Top loot receivers per raid (grouped by raid, sorted by most recent reset date)
+    const lootHistory: Record<string, unknown>[] = [];
+    let lootOffset = 0;
+    const LOOT_PAGE_SIZE = 1000;
+    while (true) {
+        const { data: page } = await supabase
+            .from('ev_loot_history')
+            .select('character, raid_id, raid_resets(raid_id, raid_date, ev_raid(name, image))')
+            .neq('character', '_disenchanted')
+            .range(lootOffset, lootOffset + LOOT_PAGE_SIZE - 1);
+        if (!page || page.length === 0) break;
+        lootHistory.push(...(page as Record<string, unknown>[]));
+        if (page.length < LOOT_PAGE_SIZE) break;
+        lootOffset += LOOT_PAGE_SIZE;
+    }
+
+    const lootByRaid: Record<string, { raidName: string; raidImage: string | null; latestDate: string; characters: Record<string, number> }> = {};
+    for (const entry of lootHistory) {
+        const r = entry;
+        const resetRaw = Array.isArray(r.raid_resets) ? r.raid_resets[0] : r.raid_resets;
+        const reset = resetRaw as Record<string, unknown> | null;
+        const raidRaw = Array.isArray(reset?.ev_raid) ? (reset.ev_raid as unknown[])[0] : reset?.ev_raid;
+        const raid = raidRaw as Record<string, unknown> | null;
+        const raidName = raid?.name as string | undefined;
+        const raidImage = (raid?.image as string) ?? null;
+        const raidId = reset?.raid_id as string | undefined;
+        const raidDate = (reset?.raid_date as string) ?? '';
+        const character = r.character as string | undefined;
+        if (!raidName || !raidId || !character) continue;
+        if (!lootByRaid[raidId]) lootByRaid[raidId] = { raidName, raidImage, latestDate: raidDate, characters: {} };
+        if (raidDate > lootByRaid[raidId].latestDate) lootByRaid[raidId].latestDate = raidDate;
+        lootByRaid[raidId].characters[character] = (lootByRaid[raidId].characters[character] || 0) + 1;
+    }
+
+    const topLootByRaid = Object.entries(lootByRaid).map(([raidId, { raidName, raidImage, latestDate, characters }]) => ({
+        raidId,
+        raidName,
+        raidImage,
+        latestDate,
+        top: Object.entries(characters)
+            .map(([character, count]) => ({ character, count }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 5),
+    })).sort((a, b) => b.latestDate.localeCompare(a.latestDate));
+
     return (
         <div className="flex flex-col gap-6 p-4 w-full">
             <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
@@ -188,7 +252,6 @@ export default async function DashboardPage() {
                         <ActiveUsersChart data={dailyActiveUsers} />
                     </CardBody>
                 </Card>
-
                 <Card className="bg-dark border border-dark-100 p-4">
                     <CardHeader>
                         <h2 className="text-xl font-bold text-gray-400">Login Methods (30d)</h2>
@@ -198,13 +261,32 @@ export default async function DashboardPage() {
                     </CardBody>
                 </Card>
             </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <Card className="bg-dark border border-dark-100 p-4">
+                    <CardHeader>
+                        <h2 className="text-xl font-bold text-gray-400">Class Distribution (Guild only)</h2>
+                    </CardHeader>
+                    <CardBody>
+                        <ClassDistributionChart data={classDistribution} />
+                    </CardBody>
+                </Card>
+
+                <Card className="bg-dark border border-dark-100 p-4">
+                    <CardHeader>
+                        <h2 className="text-xl font-bold text-gray-400">Session Activity (30d)</h2>
+                    </CardHeader>
+                    <CardBody>
+                        <SessionActivityChart refreshData={refreshTrend} revokeData={revokeTrend} />
+                    </CardBody>
+                </Card>
+            </div>
 
             <Card className="bg-dark border border-dark-100 p-4">
                 <CardHeader>
-                    <h2 className="text-xl font-bold text-gray-400">Session Activity (30d)</h2>
+                    <h2 className="text-xl font-bold text-gray-400">Top Loot Receivers (by Raid)</h2>
                 </CardHeader>
                 <CardBody>
-                    <SessionActivityChart refreshData={refreshTrend} revokeData={revokeTrend} />
+                    <TopLootByRaid raids={topLootByRaid} />
                 </CardBody>
             </Card>
 
@@ -216,6 +298,8 @@ export default async function DashboardPage() {
                     <UserWorldMap data={geoData} />
                 </CardBody>
             </Card>
+
+
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <Card className="bg-dark border border-dark-100 p-4">
