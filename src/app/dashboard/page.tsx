@@ -158,12 +158,12 @@ export default async function DashboardPage() {
     // Class distribution (guild members only)
     const { data: guildMembers } = await supabase
         .from('ev_member')
-        .select('character')
-        .eq('character->guild->>name', 'Everlasting Vendetta')
-        .eq('is_selected', true);
+        .select('character, is_selected')
+        .eq('character->guild->>name', 'Everlasting Vendetta');
 
     const classDistribution: Record<string, number> = {};
     for (const m of guildMembers ?? []) {
+        if (!m.is_selected) continue;
         const char = m.character as { character_class?: { name?: string }; guild?: { name?: string } } | null;
         if (char?.guild?.name !== 'Everlasting Vendetta') continue;
         const className = char?.character_class?.name;
@@ -181,6 +181,7 @@ export default async function DashboardPage() {
             .from('ev_loot_history')
             .select('character, raid_id, raid_resets(raid_id, raid_date, ev_raid(name, image)), offspec')
             .neq('character', '_disenchanted')
+            .in('character', guildMembers?.map(m => (m.character as { name?: string }).name).filter((n): n is string => !!n) ?? [])
             .range(lootOffset, lootOffset + LOOT_PAGE_SIZE - 1);
         if (!page || page.length === 0) break;
         lootHistory.push(...(page as Record<string, unknown>[]));
