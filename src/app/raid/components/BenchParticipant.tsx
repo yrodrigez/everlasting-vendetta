@@ -1,13 +1,13 @@
-import {SupabaseClient} from "@supabase/supabase-js";
-import {Button} from "@/app/components/Button";
-import {faChair, faUser, faUserSlash} from "@fortawesome/free-solid-svg-icons";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {useMutation} from "@tanstack/react-query";
+import { SupabaseClient } from "@supabase/supabase-js";
+import { Button } from "@/app/components/Button";
+import { faChair, faUser, faUserSlash } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useMutation } from "@tanstack/react-query";
 import benchParticipant from "@/app/raid/api/benchParticipant";
-import {sendActionEvent} from "@/app/hooks/usePageEvent";
-import {RAID_STATUS} from "@/app/raid/components/utils";
+import { sendActionEvent } from "@/app/hooks/usePageEvent";
+import { RAID_STATUS } from "@/app/raid/components/utils";
 
-export default function BenchParticipant({supabase, resetId, memberId, currentStatus, currentDetails}: {
+export default function BenchParticipant({ supabase, resetId, memberId, currentStatus, currentDetails }: {
     supabase?: SupabaseClient,
     resetId: string,
     memberId: number,
@@ -16,7 +16,7 @@ export default function BenchParticipant({supabase, resetId, memberId, currentSt
 }) {
 
 
-    const {mutate: onClick, isPending} = useMutation({
+    const { mutate: onClick, isPending } = useMutation({
         mutationKey: [RAID_STATUS.BENCH, resetId, memberId],
         mutationFn: async () => {
             if (!supabase) return
@@ -25,13 +25,16 @@ export default function BenchParticipant({supabase, resetId, memberId, currentSt
         }
     })
 
-    return <Button
-        isIconOnly
-        onPress={() => onClick()}
-        isDisabled={isPending || !supabase}
-        size="sm"
-        isLoading={isPending}
-        className={`${currentStatus !== RAID_STATUS.BENCH ? 'bg-orange-600 border-orange-600' : 'bg-green-600'} text-white rounded`}>
-        {currentStatus === RAID_STATUS.BENCH ? <FontAwesomeIcon icon={faUser}/> : <FontAwesomeIcon icon={faChair}/>}
-    </Button>
+    return <div className="flex items-center gap-2 w-full border border-wood-100 p-2 rounded-lg justify-between">
+        <span className="text-default">{currentStatus === RAID_STATUS.BENCH ? 'Unbench player' : 'Bench player'}</span>
+        <Button
+            isIconOnly
+            onPress={() => onClick()}
+            isDisabled={isPending || !supabase}
+            size="sm"
+            isLoading={isPending}
+            className={`${currentStatus !== RAID_STATUS.BENCH ? 'bg-orange-600 border-orange-600' : 'bg-green-600'} text-white rounded`}>
+            {currentStatus === RAID_STATUS.BENCH ? <FontAwesomeIcon icon={faUser} /> : <FontAwesomeIcon icon={faChair} />}
+        </Button>
+    </div>
 }

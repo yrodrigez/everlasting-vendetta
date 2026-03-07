@@ -15,7 +15,7 @@ import { LockRaidButton } from "@/app/raid/components/LockRaidButton";
 import { RaidOptions } from "@/app/raid/components/RaidOptions";
 import RaidParticipants from "@/app/raid/components/RaidParticipants";
 import RaidTimeInfo from "@/app/raid/components/RaidTimeInfo";
-import { GUILD_REALM_SLUG } from "@/app/util/constants";
+import { GUILD_REALM_SLUG, ROLE } from "@/app/util/constants";
 import { faCartPlus, faGift } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { DiscordLink } from "@/app/raid/components/DiscordLink";
@@ -208,7 +208,6 @@ export default async function ({ params }: { params: Promise<{ id: string }> }) 
             .overrideTypes<{ id: string, raid_date: string }[]>()
     ])
 
-    console.log('Current resets', currentResets)
     const { id, raid_date: raidDate, raid, time: raidTime, end_date, end_time: endTime, days, status, realm, is_reservations_allowed, created_by } = reset
     const { name: raidName, min_level: min_lvl } = raid
     const raidStartDate = moment(raidDate)
@@ -224,7 +223,9 @@ export default async function ({ params }: { params: Promise<{ id: string }> }) 
 
     const canLockReset = !!(isLoggedInUser && (
         isLoggedInUser.isAdmin ||
-        isLoggedInUser.roles?.includes('RAID_LEADER') ||
+        isLoggedInUser.roles?.includes(ROLE.RAID_LEADER) ||
+        isLoggedInUser.roles?.includes(ROLE.LOOT_MASTER) ||
+        isLoggedInUser.roles?.includes(ROLE.ADMIN) ||
         isLoggedInUser.selectedCharacter?.id === created_by
     ) && moment(end_date + ' ' + endTime).isAfter(moment()))
 

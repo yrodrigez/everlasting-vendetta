@@ -1,14 +1,17 @@
 'use client'
-import React, { use, useCallback, useEffect, useMemo, useState } from "react";
-import { Chip, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip } from "@heroui/react";
-import Link from "next/link";
 import { getClassIcon, getRoleIcon } from "@/app/apply/components/utils";
-import useScreenSize from "@/app/hooks/useScreenSize";
-import moment from "moment";
-import { useParticipants } from "@/app/raid/components/useParticipants";
-import { GUILD_NAME, REGISTRATION_SOURCES } from "@/app/util/constants";
 import { Button } from "@/app/components/Button";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useCharacterStore } from "@/app/components/characterStore";
+import GearScore from "@/app/components/GearScore";
+import { useAuth } from "@/app/context/AuthContext";
+import { sendActionEvent } from "@/app/hooks/usePageEvent";
+import useScreenSize from "@/app/hooks/useScreenSize";
+import { RaidParticipant } from "@/app/raid/api/types";
+import BenchParticipant from "@/app/raid/components/BenchParticipant";
+import { useParticipants } from "@/app/raid/components/useParticipants";
+import { RAID_STATUS } from "@/app/raid/components/utils";
+import { GUILD_NAME, REGISTRATION_SOURCES } from "@/app/util/constants";
+import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
 import {
     faChair,
     faCircleCheck, faCircleQuestion, faCircleXmark, faClock,
@@ -16,20 +19,17 @@ import {
     faPersonCircleXmark,
     faTrash, faTriangleExclamation
 } from "@fortawesome/free-solid-svg-icons";
-import { RaidParticipant } from "@/app/raid/api/types";
-import GearScore from "@/app/components/GearScore";
-import BenchParticipant from "@/app/raid/components/BenchParticipant";
-import { RAID_STATUS } from "@/app/raid/components/utils";
-import { useMessageBox } from "@utils/msgBox";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Chip, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip } from "@heroui/react";
 import { useQuery } from "@tanstack/react-query";
-import { useAuth } from "@/app/context/AuthContext";
-import { useCharacterStore } from "@/app/components/characterStore";
-import { useShallow } from "zustand/react/shallow";
-import { sendActionEvent } from "@/app/hooks/usePageEvent";
-import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
-import { MoveParticipant } from "./move-participant";
+import { useMessageBox } from "@utils/msgBox";
+import moment from "moment";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useShallow } from "zustand/react/shallow";
 import AdminActions from "./admin-actions";
+import { MoveParticipant } from "./move-participant";
 
 
 
@@ -361,40 +361,45 @@ export default function RaidParticipants({ participants, resetId, raidId, raidIn
                                 resetId={resetId}
                                 onSuccess={router.refresh}
                             />
-                            <Button
-                                size="sm"
-                                isIconOnly
-                                className="bg-red-800 border border-red-600 text-white rounded"
-                                onPress={() => {
-                                    const memberId = registration.member.character.id
-                                    const raidId = registration.raid_id
-                                    yesNo({
-                                        message: `Are you sure you want to delete ${registration.member.character.name} from this raid?`,
-                                        modYes: 'danger',
-                                        title: `Delete ${registration.member.character.name}`,
-                                        modNo: 'default',
-                                        noText: 'No',
-                                        yesText: 'Yes'
-                                    }).then((response) => {
-                                        if (response !== 'yes') return
-                                        sendActionEvent('raid_remove_player', { raidId, memberId, playerName: registration.member.character.name });
-                                        supabase?.from('ev_raid_participant')
-                                            .delete()
-                                            .eq('member_id', memberId)
-                                            .eq('raid_id', raidId)
-                                            .then((response) => {
-                                                const { error: err } = response
-                                                if (err) {
-                                                    alert('Error deleting participant');
-                                                    console.error('Error deleting participant', err)
-                                                    return
-                                                }
-                                            })
-                                    })
-                                }}
+                            <div
+                                className="flex items-center gap-2 justify-between w-full p-2 border text-red-600 border-red-600 hover:bg-red-700 hover:text-default rounded-lg transition-all duration-200"
                             >
-                                <FontAwesomeIcon icon={faTrash} />
-                            </Button>
+                                <span>Remove from raid</span>
+                                <Button
+                                    size="sm"
+                                    isIconOnly
+                                    className="bg-red-800 border border-red-600 text-white rounded"
+                                    onPress={() => {
+                                        const memberId = registration.member.character.id
+                                        const raidId = registration.raid_id
+                                        yesNo({
+                                            message: `Are you sure you want to delete ${registration.member.character.name} from this raid?`,
+                                            modYes: 'danger',
+                                            title: `Delete ${registration.member.character.name}`,
+                                            modNo: 'default',
+                                            noText: 'No',
+                                            yesText: 'Yes'
+                                        }).then((response) => {
+                                            if (response !== 'yes') return
+                                            sendActionEvent('raid_remove_player', { raidId, memberId, playerName: registration.member.character.name });
+                                            supabase?.from('ev_raid_participant')
+                                                .delete()
+                                                .eq('member_id', memberId)
+                                                .eq('raid_id', raidId)
+                                                .then((response) => {
+                                                    const { error: err } = response
+                                                    if (err) {
+                                                        alert('Error deleting participant');
+                                                        console.error('Error deleting participant', err)
+                                                        return
+                                                    }
+                                                })
+                                        })
+                                    }}
+                                >
+                                    <FontAwesomeIcon icon={faTrash} />
+                                </Button>
+                            </div>
                         </AdminActions>
                     </div>
                 )
