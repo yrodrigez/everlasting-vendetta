@@ -111,7 +111,8 @@ export default async function DashboardPage() {
         const { data: profiles } = await supabase
             .from('ev_member')
             .select('user_id, character')
-            .in('user_id', topUserIds);
+            .in('user_id', topUserIds)
+            .eq('is_selected', true);
 
         const profileMap = new Map<string, { name: string; avatar: string }>();
         for (const p of profiles ?? []) {
