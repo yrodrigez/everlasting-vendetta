@@ -1,24 +1,52 @@
 'use client';
 
-import { useUserCharacters } from "@/app/hooks/use-user-charcters";
-import { ScrollShadow } from "@heroui/react";
-import { useCharacterStore } from "../characterStore";
-import { useCallback, useEffect, useRef } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheckCircle } from "@fortawesome/free-solid-svg-icons";
 import { useAllowedRealms } from "@/app/hooks/api/use-allowed-realms";
+import { useUserCharacters } from "@/app/hooks/use-user-charcters";
+import { createAPIService } from "@/app/lib/api";
 import { useMessageBox } from "@/app/util/msgBox";
-import { useVistaStore } from "./vista-store";
+import { faCheckCircle } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ScrollShadow } from "@heroui/react";
+import { useCallback, useEffect } from "react";
+import { useCharacterStore } from "../characterStore";
 import { Role } from "./role-selection";
+import { useVistaStore } from "./vista-store";
 
 const CharacterView = ({ character }: { character: any }) => {
     const { setSelectedCharacter, selectedCharacter } = useCharacterStore(state => state);
-    const onSelect = useCallback(() => {
+    const api = createAPIService();
+    const { alert } = useMessageBox();
+    const onSelect = useCallback(async () => {
         if (selectedCharacter?.id === character.id) {
             return;
         }
-        setSelectedCharacter(character);
-    }, [character, selectedCharacter, setSelectedCharacter]);
+        try {
+            await Promise.all([
+                api.characters.setSelected(character.id),
+                api.analytics.sendEvent({
+                    event_name: 'character_selected',
+                    event_type: 'character_selection',
+                    metadata: {
+                        character_id: character.id,
+                        character_name: character.name,
+                        character_level: character.level,
+                        character_class: character.className,
+                        realm_name: character.realm?.name,
+                    }
+                })
+            ]);
+            setSelectedCharacter(character);
+
+        } catch (error) {
+            console.error('Error selecting character:', error);
+            alert({
+                title: 'Error selecting character',
+                message: 'An error occurred while selecting the character. Please try again.',
+                type: 'error',
+            });
+        }
+
+    }, [character, selectedCharacter, setSelectedCharacter, api.characters, api.analytics, alert]);
 
     return (
         <article
@@ -60,8 +88,6 @@ export function CharactersSelectionList() {
             setCharacters(characters);
         }
     }, [characters, setCharacters]);
-
-
 
     const setVista = useVistaStore(state => state.setVista);
     const currentVista = useVistaStore(state => state.vista);

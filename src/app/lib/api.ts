@@ -217,13 +217,22 @@ export const createAPIService = (_api: AxiosInstance = api) => ({
   characters: {
     link: async (characterName: string, realmSlug: string) => {
       try {
-        const { data } = await _api.post(`/characters/link`, { characterName, realmSlug });
+        const { data } = await _api.post(`/auth/characters/link`, { characterName, realmSlug });
         return data;
       } catch (error) {
         console.error('Error linking character:', error);
         throw error;
       }
-    }
+    },
+    setSelected: async (characterId: string) => {
+      try {
+        const { data } = await _api.post(`/auth/characters/select`, { characterId });
+        return data;
+      } catch (error) {
+        console.error('Error setting selected character:', error);
+        throw error;
+      }
+    },
   },
   raids: {
     addItem: async ({ raidId, itemId, bossName }: { raidId: string, itemId: number, bossName: string | undefined }): Promise<{
