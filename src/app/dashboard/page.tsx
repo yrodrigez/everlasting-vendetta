@@ -159,7 +159,7 @@ export default async function DashboardPage() {
     const { data: guildMembers } = await supabase
         .from('ev_member')
         .select('character')
-        //.eq('character->guild->>name', 'Everlasting Vendetta')
+        .eq('character->guild->>name', 'Everlasting Vendetta')
         .eq('is_selected', true);
 
     const classDistribution: Record<string, number> = {};
@@ -179,7 +179,7 @@ export default async function DashboardPage() {
     while (true) {
         const { data: page } = await supabase
             .from('ev_loot_history')
-            .select('character, raid_id, raid_resets(raid_id, raid_date, ev_raid(name, image))')
+            .select('character, raid_id, raid_resets(raid_id, raid_date, ev_raid(name, image)), offspec')
             .neq('character', '_disenchanted')
             .range(lootOffset, lootOffset + LOOT_PAGE_SIZE - 1);
         if (!page || page.length === 0) break;
@@ -188,7 +188,7 @@ export default async function DashboardPage() {
         lootOffset += LOOT_PAGE_SIZE;
     }
 
-    const lootByRaid: Record<string, { raidName: string; raidImage: string | null; latestDate: string; characters: Record<string, number> }> = {};
+    const lootByRaid: Record<string, { raidName: string; raidImage: string | null; latestDate: string; characters: Record<string, { ms: number, os: number }> }> = {};
     for (const entry of lootHistory) {
         const r = entry;
         const resetRaw = Array.isArray(r.raid_resets) ? r.raid_resets[0] : r.raid_resets;
@@ -203,7 +203,13 @@ export default async function DashboardPage() {
         if (!raidName || !raidId || !character) continue;
         if (!lootByRaid[raidId]) lootByRaid[raidId] = { raidName, raidImage, latestDate: raidDate, characters: {} };
         if (raidDate > lootByRaid[raidId].latestDate) lootByRaid[raidId].latestDate = raidDate;
-        lootByRaid[raidId].characters[character] = (lootByRaid[raidId].characters[character] || 0) + 1;
+        const offspec = r.offspec as boolean | undefined;
+        if (!lootByRaid[raidId].characters[character]) lootByRaid[raidId].characters[character] = { ms: 0, os: 0 };
+        if (offspec) {
+            lootByRaid[raidId].characters[character].os += 1;
+        } else {
+            lootByRaid[raidId].characters[character].ms += 1;
+        }
     }
 
     const topLootByRaid = Object.entries(lootByRaid).map(([raidId, { raidName, raidImage, latestDate, characters }]) => ({
@@ -213,13 +219,13 @@ export default async function DashboardPage() {
         latestDate,
         top: Object.entries(characters)
             .map(([character, count]) => ({ character, count }))
-            .sort((a, b) => b.count - a.count)
+            .sort((a, b) => b.count.ms - a.count.ms)
             .slice(0, 5),
     })).sort((a, b) => b.latestDate.localeCompare(a.latestDate));
 
     return (
         <div className="flex flex-col gap-6 p-4 w-full">
-            <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
+            <h1 className="text-3xl font-bold">Guild Dashboard</h1>
 
             <OverviewCards
                 eventsToday={eventsToday ?? 0}

@@ -4,7 +4,7 @@ type RaidLootData = {
     raidId: string;
     raidName: string;
     raidImage: string | null;
-    top: { character: string; count: number }[];
+    top: { character: string; count: { ms: number; os: number } }[];
 };
 
 type Props = {
@@ -42,7 +42,7 @@ export default function TopLootByRaid({ raids }: Props) {
                                         {i + 1}
                                     </span>
                                     <span className="text-default flex-1 truncate">{entry.character}</span>
-                                    <span className="text-gray-400 font-mono text-xs">{entry.count} items</span>
+                                    <span className="text-gray-400 font-mono text-xs">{entry.count.ms} MS / {entry.count.os} OS</span>
                                 </li>
                             ))}
                         </ol>
