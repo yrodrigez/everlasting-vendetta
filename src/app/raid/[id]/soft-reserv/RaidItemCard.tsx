@@ -22,6 +22,7 @@ import { useAuth } from "@/app/context/AuthContext";
 import { toast } from "sonner";
 import moment from "moment";
 import { GUILD_NAME } from "@/app/util/constants";
+import { MessageCircleWarning, ShieldAlert } from "lucide-react";
 
 const WOW_CLASSES = ['warrior', 'paladin', 'hunter', 'rogue', 'priest', 'shaman', 'mage', 'warlock', 'druid'] as const;
 const WOW_SPECS = ['tank', 'healer', 'dps', 'rdps'] as const;
@@ -293,7 +294,8 @@ function ItemRulesPanel({ rules, isAdmin, resetId, itemId, hardReserve, removeHa
                         variant="flat"
                         classNames={{
                             base: 'bg-gold/10 border border-gold/20',
-                            content: 'text-xs text-gold'
+                            content: 'text-xs text-gold',
+                            closeButton: 'text-gold hover:text-red-600'
                         }}
                         onClose={isAdmin ? () => handleRemoveRule(rule.id, rule.rule?.type) : undefined}
                     >
@@ -597,7 +599,7 @@ export function RaidItemCard({
                 onClick={() => setIsClicked(item.id)}
                 className={`flex justify-center p-2 mt-4 rounded-md w-40 lg:w-32 h-24 bg-gradient-to-b border-2 transition-all duration-300 cursor-pointer hover:scale-105 hover:shadow-lg relative
                     border-${item.isHardReserved ? 'poor' : qualityColor}
-                    ${item.hasRules ? 'border-dashed border-default' : 'border-solid'}
+                    ${item.isHardReserved ? 'border-dashed border-poor' : 'border-solid'}
                     bg-gradient-${item.isHardReserved ? 'poor' : qualityColor}
                     shadow-${qualityColor}`}
             >
@@ -614,7 +616,7 @@ export function RaidItemCard({
                         </Chip>
                     </div>
                 )}
-                <div className="relative flex flex-col gap-2 items-center justify-center pt-6">
+                <div className="relative flex flex-col gap-2 items-center justify-between pt-6">
                     <img
                         src={item.description.icon}
                         alt={item.name}
@@ -623,6 +625,12 @@ export function RaidItemCard({
                         className={`absolute -top-5 rounded-md border border-${qualityColor} min-w-10 max-w-10 min-h-10 max-h-10 ${item.isHardReserved ? 'grayscale' : ''}`}
                     />
                     <span className="text-xs font-bold text-center leading-tight">{item.name}</span>
+                    {item.hasRules && !item.isHardReserved && (
+                        <span className="bg-legendary/30 text-xs text-default flex items-center gap-1 py-0.5 px-1 rounded-lg border border-legendary/50">
+                            <ShieldAlert size={14} />
+                            restricted
+                        </span>
+                    )}
                     {item.isHardReserved && (
                         <div className="text-[.5em] font-bold text-center text-gray-800 transition-all flex items-center gap-2 justify-center absolute -bottom-2">
                             <div>Hard Reserved</div>
