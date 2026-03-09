@@ -1,5 +1,5 @@
 import { SupabaseClient } from "@supabase/supabase-js";
-import { Character, RaidItem, Reservation } from "./types";
+import { Character, LootHistoryEntry, RaidItem, RaidLootItemRule, Reservation, ReserveRule } from "./types";
 import { RAID_STATUS } from "../../components/utils";
 import { Day } from "@/app/calendar/new/Components/useCreateRaidStore";
 
@@ -21,8 +21,9 @@ export class ReservationsRepository {
     }
 
     public async getRaidItems(resetId: string, raidId: string): Promise<RaidItem[]> {
-        const [hardReservations, databaseItems] = await Promise.all([
-            this.getHardReservations(resetId),
+        const [hardReserveItemIds, ruleItemIds, databaseItems] = await Promise.all([
+            this.fetchHardReserveItemIds(resetId),
+            this.fetchItemIdsWithRules(resetId),
             this.supabase.from('raid_loot')
                 .select(`
                     item:raid_loot_item!inner(
@@ -41,7 +42,8 @@ export class ReservationsRepository {
             return {
                 ...x.item,
                 boss: x.item.bosses?.[0]?.boss,
-                isHardReserved: !!hardReservations?.some(r => r.item_id === x.item.id)
+                isHardReserved: hardReserveItemIds.includes(x.item.id),
+                hasRules: ruleItemIds.includes(x.item.id)
             }
         }).reduce(function (acc, item) {
             if (!acc.find((i: RaidItem) => i.id === item.id)) {
@@ -268,5 +270,184 @@ export class ReservationsRepository {
         }
 
         return data ?? 0
+    }
+
+    public async fetchLootHistoryByItemId(itemId: number): Promise<LootHistoryEntry[]> {
+        const { data, error } = await this.supabase
+            .from('ev_loot_history')
+            .select('id, character, dateTime, offspec, raid_id')
+            .eq('itemID', itemId)
+            .order('dateTime', { ascending: false })
+            .limit(20)
+            .overrideTypes<LootHistoryEntry[]>()
+
+        if (error) {
+            console.error('Error fetching loot history for item:', error)
+            return []
+        }
+
+        return data || []
+    }
+
+    public async fetchReserveRules(): Promise<ReserveRule[]> {
+        const { data, error } = await this.supabase
+            .from('reserve_rules')
+            .select('*')
+            .overrideTypes<ReserveRule[]>()
+
+        if (error) {
+            console.error('Error fetching reserve rules:', error)
+            return []
+        }
+
+        return data || []
+    }
+
+    public async fetchItemRules(resetId: string, itemId: number): Promise<RaidLootItemRule[]> {
+        const { data, error } = await this.supabase
+            .from('raid_loot_item_rules')
+            .select('*, rule:reserve_rules(*)')
+            .eq('reset_id', resetId)
+            .eq('item_id', itemId)
+            .overrideTypes<RaidLootItemRule[]>()
+
+        if (error) {
+            console.error('Error fetching item rules:', error)
+            return []
+        }
+
+        return data || []
+    }
+
+    public async addItemRule(resetId: string, itemId: number, ruleId: number, value: Record<string, any>, userId: string): Promise<boolean> {
+        const { error } = await this.supabase
+            .from('raid_loot_item_rules')
+            .insert({
+                reset_id: resetId,
+                item_id: itemId,
+                rule_id: ruleId,
+                value,
+                created_by: userId
+            })
+
+        if (error) {
+            console.error('Error adding item rule:', error)
+            return false
+        }
+
+        return true
+    }
+
+    public async removeItemRule(ruleEntryId: number): Promise<boolean> {
+        const { error } = await this.supabase
+            .from('raid_loot_item_rules')
+            .delete()
+            .eq('id', ruleEntryId)
+
+        if (error) {
+            console.error('Error removing item rule:', error)
+            return false
+        }
+
+        return true
+    }
+
+    public async fetchHardReserveRules(resetId: string): Promise<{ id: number, item_id: number, item: any }[]> {
+        const { data, error } = await this.supabase
+            .from('raid_loot_item_rules')
+            .select('id, item_id, item:raid_loot_item(*), rule:reserve_rules!inner(type)')
+            .eq('reset_id', resetId)
+            .eq('rule.type', 'hard_reserve')
+            .overrideTypes<{ id: number, item_id: number, item: any }[]>()
+
+        if (error) {
+            console.error('Error fetching hard reserve rules:', error)
+            return []
+        }
+
+        return data || []
+    }
+
+    public async fetchHardReserveItemIds(resetId: string): Promise<number[]> {
+        const rules = await this.fetchHardReserveRules(resetId)
+        return rules.map(r => r.item_id)
+    }
+
+    public async fetchItemIdsWithRules(resetId: string): Promise<number[]> {
+        const { data, error } = await this.supabase
+            .from('raid_loot_item_rules')
+            .select('item_id')
+            .eq('reset_id', resetId)
+
+        if (error) {
+            console.error('Error fetching item IDs with rules:', error)
+            return []
+        }
+
+        return Array.from(new Set((data || []).map(r => r.item_id)))
+    }
+
+    public async fetchAllRulesForReset(resetId: string): Promise<RaidLootItemRule[]> {
+        const { data, error } = await this.supabase
+            .from('raid_loot_item_rules')
+            .select('*, rule:reserve_rules(*), item:raid_loot_item(*)')
+            .eq('reset_id', resetId)
+            .overrideTypes<(RaidLootItemRule & { item: any })[]>()
+
+        if (error) {
+            console.error('Error fetching all rules for reset:', error)
+            return []
+        }
+
+        return data || []
+    }
+
+    public async cloneRulesFromReset(sourceResetId: string, targetResetId: string, userId: string): Promise<boolean> {
+        const { data: sourceRules, error: fetchError } = await this.supabase
+            .from('raid_loot_item_rules')
+            .select('item_id, rule_id, value')
+            .eq('reset_id', sourceResetId)
+
+        if (fetchError || !sourceRules?.length) {
+            console.error('Error fetching source rules:', fetchError)
+            return false
+        }
+
+        const { error: insertError } = await this.supabase
+            .from('raid_loot_item_rules')
+            .upsert(
+                sourceRules.map(r => ({
+                    ...r,
+                    reset_id: targetResetId,
+                    created_by: userId
+                })),
+                { onConflict: 'reset_id, item_id, rule_id' }
+            )
+
+        if (insertError) {
+            console.error('Error cloning rules:', insertError)
+            return false
+        }
+
+        return true
+    }
+
+    public async fetchPreviousResets(raidId: string, currentResetId: string, currentResetDate: string): Promise<{ id: string, raid_date: string, name: string }[]> {
+        const { data, error } = await this.supabase
+            .from('raid_resets')
+            .select('id, raid_date, raid:ev_raid(name)')
+            .eq('raid_id', raidId)
+            .neq('id', currentResetId)
+            .lt('raid_date', currentResetDate)
+            .order('raid_date', { ascending: false })
+            .limit(10)
+            .overrideTypes<{ id: string, raid_date: string, raid: { name: string } }[]>()
+
+        if (error) {
+            console.error('Error fetching previous resets:', error)
+            return []
+        }
+
+        return (data || []).map(d => ({ id: d.id, raid_date: d.raid_date, name: d.raid?.name || '' }))
     }
 }

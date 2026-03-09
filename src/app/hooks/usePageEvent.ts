@@ -2,7 +2,7 @@
 import { createAPIService } from "@/app/lib/api";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "@/app/context/AuthContext";
 
 export function usePageEvent(pageName: string, metadata?: Record<string, any>) {
     const pathname = usePathname();

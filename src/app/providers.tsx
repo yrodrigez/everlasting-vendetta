@@ -7,7 +7,7 @@ import { HeroUIProvider } from "@heroui/react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { useEffect, useRef, type ReactNode } from "react";
 import { ApiHealthBanner } from "./components/api-health-banner";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider } from "@/app/context/AuthContext";
 import { useCharacterStore } from "./components/characterStore";
 import { useRouter } from "next/navigation";
 

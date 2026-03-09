@@ -2,9 +2,11 @@
 import CharacterAvatar from "@/app/components/CharacterAvatar";
 import { useWoWZamingCss } from "@/app/hooks/useWoWZamingCss";
 import { type CharacterWithLoot, type Item } from "@/app/raid/[id]/loot/components/types";
+import { createRosterMemberRoute } from "@/app/util/create-roster-member-route";
 import { faMasksTheater, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Modal, ModalContent, Tooltip, useDisclosure } from "@heroui/react";
+import Link from "next/link";
 import { useMemo } from "react";
 
 export const ItemWithTooltip = ({ item, className }: { item: Item, className?: string }) => {
@@ -68,7 +70,6 @@ export const ItemWithTooltip = ({ item, className }: { item: Item, className?: s
 }
 
 export function LootItem({ characterWithLoot }: { characterWithLoot: CharacterWithLoot }) {
-    useWoWZamingCss() // This is a custom hook that loads the WoW Zaming CSS
     return (
         <div className={`rounded-lg flex flex-col gap-2 pt-2 items-center border border-gold w-64 bg-dark relative`}>
             {characterWithLoot.plusses > 0 && (
@@ -77,8 +78,14 @@ export function LootItem({ characterWithLoot }: { characterWithLoot: CharacterWi
                     {characterWithLoot.plusses}
                 </div>
             )}
-            <CharacterAvatar width={60} height={60} characterName={characterWithLoot.character.toLowerCase()} realm={characterWithLoot.realm.toLowerCase()} />
-            <span className="text-sm font-semibold">{characterWithLoot.character}</span>
+            <Link
+                href={createRosterMemberRoute(characterWithLoot.character, characterWithLoot.realm)}
+                className="flex flex-col items-center justify-center gap-2"
+            >
+                <CharacterAvatar width={60} height={60} characterName={characterWithLoot.character.toLowerCase()} realm={characterWithLoot.realm.toLowerCase()} />
+
+                <span className="text-sm font-semibold">{characterWithLoot.character}</span>
+            </Link>
             <div className={`flex gap-2 p-2 m-2 overflow-auto scrollbar-pill w-full justify-around border-2 border-transparent`}>
                 {characterWithLoot.loot.map((item, i) => {
                     return <ItemWithTooltip key={item.id} item={{ ...item.item, id: item.itemID, isPlus: item.isPlus, offspec: item.offspec === 1 }} />

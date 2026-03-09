@@ -23,7 +23,7 @@ export default function YourReservations({ resetId, initialReservedItems, baseRe
     } = useReservations(resetId, initialReservedItems)
 
     const extraSR = useMemo(() => {
-        return maxReservations - baseReservationAmount
+        return (maxReservations - baseReservationAmount);
     }, [stateReservations, resetId, baseReservationAmount, maxReservations])
 
     return <div className={"flex flex-col gap-2 relative w-full"}>
@@ -61,7 +61,7 @@ export default function YourReservations({ resetId, initialReservedItems, baseRe
                 {<sup
                     className="ml-1"
                 >
-                    <span className={`${extraSR > 0 ? 'text-green-600' : 'text-gray-500'} text-xs `}>(+{extraSR})</span>
+                    <span className={`${extraSR > 0 ? 'text-green-600' : extraSR < 0 ? 'text-red-600' : 'text-gray-500'} text-xs `}>({extraSR > 0 ? '+' : extraSR < 0 ? '-' : ''}{Math.abs(extraSR)})</span>
                 </sup>}
             </h3>
         </div>

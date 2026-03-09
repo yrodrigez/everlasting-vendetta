@@ -1,12 +1,12 @@
 'use client'
+import { CharacterViewOptions } from "@/app/roster/[name]/components/CharacterViewOptions";
 import {
     ClassSpecialization,
     getClassTalents, TalentsPlaceholder
 } from "@/app/roster/[name]/components/talents/talentsPlaceholders";
-import {TalentTree} from "@/app/roster/[name]/components/talents/TalentTree";
-import {CharacterViewOptions} from "@/app/roster/[name]/components/CharacterViewOptions";
-import {useState} from "react";
-import {Tooltip} from "@heroui/react";
+import { TalentTree } from "@/app/roster/[name]/components/talents/TalentTree";
+import { Tooltip } from "@heroui/react";
+import { useState } from "react";
 
 export const getTalentTreeIconUrl = (className: string, talentName: string) => {
     return `/talents-spec/${(className ?? '').toLowerCase()}/${(talentName ?? '').replaceAll(' ', '')}.jpg`
@@ -42,7 +42,7 @@ export function CharacterTalents({talents, characterInfo}: {
     const talentsKeys = Object.keys(specializationsPlaceholder)
 
     return (
-        <div className="w-full h-full relative">
+        <div className="w-full h-full min-h-0 relative">
             <div className="lg:hidden flex w-full h-full justify-center items-center">
                 <CharacterViewOptions
                     bottom
@@ -87,7 +87,7 @@ export function CharacterTalents({talents, characterInfo}: {
                     })
                 }
             </div>
-            <div className="flex flex-col gap-2 w-16 absolute -right-2 lg:-right-12 top-1 z-10">
+            <div className="flex flex-col gap-2 w-16 absolute -right-2 lg:-right-8 top-1 z-10">
                 {talentGroups.map((group: any, index: number) => {
                     const {specializationName, is_active} = group
                     const iconUrl = getTalentTreeIconUrl(className, specializationName)

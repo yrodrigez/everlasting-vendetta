@@ -16,7 +16,7 @@ export function AttendanceHeatmap({attendance}: {
 	const [selected, setSelected] = useState<string | null>(null)
 	return (
 		<div
-			className={'w-full h-96  p-8 rounded border border-wood-100 flex flex-wrap gap-4 bg-wood overflow-auto scrollbar-pill'}>
+			className={'w-full max-h-full min-h-0 p-8 rounded border border-wood-100 flex flex-wrap content-start gap-4 bg-wood overflow-auto scrollbar-pill'}>
 			{attendance?.map((raid) => (
 				<div key={raid.id}
 				     className={`flex border ${raid.participated ? 'bg-moss border-moss-100' : 'bg-wood-900 border-wood-100 '} w-8 h-8 rounded-lg shadow cursor-pointer shadow-wood-900`}

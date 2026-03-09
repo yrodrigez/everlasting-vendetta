@@ -1,8 +1,9 @@
 import { Button } from "@/app/components/Button";
 import NotLoggedInView from "@/app/components/NotLoggedInView";
 import { SomethingWentWrong } from "@/app/components/something-went-wrong";
+import { PageEvent } from "@/app/hooks/usePageEvent";
 import AdminPanel from "@/app/raid/[id]/soft-reserv/AdminPanel";
-import { BannedItems, ImportBannedItems } from "@/app/raid/[id]/soft-reserv/BannedItems";
+import { BannedItems } from "@/app/raid/[id]/soft-reserv/BannedItems";
 import RaidItemsList from "@/app/raid/[id]/soft-reserv/RaidItemsList";
 import YourReservations from "@/app/raid/[id]/soft-reserv/YourReservations";
 import RaidTimeInfo from "@/app/raid/components/RaidTimeInfo";
@@ -11,8 +12,6 @@ import moment from "moment";
 import { Metadata } from "next";
 import { RaidItemsProvider } from "./raid-items-context";
 import { ReservationsRepository } from "./reservations-repository";
-import { PageEvent } from "@/app/hooks/usePageEvent";
-import { log } from "node:console";
 
 type Raid = {
     min_level: number;
@@ -34,6 +33,7 @@ type RaidQueryResult = {
     realm: string;
     is_reservations_allowed: boolean;
     status: string | null;
+    reserve_ammount: number;
 };
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -120,12 +120,41 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 
     const resetData = await database
         .from('raid_resets')
-        .select('raid_id, realm, raid:ev_raid(min_level, name, image, reservation_amount, id), raid_date, time, end_date, end_time, created_by, reservations_closed, is_reservations_allowed, status')
+        .select('raid_id, realm, reserve_ammount, raid:ev_raid(min_level, name, image, reservation_amount, id), raid_date, time, end_date, end_time, created_by, reservations_closed, is_reservations_allowed, status')
         .eq('id', resetId)
         .single<RaidQueryResult>()
 
     if (!resetData.data) {
         return <div>Reset not found</div>
+    }
+
+    if (resetData.error) {
+        return <SomethingWentWrong
+            header="Error Fetching Raid Data"
+            body={
+                <>
+                    <p>
+                        An error occurred while fetching the raid data. Please try again later or contact support if the issue persists.
+                    </p>
+                    <p
+                        className="mt-3 text-xs text-primary/55"
+                    >
+                        If you believe this is an error, please contact support or try again later.
+                    </p>
+                </>
+            }
+            footer={<>
+                <div>
+                    <Button
+                        as="a"
+                        className="w-full"
+                        href={`/raid/${raidId}`}>
+                        Go Back To Raid
+                    </Button>
+                </div>
+            </>
+            }
+        />
     }
 
     if (!resetData.data.is_reservations_allowed) {
@@ -244,10 +273,9 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 
     const repository = new ReservationsRepository(database);
     const raidIdStr = resetData.data.raid_id;
-    const [items, reservations, hardReservations] = await Promise.all([
+    const [items, reservations] = await Promise.all([
         repository.getRaidItems(resetId, raidIdStr),
         repository.fetchReservedItems(resetId),
-        repository.getHardReservations(resetId)
     ]);
     const isAdmin = loggedInUser.isAdmin
 
@@ -278,7 +306,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                                 />
                             </div>
                             <YourReservations
-                                baseReservationAmount={resetData?.data?.raid?.reservation_amount}
+                                baseReservationAmount={resetData?.data?.reserve_ammount}
                                 resetId={resetId}
                                 initialReservedItems={reservations}
                             />
@@ -321,30 +349,20 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                                 />
                             </div>
                             <YourReservations
-                                baseReservationAmount={resetData?.data?.raid?.reservation_amount}
+                                baseReservationAmount={resetData?.data?.reserve_ammount}
                                 resetId={resetId}
                                 initialReservedItems={reservations}
                             />
                         </div>
                         <div className="flex flex-col gap-2 mt-6">
                             <span className="text-lg font-bold">Banned items</span>
-                            {!!hardReservations?.length ? (<BannedItems
+                            <BannedItems
                                 realmSlug={resetData.data.realm}
-                                hardReservations={hardReservations}
                                 reset_id={resetId}
                                 isAdmin={isAdmin}
                                 raid_id={resetData.data.raid_id}
-                            />) : (
-                                <div className="flex flex-col gap-2 justify-center items-center relative">
-                                    <span className={'text-gray-500 text-sm'}>No items are banned for this raid</span>
-                                    {isAdmin && (
-                                        <ImportBannedItems
-                                            raid_id={resetData.data.raid_id}
-                                            reset_id={resetId}
-                                        />
-                                    )}
-                                </div>
-                            )}
+                                reset_date={resetData.data.raid_date}
+                            />
                         </div>
                     </div>
                 </div>

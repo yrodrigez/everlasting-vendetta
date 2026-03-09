@@ -21,7 +21,7 @@ export const useReservationsRealtime = (
     const resetChannelName = `reset:${resetId}`;
     const extraReservationsChannelName = `ev_extra_reservations:reset_id=${resetId}`;
     const raidLootChannelName = `raid_loot:id=${resetId}`;
-    const hardReserveChannelName = `hard_reserve:reset_id=${resetId}`;
+    const hardReserveChannelName = `item_rules:reset_id=${resetId}`;
 
     useEffect(() => {
         if (!supabase || !resetId || !isAuthenticated) return;
@@ -97,8 +97,7 @@ export const useReservationsRealtime = (
             .on('postgres_changes', {
                 event: '*',
                 schema: 'public',
-                table: 'reset_hard_reserve',
-                // filter: 'reset_id=eq.' + resetId
+                table: 'raid_loot_item_rules',
             }, async (data) => {
                 onHardReserveChange(data)
                 router.refresh()

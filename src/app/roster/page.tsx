@@ -7,6 +7,8 @@ import { redirect } from "next/navigation";
 import { createAPIService } from "../lib/api";
 import { PageEvent } from "@/app/hooks/usePageEvent";
 import { CharacterViewOptions } from "./[name]/components/CharacterViewOptions";
+import { Scroll } from "lucide-react";
+import { ScrollShadow } from "../components/scroll-shadow";
 
 export const dynamic = 'force-dynamic'
 
@@ -187,7 +189,11 @@ export default async function Page({
             items={realms.map(realm => ({
                 label: realm.name,
                 name: realm.slug,
-                children: rosterView
+                children: (
+                    <ScrollShadow className="scrollbar-pill w-full h-full min-h-0">
+                        {rosterView}
+                    </ScrollShadow>
+                )
             }))}
         />
     </main>

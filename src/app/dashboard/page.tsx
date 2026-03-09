@@ -11,6 +11,8 @@ import RecentEventsFeed from "./components/RecentEventsFeed";
 import UserWorldMap from "./components/UserWorldMap";
 import ClassDistributionChart from "./components/ClassDistributionChart";
 import TopLootByRaid from "./components/TopLootByRaid";
+import { SomethingWentWrong } from "../components/something-went-wrong";
+import NotLoggedInView from "../components/NotLoggedInView";
 
 export const dynamic = 'force-dynamic';
 
@@ -18,12 +20,28 @@ export default async function DashboardPage() {
     const { auth, getSupabase } = await createServerSession();
     const session = await auth.getSession();
 
-    if (!session || !session.id || !session.roles?.includes(ROLE.ADMIN)) {
+    if (!session?.id) {
         return (
-            <div className="w-full h-full flex items-center justify-center text-4xl text-red-500 font-bold flex-col gap-4">
-                <span className="text-9xl">🚫</span>
-                <span>Unauthorized</span>
-            </div>
+            <NotLoggedInView />
+        )
+
+    }
+
+    if (!session.roles?.includes(ROLE.ADMIN)) {
+        return (
+            <SomethingWentWrong
+                header='Access Denied'
+                body={(
+                    <p className="text-center">
+                        You do not have permission to view this page.
+                    </p>
+                )}
+                footer={(
+                    <p className="text-center">
+                        Please log in with an account that has access.
+                    </p>
+                )}
+            />
         );
     }
 
@@ -31,8 +49,8 @@ export default async function DashboardPage() {
 
     const now = new Date();
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
-    const sevenDaysAgo = new Date(now.getTime() - 7 * 86400000).toISOString();
-    const thirtyDaysAgo = new Date(now.getTime() - 30 * 86400000).toISOString();
+    const sevenDaysAgo = new Date(new Date(todayStart).getTime() - 7 * 86400000).toISOString();
+    const thirtyDaysAgo = new Date(new Date(todayStart).getTime() - 30 * 86400000).toISOString();
 
     // Overview counts
     const [
@@ -102,7 +120,8 @@ export default async function DashboardPage() {
         .from('web_events')
         .select('user_id')
         .gte('created_at', thirtyDaysAgo)
-        .not('user_id', 'is', null);
+        .not('user_id', 'is', null)
+        .not('event_name', 'eq', 'token_refresh');
 
     const validTopUsers = (topUsersRaw ?? []).filter((e): e is { user_id: string } => e.user_id !== null);
     const topUsersList = getTopUsers(validTopUsers, 10);
@@ -142,6 +161,7 @@ export default async function DashboardPage() {
     const { data: recentEvents } = await supabase
         .from('web_events')
         .select('event_name, event_type, user_id, created_at, page_path')
+        .neq('event_name', 'token_refresh')
         .order('created_at', { ascending: false })
         .limit(50);
 
@@ -150,10 +170,19 @@ export default async function DashboardPage() {
         .from('web_events')
         .select('ip_address')
         .not('ip_address', 'is', null)
-        .not('event_name', 'in', '("login_bnet","login_discord","login_success","token_refresh","token_revoke")');
+        .neq('event_name', 'token_refresh')
+        .neq('event_name', 'login_bnet')
+        .neq('event_name', 'login_discord')
+        .neq('event_name', 'login_success')
+        .neq('event_name', 'token_revoke')
+        .neq('event_name', 'discord_invite_clicked')
+        .neq('event_name', 'account_created')
+        .gte('created_at', thirtyDaysAgo);
+        //.not('event_name', 'in', '("login_bnet","login_discord","login_success","token_refresh","token_revoke", "discord_invite_clicked")');
 
     const distinctIps = [...new Set((ipData ?? []).map(e => e.ip_address as string).filter(Boolean))];
     const geoData = aggregateUsersByCountry(distinctIps);
+
 
     // Class distribution (guild members only)
     const { data: guildMembers } = await supabase

@@ -13,7 +13,7 @@ import moment from "moment";
 import { applyReducer } from "@/app/lib/achievements";
 import { GUILD_NAME } from "@utils/constants";
 import { toast } from "sonner";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "@/app/context/AuthContext";
 import { useShallow } from "zustand/shallow";
 import { createClientComponentClient } from "../util/supabase/createClientComponentClient";
 

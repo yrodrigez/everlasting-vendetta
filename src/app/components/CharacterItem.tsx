@@ -1,6 +1,6 @@
 'use client'
 import { ItemImageWithRune } from "@/app/roster/[name]/components/ItemImageWithRune";
-import { useMemo, useState } from "react";
+import { use, useMemo, useState } from "react";
 import { useCharacterItemsStore } from "@/app/roster/[name]/characterItemsStore";
 import { Skeleton, Tooltip } from "@heroui/react";
 import { itemTypeInfo } from "@/app/roster/[name]/ilvl";
@@ -9,6 +9,7 @@ import { faWandMagic, faWandMagicSparkles } from "@fortawesome/free-solid-svg-ic
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import api from "../lib/api";
 import WoWHeadItem from "./wow-head-item";
+import { useWoWItem } from "../hooks/api/use-wow-item";
 
 
 
@@ -179,8 +180,8 @@ export default function ({ item: _item, reverse, bottom, domain }: {
     const [_, isEnchantable] = itemTypeInfo[`INVTYPE_${item.inventory_type?.type}`] ?? [0, false];
     const isEnchanted = item.enchantments?.filter((enchant: any) => enchant.enchantment_slot?.type === 'PERMANENT' && enchant.enchantment_slot?.id === 0).length && isEnchantable
 
-    const { isLoading: loading } = useQuery({
-        queryKey: ['item', item],
+    /* const { data, isLoading: loading } = useQuery({
+        queryKey: ['item_data', id],
         queryFn: async () => {
 
             updateItem({
@@ -211,17 +212,34 @@ export default function ({ item: _item, reverse, bottom, domain }: {
             return { itemIconUrl, itemDetails, displayId }
         },
         enabled: !!id,
-        staleTime: 1000 * 60 * 5, // 5 minutes
+        staleTime: Infinity, // 5 minutes
         retry: 3
-    })
+    }) */
 
-   
+    const { data, isError, isLoading: loading } = useWoWItem(id)
+    useMemo(() => {
+        if (data) {
+            const { itemIconUrl, itemDetails, displayId } = data
+            setItemIconUrl(itemIconUrl);
+            setItemDetails(itemDetails);
+            updateItem({
+                id,
+                displayId,
+                ...item,
+                itemIconUrl,
+                details: itemDetails,
+                loading: false
+            })
+        }
+    }, [data, id])
+
     const gems = item?.enchantments?.filter((enchant: any) => !enchant.enchantment_slot.type && enchant.enchantment_slot.id > 0 && enchant.source_item?.id).map((enchant: any) => enchant.source_item.id) || []
     return (
         <div className={`flex items-center gap-4 ${reverse ? 'flex-row-reverse' : ''}`}>
             <Skeleton isLoaded={!loading}
                 className={`w-12 h-12 relative rounded-lg  ${loading ? 'bg-wood rounded-lg' : 'bg-transparent'} transition-all duration-300`}>
                 <WoWHeadItem
+                    hideName
                     itemId={id}
                     icon={itemIconUrl}
                     enchant={item?.enchantments?.find?.((x: { enchantment_slot?: { type: string, id: number } }) => x.enchantment_slot?.type === 'PERMANENT' && x.enchantment_slot?.id === 0)?.enchantment_id}
@@ -251,7 +269,7 @@ export default function ({ item: _item, reverse, bottom, domain }: {
                 </Skeleton>
                 <Skeleton isLoaded={!loading}
                     className={`h-4 bg-transparent mt-1 ${loading ? 'bg-wood rounded-full' : 'transition-all duration-300'}`}>
-                    <p className="text-xs text-muted">Item Level {itemDetails.level}</p>
+                    <p className="text-xs text-muted">Item Level {data?.itemDetails?.level ?? itemDetails?.level}</p>
                 </Skeleton>
             </div>
         </div>

@@ -11,7 +11,7 @@ import { useMessageBox } from "@utils/msgBox";
 import { ItemWithTooltip } from "@/app/raid/[id]/loot/components/LootItem";
 import { useShallow } from "zustand/react/shallow";
 import { useCharacterStore } from "../components/characterStore";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "@/app/context/AuthContext";
 import { createClientComponentClient } from "../util/supabase/createClientComponentClient";
 
 function useReservationAlert(someoneReservedMoreThanMe: false | { resetId: string, itemId: number, item?: any }) {

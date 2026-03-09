@@ -466,7 +466,7 @@ export default function CharacterProfessions({ professions, characterId, classNa
 
 
 
-    return !isOwn && !professions.length ? 'This member has not updated his/her professions.' : (
+    return !isOwn && !professions.length ? 'This member has not updated its professions.' : (
         <div className={className ?? "w-full h-96 bg-wood border border-wood-100 flex gap-2 p-1 rounded-md"}>
             <div className="h-full min-w-18 max-w-18">
                 <ScrollShadow className="w-full h-full scrollbar-pill flex flex-col gap-2 p-2">

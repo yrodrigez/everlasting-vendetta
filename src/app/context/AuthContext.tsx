@@ -145,7 +145,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (event.origin !== window.location.origin) return;
 
       if (event.data?.type === 'AUTH_SUCCESS') {
-        console.log('Auth success message received, refreshing token...');
         refreshToken().catch((err) => {
           console.error('Failed to refresh token after login:', err);
         });

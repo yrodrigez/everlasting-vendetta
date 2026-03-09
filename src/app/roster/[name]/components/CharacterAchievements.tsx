@@ -61,7 +61,7 @@ function AchievementInfo({achievement, onClose}: { achievement: Achievement, onC
     }, [achievement]);
 
     return (
-        <div
+        <ScrollShadow
             className="flex w-full h-full flex-col lg:flex-row items-center lg:justfy-evenly gap-4 overflow-auto scrollbar-pill py-8"
         >
             <div
@@ -103,7 +103,7 @@ function AchievementInfo({achievement, onClose}: { achievement: Achievement, onC
                     ))}
                 </ScrollShadow>
             </div>
-        </div>
+        </ScrollShadow>
     )
 }
 
@@ -209,7 +209,7 @@ export default function ({achieved, notAchieved, achievedPoints}: {
     }, [achieved, notAchieved])
 
     return (
-        <div
+        <ScrollShadow
             className="p-4 w-full h-full overflow-auto scrollbar-pill">
             {userAchievements?.map(({category, achievements}: { achievements: Achievement[], category: string }) => (
                 <div key={category} className="flex flex-col gap-4 items-start justify-start mb-4">
@@ -227,6 +227,6 @@ export default function ({achieved, notAchieved, achievedPoints}: {
                     </ScrollShadow>
                 </div>
             ))}
-        </div>
+        </ScrollShadow>
     )
 }

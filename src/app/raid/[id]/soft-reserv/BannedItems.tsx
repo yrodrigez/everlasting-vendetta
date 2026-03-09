@@ -1,38 +1,86 @@
 'use client'
 import { getQualityColor } from "@/app/util";
 import Link from "next/link";
-import { useReservations } from "@/app/raid/[id]/soft-reserv/useReservations";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClose, faCloudArrowDown } from "@fortawesome/free-solid-svg-icons";
 import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ScrollShadow, useDisclosure } from "@heroui/react";
 import { Button } from "@/app/components/Button";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useMessageBox } from "@utils/msgBox";
 import { useAuth } from "@/app/context/AuthContext";
 import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
+import { useRouter } from "next/navigation";
+import { useRaidItems } from "./raid-items-context";
+import moment from "moment";
 
-export function BannedItems({ hardReservations, reset_id, isAdmin = false, raid_id, realmSlug }: {
-    hardReservations: any,
+export function BannedItems({ reset_id, isAdmin = false, raid_id, realmSlug, reset_date }: {
     reset_id: string,
-    isAdmin?: boolean
+    isAdmin?: boolean,
     raid_id: string,
-    realmSlug: string
+    realmSlug: string,
+    reset_date: string
 }) {
-    const { removeHardReserve, loading, globalLoading } = useReservations(reset_id, [])
-    const { accessToken } = useAuth()
-    const supabase = createClientComponentClient(accessToken)
+    const { repository } = useRaidItems()
+    const { accessToken, isAuthenticated, user } = useAuth()
+    const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken])
     const domain = realmSlug === 'living-flame' ? 'classic' : 'tbc'
 
     const [updateLoading, setUpdateLoading] = useState(false)
     const { alert, yesNo } = useMessageBox()
 
+    const { data: hardReservations = [], refetch } = useQuery({
+        queryKey: ['hard-reserve-rules', reset_id],
+        queryFn: () => repository.fetchHardReserveRules(reset_id),
+        enabled: !!reset_id,
+        staleTime: 60000,
+    })
+
+    const refetchRef = useRef<(() => void) | null>(null)
+    refetchRef.current = refetch
+
+    // Realtime subscription for rule changes
+    const [realtimeError, setRealtimeError] = useState(false)
+    useEffect(() => {
+        if (!supabase || !reset_id || !isAuthenticated) return
+
+        const channel = supabase
+            .channel(`banned_items_rules:${reset_id}`)
+            .on('postgres_changes', {
+                event: '*',
+                schema: 'public',
+                table: 'raid_loot_item_rules',
+            }, () => {
+                refetchRef.current?.()
+            })
+            .subscribe((status, err) => {
+                if (err) {
+                    console.error('Error subscribing to raid_loot_item_rules for banned items:', err)
+                    setRealtimeError(true)
+                } else if (status === 'SUBSCRIBED') {
+                    setRealtimeError(false)
+                }
+            })
+
+        return () => {
+            supabase.removeChannel(channel)
+        }
+    }, [supabase, reset_id, isAuthenticated])
+
+    // Fallback polling if realtime fails
+    useQuery({
+        queryKey: ['hard-reserve-rules-poll', reset_id],
+        queryFn: () => repository.fetchHardReserveRules(reset_id),
+        enabled: realtimeError && !!reset_id,
+        refetchInterval: 60000,
+    })
+
     const updateFutureRaids = useCallback(async () => {
-        if (!supabase || !reset_id || !raid_id) return
+        if (!supabase || !reset_id || !raid_id || !user) return
         if (updateLoading) return
         setUpdateLoading(true)
         const accept = await yesNo({
-            message: 'Are you sure you want to update future raids? This will update all the future raids with the current banned items and update the template for the future raids.',
+            message: 'Are you sure you want to update future raids? This will clone all current rules to future raids.',
             yesText: 'Yes, update future raids',
             noText: 'No, cancel',
             title: 'Update future raids',
@@ -47,67 +95,56 @@ export function BannedItems({ hardReservations, reset_id, isAdmin = false, raid_
             .gt('raid_date', new Date().toISOString())
             .order('id', { ascending: true })
             .limit(100)
+
         if (futureResetsError) {
             alert({ message: 'Error fetching future resets', type: 'error' })
             return setUpdateLoading(false)
         }
 
-
-        const { error: deleteTemplateError } = await supabase.from('hard_reserve_templates')
-            .delete()
-            .eq('raid_id', raid_id)
-
-        if (deleteTemplateError) {
-            alert({ message: 'Error deleting template', type: 'error' })
-            return setUpdateLoading(false)
+        let hasError = false
+        for (const futureReset of futureResets || []) {
+            const success = await repository.cloneRulesFromReset(reset_id, futureReset.id, user.id)
+            if (!success) {
+                hasError = true
+                break
+            }
         }
 
-        await Promise.all(futureResets?.map((x: any) => {
-            return supabase.from('reset_hard_reserve')
-                .delete()
-                .eq('reset_id', x.id)
-        }))
-
-        const futureResetsData = futureResets.map((x: any) => {
-            return hardReservations.map((y: any) => {
-                return {
-                    reset_id: x.id,
-                    item_id: y.item_id
-                }
-            })
-        }).flat()
-
-        const templateData = hardReservations.map((x: any) => {
-            return {
-                item_id: x.item_id,
-                raid_id: raid_id
-            }
-        })
-
-
-        const [future, template] = await Promise.all([
-            supabase.from('reset_hard_reserve').upsert(futureResetsData, {
-                onConflict: 'item_id, reset_id'
-            }),
-            supabase.from('hard_reserve_templates').upsert(templateData, {
-                onConflict: 'item_id, raid_id'
-            })
-        ])
-
-        if (future.error || template.error) {
-            alert({ message: 'Error updating future raids', type: 'error' })
-            return setUpdateLoading(false)
+        if (hasError) {
+            alert({ message: 'Error updating some future raids', type: 'error' })
+        } else {
+            alert('Future raids updated')
         }
 
         setUpdateLoading(false)
-        alert('Future raids updated')
+    }, [reset_id, raid_id, supabase, updateLoading, repository, user, alert, yesNo])
 
-    }, [reset_id, hardReservations])
+    const handleRemoveRule = useCallback(async (ruleEntryId: number) => {
+        const success = await repository.removeItemRule(ruleEntryId)
+        if (!success) {
+            alert({ message: 'Error removing hard reserve rule', type: 'error' })
+        }
+    }, [repository])
+
+    if (!hardReservations.length) {
+        return (
+            <div className="flex flex-col gap-2 justify-center items-center relative">
+                <span className={'text-gray-500 text-sm'}>No items are banned for this raid</span>
+                {isAdmin && (
+                    <ImportRules
+                        raid_id={raid_id}
+                        reset_id={reset_id}
+                        reset_date={reset_date}
+                    />
+                )}
+            </div>
+        )
+    }
 
     return (
         <>
             <ScrollShadow className="flex flex-col gap-2 h-full overflow-auto max-h-96 scrollbar-pill">
-                {hardReservations.map((hr: any) => (
+                {hardReservations.map((hr) => (
                     <div key={hr.item_id}
                         className={`flex gap-2 justify-between items-center text-sm text-${getQualityColor(hr?.item?.description?.quality)} p-2 border border-wood rounded`}>
                         <Link href={`https://www.wowhead.com/${domain}/item=${hr.item_id}`}
@@ -117,8 +154,7 @@ export function BannedItems({ hardReservations, reset_id, isAdmin = false, raid_
                             <span>[{hr.item.name}]</span>
                         </Link>
                         {isAdmin && (
-                            <button onClick={() => removeHardReserve(hr.item_id)}
-                                disabled={loading || globalLoading}
+                            <button onClick={() => handleRemoveRule(hr.id)}
                                 className="text-red-500 hover:text-red-700">
                                 <FontAwesomeIcon icon={faClose} />
                             </button>
@@ -127,81 +163,78 @@ export function BannedItems({ hardReservations, reset_id, isAdmin = false, raid_
                 ))}
             </ScrollShadow>
             {isAdmin && (
-                <Button
-                    onPress={updateFutureRaids}
-                    isLoading={updateLoading}
-                    isDisabled={updateLoading}
-
-                >
-                    Update future raids
-                </Button>
+                <>
+                    <Button
+                        onPress={updateFutureRaids}
+                        isLoading={updateLoading}
+                        isDisabled={updateLoading}
+                    >
+                        Update future raids
+                    </Button>
+                    <ImportRules
+                        reset_date={reset_date}
+                        raid_id={raid_id}
+                        reset_id={reset_id}
+                    />
+                </>
             )}
         </>
     );
 }
 
-export function ImportBannedItems({ raid_id, reset_id }: { raid_id: string, reset_id: string }) {
-    const { loading } = useReservations(reset_id, [])
-    const { accessToken } = useAuth()
-    const supabase = createClientComponentClient(accessToken)
+export function ImportRules({ raid_id, reset_id, reset_date }: { raid_id: string, reset_id: string, reset_date: string }) {
+    const { repository } = useRaidItems()
+    const { accessToken, user } = useAuth()
+    const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken])
 
     const { isOpen, onOpenChange, onClose, onOpen } = useDisclosure()
-
     const { alert } = useMessageBox()
+    const router = useRouter()
 
-    const { data: currentTemplate, isLoading } = useQuery({
-        queryKey: ['hard_reserve_templates', raid_id],
-        queryFn: async () => {
-            if (!supabase) return []
-            const { data, error } = await supabase.from('hard_reserve_templates').select(
-                'item_id, item:raid_loot_item(*)'
-            ).eq('raid_id', raid_id)
-            if (error) {
-                alert('Error fetching template')
-                return
-            }
-            return data
-        },
-        enabled: !!supabase
+    const { data: previousResets = [], isLoading: resetsLoading } = useQuery({
+        queryKey: ['previous-resets', raid_id, reset_id, reset_date],
+        queryFn: () => repository.fetchPreviousResets(raid_id, reset_id, reset_date),
+        enabled: !!supabase && !!raid_id,
     })
-    const [isPending, setIsPending] = useState(false)
-    const importFromTemplate = useCallback(async () => {
-        if (!supabase || !reset_id || !raid_id) return
-        if (loading || isLoading || !currentTemplate?.length) return
-        setIsPending(true)
-        const { error } = await supabase.from('reset_hard_reserve').upsert(
-            currentTemplate.map((x: any) => {
-                return {
-                    reset_id,
-                    item_id: x.item_id
-                }
-            }), {
-            onConflict: ['reset_id', 'item_id'].join(',')
-        }
-        )
 
-        if (error) {
-            alert({ message: 'Error importing template', type: 'error' })
+    const [selectedResetId, setSelectedResetId] = useState<string | null>(null)
+
+    const { data: previewRules = [], isLoading: rulesLoading } = useQuery({
+        queryKey: ['preview-rules', selectedResetId],
+        queryFn: () => repository.fetchAllRulesForReset(selectedResetId!),
+        enabled: !!selectedResetId,
+    })
+
+    const [isPending, setIsPending] = useState(false)
+    const importRules = useCallback(async () => {
+        if (!supabase || !reset_id || !selectedResetId || !user) return
+        setIsPending(true)
+
+        const success = await repository.cloneRulesFromReset(selectedResetId, reset_id, user.id)
+
+        if (!success) {
+            alert({ message: 'Error importing rules', type: 'error' })
+            setIsPending(false)
             return
         }
 
         setTimeout(() => {
             setIsPending(false)
-            window.location.reload()
+            router.refresh()
             onClose()
-        }, 3000)
-    }, [currentTemplate, reset_id, raid_id, supabase, loading, isLoading])
+        }, 2000)
+    }, [selectedResetId, reset_id, supabase, repository, user, alert, router, onClose])
 
     return (
         <>
             <Button
-                isLoading={loading || isLoading}
-                isDisabled={loading || isLoading || !currentTemplate?.length}
+                isLoading={resetsLoading}
+                isDisabled={resetsLoading || !previousResets.length}
                 onPress={onOpen}
                 size="lg"
-                startContent={!loading && !isLoading && <FontAwesomeIcon icon={faCloudArrowDown} />}
+                startContent={!resetsLoading && <FontAwesomeIcon icon={faCloudArrowDown} />}
             >
-                {!currentTemplate?.length ? 'No template created' : 'Import from template'}
+                {!previousResets.length ? 'No previous resets' : 'Import rules'}
             </Button>
             <Modal
                 isOpen={isOpen}
@@ -216,33 +249,59 @@ export function ImportBannedItems({ raid_id, reset_id }: { raid_id: string, rese
                     {() => (
                         <>
                             <ModalHeader>
-                                <h2 className="text-xl font-bold">Import from template</h2>
+                                <h2 className="text-xl font-bold">Import Rules from Previous Raid</h2>
                             </ModalHeader>
                             <ModalBody>
-                                <div>
-                                    <h3 className="text-lg">The following items will be imported as Hard Reserves (you
-                                        can modify this after import)</h3>
-                                    <ScrollShadow
-                                        className="flex flex-col gap-2 h-full overflow-auto max-h-96 scrollbar-pill">
-                                        {currentTemplate?.map((hr: any) => (
-                                            <div key={hr.item_id}
-                                                className={`flex gap-2 justify-between items-center text-sm text-${getQualityColor(hr?.item?.description?.quality)} p-2 border border-wood rounded`}>
-                                                <Link href={`https://www.wowhead.com/classic/item=${hr.item_id}`}
-                                                    className="flex gap-2 items-center" target="_blank">
-                                                    <img src={hr.item.description.icon} alt={hr.item.name}
-                                                        className={`w-6 border border-${getQualityColor(hr?.item?.description?.quality)} rounded`} />
-                                                    <span>[{hr.item.name}]</span>
-                                                </Link>
-                                            </div>
+                                <div className="flex flex-col gap-3">
+                                    <label className="text-sm font-semibold">Select a previous raid reset:</label>
+                                    <select
+                                        className="bg-dark border border-wood rounded p-2 text-sm"
+                                        value={selectedResetId || ''}
+                                        onChange={(e) => setSelectedResetId(e.target.value || null)}
+                                    >
+                                        <option value="">-- Select a reset --</option>
+                                        {previousResets.map((reset) => (
+                                            <option key={reset.id} value={reset.id}>
+                                                {reset.name} - {moment(reset.raid_date).format('MMM D, YYYY')}
+                                            </option>
                                         ))}
-                                    </ScrollShadow>
+                                    </select>
+
+                                    {selectedResetId && (
+                                        <div className="mt-2">
+                                            <h3 className="text-sm font-semibold mb-2">
+                                                Rules to import ({rulesLoading ? '...' : previewRules.length}):
+                                            </h3>
+                                            <ScrollShadow className="flex flex-col gap-2 max-h-64 overflow-auto scrollbar-pill">
+                                                {rulesLoading ? (
+                                                    <span className="text-gray-500 text-sm">Loading rules...</span>
+                                                ) : previewRules.length === 0 ? (
+                                                    <span className="text-gray-500 text-sm">No rules found for this reset</span>
+                                                ) : previewRules.map((rule: any) => (
+                                                    <div key={rule.id}
+                                                        className={`flex gap-2 items-center text-sm p-2 border border-wood rounded`}>
+                                                        {rule.item?.description?.icon && (
+                                                            <img src={rule.item.description.icon} alt={rule.item?.name}
+                                                                className={`w-6 border border-${getQualityColor(rule.item?.description?.quality)} rounded`} />
+                                                        )}
+                                                        <span className={`text-${getQualityColor(rule.item?.description?.quality)}`}>
+                                                            [{rule.item?.name || `Item ${rule.item_id}`}]
+                                                        </span>
+                                                        <span className="text-gray-400 text-xs ml-auto">
+                                                            {rule.rule?.type?.replace(/_/g, ' ')}
+                                                        </span>
+                                                    </div>
+                                                ))}
+                                            </ScrollShadow>
+                                        </div>
+                                    )}
                                 </div>
                             </ModalBody>
                             <ModalFooter>
                                 <Button
                                     isLoading={isPending}
-                                    isDisabled={isPending}
-                                    onPress={() => importFromTemplate()}>
+                                    isDisabled={isPending || !selectedResetId || previewRules.length === 0}
+                                    onPress={() => importRules()}>
                                     Import
                                 </Button>
                                 <Button

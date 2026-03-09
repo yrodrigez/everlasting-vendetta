@@ -27,7 +27,7 @@ export function useWoWItem(itemId: number) {
     const apiService = createAPIService();
 
     const { data, isLoading, isError } = useQuery({
-        queryKey: ['wowItem', itemId],
+        queryKey: ['item_data', itemId],
         queryFn: async () => {
             if (!itemId) {
                 return null;

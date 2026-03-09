@@ -84,7 +84,6 @@ export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen
                 repository.getResetDays(resetId)
             ])
 
-            console.log('Fetched isPresent and resetDays:', { isPresent, resetDays });
 
             return { isPresent, resetDays }
         },
@@ -113,12 +112,10 @@ export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen
     useReservationsRealtime(
         resetId,
         async ({ new: newData, old }) => {
-            console.log('Received reservations change via realtime for resetId:', resetId, { newData, old });
             if (newData.id) {
                 // Upsert logic
                 const exists = reserves.find(r => r.id === newData.id);
                 if (!exists) {
-                    console.log('Adding new reservation from realtime:', newData);
                     const reserves = await repository.fetchReservedItems(resetId);
                     setReserves(reserves);
                     return;
@@ -129,7 +126,6 @@ export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen
                 // Deletion logic
                 const filtered = reserves.filter(r => r.id !== old.id);
                 if (filtered.length !== reserves.length) { // only update if something was removed
-                    console.log('Removing deleted reservation from realtime:', old);
                     setReserves(filtered);
                     return;
                 }
@@ -191,7 +187,6 @@ export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen
         }
 
         sendActionEvent('soft_reserve_item', { resetId, itemId, itemName: item?.name, characterName: selectedCharacter?.name });
-        console.log('Reserve called for itemId:', itemId);
 
         // Create optimistic reservation
         const optimisticReservation: Reservation = {
@@ -222,7 +217,6 @@ export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen
         reserveAudio?.play().then().catch(console.error);
 
         try {
-            console.log('Reserving item on server:', { itemId, characterId });
             const { isError, id } = await repository.reserveItem(resetId, itemId, characterId);
 
             if (isError) {
@@ -266,7 +260,6 @@ export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen
         if (!selectedCharacter?.id || !supabase) return
 
         sendActionEvent('soft_reserve_remove', { resetId, reservationId, characterName: selectedCharacter?.name });
-        console.log('Remove called for reservationId:', reservationId);
 
         // Find the reservation to remove
         const reservationToRemove = reserves.find(
@@ -330,7 +323,15 @@ export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen
         });
         if (!confirm) return;
 
-        const successHardReserve = await repository.hardReserveItem(resetId, itemId)
+        // Find the hard_reserve rule id
+        const rules = await repository.fetchReserveRules()
+        const hardReserveRule = rules.find(r => r.type === 'hard_reserve')
+        if (!hardReserveRule) {
+            toast.error('Hard reserve rule not found')
+            return
+        }
+
+        const successHardReserve = await repository.addItemRule(resetId, itemId, hardReserveRule.id, {}, String(selectedCharacter.id))
         if (!successHardReserve) {
             toast.error('Error hard reserving item')
             return
@@ -338,19 +339,23 @@ export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen
 
         const successRemoveReserve = await repository.removeReservationsByItemAndResetId(itemId, resetId)
         if (!successRemoveReserve) {
-            toast.error('Error removing soft reserve')
-            const successRollbackHardReserve = await repository.removeHardReserveByResetIdAndItemId(resetId, itemId)
-            if (!successRollbackHardReserve) {
-                toast.error('Error rolling back hard reserve after soft reserve removal failure')
-            }
-            return
+            toast.error('Error removing soft reserves')
         }
         await refetch();
     }, [resetId, supabase, selectedCharacter, repository])
 
     const removeHardReserve = useCallback(async (itemId: number) => {
         if (!selectedCharacter?.id || !supabase) return
-        const success = await repository.removeHardReserveByResetIdAndItemId(resetId, itemId)
+
+        // Find the hard_reserve rule entry for this item
+        const itemRules = await repository.fetchItemRules(resetId, itemId)
+        const hardReserveEntry = itemRules.find(r => r.rule?.type === 'hard_reserve')
+        if (!hardReserveEntry) {
+            toast.error('Hard reserve rule not found for this item')
+            return
+        }
+
+        const success = await repository.removeItemRule(hardReserveEntry.id)
         if (!success) {
             toast.error('Error removing hard reserve')
         } else {

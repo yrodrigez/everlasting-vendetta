@@ -7,7 +7,7 @@ import { Button } from "@/app/components/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFlask } from "@fortawesome/free-solid-svg-icons";
 import { useMessageBox } from "@utils/msgBox";
-import { useAuth } from "@context/AuthContext";
+import { useAuth } from "@/app/context/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { executeCondition } from "@hooks/useAchievements";
 import { AchievementCondition } from "@/app/types/Achievements";

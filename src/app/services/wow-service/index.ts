@@ -165,7 +165,6 @@ export default class WoWService_Impl implements WoWService {
     isLoggedUserInGuild = async () => {
         const { auth } = await createServerSession();
         const session = await auth.getSession()
-        console.log('WoWService::isLoggedUserInGuild - session:', session)
         if (!session) {
             return false
         }

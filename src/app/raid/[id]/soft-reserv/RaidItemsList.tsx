@@ -174,6 +174,8 @@ export default function RaidItemsList({ initialReservedItems, resetId, isAdmin }
                                             hardReserve={isAdmin ? hardReserve : undefined}
                                             removeHardReserve={isAdmin ? removeHardReserve : undefined}
                                             isLoading={loading}
+                                            resetId={resetId}
+                                            isAdmin={isAdmin}
                                         />
                                     )
                                 })}

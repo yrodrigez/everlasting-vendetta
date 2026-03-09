@@ -78,9 +78,10 @@ const findEquipmentBySlotTypes = (equipment: any, slots: string[]) => {
 
 interface LootItem {
     characterName: string
-    id: number
+    itemId: number
     date: string
     resetId: string
+    id: string
 }
 
 interface LootGroup {
@@ -97,11 +98,12 @@ interface RaidResetData {
     }
 }
 
-async function fetchLootHistory(supabase: SupabaseClient, characterName: string) {
+async function fetchLootHistory(supabase: SupabaseClient, characterName: string, realmslug = 'spineshatter'): Promise<Record<string, LootGroup>> {
 
     const { data, error } = await supabase
         .from('ev_loot_history')
-        .select('*')
+        .select('*, raid_resets!inner(realm)')
+        .eq('raid_resets.realm', realmslug)
         .ilike('character', characterName)
 
     if (error) {
@@ -111,9 +113,10 @@ async function fetchLootHistory(supabase: SupabaseClient, characterName: string)
 
     const lootItems: LootItem[] = (data ?? []).map((item: any) => ({
         characterName: item.character ?? '',
-        id: parseInt(item.itemID, 10),
         date: item.dateTime ?? '',
         resetId: item.raid_id ?? '',
+        itemId: parseInt(item.itemID, 10),
+        id: item.id.toString(),
     }))
 
     lootItems.sort((a, b) => moment(b.date).diff(moment(a.date)))
@@ -278,7 +281,7 @@ export default async function Page({ params }: { params: Promise<{ name: string 
         fetchEquipment(characterName, realmSlug),
         getCharacterTalents(characterName, realmSlug),
         fetchCharacterStatistics(characterName, realmSlug),
-        fetchLootHistory(supabase, characterName),
+        fetchLootHistory(supabase, characterName, realmSlug),
         supabase
             .from('banned_member')
             .select('id')
@@ -360,8 +363,8 @@ export default async function Page({ params }: { params: Promise<{ name: string 
                     <StatisticsView statistics={characterStatistics} />
                 </div>
                 <CharacterViewOptions
-                    containerClassName={'w-full mt-4 '}
-                    innerContainerClassName={'w-full'}
+                    containerClassName={'w-full mt-4 flex-1 min-h-0 flex flex-col'}
+                    innerContainerClassName={'w-full flex-1 min-h-0'}
                     items={[
                         {
                             label: 'Gear', name: 'gear', children: <CharacterGear

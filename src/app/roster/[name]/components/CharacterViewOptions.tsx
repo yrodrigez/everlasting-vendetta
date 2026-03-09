@@ -30,7 +30,7 @@ const Controls = ({ availableOptions, onSelect }: { availableOptions: string[], 
 
 
 	return (
-		<div className="block w-full h-11 mb-2">
+		<div className="block w-full h-11 mb-4">
 			<div
 				ref={containerRef}
 				className="flex my-4 gap-3 w-full justify-between overflow-auto scrollbar-pill h-10 relative">
@@ -101,7 +101,7 @@ export function CharacterViewOptions({ items, top, bottom, containerClassName, i
 			{top && <Controls availableOptions={availableOptions} onSelect={handleSelect} />}
 			{
 				<div key={selectedOption}
-					className={innerContainerClassName}
+					className={`${innerContainerClassName} overflow-hidden`}
 				>
 					{(items.find(item => item.label === selectedOption)?.children)}
 				</div>

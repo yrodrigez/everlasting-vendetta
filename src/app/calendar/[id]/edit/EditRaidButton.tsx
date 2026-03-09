@@ -84,7 +84,6 @@ export function EditRaidButton({ reset }: { reset: { raid_id: string, id: string
             on_time_bonus_cutoff_hours: onTimeBonusCutoffHours,
         }
 
-        console.log('Payload for editing raid reset:', payload)
 
         const { data, error } = await supabase
             .from('raid_resets')

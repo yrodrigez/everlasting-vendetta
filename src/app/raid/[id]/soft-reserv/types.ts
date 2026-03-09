@@ -15,6 +15,7 @@ export type RaidItem = {
     };
     raid_id: string;
     isHardReserved?: boolean;
+    hasRules?: boolean;
     boss: {
         id: number;
         name: string;
@@ -47,7 +48,10 @@ export type Reservation = {
 export type Character = {
     id: number;
     name: string;
-    realm: string;
+    realm: {
+        name: string;
+        slug: string;
+    };
     level: number;
     guild?: {
         name: string;
@@ -62,4 +66,28 @@ export type Character = {
     playable_class?: {
         name: string;
     };
+};
+
+export type LootHistoryEntry = {
+    id: string;
+    character: string | null;
+    dateTime: string;
+    offspec: number | null;
+    raid_id: string;
+};
+
+export type ReserveRule = {
+    id: number;
+    type: string;
+};
+
+export type RaidLootItemRule = {
+    id: number;
+    created_at: string;
+    rule_id: number;
+    rule?: ReserveRule;
+    reset_id: string;
+    item_id: number;
+    value: Record<string, any>;
+    created_by: string;
 };

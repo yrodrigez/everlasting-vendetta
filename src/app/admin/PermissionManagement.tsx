@@ -8,7 +8,7 @@ import {
     MemberRole
 } from "@/app/admin/types"
 import { ROLE_ORDER } from "@utils/constants"
-import { useAuth } from "../context/AuthContext"
+import { useAuth } from "@/app/context/AuthContext"
 import { createClientComponentClient } from "../util/supabase/createClientComponentClient"
 
 type Props = {

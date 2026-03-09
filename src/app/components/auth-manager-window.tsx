@@ -2,7 +2,7 @@
 import { useCharacterStore } from "@/app/components/characterStore";
 import { Modal, ModalBody, ModalContent, ModalHeader } from "@heroui/react";
 import { useMemo } from "react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "@/app/context/AuthContext";
 import { useAuthManagerWindowStore } from "../stores/auth-manager-window-store";
 import { CharacterSelection } from "./character-selection/character-selection";
 
