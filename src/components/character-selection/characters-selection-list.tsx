@@ -1,16 +1,117 @@
 'use client';
 
+import { useAuth } from '@/context/AuthContext';
 import { useAllowedRealms } from '@/hooks/api/use-allowed-realms';
 import { useUserCharacters } from '@/hooks/use-user-charcters';
+import { useModal } from '@/hooks/useModal';
 import { createAPIService } from "@/lib/api";
 import { useMessageBox } from '@/util/msgBox';
 import { faCheckCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { ScrollShadow } from "@heroui/react";
-import { useCallback, useEffect } from "react";
+import { Button, ScrollShadow } from "@heroui/react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useCharacterStore } from "../characterStore";
 import { Role } from "./role-selection";
 import { useVistaStore } from "./vista-store";
+
+function WelcomeVideo() {
+    const [phase, setPhase] = useState<'intro' | 'playing'>('intro');
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const { close } = useModal();
+
+    const handleOk = () => {
+        setPhase('playing');
+        setTimeout(() => videoRef.current?.play(), 100);
+    };
+
+    const handleVideoEnd = () => {
+        close();
+    };
+
+    if (phase === 'intro') {
+        return (
+            <div className="flex flex-col items-center gap-6 py-2">
+                {/* Guild crest */}
+                <img
+                    src="/center-img.webp"
+                    alt="Everlasting Vendetta"
+                    className="w-48 h-48 rounded-full"
+                />
+
+                {/* Decorative divider */}
+                <div className="flex items-center gap-3 w-full px-4">
+                    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent" />
+                    <span className="text-gold/60 text-xs tracking-[0.3em] uppercase">A Message from Vendetto</span>
+                    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent" />
+                </div>
+
+                {/* Message content */}
+                <div className="flex flex-col gap-3 text-center px-6">
+                    <p className="text-stone-100 text-lg leading-relaxed">
+                        Greetings, adventurer. I am <span className="text-gold font-semibold">Vendetto</span>, and I bid you welcome to <span className="text-gold font-semibold">Everlasting Vendetta</span>.
+                    </p>
+                    <p className="text-wood-50 leading-relaxed">
+                        Your legend begins here. Link your first character to unlock everything our guild has to offer &mdash; from raid planning and loot tracking to achievements and beyond.
+                    </p>
+                    <p className="text-wood-50/70 text-sm italic">
+                        Press below and I shall show you the way.
+                    </p>
+                </div>
+
+                {/* Decorative divider */}
+                <div className="w-32 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
+
+                {/* CTA button */}
+                <Button
+                    className="bg-moss text-gold border border-moss-100 rounded px-8 py-2 text-base tracking-wide glow-animation"
+                    onPress={handleOk}
+                    size="lg"
+                >
+                    Begin Your Journey
+                </Button>
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex flex-col gap-4">
+            <div className="relative rounded-xl overflow-hidden">
+                {/* Cavern vignette overlay */}
+                <div className="absolute inset-0 z-10 pointer-events-none rounded-xl"
+                    style={{
+                        boxShadow: 'inset 0 0 60px 30px rgba(0,0,0,0.95), inset 0 0 120px 60px rgba(0,0,0,0.7)',
+                        background: 'radial-gradient(ellipse at center, transparent 40%, rgba(30,20,10,0.6) 70%, rgba(10,5,0,0.95) 100%)',
+                    }}
+                />
+                {/* Jagged stalactites (top) */}
+                <div className="absolute top-0 left-0 right-0 h-6 z-10 pointer-events-none"
+                    style={{
+                        background: 'linear-gradient(to bottom, rgba(20,12,5,1) 0%, rgba(30,18,8,0.8) 40%, transparent 100%)',
+                        clipPath: 'polygon(0 0, 100% 0, 100% 40%, 92% 70%, 85% 45%, 75% 80%, 65% 50%, 55% 90%, 45% 55%, 35% 85%, 25% 50%, 15% 75%, 8% 40%, 0 60%)',
+                    }}
+                />
+                {/* Jagged stalagmites (bottom) */}
+                <div className="absolute bottom-0 left-0 right-0 h-6 z-10 pointer-events-none"
+                    style={{
+                        background: 'linear-gradient(to top, rgba(20,12,5,1) 0%, rgba(30,18,8,0.8) 40%, transparent 100%)',
+                        clipPath: 'polygon(0 60%, 5% 30%, 12% 70%, 20% 25%, 30% 55%, 40% 15%, 50% 50%, 60% 20%, 70% 60%, 80% 30%, 88% 55%, 95% 25%, 100% 50%, 100% 100%, 0 100%)',
+                    }}
+                />
+                {/* Rock edges (left/right) */}
+                <div className="absolute top-0 bottom-0 left-0 w-5 z-10 pointer-events-none"
+                    style={{ background: 'linear-gradient(to right, rgba(20,12,5,1) 0%, rgba(30,18,8,0.7) 50%, transparent 100%)' }}
+                />
+                <div className="absolute top-0 bottom-0 right-0 w-5 z-10 pointer-events-none"
+                    style={{ background: 'linear-gradient(to left, rgba(20,12,5,1) 0%, rgba(30,18,8,0.7) 50%, transparent 100%)' }}
+                />
+                <video ref={videoRef} className="rounded-xl w-full" playsInline onEnded={handleVideoEnd}>
+                    <source src="/welcome/vendetto-welcome.mp4" type="video/mp4" />
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+    );
+}
 
 const CharacterView = ({ character }: { character: any }) => {
     const { setSelectedCharacter, selectedCharacter } = useCharacterStore(state => state);
@@ -94,9 +195,10 @@ export function CharactersSelectionList() {
     useEffect(() => {
         if (characters.length === 0 && !isLoading && currentVista === 'list') {
             alert({
-                title: 'No Characters Found',
-                message: 'No characters were found in your account. Please link a character to continue.',
-                type: 'error',
+                title: 'Welcome to Everlasting Vendetta!',
+                message: <WelcomeVideo />,
+                type: 'window',
+                hideCloseButton: true,
             });
             setVista('link');
         }

@@ -1,6 +1,8 @@
 import { Battlenet, Discord } from "@/components/svg-icons";
 import { useCallback, useMemo } from "react";
 import { LinkedAccount } from "./types";
+import { useAuth } from "@/context/AuthContext";
+import { Tooltip } from "@/components/tooltip";
 
 function getRelativeTime(date: Date): string {
     const now = new Date();
@@ -14,7 +16,7 @@ function getRelativeTime(date: Date): string {
     if (diffMins < 60) return `${diffMins} ${diffMins === 1 ? 'minute' : 'minutes'} ago`;
     if (diffHours < 24) return `${diffHours} ${diffHours === 1 ? 'hour' : 'hours'} ago`;
     if (diffDays < 7) return `${diffDays} ${diffDays === 1 ? 'day' : 'days'} ago`;
-    
+
     // > 7 días: mostrar fecha
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
@@ -55,21 +57,23 @@ export function LinkedAccountItem({ account, onLink }: {
         }
     }, [providerKey]);
 
-    const linkedDate = useMemo(() => 
-        new Date(account.createdAt).toLocaleDateString('en-US', { 
-            month: 'short', 
-            day: 'numeric', 
-            year: 'numeric' 
-        }), 
-    [account.createdAt]);
+    const linkedDate = useMemo(() =>
+        new Date(account.createdAt).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+        }),
+        [account.createdAt]);
 
-    const lastSyncText = useMemo(() => 
-        getRelativeTime(new Date(account.lastSyncAt)), 
-    [account.lastSyncAt]);
+    const lastSyncText = useMemo(() =>
+        getRelativeTime(new Date(account.lastSyncAt ?? account.createdAt)),
+        [account.lastSyncAt, account.createdAt]);
+
+    const { user } = useAuth();
 
     return (
-        <div className="flex items-center justify-between py-4 px-4 rounded-lg bg-wood border border-wood-100 transition-colors">
-            <div className="flex items-center gap-4">
+        <div className="flex items-center justify-between py-4 px-4 rounded-lg bg-wood border border-wood-100 transition-colors relative">
+            <div className="flex items-center gap-4 ">
                 <div className={`${config.colorClass} text-3xl flex-shrink-0`}>
                     {resolvedIcon(providerKey)}
                 </div>
@@ -85,8 +89,15 @@ export function LinkedAccountItem({ account, onLink }: {
                         <span className="text-stone">•</span>
                         <span>Synced {lastSyncText}</span>
                     </div>
+
                 </div>
+
             </div>
-        </div>
+            <Tooltip content={user?.provider === account.provider ? "This is your currently active account" : "This account is not active"}>
+                <div className={`absolute right-2 top-1/2 -translate-y-1/2 transition-opacity w-3 h-3 ${user?.provider === account.provider ? 'bg-green-500' : 'bg-gray-500'} rounded-full flex items-center justify-center z-50`}>
+                    <div className={`w-3 h-3 rounded-full ${user?.provider === account.provider ? 'bg-green-500 animate-ping' : 'bg-gray-500'}`} />
+                </div>
+            </Tooltip>
+        </div >
     );
 }

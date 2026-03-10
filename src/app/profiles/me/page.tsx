@@ -1,10 +1,6 @@
+import NotLoggedInView from "@/components/NotLoggedInView";
 import createServerSession from '@/util/supabase/createServerSession';
 import ProfilePage from "./profile-page";
-import NotLoggedInView from "@/components/NotLoggedInView";
-import { createAPIService } from "@/lib/api";
-import { avatar, user } from "@heroui/theme";
-import { create } from "node:domain";
-import { lstatSync } from "node:fs";
 
 export default async function Page({ }) {
     const { auth, apiService } = await createServerSession();
@@ -29,7 +25,11 @@ export default async function Page({ }) {
                     lastSyncAt: x.lastSyncAt,
                     metadata: x.metadata,
                 }
-            })}
+            }).sort((a: any, b: any) => {
+                const dateA = new Date(a.createdAt).getTime();
+                const dateB = new Date(b.createdAt).getTime();
+                return dateB - dateA;
+            }) ?? []}
             characters={data?.members.filter((x: any) => x.character.level > 9).sort((a: any, b: any) => {
                 const lvl = b.character.level - a.character.level
                 const name = a.character.name.localeCompare(b.character.name);

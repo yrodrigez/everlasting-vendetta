@@ -23,12 +23,14 @@ export function useMessageBox() {
             message: string | ReactNode,
             title?: string,
             type?: 'success' | 'error' | 'epic' | 'window'
+            hideCloseButton?: boolean,
             actionOnClose?: () => void
         } | Function) => {
             const {
                 message,
                 title,
-                type = 'success'
+                type = 'success',
+                hideCloseButton = false
             } = typeof data === 'string' ? {message: data} : typeof data === 'function' ? data(close) : data
             reset()
             if (title) {
@@ -46,6 +48,8 @@ export function useMessageBox() {
                 setModalClassName('border-gold glow-animation')
             }
             if (type !== 'window') {
+                setModalHideCloseButton(hideCloseButton)
+                setModalClassName('bg-wood border border-wood-100 text-common')
                 setModalFooter(
                     <div
                         className="float-right"

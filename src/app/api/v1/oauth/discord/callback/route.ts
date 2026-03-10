@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
                 'Authorization': `Bearer ${accessToken}`
             },
             body: JSON.stringify({
-                provider: 'discord',
+                provider: 'discord_oauth',
                 accessToken: tokenData.access_token,
                 tokenExpiresAt: (Date.now() + tokenData.expires_in * 1000) / 1000,
                 refreshToken: tokenData.refresh_token
@@ -119,7 +119,7 @@ export async function GET(request: NextRequest) {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            provider: 'discord',
+            provider: 'discord_oauth',
             access_token: tokenData.access_token,
             expires_at: (Date.now() + tokenData.expires_in * 1000) / 1000,
             refresh_token: tokenData.refresh_token

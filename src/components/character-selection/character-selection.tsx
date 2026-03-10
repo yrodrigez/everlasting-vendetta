@@ -1,11 +1,17 @@
 'use client';
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { LinkCharacter } from "./link-character";
+import { useAuth } from "@/context/AuthContext";
+import { sendActionEvent } from "@/hooks/usePageEvent";
+import { Divider } from "@heroui/react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { Button } from "../Button";
+import { useCharacterStore } from "../characterStore";
 import { CharactersSelectionList } from "./characters-selection-list";
+import { LinkCharacter } from "./link-character";
 import { RoleSelection } from "./role-selection";
 import { useVistaStore } from "./vista-store";
-import { useCharacterStore } from "../characterStore";
+import { useAuthManagerWindowStore } from "@/stores/auth-manager-window-store";
 
 const VISTAS = [
     { id: "link", label: "Link character", render: () => <LinkCharacter /> },
@@ -16,7 +22,7 @@ const VISTAS = [
 export function CharacterSelection({ isBattlenet }: { isBattlenet?: boolean }) {
     const activeVista = useVistaStore(state => state.vista);
     const setActiveVista = useVistaStore(state => state.setVista);
-    const vistas = useMemo(() => VISTAS/* .filter(view => !(isBattlenet && view.id === "link")) */, [isBattlenet]);
+    const vistas = useMemo(() => VISTAS, [isBattlenet]);
     const activeIndex = useMemo(() => {
         return vistas.findIndex(view => view.id === activeVista);
     }, [activeVista, vistas]);
@@ -55,6 +61,16 @@ export function CharacterSelection({ isBattlenet }: { isBattlenet?: boolean }) {
             setActiveVista('role-selection');
         }
     }, [vistas, selectedCharacter, setActiveVista, activeIndex, activeVista]);
+
+    const { logout } = useAuth();
+    const { onClose } = useAuthManagerWindowStore();
+    const router = useRouter();
+
+    const handleLogout = useCallback(async () => {
+        sendActionEvent('user_logout', { characterName: selectedCharacter?.name });
+        await logout()
+        router.refresh()
+    }, [logout, router, selectedCharacter])
 
     return (
         <div className="flex flex-col gap-4 w-full h-full">
@@ -103,6 +119,32 @@ export function CharacterSelection({ isBattlenet }: { isBattlenet?: boolean }) {
                         </div>
                     ))}
                 </div>
+            </div>
+            <div
+                className="w-full flex items-center justify-center px-4 gap-2 mt-2 pb-2">
+                <Divider
+                    className="bg-default/30 w-full mx-4 self-center"
+                />
+            </div>
+            <div
+                className="w-full flex items-center justify-end gap-2 mt-auto pb-3"
+            >
+
+                <Button
+                    color="danger"
+                    className="rounded"
+                    onPress={handleLogout}
+                >
+                    Logout
+                </Button>
+                <Button
+                    isDisabled={!selectedCharacter?.selectedRole}
+                    className="w-full rounded"
+                    onPress={onClose}
+                >
+                    Done
+                </Button>
+
             </div>
         </div>
     );

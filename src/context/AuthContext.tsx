@@ -8,7 +8,7 @@ import { clearAllCookies } from "@/util";
 
 export interface Session {
   id: string;
-  provider: 'bnet' | 'discord';
+  provider: 'bnet_oauth' | 'discord_oauth';
   createdAt: string;
   lastUsedAt: string;
   ipAddress: string;

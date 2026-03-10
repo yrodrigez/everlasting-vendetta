@@ -87,7 +87,7 @@ export class BnetCallbackUseCase {
 
         try {
             loginResponse = await this.dependencies.authGateway.loginWithProvider({
-                provider: 'bnet',
+                provider: 'bnet_oauth',
                 accessToken: tokenResponse.access_token,
                 expiresAt: this.computeExpiresAt(tokenResponse.expires_in),
             });
@@ -121,7 +121,7 @@ export class BnetCallbackUseCase {
                     'Authorization': `Bearer ${accessToken}`
                 },
                 body: JSON.stringify({
-                    provider: 'bnet',
+                    provider: 'bnet_oauth',
                     accessToken: tokenResponse.access_token,
                     tokenExpiresAt: (Date.now() + tokenResponse.expires_in * 1000) / 1000,
                     refreshToken: ''
