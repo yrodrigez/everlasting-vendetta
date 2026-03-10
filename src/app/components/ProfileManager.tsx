@@ -24,10 +24,11 @@ import {
 import { sendActionEvent } from "@/app/hooks/usePageEvent";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/context/AuthContext";
-import { useAuthManagerWindowStore } from "../stores/auth-manager-window-store";
-import { createClientComponentClient } from "../util/supabase/createClientComponentClient";
-import { useVistaStore } from "./character-selection/vista-store";
-import { Swords } from "./svg-icons";
+import { useAuthManagerWindowStore } from "@/app/stores/auth-manager-window-store";
+import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
+import { useVistaStore } from "@/app/components/character-selection/vista-store";
+import { Swords } from "@/app/components/svg-icons";
+import SystemVolume from "@/app/components/system-volume";
 
 export function isRoleAssignable(role: 'tank' | 'healer' | 'dps' | string, characterClass: string | undefined, realmSlug: string = 'living-flame'): boolean {
     if (!characterClass) return false
@@ -182,6 +183,9 @@ export default function ProfileManager() {
                             />
                         </span>} />
                         <MenuItem text={'Logout'} onClick={handleLogout} icon={faRightFromBracket} />
+                        <div>
+                            <SystemVolume />
+                        </div>
                     </div>
                 )}
             </PopoverContent>

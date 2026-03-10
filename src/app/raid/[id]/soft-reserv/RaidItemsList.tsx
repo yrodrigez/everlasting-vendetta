@@ -8,10 +8,11 @@ import { Button, ScrollShadow } from "@heroui/react";
 import { useEffect, useMemo, useState } from "react";
 import { useShallow } from "zustand/shallow";
 import { useRaidItems } from "./raid-items-context";
+import { useAudio } from "@/app/hooks/use-audio";
 
 function BossHeader({ boss }: { boss: { name: string, avatar_url?: string, info_url?: string } | null }) {
     const bossName = boss?.name
-    if(!bossName) return null
+    if (!bossName) return null
     return (
         <div className="flex items-center gap-3 mb-3 p-2 w-full">
             <div className="flex flex-col">
@@ -108,13 +109,9 @@ export default function RaidItemsList({ initialReservedItems, resetId, isAdmin }
         updateFilteredItems()
     }, [isClicked]);
 
+    const openStore = useAudio('/sounds/AuctionWindowOpen.ogg');
     useEffect(() => {
-        if (!Audio) return
-        const openStore = new Audio('/sounds/AuctionWindowOpen.ogg')
-        openStore.play().then(() => {
-        }).catch((reason) => {
-            console.error(reason)
-        })
+        openStore.play().catch(console.error)
     }, []);
 
     const groupedByBoss = useMemo<{
@@ -147,8 +144,8 @@ export default function RaidItemsList({ initialReservedItems, resetId, isAdmin }
                     </Button>
                 </div>}
                 {Object.entries(groupedByBoss).sort(([a], [b]) => {
-                    if(a === 'Trash') return 1
-                    if(b === 'Trash') return -1
+                    if (a === 'Trash') return 1
+                    if (b === 'Trash') return -1
                     return a.localeCompare(b)
                 }).map(([bossName, bossItems]) => {
                     const boss = bossItems[0]?.boss || null

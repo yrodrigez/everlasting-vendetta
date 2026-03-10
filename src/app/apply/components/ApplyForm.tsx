@@ -23,6 +23,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { RealmSelection } from "@/app/components/realm-selection";
 import { Select } from "@/app/components/select";
+import { useAudio } from "@/app/hooks/use-audio";
 
 
 export default function ApplyForm() {
@@ -80,6 +81,8 @@ export default function ApplyForm() {
     const assignableRoles = useMemo(() => {
         return Object.values(PLAYABLE_ROLES).filter(role => role.value.split('-').every((x: string) => isRoleAssignable(x.toLowerCase(), characterClass?.toLowerCase(), realm)))
     }, [characterClass, name, realm])
+
+    const applyAudio = useAudio('/sounds/apply.ogg');
 
     return (
         <div className="space-y-4 lg:w-[300px] w-[450px]">
@@ -153,7 +156,6 @@ export default function ApplyForm() {
                             return (
                                 <Button
                                     key={i}
-
                                     isDisabled={isDisabled}
                                     className={
                                         `bg-moss opacity-100 text-gold rounded border border-moss-100 relative hover:bg-dark hover:border-dark-100 `
@@ -205,8 +207,7 @@ export default function ApplyForm() {
                             })
                             onOpen()
                         } else {
-                            const audio = new Audio('/sounds/levelup2.ogg');
-                            audio.play().then().catch(console.error)
+                            applyAudio.play();
                             setModalContent({
                                 title: (
                                     <p className="text-gold font-bold text-2xl">Application Submitted</p>

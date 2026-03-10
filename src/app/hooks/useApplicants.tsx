@@ -1,91 +1,17 @@
 'use client'
-import { useEffect, useMemo, useRef, useState } from "react";
-import { toast } from "sonner";
-import Link from "next/link";
 import { Button } from "@/app/components/Button";
 import { useQuery } from "@tanstack/react-query";
-import { usePathname, useRouter } from "next/navigation";
-import { GUILD_ID } from "@utils/constants";
-import { useMessageBox } from "@utils/msgBox";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
-import { ItemWithTooltip } from "@/app/raid/[id]/loot/components/LootItem";
+import { useAuth } from "@/app/context/AuthContext";
 import { useShallow } from "zustand/react/shallow";
 import { useCharacterStore } from "../components/characterStore";
-import { useAuth } from "@/app/context/AuthContext";
 import { createClientComponentClient } from "../util/supabase/createClientComponentClient";
+import { useAudio } from "@/app/hooks/use-audio";
 
-function useReservationAlert(someoneReservedMoreThanMe: false | { resetId: string, itemId: number, item?: any }) {
-    const localStorageKey = 'lastReservationAlert'
-    const [lastAlert, setLastAlert] = useState<any>(null)
-    const pathName = usePathname()
-    const router = useRouter()
-    const soundPlayedRef = useRef(false)
-    const alertTimeout = useRef<NodeJS.Timeout | undefined>(undefined)
-    const { alert } = useMessageBox()
-
-    useEffect(() => {
-        if (!localStorage) return
-        const saved = localStorage.getItem(localStorageKey)
-        const lastAlert = saved ? JSON.parse(saved) : null
-        if (!someoneReservedMoreThanMe) return
-        if (
-            !lastAlert ||
-            lastAlert.resetId !== someoneReservedMoreThanMe.resetId ||
-            lastAlert.itemId !== someoneReservedMoreThanMe.itemId
-        ) {
-            soundPlayedRef.current = false
-
-            if (alertTimeout.current) clearTimeout(alertTimeout.current)
-
-            alertTimeout.current = setTimeout(() => {
-                const { item } = someoneReservedMoreThanMe
-                const resetPath = `/raid/${someoneReservedMoreThanMe.resetId}/soft-reserv`
-
-                alert({
-                    title: 'Someone reserved an item more times you!',
-                    message: (
-                        item ? (
-                            <div>
-                                The item <div className="inline-flex justfy-between items-end">
-                                    <ItemWithTooltip item={item} /> {item.name}</div> has more reservations
-                                than yours.
-                                <br />
-                                Please remember that someone with more reserves than you have priority over the item.
-                                <br />
-                                For more information, read the loot rules <Link href={'/terms'}
-                                    className="text-battlenet">here</Link>.
-                            </div>
-                        ) :
-                            (
-                                <div>
-                                    You have been outbid on a loot reservation. Please review your reservations.
-                                </div>
-                            )
-                    ),
-                    type: "error",
-                    actionOnClose: () => {
-                        if (pathName !== resetPath) {
-                            router.push(resetPath)
-                        }
-                    }
-                })
-
-                if (!soundPlayedRef.current) {
-                    const alertSound = new Audio('/sounds/warning.ogg')
-                    alertSound.play()
-                    soundPlayedRef.current = true
-                }
-
-                setLastAlert(someoneReservedMoreThanMe)
-                localStorage.setItem(localStorageKey, JSON.stringify(someoneReservedMoreThanMe))
-            }, 500)
-        }
-
-        return () => {
-            if (alertTimeout.current) clearTimeout(alertTimeout.current)
-        }
-    }, [someoneReservedMoreThanMe, lastAlert, router, pathName, alert])
-}
 
 export default function useApplicants() {
     const { accessToken, user } = useAuth();
@@ -94,6 +20,8 @@ export default function useApplicants() {
     const selectedCharacter = useCharacterStore(useShallow(state => state.selectedCharacter));
     const router = useRouter();
     const [applyCount, setApplyCount] = useState(0)
+
+    const notificationSound = useAudio('/sounds/notification.ogg')
 
     useEffect(() => {
         if (!supabase) return;
@@ -114,8 +42,9 @@ export default function useApplicants() {
                     duration: Infinity,
                     position: 'bottom-right',
                 })
-                new Audio('/sounds/MagicClick.ogg').play().finally(() => { })
-                router.refresh()
+                notificationSound.play().then(() => {
+                    router.refresh()
+                }).catch(console.error)
             }).subscribe()
 
         return () => {
@@ -176,7 +105,7 @@ export default function useApplicants() {
                 position: 'bottom-right',
             })
             localStorage.setItem('shownApplicants', JSON.stringify([...shownApplicants, ...newApplicants.map((x: any) => x.id)]))
-            new Audio('/sounds/MagicClick.ogg').play().finally(() => { })
+            notificationSound.play().catch(console.error)
         }
     }, [applicants]);
 

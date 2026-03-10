@@ -14,6 +14,7 @@ import { MemberRole } from '@/app/types/Member'
 import { sendActionEvent } from '@/app/hooks/usePageEvent'
 import { useMessageBox } from '@/app/util/msgBox'
 import { useRouter } from 'next/navigation'
+import { useAudio } from '@/app/hooks/use-audio'
 
 
 interface RaidItemsContextType {
@@ -151,26 +152,10 @@ export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen
         }
     )
 
-    const reserveAudio = useMemo(() => {
-        if (typeof Audio !== 'undefined') {
-            const audio = new Audio('/sounds/LootCoinSmall.ogg');
-            return audio;
-        }
-    }, []);
+    const reserveAudio = useAudio('/sounds/LootCoinSmall.ogg');
+    const removeReserveAudio = useAudio('/sounds/PutDownCloth_Leather01.ogg');
+    const maxReservationsAudio = useAudio('/sounds/HumanMale_err_itemmaxcount01.ogg');
 
-    const removeReserveAudio = useMemo(() => {
-        if (typeof Audio !== 'undefined') {
-            const audio = new Audio('/sounds/PutDownCloth_Leather01.ogg');
-            return audio;
-        }
-    }, []);
-
-    const maxReservationsAudio = useMemo(() => {
-        if (typeof Audio !== 'undefined') {
-            const audio = new Audio('/sounds/HumanMale_err_itemmaxcount01.ogg');
-            return audio;
-        }
-    }, []);
 
     const reserve = useCallback(async (itemId: number, characterId = selectedCharacter?.id) => {
         if (!characterId || !supabase) return

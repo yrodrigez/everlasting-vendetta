@@ -71,11 +71,11 @@ function resolveCacheKey(refreshToken: string | undefined) {
   return hash(refreshToken);
 }
 
-function computeExpiry(expirySeconds: number | undefined) {
-  if (!expirySeconds || !Number.isFinite(expirySeconds)) {
+function computeExpiry(expiryEpochSeconds: number | undefined) {
+  if (!expiryEpochSeconds || !Number.isFinite(expiryEpochSeconds)) {
     return Date.now() + 60_000;
   }
-  return Date.now() + expirySeconds * 1000;
+  return expiryEpochSeconds * 1000;
 }
 
 function setRequestHeader(response: NextResponse, name: string, value: string) {
