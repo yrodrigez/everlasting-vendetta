@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardBody, CardHeader } from "@/app/components/card";
+import { Card, CardBody, CardHeader } from "@/components/card";
 
 type Props = {
     eventsToday: number;

@@ -4,7 +4,7 @@ import {
     Card,
     CardBody,
     CardHeader,
-} from "@/app/components/card";
+} from "@/components/card";
 import {
     Divider
 } from "@heroui/react";

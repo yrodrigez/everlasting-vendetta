@@ -1,7 +1,7 @@
 'use client'
 import { useCallback, useEffect, useState } from "react";
 import { useCharacterItemsStore } from "@/app/roster/[name]/characterItemsStore";
-import useScreenSize from "@/app/hooks/useScreenSize";
+import useScreenSize from '@/hooks/useScreenSize';
 
 
 export function TDModelViewer({ characterAppearance }: {

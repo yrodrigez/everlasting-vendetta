@@ -1,4 +1,4 @@
-import CharacterItem from "@/app/components/CharacterItem";
+import CharacterItem from "@/components/CharacterItem";
 
 export function CharacterGear({ gear, domain }: {
     gear: { group1: any[], group2: any[], group3: any[] },

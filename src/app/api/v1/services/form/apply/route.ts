@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import createServerSession from "@utils/supabase/createServerSession";
+import createServerSession from '@/util/supabase/createServerSession';
 
 export async function POST(request: NextRequest) {
     const state = await request.json()

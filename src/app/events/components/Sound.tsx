@@ -1,9 +1,9 @@
 'use client';
 import {useCallback, useEffect, useState} from "react";
-import {Button} from "@/app/components/Button";
+import {Button} from "@/components/Button";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faVolumeHigh, faVolumeXmark} from "@fortawesome/free-solid-svg-icons";
-import {useMessageBox} from "@utils/msgBox";
+import {useMessageBox} from '@/util/msgBox';
 
 export default function Sound({sound}: { sound: string }) {
     const [audio, setAudio] = useState<HTMLAudioElement | null>();

@@ -1,9 +1,9 @@
-import { encrypt } from '@/app/util/auth/crypto';
-import { REFRESH_TOKEN_COOKIE_KEY, SESSION_INFO_COOKIE_KEY } from '@/app/util/constants';
-import type { Encryptor } from '../application/ports/encryptor';
-import { RefreshSessionUseCase } from '../application/use-cases/refresh-session.use-case';
-import { HttpAuthGateway } from '../infrastructure/http-auth-gateway';
-import { NextCookiesSessionStore } from '../infrastructure/next-cookies-session-store';
+import { encrypt } from '@/util/auth/crypto';
+import { REFRESH_TOKEN_COOKIE_KEY, SESSION_INFO_COOKIE_KEY } from '@/util/constants';
+import type { Encryptor } from '@/shared/auth/application/ports/encryptor';
+import { RefreshSessionUseCase } from '@/shared/auth/application/use-cases/refresh-session.use-case';
+import { HttpAuthGateway } from '@/shared/auth/infrastructure/http-auth-gateway';
+import { NextCookiesSessionStore } from '@/shared/auth/infrastructure/next-cookies-session-store';
 import { getEnvironment } from '@/infrastructure/environment';
 
 type CookieStore = {

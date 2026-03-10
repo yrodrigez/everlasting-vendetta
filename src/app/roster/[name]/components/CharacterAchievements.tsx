@@ -1,16 +1,15 @@
 'use client'
-import {Achievement} from "@/app/types/Achievements";
+import { Achievement } from "@/types/Achievements";
+import { faClose } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Button, ScrollShadow } from "@heroui/react";
+import { createBrowserClient } from "@supabase/ssr/dist/main/createBrowserClient";
+import { useQuery } from "@tanstack/react-query";
+import { Blendy, createBlendy } from 'blendy';
 import moment from "moment";
-import {Button, ScrollShadow} from "@heroui/react";
-import {useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {createBrowserClient} from "@supabase/ssr/dist/main/createBrowserClient"
-import {useQuery} from "@tanstack/react-query";
 import Link from "next/link";
-import Image from "next/image";
-import {Blendy, createBlendy} from 'blendy'
-import {createPortal} from "react-dom";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faClose} from "@fortawesome/free-solid-svg-icons";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 
 function AchievementInfo({achievement, onClose}: { achievement: Achievement, onClose: () => void }) {

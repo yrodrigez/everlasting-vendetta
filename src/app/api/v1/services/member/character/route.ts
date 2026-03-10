@@ -1,5 +1,5 @@
 import {NextRequest, NextResponse} from "next/server";
-import WoWService from "@/app/services/wow-service";
+import WoWService from "@/services/wow-service";
 
 
 export async function GET(request: NextRequest) {

@@ -5,8 +5,8 @@ import { RaidCard } from "@/app/calendar/new/Components/RaidCard";
 import RaidsSelector from "@/app/calendar/new/Components/RaidsSelector";
 import StartDate from "@/app/calendar/new/Components/StartDate";
 import TimeManager from "@/app/calendar/new/Components/TimeManager";
-import NotLoggedInView from "@/app/components/NotLoggedInView";
-import createServerSession from "@/app/util/supabase/createServerSession";
+import NotLoggedInView from "@/components/NotLoggedInView";
+import createServerSession from '@/util/supabase/createServerSession';
 import { RealmSelection } from "./Components/realm-selection";
 import { SoftReservesManager } from "./Components/soft-reserves-manager";
 

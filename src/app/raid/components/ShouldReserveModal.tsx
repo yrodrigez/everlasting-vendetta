@@ -2,7 +2,7 @@ import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCartPlus } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
-import { useCharacterStore } from "@/app/components/characterStore";
+import { useCharacterStore } from "@/components/characterStore";
 import { useShallow } from "zustand/react/shallow";
 
 export function ShouldReserveModal({ raidId, isOpen, onClose, onOpenChange }: {

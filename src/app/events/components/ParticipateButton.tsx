@@ -1,13 +1,13 @@
 'use client'
 
-import { Button } from "@/app/components/Button";
+import { Button } from "@/components/Button";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useShallow } from "zustand/react/shallow";
-import { useCharacterStore } from "@/app/components/characterStore";
-import { useAuth } from "@/app/context/AuthContext";
-import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
+import { useCharacterStore } from "@/components/characterStore";
+import { useAuth } from "@/context/AuthContext";
+import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
 
 export default function ParticipateButton({ sound, children, eventId }: {
     sound: string,

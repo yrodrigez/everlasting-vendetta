@@ -1,5 +1,5 @@
+import createServerSession from '@/util/supabase/createServerSession';
 import { NextRequest, NextResponse } from "next/server";
-import createServerSession from "@utils/supabase/createServerSession";
 
 export async function GET(request: NextRequest) {
     const raidId = new URL(request.url).searchParams.get('id') || ''
@@ -7,7 +7,6 @@ export async function GET(request: NextRequest) {
         NextResponse.json({ error: 'Error - raidId is mandatory!' },)
     }
 
-    const token = request.headers.get('authorization')?.replace('Bearer ', '') || ''
     const { getSupabase } = await createServerSession();
     const supabase = await getSupabase();
     const {

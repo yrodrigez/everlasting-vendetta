@@ -1,5 +1,5 @@
 import ApplyForm from "@/app/apply/components/ApplyForm";
-import { PageEvent } from "@/app/hooks/usePageEvent";
+import { PageEvent } from '@/hooks/usePageEvent';
 
 export const dynamic = 'force-dynamic';
 

@@ -2,19 +2,19 @@
 import { createContext, useContext, useState, ReactNode, useMemo, useCallback } from 'react'
 import type { Character, RaidItem, Reservation } from "@/app/raid/[id]/soft-reserv/types"
 import { useReservationsRealtime } from './use-reservations-realtime'
-import { createClientComponentClient } from '@/app/util/supabase/createClientComponentClient'
-import { useAuth } from '@/app/context/AuthContext'
+import { createClientComponentClient } from '@/util/supabase/createClientComponentClient'
+import { useAuth } from '@/context/AuthContext'
 import { ReservationsRepository } from './reservations-repository'
-import { useCharacterStore } from '@/app/components/characterStore'
+import { useCharacterStore } from '@/components/characterStore'
 import { useQuery } from '@tanstack/react-query'
 import { Day } from '@/app/calendar/new/Components/useCreateRaidStore'
 import { toast } from 'sonner'
-import { registerOnRaid } from '@/app/lib/database/raid_resets/registerOnRaid'
-import { MemberRole } from '@/app/types/Member'
-import { sendActionEvent } from '@/app/hooks/usePageEvent'
-import { useMessageBox } from '@/app/util/msgBox'
+import { registerOnRaid } from '@/lib/database/raid_resets/registerOnRaid'
+import { MemberRole } from '@/types/Member'
+import { sendActionEvent } from '@/hooks/usePageEvent'
+import { useMessageBox } from '@/util/msgBox'
 import { useRouter } from 'next/navigation'
-import { useAudio } from '@/app/hooks/use-audio'
+import { useAudio } from '@/hooks/use-audio'
 
 
 interface RaidItemsContextType {

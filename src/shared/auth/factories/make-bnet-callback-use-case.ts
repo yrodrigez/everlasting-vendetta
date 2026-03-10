@@ -1,10 +1,10 @@
-import { encrypt } from '@/app/util/auth/crypto';
-import { REFRESH_TOKEN_COOKIE_KEY, SESSION_INFO_COOKIE_KEY } from '@/app/util/constants';
-import type { Encryptor } from '../application/ports/encryptor';
-import { BnetCallbackUseCase } from '../application/use-cases/bnet-callback.use-case';
-import { BattleNetOAuthGateway } from '../infrastructure/bnet-oauth-gateway';
-import { HttpAuthGateway } from '../infrastructure/http-auth-gateway';
-import { NextCookiesSessionStore } from '../infrastructure/next-cookies-session-store';
+import { encrypt } from '@/util/auth/crypto';
+import { REFRESH_TOKEN_COOKIE_KEY, SESSION_INFO_COOKIE_KEY } from '@/util/constants';
+import type { Encryptor } from '@/shared/auth/application/ports/encryptor';
+import { BnetCallbackUseCase } from '@/shared/auth//application/use-cases/bnet-callback.use-case';
+import { BattleNetOAuthGateway } from '@/shared/auth/infrastructure/bnet-oauth-gateway';
+import { HttpAuthGateway } from '@/shared/auth/infrastructure/http-auth-gateway';
+import { NextCookiesSessionStore } from '@/shared/auth/infrastructure/next-cookies-session-store';
 
 type CookieStore = {
     get(name: string): { name: string; value: string } | undefined;

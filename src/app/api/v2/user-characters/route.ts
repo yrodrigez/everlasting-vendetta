@@ -1,4 +1,4 @@
-import { GUILD_REALM_SLUG } from '@/app/util/constants';
+import { GUILD_REALM_SLUG } from '@/util/constants';
 import { makeGetUserCharactersUseCase } from '@/shared/wow/factories/make-get-user-characters-use-case';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';

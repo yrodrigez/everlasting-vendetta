@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import createServerSession from "@utils/supabase/createServerSession";
+import createServerSession from '@/util/supabase/createServerSession';
 
 export async function DELETE(request: NextRequest) {
     const { getSupabase } = await createServerSession();

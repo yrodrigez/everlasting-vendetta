@@ -2,7 +2,7 @@ import type { BnetOAuthGateway } from '../ports/bnet-oauth-gateway';
 import type { AuthGateway } from '../ports/auth-gateway';
 import type { Encryptor } from '../ports/encryptor';
 import type { SessionStore } from '../ports/session-store';
-import createServerSession from '@/app/util/supabase/createServerSession';
+import createServerSession from '@/util/supabase/createServerSession';
 import { getEnvironment } from '@/infrastructure/environment';
 
 type CallbackState = {

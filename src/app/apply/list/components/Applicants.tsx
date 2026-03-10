@@ -1,5 +1,5 @@
 'use client'
-import { Button } from "@/app/components/Button";
+import { Button } from "@/components/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { Chip, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip } from "@heroui/react";
@@ -8,12 +8,12 @@ import Link from "next/link";
 import { getClassIcon, getRoleIcon } from "@/app/apply/components/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import GearScore from "@/app/components/GearScore";
-import { useAuth } from "@/app/context/AuthContext";
-import { useCharacterStore } from "@/app/components/characterStore";
+import GearScore from "@/components/GearScore";
+import { useAuth } from "@/context/AuthContext";
+import { useCharacterStore } from "@/components/characterStore";
 import { useShallow } from "zustand/react/shallow";
-import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
-import api from "@/app/lib/api";
+import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
+import api from "@/lib/api";
 
 export function Applicants({ applicants }: {
     applicants: {

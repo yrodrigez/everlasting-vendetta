@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getRealmCharacters } from "@/app/util/blizzard/battleNetWoWAccount";
-import createServerSession from "@utils/supabase/createServerSession";
+import { getRealmCharacters } from '@/util/blizzard/battleNetWoWAccount';
+import createServerSession from '@/util/supabase/createServerSession';
 
 
 export async function GET(request: NextRequest) {

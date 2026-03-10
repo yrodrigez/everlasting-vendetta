@@ -1,6 +1,6 @@
 'use client'
-import { Button } from "@/app/components/Button";
-import { sendActionEvent } from "@/app/hooks/usePageEvent";
+import { Button } from "@/components/Button";
+import { sendActionEvent } from '@/hooks/usePageEvent';
 import { faDiscord } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 

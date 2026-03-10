@@ -6,7 +6,7 @@ import type {
     RevokeAllSessionsParams,
     RevokeSessionParams,
     RefreshAuthResponse,
-} from '../application/ports/auth-gateway';
+} from '@/shared/auth/application/ports/auth-gateway';
 
 class HttpAuthGatewayError extends Error {
     readonly status: number;

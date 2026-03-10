@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { redirect } from "next/navigation";
-import createServerSession from "@utils/supabase/createServerSession";
+import createServerSession from '@/util/supabase/createServerSession';
 import { SupabaseClient } from "@supabase/supabase-js";
 
 async function registerOnRaid(supabase: SupabaseClient, characterId: string, raidId: string, isConfirmed: boolean = false) {

@@ -1,7 +1,7 @@
 import {cookies} from "next/headers";
 import {NextResponse} from "next/server";
-import {getBlizzardToken} from "@/app/lib/getBlizzardToken";
-import {fetchGuildInfo, getGuildRosterFromGuildInfo} from "@/app/lib/fetchGuildInfo";
+import {getBlizzardToken} from "@/lib/getBlizzardToken";
+import {fetchGuildInfo, getGuildRosterFromGuildInfo} from "@/lib/fetchGuildInfo";
 
 
 export async function GET() {

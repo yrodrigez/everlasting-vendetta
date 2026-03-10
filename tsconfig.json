@@ -26,18 +26,21 @@
       "@/*": [
         "./src/*"
       ],
-      "@utils/*": [
-        "./src/app/util/*"
+      "@/utils/*": [
+        "./src/util/*"
       ],
-      "@services/*": [
-        "./src/app/services/*"
+      "@/services/*": [
+        "./src/services/*"
       ],
-      "@hooks/*": [
-        "./src/app/hooks/*"
+      "@/hooks/*": [
+        "./src/hooks/*"
       ],
-      "@context/*": [
-        "./src/app/context/*"
-      ]
+      "@/context/*": [
+        "./src/context/*"
+      ],
+      "@/components/*": [
+        "./src/components/*"
+      ],
     }
   },
   "include": [

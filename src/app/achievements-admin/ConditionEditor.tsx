@@ -3,17 +3,17 @@ import { Input } from "@heroui/react";
 import Editor from '@monaco-editor/react';
 import { editor } from "monaco-editor";
 import { useEffect, useMemo, useState } from "react";
-import { Button } from "@/app/components/Button";
+import { Button } from "@/components/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFlask } from "@fortawesome/free-solid-svg-icons";
-import { useMessageBox } from "@utils/msgBox";
-import { useAuth } from "@/app/context/AuthContext";
+import { useMessageBox } from '@/util/msgBox';
+import { useAuth } from "@/context/AuthContext";
 import { useQuery } from "@tanstack/react-query";
-import { executeCondition } from "@hooks/useAchievements";
-import { AchievementCondition } from "@/app/types/Achievements";
+import { executeCondition } from '@/hooks/useAchievements';
+import { AchievementCondition } from "@/types/Achievements";
 import { useShallow } from "zustand/react/shallow";
-import { useCharacterStore } from "../components/characterStore";
-import { createClientComponentClient } from "../util/supabase/createClientComponentClient";
+import { useCharacterStore } from '@/components/characterStore';
+import { createClientComponentClient } from "@/util/supabase/createClientComponentClient";
 
 function ConditionTestWindow({ condition }: { condition: AchievementCondition }) {
 	const { accessToken } = useAuth();

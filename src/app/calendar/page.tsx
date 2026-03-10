@@ -4,16 +4,16 @@ import { RaidResetCard } from "@/app/calendar/components/RaidResetCard";
 import { cookies } from "next/headers";
 
 import { Metadata } from "next";
-import { Button } from "@/app/components/Button";
+import { Button } from "@/components/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAdd } from "@fortawesome/free-solid-svg-icons";
 import { type SupabaseClient } from "@supabase/supabase-js";
-import createServerSession from "@/app/util/supabase/createServerSession";
+import createServerSession from '@/util/supabase/createServerSession';
 import { fetchResetParticipants } from "@/app/raid/api/fetchParticipants";
 import Refresher from "@/app/calendar/components/Refresher";
 import CreateNewCard from "@/app/calendar/components/CreateNewCard";
 import CalendarPagination from "@/app/calendar/components/CalendarPagination";
-import { PageEvent } from "@/app/hooks/usePageEvent";
+import { PageEvent } from '@/hooks/usePageEvent';
 
 export const dynamic = 'force-dynamic'
 

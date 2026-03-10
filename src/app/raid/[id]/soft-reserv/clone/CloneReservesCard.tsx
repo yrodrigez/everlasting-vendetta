@@ -1,9 +1,9 @@
 'use client'
-import { Button } from "@/app/components/Button";
-import { useAuth } from "@/app/context/AuthContext";
-import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
+import { Button } from "@/components/Button";
+import { useAuth } from "@/context/AuthContext";
+import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
 import { useMutation } from "@tanstack/react-query";
-import { useMessageBox } from "@utils/msgBox";
+import { useMessageBox } from '@/util/msgBox';
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef } from "react";
 

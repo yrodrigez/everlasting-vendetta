@@ -1,14 +1,13 @@
-import { type Character, getGuildRosterFromGuildInfo } from "@/app/lib/fetchGuildInfo";
-import { CURRENT_MAX_LEVEL, GUILD_NAME, GUILD_REALM_NAME } from "@/app/util/constants";
+import { ScrollShadow } from '@/components/scroll-shadow';
+import { PageEvent } from '@/hooks/usePageEvent';
+import { type Character, getGuildRosterFromGuildInfo } from "@/lib/fetchGuildInfo";
+import { CURRENT_MAX_LEVEL, GUILD_NAME, GUILD_REALM_NAME } from '@/util/constants';
+import createServerSession from '@/util/supabase/createServerSession';
 import { type SupabaseClient } from "@supabase/supabase-js";
-import createServerSession from "@utils/supabase/createServerSession";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { createAPIService } from "../lib/api";
-import { PageEvent } from "@/app/hooks/usePageEvent";
+import { createAPIService } from "../../lib/api";
 import { CharacterViewOptions } from "./[name]/components/CharacterViewOptions";
-import { Scroll } from "lucide-react";
-import { ScrollShadow } from "../components/scroll-shadow";
 
 export const dynamic = 'force-dynamic'
 

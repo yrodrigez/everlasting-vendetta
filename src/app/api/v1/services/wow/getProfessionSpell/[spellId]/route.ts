@@ -1,6 +1,6 @@
 import {NextRequest, NextResponse} from "next/server";
 import parseCraftingHtml from "@/app/api/v1/services/wow/getProfessionSpell/[spellId]/parseCraftingHtml";
-/*import createServerSession from "@utils/supabase/createServerSession";
+/*import createServerSession from '@/util/supabase/createServerSession';
 import {cookies} from "next/headers";
 import pLimit from 'p-limit';
 

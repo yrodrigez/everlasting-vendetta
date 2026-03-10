@@ -14,10 +14,10 @@ import {
 	faPowerOff
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Button } from "@/app/components/Button";
+import { Button } from "@/components/Button";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useAuth } from "@/app/context/AuthContext";
-import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
+import { useAuth } from "@/context/AuthContext";
+import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
 
 export function RaidResetCard({
 	raidDate,

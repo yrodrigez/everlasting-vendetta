@@ -1,6 +1,6 @@
-import { useWoWZamingCss } from "@/app/hooks/useWoWZamingCss";
+import { useWoWZamingCss } from '@/hooks/useWoWZamingCss';
 import { Character, LootHistoryEntry, RaidItem, RaidLootItemRule, ReserveRule } from "@/app/raid/[id]/soft-reserv/types";
-import { createRosterMemberRoute } from "@/app/util/create-roster-member-route";
+import { createRosterMemberRoute } from '@/util/create-roster-member-route';
 import {
     faCartPlus,
     faClose,
@@ -17,11 +17,11 @@ import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
 import { useItemDetails } from "./useItemDetails";
 import { useRaidItems } from "./raid-items-context";
-import { useCharacterStore } from "@/app/components/characterStore";
-import { useAuth } from "@/app/context/AuthContext";
+import { useCharacterStore } from "@/components/characterStore";
+import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import moment from "moment";
-import { GUILD_NAME } from "@/app/util/constants";
+import { GUILD_NAME } from '@/util/constants';
 import { MessageCircleWarning, ShieldAlert } from "lucide-react";
 
 const WOW_CLASSES = ['warrior', 'paladin', 'hunter', 'rogue', 'priest', 'shaman', 'mage', 'warlock', 'druid'] as const;
@@ -64,9 +64,9 @@ function ReservedByList({ reservedBy }: { reservedBy: Character[] }) {
                 Reserved by ({reservedBy.length})
             </h1>
             <ScrollShadow className="flex flex-col gap-1 w-full h-full overflow-auto scrollbar-pill">
-                {reservedBy.map((character) => (
+                {reservedBy.map((character, i) => (
                     <Link
-                        key={character.id}
+                        key={`${character.id ?? `${character.name}-${character.realm?.slug}`}-${i}`}
                         href={createRosterMemberRoute(character.name, (character?.realm?.slug ?? 'spineshatter'))}
                         target={'_blank'}
                         className="flex items-center gap-2 p-1.5 rounded hover:bg-white/5 transition-colors">

@@ -1,6 +1,6 @@
 
-import { type SupabaseClient } from "@supabase/supabase-js";
 import { RaidParticipant } from "@/app/raid/api/types";
+import { type SupabaseClient } from "@supabase/supabase-js";
 
 export async function fetchResetParticipants(supabase: SupabaseClient, resetId: string) {
     const { error, data } = await supabase

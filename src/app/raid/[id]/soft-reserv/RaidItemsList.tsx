@@ -7,8 +7,8 @@ import { useReservations } from "@/app/raid/[id]/soft-reserv/useReservations";
 import { Button, ScrollShadow } from "@heroui/react";
 import { useEffect, useMemo, useState } from "react";
 import { useShallow } from "zustand/shallow";
-import { useRaidItems } from "./raid-items-context";
-import { useAudio } from "@/app/hooks/use-audio";
+import { useRaidItems } from "@/app/raid/[id]/soft-reserv/raid-items-context";
+import { useAudio } from '@/hooks/use-audio';
 
 function BossHeader({ boss }: { boss: { name: string, avatar_url?: string, info_url?: string } | null }) {
     const bossName = boss?.name

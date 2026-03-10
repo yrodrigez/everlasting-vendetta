@@ -1,14 +1,14 @@
 'use client'
-import { Button } from "@/app/components/Button";
-import { useCharacterStore } from "@/app/components/characterStore";
-import { useAuth } from "@/app/context/AuthContext";
+import { Button } from "@/components/Button";
+import { useCharacterStore } from "@/components/characterStore";
+import { useAuth } from "@/context/AuthContext";
 import { useAssistanceStore } from "@/app/raid/components/assistanceStore";
 import { ConfirmAssistance } from "@/app/raid/components/ConfirmAssistance";
 import DeclineAssistance from "@/app/raid/components/DeclineAssistance";
 import { LateAssistance } from "@/app/raid/components/LateAssistance";
 import { TentativeAssistance } from "@/app/raid/components/TentativeAssistance";
 import { RAID_STATUS } from "@/app/raid/components/utils";
-import { useAuthManagerWindowStore } from "@/app/stores/auth-manager-window-store";
+import { useAuthManagerWindowStore } from "@/stores/auth-manager-window-store";
 import { faCheck } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Accessibility, ArrowUpCircle, CalendarOff, CircleOff, Key, Lock, ShieldAlert } from "lucide-react";

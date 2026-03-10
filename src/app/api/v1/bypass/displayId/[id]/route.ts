@@ -1,5 +1,5 @@
 import {NextRequest, NextResponse} from "next/server";
-import {getItemDisplayId} from "@/app/util/wowhead/getItemDisplayId";
+import {getItemDisplayId} from '@/util/wowhead/getItemDisplayId';
 
 export async function GET(request: NextRequest, context: any) {
     const id = (await context.params).id;

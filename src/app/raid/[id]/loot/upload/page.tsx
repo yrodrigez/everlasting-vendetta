@@ -1,7 +1,7 @@
-import createServerSession from "@utils/supabase/createServerSession";
+import createServerSession from '@/util/supabase/createServerSession';
 import { cookies } from "next/headers";
-import NotLoggedInView from "@/app/components/NotLoggedInView";
-import { Button } from "@/app/components/Button";
+import NotLoggedInView from "@/components/NotLoggedInView";
+import { Button } from "@/components/Button";
 import LootHistoPreview from "@/app/raid/[id]/loot/upload/LootHistoPreview";
 import { convertLootCsvToObjects, parseLootCsv } from "@/app/raid/[id]/loot/util";
 import { notFound, redirect } from "next/navigation";

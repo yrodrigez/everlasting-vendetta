@@ -1,7 +1,7 @@
 import {NextRequest, NextResponse} from "next/server";
 
 
-export async function GET(request: NextRequest, context: any) {
+export async function GET(_: NextRequest, context: any) {
 
     const {id} = await context.params;
 

@@ -1,7 +1,7 @@
-import createServerSession from "@/app/util/supabase/createServerSession";
+import createServerSession from '@/util/supabase/createServerSession';
 import ProfilePage from "./profile-page";
-import NotLoggedInView from "@/app/components/NotLoggedInView";
-import { createAPIService } from "@/app/lib/api";
+import NotLoggedInView from "@/components/NotLoggedInView";
+import { createAPIService } from "@/lib/api";
 import { avatar, user } from "@heroui/theme";
 import { create } from "node:domain";
 import { lstatSync } from "node:fs";

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { useRaidItems } from './raid-items-context';
-import { useAuth } from '@/app/context/AuthContext';
-import { createClientComponentClient } from '@/app/util/supabase/createClientComponentClient';
+import { useRaidItems } from '@/app/raid/[id]/soft-reserv/raid-items-context';
+import { useAuth } from '@/context/AuthContext';
+import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 export function useItemDetails(itemId: number | null, resetId: string) {

@@ -1,4 +1,4 @@
-import { createAPIService } from "@/app/lib/api";
+import { createAPIService } from "@/lib/api";
 import { CharacterWithLoot, RaidLoot } from "@/app/raid/[id]/loot/components/types";
 
 export function parseLootCsv(csv: string): string[][] {

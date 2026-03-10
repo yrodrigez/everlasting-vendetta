@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import WoWService from "@services/wow-service";
-import createServerSession from "@utils/supabase/createServerSession";
+import WoWService from '@/services/wow-service';
+import createServerSession from '@/util/supabase/createServerSession';
 import { cookies } from "next/headers";
 
 export async function GET(_: NextRequest, context: any) {

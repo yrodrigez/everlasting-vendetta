@@ -1,6 +1,6 @@
-import createServerSession from "@utils/supabase/createServerSession";
+import createServerSession from '@/util/supabase/createServerSession';
 import { cookies } from "next/headers";
-import NotLoggedInView from "@/app/components/NotLoggedInView";
+import NotLoggedInView from "@/components/NotLoggedInView";
 import { Applicants } from "@/app/apply/list/components/Applicants";
 
 export const dynamic = 'force-dynamic'

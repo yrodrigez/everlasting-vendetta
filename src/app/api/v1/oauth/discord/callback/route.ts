@@ -1,9 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { cookies, headers } from "next/headers";
 import { getEnvironment } from "@/infrastructure/environment";
-import { SESSION_INFO_COOKIE_KEY } from "@/app/util/constants";
-import { decrypt } from "@/app/util/auth/crypto";
-import createServerSession from "@/app/util/supabase/createServerSession";
+import { SESSION_INFO_COOKIE_KEY } from '@/util/constants';
+import { decrypt } from '@/util/auth/crypto';
+import createServerSession from '@/util/supabase/createServerSession';
 
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 const PRODUCTION_ORIGIN = 'https://www.everlastingvendetta.com/';

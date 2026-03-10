@@ -3,8 +3,8 @@ import { fetchResetParticipants } from "@/app/raid/api/fetchParticipants";
 import { useQuery } from "@tanstack/react-query";
 import { RaidParticipant } from "@/app/raid/api/types";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/app/context/AuthContext";
-import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
+import { useAuth } from "@/context/AuthContext";
+import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
 
 export function useParticipants(raidId: string, initialParticipants: RaidParticipant[]) {
 	const { accessToken } = useAuth()

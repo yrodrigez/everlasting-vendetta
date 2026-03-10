@@ -1,11 +1,11 @@
-import { AnimatedModal } from "@/app/components/AnimatedModal";
-import { Button } from "@/app/components/Button";
-import { Battlenet, Discord } from "@/app/components/svg-icons";
-import { useAuth } from "@/app/context/AuthContext";
-import { useApiHealth } from "@/app/hooks/api/use-api-health";
-import useScreenSize from "@/app/hooks/useScreenSize";
-import { createHandleAuthMessage, openAuthWindow } from "@/app/util/blizzard/loginOnWindow";
-import { BNET_LOGIN_URI, DISCORD_LOGIN_URL } from "@utils/constants";
+import { AnimatedModal } from "@/components/AnimatedModal";
+import { Button } from "@/components/Button";
+import { Battlenet, Discord } from "@/components/svg-icons";
+import { useAuth } from "@/context/AuthContext";
+import { useApiHealth } from '@/hooks/api/use-api-health';
+import useScreenSize from '@/hooks/useScreenSize';
+import { createHandleAuthMessage, openAuthWindow } from '@/util/blizzard/loginOnWindow';
+import { BNET_LOGIN_URI, DISCORD_LOGIN_URL } from '@/util/constants';
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 

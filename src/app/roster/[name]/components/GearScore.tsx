@@ -1,5 +1,5 @@
 'use client'
-import { GUILD_REALM_SLUG } from "@/app/util/constants";
+import { GUILD_REALM_SLUG } from '@/util/constants';
 import { Skeleton, Tooltip } from "@heroui/react";
 import { useQuery } from "@tanstack/react-query";
 

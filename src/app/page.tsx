@@ -1,7 +1,7 @@
-import { Button } from "@/app/components/Button";
-import LoopingVideo from "@/app/components/LoopingVideo";
-import { PageEvent } from "@/app/hooks/usePageEvent";
-import createServerSession from "@utils/supabase/createServerSession";
+import { Button } from "@/components/Button";
+import LoopingVideo from "@/components/LoopingVideo";
+import { PageEvent } from '@/hooks/usePageEvent';
+import createServerSession from '@/util/supabase/createServerSession';
 import { Metadata } from "next";
 
 

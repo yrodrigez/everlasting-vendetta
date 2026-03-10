@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { gearScore } from "@/app/lib/supa-functions/gearScore";
-import createServerSession from "@utils/supabase/createServerSession";
+import { gearScore } from "@/lib/supa-functions/gearScore";
+import createServerSession from '@/util/supabase/createServerSession';
 
 export const maxDuration = 60;
 

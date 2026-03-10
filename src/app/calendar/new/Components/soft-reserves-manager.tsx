@@ -1,6 +1,6 @@
 'use client'
-import { Switch } from "@/app/components/switch";
-import { Input } from "@/app/components/input";
+import { Switch } from "@/components/switch";
+import { Input } from "@/components/input";
 import useCreateRaidStore from "./useCreateRaidStore";
 import { useShallow } from "zustand/shallow";
 

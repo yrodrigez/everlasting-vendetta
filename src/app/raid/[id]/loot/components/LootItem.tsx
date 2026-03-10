@@ -1,8 +1,8 @@
 'use client'
-import CharacterAvatar from "@/app/components/CharacterAvatar";
-import { useWoWZamingCss } from "@/app/hooks/useWoWZamingCss";
+import CharacterAvatar from "@/components/CharacterAvatar";
+import { useWoWZamingCss } from '@/hooks/useWoWZamingCss';
 import { type CharacterWithLoot, type Item } from "@/app/raid/[id]/loot/components/types";
-import { createRosterMemberRoute } from "@/app/util/create-roster-member-route";
+import { createRosterMemberRoute } from '@/util/create-roster-member-route';
 import { faMasksTheater, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Modal, ModalContent, Tooltip, useDisclosure } from "@heroui/react";

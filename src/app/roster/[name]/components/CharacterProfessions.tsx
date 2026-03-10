@@ -7,20 +7,20 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClose, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { fetchCharacterProfessionsSpells, fetchProfessionSpells } from "@/app/roster/[name]/components/professions-api";
 import { SupabaseClient } from "@supabase/supabase-js";
-import useToast from "@utils/useToast";
-import { Button } from "@/app/components/Button";
+import useToast from '@/util/useToast';
+import { Button } from "@/components/Button";
 import { faRemove } from "@fortawesome/free-solid-svg-icons/faRemove";
-import { useMessageBox } from "@utils/msgBox";
+import { useMessageBox } from '@/util/msgBox';
 import { useRouter } from "next/navigation";
 import { createPortal } from "react-dom";
 import { Blendy, createBlendy } from "blendy";
-import { ROLE } from "@utils/constants";
-import { useAuth } from "@/app/context/AuthContext";
-import { useCharacterStore } from "@/app/components/characterStore";
+import { ROLE } from '@/util/constants';
+import { useAuth } from "@/context/AuthContext";
+import { useCharacterStore } from "@/components/characterStore";
 import { useShallow } from "zustand/react/shallow";
-import { sendActionEvent } from "@/app/hooks/usePageEvent";
-import api from "@/app/lib/api";
-import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
+import { sendActionEvent } from '@/hooks/usePageEvent';
+import api from "@/lib/api";
+import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
 
 export type ProfessionName =
     'Blacksmithing'

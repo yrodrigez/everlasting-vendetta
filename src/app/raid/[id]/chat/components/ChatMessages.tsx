@@ -6,9 +6,9 @@ import { Button, Popover, PopoverContent, PopoverTrigger, Spinner, Tooltip, useD
 
 import { ChevronDown, ChevronUp, SmilePlus } from "lucide-react";
 import { MessageReaction, Reaction } from "@/app/raid/[id]/chat/components/useReactions";
-import { useCharacterStore } from "@/app/components/characterStore";
+import { useCharacterStore } from "@/components/characterStore";
 import { useShallow } from "zustand/shallow";
-import { createRosterMemberRoute } from "@/app/util/create-roster-member-route";
+import { createRosterMemberRoute } from '@/util/create-roster-member-route';
 
 const isCharacterAvailable = async (name: string) => {
     if (!name) return false

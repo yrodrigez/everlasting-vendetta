@@ -1,14 +1,13 @@
-import {Health} from "@/app/roster/[name]/components/spell-svgs/Health";
-import {Stamina} from "@/app/roster/[name]/components/spell-svgs/Stamina";
-import {FireResistance} from "@/app/roster/[name]/components/spell-svgs/FireResistance";
-import {Defense} from "@/app/roster/[name]/components/spell-svgs/Defense";
-import {Strength} from "@/app/roster/[name]/components/spell-svgs/Strength";
-import {Agility} from "@/app/roster/[name]/components/spell-svgs/Agility";
-import {Intellect} from "@/app/roster/[name]/components/spell-svgs/Intellect";
-import {Rage} from "@/app/roster/[name]/components/spell-svgs/Rage";
-import {Energy} from "@/app/roster/[name]/components/spell-svgs/Energy";
-import {Mana} from "@/app/roster/[name]/components/spell-svgs/Mana";
-import {NatureResistance} from "@/app/roster/[name]/components/spell-svgs/NatureResistance";
+import { Agility } from "@/app/roster/[name]/components/spell-svgs/Agility";
+import { Energy } from "@/app/roster/[name]/components/spell-svgs/Energy";
+import { FireResistance } from "@/app/roster/[name]/components/spell-svgs/FireResistance";
+import { Health } from "@/app/roster/[name]/components/spell-svgs/Health";
+import { Intellect } from "@/app/roster/[name]/components/spell-svgs/Intellect";
+import { Mana } from "@/app/roster/[name]/components/spell-svgs/Mana";
+import { NatureResistance } from "@/app/roster/[name]/components/spell-svgs/NatureResistance";
+import { Rage } from "@/app/roster/[name]/components/spell-svgs/Rage";
+import { Stamina } from "@/app/roster/[name]/components/spell-svgs/Stamina";
+import { Strength } from "@/app/roster/[name]/components/spell-svgs/Strength";
 
 function Power({amount, name}: { amount: number, name: string }) {
     const text = name === 'Rage' ? 'text-red-500' : name === 'Energy' ? 'text-yellow-500' : 'text-blue-500'

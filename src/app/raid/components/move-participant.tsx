@@ -1,13 +1,13 @@
 'use client'
-import { Button } from "@/app/components/Button";
-import { useAuth } from "@/app/context/AuthContext";
-import { useMessageBox } from "@/app/util/msgBox";
-import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
+import { Button } from "@/components/Button";
+import { Tooltip } from "@/components/tooltip";
+import { useAuth } from "@/context/AuthContext";
+import { useMessageBox } from '@/util/msgBox';
+import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@heroui/react";
 import { ArrowRightLeft } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
 import moment from "moment";
-import { Tooltip } from "@/app/components/tooltip";
+import { useEffect, useMemo, useState } from "react";
 
 export const MoveParticipant = ({
     memberId,

@@ -1,4 +1,4 @@
-import NotLoggedInView from "@/app/components/NotLoggedInView";
+import NotLoggedInView from "@/components/NotLoggedInView";
 
 export default function () {
     return <NotLoggedInView/>

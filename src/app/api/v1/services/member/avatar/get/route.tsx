@@ -1,9 +1,9 @@
 import {NextRequest, NextResponse} from "next/server";
 import {cookies} from "next/headers";
-import {fetchCharacterAvatar} from "@/app/lib/fetchCharacterAvatar";
-import {getBlizzardToken} from "@/app/lib/getBlizzardToken";
-import {BNET_COOKIE_NAME} from "@/app/util/constants";
-import {GUILD_REALM_SLUG} from "@utils/constants";
+import {fetchCharacterAvatar} from "@/lib/fetchCharacterAvatar";
+import {getBlizzardToken} from "@/lib/getBlizzardToken";
+import {BNET_COOKIE_NAME} from '@/util/constants';
+import {GUILD_REALM_SLUG} from '@/util/constants';
 
 export async function GET(request: NextRequest) {
     const url = new URL(request.url)

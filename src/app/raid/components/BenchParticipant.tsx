@@ -1,11 +1,11 @@
-import { SupabaseClient } from "@supabase/supabase-js";
-import { Button } from "@/app/components/Button";
-import { faChair, faUser, faUserSlash } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useMutation } from "@tanstack/react-query";
 import benchParticipant from "@/app/raid/api/benchParticipant";
-import { sendActionEvent } from "@/app/hooks/usePageEvent";
 import { RAID_STATUS } from "@/app/raid/components/utils";
+import { Button } from "@/components/Button";
+import { sendActionEvent } from '@/hooks/usePageEvent';
+import { faChair, faUser } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { SupabaseClient } from "@supabase/supabase-js";
+import { useMutation } from "@tanstack/react-query";
 
 export default function BenchParticipant({ supabase, resetId, memberId, currentStatus, currentDetails }: {
     supabase?: SupabaseClient,

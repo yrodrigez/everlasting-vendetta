@@ -3,7 +3,7 @@ import {Button, Chip, Input, Modal, ModalContent, Tooltip} from "@heroui/react";
 import React, {useState} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faClose, faFilter} from "@fortawesome/free-solid-svg-icons";
-import useScreenSize from "@hooks/useScreenSize";
+import useScreenSize from '@/hooks/useScreenSize';
 import {useShallow} from "zustand/shallow";
 
 const FilterContainer = ({children}: { children: React.ReactNode }) => {

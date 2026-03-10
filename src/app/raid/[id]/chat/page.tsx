@@ -1,10 +1,10 @@
-import { BnetLoginButton } from "@/app/components/BnetLoginButton";
-import { Button } from "@/app/components/Button";
-import NotLoggedInView from "@/app/components/NotLoggedInView";
+import { BnetLoginButton } from "@/components/BnetLoginButton";
+import { Button } from "@/components/Button";
+import NotLoggedInView from "@/components/NotLoggedInView";
 import { ChatContainer } from "@/app/raid/[id]/chat/components/ChatContainer";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import createServerSession from "@utils/supabase/createServerSession";
+import createServerSession from '@/util/supabase/createServerSession';
 import Link from "next/link";
 
 export const dynamic = 'force-dynamic'

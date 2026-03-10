@@ -1,9 +1,9 @@
 'use client'
 
-import { Button } from "@/app/components/Button";
-import { useAuth } from "@/app/context/AuthContext";
-import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
-import { sendActionEvent } from "@/app/hooks/usePageEvent";
+import { Button } from "@/components/Button";
+import { useAuth } from "@/context/AuthContext";
+import { sendActionEvent } from '@/hooks/usePageEvent';
+import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
 import { Lock, LockOpen } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";

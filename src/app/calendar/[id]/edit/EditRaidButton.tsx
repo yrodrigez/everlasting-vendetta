@@ -1,15 +1,15 @@
 'use client'
 
 import useCreateRaidStore from "@/app/calendar/new/Components/useCreateRaidStore";
-import { Button } from "@/app/components/Button";
+import { Button } from "@/components/Button";
 import { useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import moment from "moment";
 import { useShallow } from "zustand/shallow";
-import { useCharacterStore } from "@/app/components/characterStore";
-import { useAuth } from "@/app/context/AuthContext";
-import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
-import { useMessageBox } from "@/app/util/msgBox";
+import { useCharacterStore } from "@/components/characterStore";
+import { useAuth } from "@/context/AuthContext";
+import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
+import { useMessageBox } from '@/util/msgBox';
 
 export function EditRaidButton({ reset }: { reset: { raid_id: string, id: string } }) {
     const { raid, endTime, startTime, startDate, endDate, days, realm, allowSoftReserves, softReservesAmmount, onTimeBonusExtraEnabled, onTimeBonusExtraAmmount, onTimeBonusCutoffHours } = useCreateRaidStore(useShallow(state => ({

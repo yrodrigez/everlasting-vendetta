@@ -1,6 +1,5 @@
-import { registerOnRaid } from "@/app/lib/database/raid_resets/registerOnRaid";
-import { fetchBattleNetWoWAccounts } from "@/app/lib/fetchBattleNetWoWaccounts";
-import createServerSession from "@utils/supabase/createServerSession";
+import { registerOnRaid } from "@/lib/database/raid_resets/registerOnRaid";
+import createServerSession from '@/util/supabase/createServerSession';
 import { NextRequest, NextResponse } from "next/server";
 
 

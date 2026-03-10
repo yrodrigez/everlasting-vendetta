@@ -1,9 +1,9 @@
 'use client'
-import { Button } from "@/app/components/Button";
-import WoWHeadItem from "@/app/components/wow-head-item";
-import { useAuth } from "@/app/context/AuthContext";
-import { useMessageBox } from "@/app/util/msgBox";
-import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
+import { Button } from "@/components/Button";
+import WoWHeadItem from "@/components/wow-head-item";
+import { useAuth } from "@/context/AuthContext";
+import { useMessageBox } from '@/util/msgBox';
+import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
 import { ScrollShadow } from "@heroui/react";
 import { Trash2Icon } from "lucide-react";
 import moment from "moment/moment";

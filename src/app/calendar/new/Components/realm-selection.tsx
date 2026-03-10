@@ -1,7 +1,7 @@
 'use client'
 import useCreateRaidStore from "./useCreateRaidStore";
 
-import { RealmSelection as CustomRealmSelection } from "@/app/components/realm-selection";
+import { RealmSelection as CustomRealmSelection } from "@/components/realm-selection";
 
 export function RealmSelection() {
     const setRealm = useCreateRaidStore(state => state.setRealm)

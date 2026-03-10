@@ -1,4 +1,4 @@
-import {Day} from "@/app/calendar/new/Components/useCreateRaidStore";
+import { Day } from "@/app/calendar/new/Components/useCreateRaidStore";
 
 export type RaidParticipant = {
     member: {

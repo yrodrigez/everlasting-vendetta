@@ -1,7 +1,7 @@
 import { NextCookiesSessionStore } from '@/shared/auth/infrastructure/next-cookies-session-store';
-import { REFRESH_TOKEN_COOKIE_KEY, SESSION_INFO_COOKIE_KEY } from '@/app/util/constants';
-import { GetUserCharactersUseCase } from '../application/use-cases/get-user-characters.use-case';
-import { EvWowGateway } from '../infrastructure/ev-wow-gateway';
+import { REFRESH_TOKEN_COOKIE_KEY, SESSION_INFO_COOKIE_KEY } from '@/util/constants';
+import { GetUserCharactersUseCase } from '@/shared/wow/application/use-cases/get-user-characters.use-case';
+import { EvWowGateway } from '@/shared/wow/infrastructure/ev-wow-gateway';
 
 type CookieStore = {
     get(name: string): { name: string; value: string } | undefined;

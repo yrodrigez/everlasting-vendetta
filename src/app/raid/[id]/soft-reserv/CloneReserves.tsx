@@ -2,7 +2,7 @@ import {Tooltip} from "@heroui/react";
 import Link from "next/link";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faClone} from "@fortawesome/free-solid-svg-icons";
-import {Button} from "@/app/components/Button";
+import {Button} from "@/components/Button";
 
 export default function CloneReserves({resetId}: { resetId: string }) {
     return (

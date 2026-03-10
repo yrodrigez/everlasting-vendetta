@@ -1,7 +1,7 @@
-import { REFRESH_TOKEN_COOKIE_KEY, SESSION_INFO_COOKIE_KEY } from '@/app/util/constants';
-import { NextCookiesSessionStore } from '../infrastructure/next-cookies-session-store';
-import { HttpAuthGateway } from '../infrastructure/http-auth-gateway';
-import { GetSessionsUseCase } from '../application/use-cases/get-sessions.use-case';
+import { GetSessionsUseCase } from '@/shared/auth/application/use-cases/get-sessions.use-case';
+import { HttpAuthGateway } from '@/shared/auth/infrastructure/http-auth-gateway';
+import { NextCookiesSessionStore } from '@/shared/auth/infrastructure/next-cookies-session-store';
+import { REFRESH_TOKEN_COOKIE_KEY, SESSION_INFO_COOKIE_KEY } from '@/util/constants';
 
 type CookieStore = {
     get(name: string): { name: string; value: string } | undefined;

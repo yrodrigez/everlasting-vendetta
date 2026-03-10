@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
 import { ANON_KEY, FUNCTION_BASE_URL } from "@/app/api/v1/supabase/util";
-import createServerSession from "@utils/supabase/createServerSession";
+import createServerSession from '@/util/supabase/createServerSession';
 
 
 export async function POST(request: NextRequest) {

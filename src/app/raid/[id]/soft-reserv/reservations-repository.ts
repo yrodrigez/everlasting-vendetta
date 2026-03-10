@@ -1,7 +1,8 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { Character, LootHistoryEntry, RaidItem, RaidLootItemRule, Reservation, ReserveRule } from "./types";
-import { RAID_STATUS } from "../../components/utils";
+
 import { Day } from "@/app/calendar/new/Components/useCreateRaidStore";
+import { RAID_STATUS } from "@/app/raid/components/utils";
 
 export class ReservationsRepository {
     constructor(private supabase: SupabaseClient) { }

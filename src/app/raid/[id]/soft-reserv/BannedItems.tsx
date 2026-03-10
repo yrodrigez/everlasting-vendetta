@@ -1,15 +1,15 @@
 'use client'
-import { getQualityColor } from "@/app/util";
+import { getQualityColor } from "@/util";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClose, faCloudArrowDown } from "@fortawesome/free-solid-svg-icons";
 import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ScrollShadow, useDisclosure } from "@heroui/react";
-import { Button } from "@/app/components/Button";
+import { Button } from "@/components/Button";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useMessageBox } from "@utils/msgBox";
-import { useAuth } from "@/app/context/AuthContext";
-import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
+import { useMessageBox } from '@/util/msgBox';
+import { useAuth } from "@/context/AuthContext";
+import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
 import { useRouter } from "next/navigation";
 import { useRaidItems } from "./raid-items-context";
 import moment from "moment";

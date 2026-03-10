@@ -1,13 +1,13 @@
 
 import { type SupabaseClient } from "@supabase/supabase-js";
 import Chart from "@/app/stats/Chart";
-import { fetchCharacterAvatar } from "@/app/lib/fetchCharacterAvatar";
-import { Card, CardBody, CardFooter, CardHeader } from "@/app/components/card";
+import { fetchCharacterAvatar } from "@/lib/fetchCharacterAvatar";
+import { Card, CardBody, CardFooter, CardHeader } from "@/components/card";
 import moment from "moment";
 import Link from "next/link";
-import { CURRENT_MAX_LEVEL, GUILD_REALM_SLUG } from "@/app/util/constants";
-import { PageEvent } from "@/app/hooks/usePageEvent";
-import createServerSession from "@utils/supabase/createServerSession";
+import { CURRENT_MAX_LEVEL, GUILD_REALM_SLUG } from '@/util/constants';
+import { PageEvent } from '@/hooks/usePageEvent';
+import createServerSession from '@/util/supabase/createServerSession';
 
 export const dynamic = 'force-dynamic'
 

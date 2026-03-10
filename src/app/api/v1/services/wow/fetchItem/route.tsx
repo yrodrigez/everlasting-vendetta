@@ -1,10 +1,10 @@
 import axios from "axios";
 import { type NextRequest, NextResponse } from "next/server";
 import { type SupabaseClient } from "@supabase/supabase-js";
-import { getItemDisplayId } from "@/app/util/wowhead/getItemDisplayId";
-import { createBlizzardItemFetchUrl } from "@/app/util/constants";
-import createServerSession from "@utils/supabase/createServerSession";
-import { getBlizzardToken } from "@/app/lib/getBlizzardToken";
+import { getItemDisplayId } from '@/util/wowhead/getItemDisplayId';
+import { createBlizzardItemFetchUrl } from '@/util/constants';
+import createServerSession from '@/util/supabase/createServerSession';
+import { getBlizzardToken } from "@/lib/getBlizzardToken";
 import { getInventoryType } from "@/app/api/v1/services/wow/fetchItem/getInventoryType";
 
 function knownItemLevelQuality(itemId: number) {

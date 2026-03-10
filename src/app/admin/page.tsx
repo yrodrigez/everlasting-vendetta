@@ -1,7 +1,7 @@
-import createServerSession from "@utils/supabase/createServerSession";
-import { GUILD_ID, GUILD_NAME, ROLE } from "@utils/constants";
-import { MemberRole, Role, RolePermission, UserProfile } from "@/app/admin/types";
 import PermissionManagement from "@/app/admin/PermissionManagement";
+import { MemberRole, Role, RolePermission, UserProfile } from "@/app/admin/types";
+import { GUILD_NAME, ROLE } from '@/util/constants';
+import createServerSession from '@/util/supabase/createServerSession';
 
 export default async function Page() {
     const { auth, getSupabase } = await createServerSession();

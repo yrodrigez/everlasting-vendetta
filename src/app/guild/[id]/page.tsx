@@ -1,15 +1,15 @@
-import {fetchGuildInfo} from "@/app/lib/fetchGuildInfo";
-import {getBlizzardToken} from "@/app/lib/getBlizzardToken";
+import {fetchGuildInfo} from "@/lib/fetchGuildInfo";
+import {getBlizzardToken} from "@/lib/getBlizzardToken";
 import {cookies} from "next/headers";
 import Link from "next/link";
-import CharacterAvatar from "@/app/components/CharacterAvatar";
-import {CURRENT_MAX_LEVEL, GUILD_NAME} from "@/app/util/constants";
+import CharacterAvatar from "@/components/CharacterAvatar";
+import {CURRENT_MAX_LEVEL, GUILD_NAME} from '@/util/constants';
 import {getClassIcon} from "@/app/apply/components/utils";
 import {redirect} from "next/navigation";
-import WoWService from "@services/wow-service";
-import {BnetLoginButton} from "@/app/components/BnetLoginButton";
-import {Button} from "@/app/components/Button";
-import createServerSession from "@/app/util/supabase/createServerSession";
+import WoWService from '@/services/wow-service';
+import {BnetLoginButton} from "@/components/BnetLoginButton";
+import {Button} from "@/components/Button";
+import createServerSession from '@/util/supabase/createServerSession';
 
 function getClassName(classId: number) {
     const classes = {

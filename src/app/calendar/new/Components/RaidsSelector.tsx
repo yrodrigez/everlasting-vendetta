@@ -2,7 +2,7 @@
 
 import { SelectItem } from "@heroui/react";
 import useCreateRaidStore from "@/app/calendar/new/Components/useCreateRaidStore";
-import { Select } from "@/app/components/select";
+import { Select } from "@/components/select";
 
 export default function RaidsSelector({ raids }: {
     raids: { id: string, name: string, min_level: number, image: string, reservation_amount: number }[]

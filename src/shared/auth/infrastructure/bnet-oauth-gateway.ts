@@ -1,4 +1,4 @@
-import type { BnetOAuthGateway, BnetTokenResponse } from '../application/ports/bnet-oauth-gateway';
+import type { BnetOAuthGateway, BnetTokenResponse } from '@/shared/auth/application/ports/bnet-oauth-gateway';
 
 class BattleNetOAuthGatewayError extends Error {
     readonly status: number;

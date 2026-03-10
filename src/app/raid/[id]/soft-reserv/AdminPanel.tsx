@@ -6,7 +6,7 @@ import { faArrowLeft, faLock, faLockOpen } from "@fortawesome/free-solid-svg-ico
 import { ExportToGargul } from "@/app/raid/[id]/soft-reserv/ExportToGargul";
 import { ShowReservations } from "@/app/raid/[id]/soft-reserv/ShowReservations";
 import ShowReserveRules from "@/app/raid/[id]/soft-reserv/ShowReserveRules";
-import { Button } from "@/app/components/Button";
+import { Button } from "@/components/Button";
 import { ReserveForOthers } from "@/app/raid/[id]/soft-reserv/ReserveForOthers";
 import { ExtraReserveButton } from "@/app/raid/[id]/soft-reserv/ExtraReserveButton";
 import { AddItem } from "@/app/raid/[id]/soft-reserv/AddItem";

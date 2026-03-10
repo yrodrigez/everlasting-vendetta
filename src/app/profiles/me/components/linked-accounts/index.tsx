@@ -1,4 +1,4 @@
-import { Card, CardBody, CardFooter, CardHeader } from "@/app/components/card";
+import { Card, CardBody, CardFooter, CardHeader } from "@/components/card";
 import { User } from "lucide-react";
 import { useState } from "react";
 import { LinkedAccountModal } from "./link-account-modal";

@@ -1,11 +1,11 @@
 'use client'
-import { Reservation } from "@/app/raid/[id]/soft-reserv/types";
 import { ReservedItem } from "@/app/raid/[id]/soft-reserv/ReservedItem";
+import { Reservation } from "@/app/raid/[id]/soft-reserv/types";
 import { useReservations } from "@/app/raid/[id]/soft-reserv/useReservations";
-import { useEffect, useMemo, useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLock, faLockOpen } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Tooltip } from "@heroui/react";
+import { useMemo } from "react";
 
 export default function YourReservations({ resetId, initialReservedItems, baseReservationAmount = 0 }: {
     resetId: string,

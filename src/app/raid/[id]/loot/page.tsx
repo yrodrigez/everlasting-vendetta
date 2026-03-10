@@ -1,14 +1,14 @@
-import { Button } from "@/app/components/Button";
-import { createAPIService } from "@/app/lib/api";
+import { Button } from "@/components/Button";
+import { createAPIService } from "@/lib/api";
 import { LootHistory } from "@/app/raid/[id]/loot/components/LootHistory";
 import { CharacterWithLoot, RaidLoot } from "@/app/raid/[id]/loot/components/types";
 import { fetchItemDataFromWoWHead, groupByCharacter } from "@/app/raid/[id]/loot/util";
-import { RaidParticipant } from "@/app/types/RaidParticipant";
-import { PageEvent } from "@/app/hooks/usePageEvent";
+import { RaidParticipant } from "@/types/RaidParticipant";
+import { PageEvent } from '@/hooks/usePageEvent';
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { type SupabaseClient } from "@supabase/supabase-js";
-import createServerSession from "@utils/supabase/createServerSession";
+import createServerSession from '@/util/supabase/createServerSession';
 import { notFound } from "next/navigation";
 
 async function fetchLootHistory(supabase: SupabaseClient, raidId: string): Promise<RaidLoot[]> {

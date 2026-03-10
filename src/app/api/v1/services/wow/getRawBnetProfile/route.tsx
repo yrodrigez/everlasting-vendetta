@@ -1,6 +1,6 @@
 import {cookies} from "next/headers";
 import {NextRequest, NextResponse} from "next/server";
-import {fetchBattleNetProfile} from "@/app/util/blizzard/battleNetWoWAccount";
+import {fetchBattleNetProfile} from '@/util/blizzard/battleNetWoWAccount';
 
 
 export async function GET(request: NextRequest) {

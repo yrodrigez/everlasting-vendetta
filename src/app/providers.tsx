@@ -1,14 +1,14 @@
 'use client'
-import AchievementsProvider from "@/app/providers/AchievementsContext";
-import ApplicantsContext from "@/app/providers/ApplicantsContext";
-import { ModalProvider } from "@/app/providers/ModalProvider";
-import ReactQueryProvider from "@/app/providers/ReactQueryProvider";
+import AchievementsProvider from "@/context/AchievementsContext";
+import ApplicantsContext from "@/context/ApplicantsContext";
+import { ModalProvider } from "@/context/ModalProvider";
+import ReactQueryProvider from "@/context/ReactQueryProvider";
 import { HeroUIProvider } from "@heroui/react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { useEffect, useRef, type ReactNode } from "react";
-import { ApiHealthBanner } from "./components/api-health-banner";
-import { AuthProvider } from "@/app/context/AuthContext";
-import { useCharacterStore } from "./components/characterStore";
+import { ApiHealthBanner } from "../components/api-health-banner";
+import { AuthProvider } from "@/context/AuthContext";
+import { useCharacterStore } from "../components/characterStore";
 import { useRouter } from "next/navigation";
 
 

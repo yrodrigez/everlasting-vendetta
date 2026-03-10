@@ -1,5 +1,5 @@
-import {create as createStore} from 'zustand'
-import {persist} from 'zustand/middleware';
+import { create as createStore } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 interface AssistanceStore {
     selectedDays: Array<string>,

@@ -1,11 +1,11 @@
 'use client'
-import { Button } from "@/app/components/Button";
+import { Button } from "@/components/Button";
+import GearScore from "@/components/GearScore";
+import { useCharacterStore } from "@/components/characterStore";
+import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from "@heroui/react";
 import { useEffect, useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
-import GearScore from "@/app/components/GearScore";
-import { useCharacterStore } from "@/app/components/characterStore";
 import { useShallow } from "zustand/shallow";
 
 

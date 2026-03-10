@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server'
-import createServerSession from '@/app/util/supabase/createServerSession'
+import createServerSession from '@/util/supabase/createServerSession'
 
 const DISCORD_INVITE_URL = 'https://discord.gg/fYw9WCNFDU'
 

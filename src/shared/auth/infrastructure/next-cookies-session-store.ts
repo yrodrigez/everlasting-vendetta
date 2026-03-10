@@ -1,4 +1,4 @@
-import type { SessionStore } from '../application/ports/session-store';
+import type { SessionStore } from '@/shared/auth/application/ports/session-store';
 
 type CookieStore = {
     get(name: string): { name: string; value: string } | undefined;

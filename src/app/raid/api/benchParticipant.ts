@@ -1,5 +1,5 @@
-import {type SupabaseClient} from "@supabase/supabase-js";
-import {RAID_STATUS} from "@/app/raid/components/utils";
+import { RAID_STATUS } from "@/app/raid/components/utils";
+import { type SupabaseClient } from "@supabase/supabase-js";
 
 export default async function benchParticipant(supabase: SupabaseClient, resetId: string, memberId: number, bench: boolean, details: {
     role: string,

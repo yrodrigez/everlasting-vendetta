@@ -1,5 +1,5 @@
-import { useAuth } from "@/app/context/AuthContext";
-import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
+import { useAuth } from "@/context/AuthContext";
+import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo } from "react";
 

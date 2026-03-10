@@ -1,10 +1,10 @@
 import { Input, Tooltip } from "@heroui/react";
-import { Button } from "@/app/components/Button";
+import { Button } from "@/components/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 import { useChatStore } from "@/app/raid/[id]/chat/components/chatStore";
 import { useShallow } from "zustand/react/shallow";
-import { useAuth } from "@/app/context/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 
 export function ChatControls({ onSubmit, showRedirect }: {
     showRedirect?: boolean

@@ -1,4 +1,4 @@
-import { Button } from "@/app/components/Button";
+import { Button } from "@/components/Button";
 import { faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ModalBody, ModalContent, Modal, useDisclosure, ModalHeader, ModalFooter, Chip } from "@heroui/react";
@@ -8,10 +8,10 @@ import Image from "next/image";
 import React, { useCallback } from "react";
 import Link from "next/link";
 import { ExtraReserveActions } from "@/app/raid/[id]/soft-reserv/ExtraReserveActions";
-import { useAuth } from "@/app/context/AuthContext";
-import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
+import { useAuth } from "@/context/AuthContext";
+import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
 import { create } from "node:domain";
-import { createRosterMemberRoute } from "@/app/util/create-roster-member-route";
+import { createRosterMemberRoute } from '@/util/create-roster-member-route';
 
 
 async function fetchExtraReserves(resetId: string, supabase: SupabaseClient) {

@@ -1,8 +1,8 @@
 'use client'
 import { useApplyFormStore } from "@/app/apply/components/store";
-import { useFetchCharacter } from "@/app/hooks/api/use-fetch-character";
-import { Input } from "@/app/components/input";
-import { Tooltip } from "@/app/components/tooltip";
+import { useFetchCharacter } from '@/hooks/api/use-fetch-character';
+import { Input } from "@/components/input";
+import { Tooltip } from "@/components/tooltip";
 import { useEffect, useState } from "react";
 import { useShallow } from "zustand/shallow";
 

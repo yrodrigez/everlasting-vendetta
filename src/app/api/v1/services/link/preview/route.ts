@@ -1,4 +1,3 @@
-//2fbb4cbd6e9fdb2b8ee6b0c53dec03a7
 
 import {NextRequest, NextResponse} from "next/server";
 

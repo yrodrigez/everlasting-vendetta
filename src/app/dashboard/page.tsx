@@ -1,6 +1,6 @@
-import createServerSession from "@utils/supabase/createServerSession";
-import { ROLE } from "@utils/constants";
-import { Card, CardBody, CardHeader } from "@/app/components/card";
+import createServerSession from '@/util/supabase/createServerSession';
+import { ROLE } from '@/util/constants';
+import { Card, CardBody, CardHeader } from "@/components/card";
 import { aggregateUsersByCountry, countUniqueUsersByDay, getTopUsers, groupEventsByDayAndName } from "./utils";
 import OverviewCards from "./components/OverviewCards";
 import ActiveUsersChart from "./components/ActiveUsersChart";
@@ -11,8 +11,8 @@ import RecentEventsFeed from "./components/RecentEventsFeed";
 import UserWorldMap from "./components/UserWorldMap";
 import ClassDistributionChart from "./components/ClassDistributionChart";
 import TopLootByRaid from "./components/TopLootByRaid";
-import { SomethingWentWrong } from "../components/something-went-wrong";
-import NotLoggedInView from "../components/NotLoggedInView";
+import { SomethingWentWrong } from '@/components/something-went-wrong';
+import NotLoggedInView from '@/components/NotLoggedInView';
 
 export const dynamic = 'force-dynamic';
 

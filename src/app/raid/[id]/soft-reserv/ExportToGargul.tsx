@@ -7,8 +7,8 @@ import { toast } from "sonner";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { RAID_STATUS } from "@/app/raid/components/utils";
-import { useAuth } from "@/app/context/AuthContext";
-import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
+import { useAuth } from "@/context/AuthContext";
+import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
 
 function generateID(length: number) {
     let result = '';

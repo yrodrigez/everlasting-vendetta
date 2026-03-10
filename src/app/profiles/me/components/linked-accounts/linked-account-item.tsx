@@ -1,4 +1,4 @@
-import { Battlenet, Discord } from "@/app/components/svg-icons";
+import { Battlenet, Discord } from "@/components/svg-icons";
 import { useCallback, useMemo } from "react";
 import { LinkedAccount } from "./types";
 

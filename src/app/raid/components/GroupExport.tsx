@@ -1,16 +1,16 @@
 "use client";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { type Role } from "@/app/components/characterStore";
+import { type Role } from "@/components/characterStore";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Spinner, Tooltip } from "@heroui/react";
-import { Button } from "@/app/components/Button";
+import { Button } from "@/components/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBrain } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
-import { aiGroupExport } from "@/app/lib/supa-functions/config";
-import { useMessageBox } from "@utils/msgBox";
-import { useAuth } from "@/app/context/AuthContext";
-import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
+import { aiGroupExport } from "@/lib/supa-functions/config";
+import { useMessageBox } from '@/util/msgBox';
+import { useAuth } from "@/context/AuthContext";
+import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
 
 export default function GroupExport({ resetId }: { resetId: string }) {
     const { accessToken, user } = useAuth();

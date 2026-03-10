@@ -1,6 +1,6 @@
-import { HeaderMenuButton } from "@/app/components/HeaderMenuButton";
-import ResizeManager from "@/app/components/ResizeManager";
 import Providers from "@/app/providers";
+import { HeaderMenuButton } from "@/components/HeaderMenuButton";
+import ResizeManager from "@/components/ResizeManager";
 import { config } from '@fortawesome/fontawesome-svg-core';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -9,9 +9,9 @@ import { Inter } from "next/font/google";
 import Script from 'next/script';
 import React from "react";
 import { Toaster } from "sonner";
-import { SessionHandler } from "./components/SessionHandler";
+import { SessionHandler } from "../components/SessionHandler";
 import "./globals.css";
-import createServerSession from "./util/supabase/createServerSession";
+import createServerSession from "@/util/supabase/createServerSession";
 
 config.autoAddCss = false;
 const inter = Inter({ subsets: ["latin"] });

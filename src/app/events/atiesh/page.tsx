@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { AchievementCard } from "@/app/roster/[name]/components/CharacterAchievements";
-import createServerSession from "@utils/supabase/createServerSession";
-import { ROLE } from "@utils/constants";
-import NotLoggedInView from "@/app/components/NotLoggedInView";
-import { ScrollShadow } from "@/app/components/scroll-shadow";
+import createServerSession from '@/util/supabase/createServerSession';
+import { ROLE } from '@/util/constants';
+import NotLoggedInView from "@/components/NotLoggedInView";
+import { ScrollShadow } from "@/components/scroll-shadow";
 import Sound from "@/app/events/components/Sound";
 import ParticipateButton from "@/app/events/components/ParticipateButton";
-import GearScore from "@/app/components/GearScore";
+import GearScore from "@/components/GearScore";
 
 export const dynamic = 'force-dynamic'
 

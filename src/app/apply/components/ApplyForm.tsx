@@ -2,13 +2,15 @@
 import { CharacterNameInput } from "@/app/apply/components/CharacterNameInput";
 import { useApplyFormStore } from "@/app/apply/components/store";
 import { getClassIcon, getRoleIcon, onForm } from "@/app/apply/components/utils";
-import { Button } from "@/app/components/Button";
-import { Input } from "@/app/components/input";
-import LookupField from "@/app/components/LookupField";
-import { isRoleAssignable } from "@/app/components/ProfileManager";
-import { Textarea } from "@/app/components/text-area";
-import { sendActionEvent } from "@/app/hooks/usePageEvent";
-import { PLAYABLE_ROLES } from "@/app/util/constants";
+import { useAudio } from "@/hooks/use-audio";
+import { Button } from "@/components/Button";
+import { Input } from "@/components/input";
+import { isRoleAssignable } from "@/components/ProfileManager";
+import { RealmSelection } from "@/components/realm-selection";
+import { Select } from "@/components/select";
+import { Textarea } from "@/components/text-area";
+import { sendActionEvent } from "@/hooks/usePageEvent";
+import { PLAYABLE_ROLES } from "@/util/constants";
 import {
     Modal,
     ModalBody,
@@ -21,9 +23,6 @@ import {
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
-import { RealmSelection } from "@/app/components/realm-selection";
-import { Select } from "@/app/components/select";
-import { useAudio } from "@/app/hooks/use-audio";
 
 
 export default function ApplyForm() {

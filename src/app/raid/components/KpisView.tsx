@@ -1,4 +1,6 @@
 'use client'
+import { type RaidParticipant } from "@/app/raid/api/types";
+import { useParticipants } from "@/app/raid/components/useParticipants";
 import {
 	faCircleCheck,
 	faCircleQuestion,
@@ -7,12 +9,9 @@ import {
 	faHeart,
 	faShield
 } from "@fortawesome/free-solid-svg-icons";
-import React, {useMemo, useState} from "react";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import moment from "moment";
-import {useParticipants} from "@/app/raid/components/useParticipants";
-import {type RaidParticipant} from "@/app/raid/api/types";
-import {Tooltip} from "@heroui/react";
+import { useMemo, useState } from "react";
 
 
 export const DpsIcon = ({className}: { className: string }) => <svg className={className}

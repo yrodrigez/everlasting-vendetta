@@ -3,24 +3,24 @@ import moment from "moment/moment";
 
 import { type SupabaseClient } from "@supabase/supabase-js";
 
-import { Button } from "@/app/components/Button";
 import { ChatContainer } from "@/app/raid/[id]/chat/components/ChatContainer";
 import { fetchResetParticipants } from "@/app/raid/api/fetchParticipants";
 import AssistActions from "@/app/raid/components/AssistActions";
 import { ClassSummary } from "@/app/raid/components/ClassSummary";
+import { DiscordLink } from "@/app/raid/components/DiscordLink";
 import { IsLowGsModal } from "@/app/raid/components/IsLowGsModal";
 import { KpisView } from "@/app/raid/components/KpisView";
-import ParticipantsManager from "@/app/raid/components/ParticipantsManager";
 import { LockRaidButton } from "@/app/raid/components/LockRaidButton";
+import ParticipantsManager from "@/app/raid/components/ParticipantsManager";
 import { RaidOptions } from "@/app/raid/components/RaidOptions";
 import RaidParticipants from "@/app/raid/components/RaidParticipants";
 import RaidTimeInfo from "@/app/raid/components/RaidTimeInfo";
-import { GUILD_REALM_SLUG, ROLE } from "@/app/util/constants";
+import { Button } from "@/components/Button";
+import { PageEvent } from '@/hooks/usePageEvent';
+import { GUILD_REALM_SLUG, ROLE } from '@/util/constants';
+import createServerSession from '@/util/supabase/createServerSession';
 import { faCartPlus, faGift } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { DiscordLink } from "@/app/raid/components/DiscordLink";
-import { PageEvent } from "@/app/hooks/usePageEvent";
-import createServerSession from "@utils/supabase/createServerSession";
 import { Metadata } from "next";
 
 const raidResetAttr = 'raid_date, id, raid:ev_raid(name, min_level, image, min_gs), time, end_date, end_time, days, status, realm, is_reservations_allowed, created_by, raid_id'

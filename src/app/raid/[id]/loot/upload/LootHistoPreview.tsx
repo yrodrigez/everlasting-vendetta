@@ -1,6 +1,6 @@
 'use client';
-import { sendActionEvent } from "@/app/hooks/usePageEvent";
-import { createAPIService } from "@/app/lib/api";
+import { sendActionEvent } from '@/hooks/usePageEvent';
+import { createAPIService } from "@/lib/api";
 import LootHistoryList from "@/app/raid/[id]/loot/components/LootHistoryList";
 import { type CharacterWithLoot, RaidLoot } from "@/app/raid/[id]/loot/components/types";
 import {

@@ -1,16 +1,16 @@
-import { Button } from "@/app/components/Button";
+import { Button } from "@/components/Button";
 import { faCloudArrowUp } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from "@heroui/react";
 
-import { useAuth } from "@/app/context/AuthContext";
-import { useWoWItem } from "@/app/hooks/api/use-wow-item";
-import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
+import { useAuth } from "@/context/AuthContext";
+import { useWoWItem } from '@/hooks/api/use-wow-item';
+import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/dist/client/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { createAPIService } from "@/app/lib/api";
-import { useMessageBox } from "@/app/util/msgBox";
+import { createAPIService } from "@/lib/api";
+import { useMessageBox } from '@/util/msgBox';
 
 export function AddItem({ resetId }: { resetId: string }) {
     const { accessToken } = useAuth()

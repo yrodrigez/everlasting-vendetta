@@ -1,5 +1,5 @@
 'use client'
-import {useParticipants} from "@/app/raid/components/useParticipants";
+import { useParticipants } from "@/app/raid/components/useParticipants";
 
 
 export function ClassSummary({raidId}: { raidId: string }) {

@@ -1,5 +1,5 @@
 'use client'
-import {ItemDetails} from "@/app/components/CharacterItem";
+import {ItemDetails} from "@/components/CharacterItem";
 import {Button, Modal, ModalBody, ModalContent, Tooltip, useDisclosure} from "@heroui/react";
 
 import {ItemDetailedView} from "@/app/roster/[name]/components/ItemDetailedView";

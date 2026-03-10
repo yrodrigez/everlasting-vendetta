@@ -1,5 +1,5 @@
-import createServerSession from "@utils/supabase/createServerSession";
-import WoWService from "@services/wow-service";
+import createServerSession from '@/util/supabase/createServerSession';
+import WoWService from '@/services/wow-service';
 import { NextRequest, NextResponse } from "next/server";
 export const maxDuration = 60;
 

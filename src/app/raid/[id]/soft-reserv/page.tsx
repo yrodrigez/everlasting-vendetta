@@ -1,17 +1,17 @@
-import { Button } from "@/app/components/Button";
-import NotLoggedInView from "@/app/components/NotLoggedInView";
-import { SomethingWentWrong } from "@/app/components/something-went-wrong";
-import { PageEvent } from "@/app/hooks/usePageEvent";
+import { Button } from "@/components/Button";
+import NotLoggedInView from "@/components/NotLoggedInView";
+import { SomethingWentWrong } from "@/components/something-went-wrong";
+import { PageEvent } from '@/hooks/usePageEvent';
 import AdminPanel from "@/app/raid/[id]/soft-reserv/AdminPanel";
 import { BannedItems } from "@/app/raid/[id]/soft-reserv/BannedItems";
 import RaidItemsList from "@/app/raid/[id]/soft-reserv/RaidItemsList";
 import YourReservations from "@/app/raid/[id]/soft-reserv/YourReservations";
 import RaidTimeInfo from "@/app/raid/components/RaidTimeInfo";
-import createServerSession from "@utils/supabase/createServerSession";
+import createServerSession from '@/util/supabase/createServerSession';
 import moment from "moment";
 import { Metadata } from "next";
-import { RaidItemsProvider } from "./raid-items-context";
-import { ReservationsRepository } from "./reservations-repository";
+import { RaidItemsProvider } from "@/app/raid/[id]/soft-reserv/raid-items-context";
+import { ReservationsRepository } from "@/app/raid/[id]/soft-reserv/reservations-repository";
 
 type Raid = {
     min_level: number;

@@ -1,7 +1,7 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { useCharacterStore } from "@/app/components/characterStore";
+import { useCharacterStore } from "@/components/characterStore";
 import { useShallow } from "zustand/react/shallow";
 
 const REACTION_TABLE = 'reaction';

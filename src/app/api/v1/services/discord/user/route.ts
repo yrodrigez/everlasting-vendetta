@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { DISCORD_COOKIE_NAME } from "@utils/constants";
-import { createDiscordServices } from "@/app/util/discord";
+import { DISCORD_COOKIE_NAME } from '@/util/constants';
+import { createDiscordServices } from '@/util/discord';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: NextRequest) {
+export async function GET(_: NextRequest) {
     const discordToken = (await cookies()).get(DISCORD_COOKIE_NAME)?.value;
 
     if (!discordToken) {

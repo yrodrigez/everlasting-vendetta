@@ -1,10 +1,10 @@
 // getCharacterByNameRoute
 import {cookies} from "next/headers";
 import {NextRequest, NextResponse} from "next/server";
-import {BNET_COOKIE_NAME, GUILD_REALM_SLUG} from "@/app/util/constants";
-import WoWService from "@/app/services/wow-service";
-import {fetchCharacterAvatar} from "@/app/lib/fetchCharacterAvatar";
-import {getBlizzardToken} from "@/app/lib/getBlizzardToken";
+import {BNET_COOKIE_NAME, GUILD_REALM_SLUG} from '@/util/constants';
+import WoWService from "@/services/wow-service";
+import {fetchCharacterAvatar} from "@/lib/fetchCharacterAvatar";
+import {getBlizzardToken} from "@/lib/getBlizzardToken";
 
 export async function GET(request: NextRequest) {
     let token: any = (await cookies()).get(BNET_COOKIE_NAME)

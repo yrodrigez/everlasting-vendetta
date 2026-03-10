@@ -1,17 +1,18 @@
 'use client'
 import { getClassIcon, getRoleIcon } from "@/app/apply/components/utils";
-import { Button } from "@/app/components/Button";
-import { useCharacterStore } from "@/app/components/characterStore";
-import GearScore from "@/app/components/GearScore";
-import { useAuth } from "@/app/context/AuthContext";
-import { sendActionEvent } from "@/app/hooks/usePageEvent";
-import useScreenSize from "@/app/hooks/useScreenSize";
 import { RaidParticipant } from "@/app/raid/api/types";
 import BenchParticipant from "@/app/raid/components/BenchParticipant";
 import { useParticipants } from "@/app/raid/components/useParticipants";
 import { RAID_STATUS } from "@/app/raid/components/utils";
-import { GUILD_NAME, REGISTRATION_SOURCES } from "@/app/util/constants";
-import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
+import { Button } from "@/components/Button";
+import { useCharacterStore } from "@/components/characterStore";
+import GearScore from "@/components/GearScore";
+import { useAuth } from "@/context/AuthContext";
+import { sendActionEvent } from '@/hooks/usePageEvent';
+import useScreenSize from '@/hooks/useScreenSize';
+import { GUILD_NAME, REGISTRATION_SOURCES } from '@/util/constants';
+import { useMessageBox } from '@/util/msgBox';
+import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
 import {
     faChair,
     faCircleCheck, faCircleQuestion, faCircleXmark, faClock,
@@ -22,14 +23,13 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Chip, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip } from "@heroui/react";
 import { useQuery } from "@tanstack/react-query";
-import { useMessageBox } from "@utils/msgBox";
 import moment from "moment";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
-import AdminActions from "./admin-actions";
-import { MoveParticipant } from "./move-participant";
+import AdminActions from "@/app/raid/components/admin-actions";
+import { MoveParticipant } from "@/app/raid/components/move-participant";
 
 
 

@@ -1,4 +1,4 @@
-import { Button } from "@/app/components/Button";
+import { Button } from "@/components/Button";
 import { Popover, PopoverContent, PopoverTrigger, useDisclosure, MenuItem } from "@heroui/react";
 import { UserRoundCog, XIcon } from "lucide-react";
 

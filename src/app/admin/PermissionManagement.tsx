@@ -7,9 +7,9 @@ import {
     RolePermission,
     MemberRole
 } from "@/app/admin/types"
-import { ROLE_ORDER } from "@utils/constants"
-import { useAuth } from "@/app/context/AuthContext"
-import { createClientComponentClient } from "../util/supabase/createClientComponentClient"
+import { ROLE_ORDER } from '@/util/constants'
+import { useAuth } from "@/context/AuthContext"
+import { createClientComponentClient } from "@/util/supabase/createClientComponentClient"
 
 type Props = {
     users: UserProfile[]

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from "@/app/components/Button";
+import { Button } from "@/components/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUpRightFromSquare, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
@@ -10,13 +10,13 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useChatStore } from "@/app/raid/[id]/chat/components/chatStore";
 import moment from "moment/moment";
-import useScreenSize from "@hooks/useScreenSize";
+import useScreenSize from '@/hooks/useScreenSize';
 import { useQuery } from "@tanstack/react-query";
 import { useReactions } from "@/app/raid/[id]/chat/components/useReactions";
 import { useShallow } from "zustand/shallow";
-import { useAuth } from "@/app/context/AuthContext";
-import { useCharacterStore } from "@/app/components/characterStore";
-import { createClientComponentClient } from "@/app/util/supabase/createClientComponentClient";
+import { useAuth } from "@/context/AuthContext";
+import { useCharacterStore } from "@/components/characterStore";
+import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
 
 const tableFields = `*, character:ev_member(id,character)`;
 const table = 'reset_messages';

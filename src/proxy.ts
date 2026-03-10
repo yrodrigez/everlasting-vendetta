@@ -1,7 +1,7 @@
 
-import createServerSession, { type UserProfile } from "@utils/supabase/createServerSession";
+import createServerSession, { type UserProfile } from '@/util/supabase/createServerSession';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { withRefreshToken } from '@/app/lib/middleware/with-auth';
+import { withRefreshToken } from '@/lib/middleware/with-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 async function isBanned(session: UserProfile | undefined) {

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import fetch from 'node-fetch';
 import { PassThrough } from 'stream';
 
-export async function GET(request: NextRequest, context: any) {
+export async function GET(_: NextRequest, context: any) {
     const { id } = await context.params;
     const baseUrl = `https://wow.zamimg.com/modelviewer/live/mo3/${id}`;
 

@@ -1,7 +1,8 @@
 import type { SessionStore } from '@/shared/auth/application/ports/session-store';
-import { GetUserCharactersError } from '../errors/get-user-characters-error';
-import type { WowGateway } from '../ports/wow-gateway';
-import { WowGatewayError } from '../errors/wow-gateway-error';
+
+import type { WowGateway } from '@/shared/wow/application/ports/wow-gateway';
+import { WowGatewayError } from '@/shared/wow/application/errors/wow-gateway-error';
+import { GetUserCharactersError } from '@/shared/wow/application/errors/get-user-characters-error';
 
 export interface GetUserCharactersInput {
     authorizationHeader: string | null;

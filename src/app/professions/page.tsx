@@ -1,8 +1,8 @@
-import { PageEvent } from "@/app/hooks/usePageEvent";
-import createServerSession from "@utils/supabase/createServerSession";
+import { PageEvent } from '@/hooks/usePageEvent';
+import createServerSession from '@/util/supabase/createServerSession';
 import Link from "next/link";
-import CharacterAvatar from "@/app/components/CharacterAvatar";
-import {GUILD_REALM_SLUG} from "@utils/constants";
+import CharacterAvatar from "@/components/CharacterAvatar";
+import {GUILD_REALM_SLUG} from '@/util/constants';
 
 export const dynamic = 'force-dynamic'
 

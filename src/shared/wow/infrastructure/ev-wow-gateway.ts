@@ -1,5 +1,5 @@
-import { WowGatewayError } from '../application/errors/wow-gateway-error';
-import type { GetUserCharactersParams, WowGateway } from '../application/ports/wow-gateway';
+import { WowGatewayError } from '@/shared/wow/application/errors/wow-gateway-error';
+import type { GetUserCharactersParams, WowGateway } from '@/shared/wow/application/ports/wow-gateway';
 
 export class EvWowGateway implements WowGateway {
     constructor(private readonly baseUrl: string) {
