@@ -183,6 +183,40 @@ export const createAPIService = (_api: AxiosInstance = api) => ({
         throw error;
       }
     },
+    getCharacterEquipment: async (realmSlug: string, characterName: string): Promise<{
+      characterName: string;
+      equippedItems: {
+        id: number;
+        inventoryType: string;
+        isEnchanted: boolean;
+        qualityType: string;
+        fetchUrl: string;
+        icon: string;
+        name: string;
+        level: number;
+        quality: {
+          type: string;
+          name: string;
+        };
+        tooltip: string;
+        displayId: number;
+        itemLevel: number;
+        gems: {
+          id: number;
+          itemId: number;
+          displayString: string;
+          fetchUrl: string;
+        }[];
+      }[];
+    }> => {
+      try {
+        const { data } = await _api.get(`/wow/character/${realmSlug}/${characterName}/equipment`);
+        return data;
+      } catch (error) {
+        console.error('Error fetching character equipment:', error);
+        throw error;
+      }
+    },
   },
   auth: {
     getMyProfile: async (): Promise<{ members: any, accounts: any }> => {

@@ -1,14 +1,14 @@
-import {fetchGuildInfo} from "@/lib/fetchGuildInfo";
-import {getBlizzardToken} from "@/lib/getBlizzardToken";
-import {cookies} from "next/headers";
+import { fetchGuildInfo } from "@/lib/fetchGuildInfo";
+import { getBlizzardToken } from "@/lib/getBlizzardToken";
+import { cookies } from "next/headers";
 import Link from "next/link";
 import CharacterAvatar from "@/components/CharacterAvatar";
-import {CURRENT_MAX_LEVEL, GUILD_NAME} from '@/util/constants';
-import {getClassIcon} from "@/app/apply/components/utils";
-import {redirect} from "next/navigation";
+import { CURRENT_MAX_LEVEL, GUILD_NAME } from '@/util/constants';
+import { getClassIcon } from "@/app/apply/components/utils";
+import { redirect } from "next/navigation";
 import WoWService from '@/services/wow-service';
-import {BnetLoginButton} from "@/components/BnetLoginButton";
-import {Button} from "@/components/Button";
+import { BnetLoginButton } from "@/components/BnetLoginButton";
+import { Button } from "@/components/Button";
 import createServerSession from '@/util/supabase/createServerSession';
 
 function getClassName(classId: number) {
@@ -30,16 +30,23 @@ function getClassName(classId: number) {
     return classes[classId] || 'Unknown'
 }
 
-export default async function Page({params}: { params: Promise<{ id: string }> }) {
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+
+    return (
+        <div className="flex flex-col items-center justify-center h-screen">
+            <h1 className="text-4xl font-bold text-center mb-4">Under construction</h1>
+        </div>
+    )
+
 
     const { auth } = await createServerSession();
     const session = await auth.getSession();
-    
+
     if (!session?.isGuildMember) {
         return (
             <div className="flex flex-col items-center justify-center h-screen">
                 <h1 className="text-4xl font-bold text-center mb-4">You should be a member of <span className="text-gold font-bold">{GUILD_NAME}</span> to see others guild's rosters</h1>
-                <div className="flex items-center gap-2 text-default">Please <BnetLoginButton/> or <Button size="lg" className="rounded-lg" as="a" href="/apply">Apply</Button> to
+                <div className="flex items-center gap-2 text-default">Please <BnetLoginButton /> or <Button size="lg" className="rounded-lg" as="a" href="/apply">Apply</Button> to
                     view this page.
                 </div>
                 <p className="text-sm text-gray-500 mt-2">If you are a member of the guild and still see this message, make sure you are using battle.net login.</p>
@@ -51,11 +58,11 @@ export default async function Page({params}: { params: Promise<{ id: string }> }
 
 
     const token = (await cookies()).get('bnetToken')?.value || (await getBlizzardToken()).token
-    const {id: guildId} = await params
+    const { id: guildId } = await params
     const roster = await fetchGuildInfo(token, guildId)
     const guildRoster = (roster?.members ?? []).map((member: any) => {
-        const {character, rank} = member
-        const {name, realm, level, playable_class: className, id} = character
+        const { character, rank } = member
+        const { name, realm, level, playable_class: className, id } = character
         return {
             id,
             name,
@@ -77,7 +84,7 @@ export default async function Page({params}: { params: Promise<{ id: string }> }
         <h2>Total members: {roster.members.length}. Showing: {guildRoster.length} with higher ranks</h2>
         <h2>LVL {CURRENT_MAX_LEVEL} characters: {roster?.members?.filter((x: any) => x.character.level === CURRENT_MAX_LEVEL)?.length}</h2>
         {(guildRoster).map((member: any) => {
-            const {name, realm, id, level, icon, className, rankName, rank} = member
+            const { name, realm, id, level, icon, className, rankName, rank } = member
             return <Link
                 href={`/roster/${name.toLowerCase()}`}
                 key={id}
@@ -85,13 +92,13 @@ export default async function Page({params}: { params: Promise<{ id: string }> }
                 <h1 className="md:hidden font-bold text-2xl">{name}</h1>
                 <div className="flex gap-3 justify-center items-center md:w-[186px]">
                     <CharacterAvatar realm={realm.slug}
-                                     characterName={name}/>
+                        characterName={name} />
                     <div
                         className={`w-[2px] h-20 bg-gold rounded-full backdrop-filter backdrop-blur - md`}>{/*separator*/}</div>
                     <div className="flex justify-center flex-col items-center">
                         <img src={icon}
-                             alt={className}
-                             className="rounded-full h-8"/>
+                            alt={className}
+                            className="rounded-full h-8" />
                         <p>{className}</p>
                         <p>{level}</p>
                     </div>

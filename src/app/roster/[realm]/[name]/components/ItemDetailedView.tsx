@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getRuneDescription } from "@/app/roster/[name]/getRuneDescription";
+import { getRuneDescription } from "@/app/roster/[realm]/[name]/getRuneDescription";
 
 export function ItemDetailedView({ item }: { item: any }) {
     const rune = item?.enchantments?.find((enchant: any) => enchant.enchantment_slot.type === 'TEMPORARY')

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AchievementCard } from "@/app/roster/[name]/components/CharacterAchievements";
+import { AchievementCard } from "@/app/roster/[realm]/[name]/components/CharacterAchievements";
 import createServerSession from '@/util/supabase/createServerSession';
 import { ROLE } from '@/util/constants';
 import NotLoggedInView from "@/components/NotLoggedInView";
@@ -7,6 +7,7 @@ import { ScrollShadow } from "@/components/scroll-shadow";
 import Sound from "@/app/events/components/Sound";
 import ParticipateButton from "@/app/events/components/ParticipateButton";
 import GearScore from "@/components/GearScore";
+import { createRosterMemberRoute } from "@/util/create-roster-member-route";
 
 export const dynamic = 'force-dynamic'
 
@@ -173,7 +174,7 @@ export default async function AtieshMomentsPage() {
                 </h2>
                 <p className="leading-relaxed">
                     The first champion has already been chosen —
-                    <Link href={'/roster/felsargon-living-flame'}><strong className="text-gold"> Felsargon</strong></Link>, honored
+                    <Link href={createRosterMemberRoute('Felsargon', 'living-flame')}><strong className="text-gold"> Felsargon</strong></Link>, honored
                     for his
                     tireless leadership in MC, BWL, and AQ. When the time comes for the second
                     and third Atiesh to arise, fate will decide from among the Worthy.

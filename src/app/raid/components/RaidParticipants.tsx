@@ -30,6 +30,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import AdminActions from "@/app/raid/components/admin-actions";
 import { MoveParticipant } from "@/app/raid/components/move-participant";
+import { createRosterMemberRoute } from "@/util/create-roster-member-route";
 
 
 
@@ -184,7 +185,7 @@ export default function RaidParticipants({ participants, resetId, raidId, raidIn
             case "name":
                 return (
                     <Link
-                        href={`/roster/${name.toLowerCase()}-${realm.slug}`}
+                        href={createRosterMemberRoute(name, realm.slug)}
                         target={'_blank'}
                     >
                         <div className="flex flex-row items-center gap-2">

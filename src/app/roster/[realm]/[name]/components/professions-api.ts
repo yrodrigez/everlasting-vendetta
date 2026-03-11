@@ -1,5 +1,5 @@
 import {type SupabaseClient} from "@supabase/supabase-js";
-import {Profession, ProfessionName, ProfessionSpell} from "@/app/roster/[name]/components/CharacterProfessions";
+import {Profession, ProfessionName, ProfessionSpell} from "@/app/roster/[realm]/[name]/components/CharacterProfessions";
 
 export async function fetchProfessionSpells(supabase: SupabaseClient, professionId: number, pagination: {
     page: number,

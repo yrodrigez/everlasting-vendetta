@@ -1,5 +1,6 @@
 'use client'
 import { Achievement } from "@/types/Achievements";
+import { createRosterMemberRoute } from "@/util/create-roster-member-route";
 import { faClose } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button, ScrollShadow } from "@heroui/react";
@@ -12,22 +13,22 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 
-function AchievementInfo({achievement, onClose}: { achievement: Achievement, onClose: () => void }) {
+function AchievementInfo({ achievement, onClose }: { achievement: Achievement, onClose: () => void }) {
 
     const supabase = createBrowserClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
 
-    const {data: earners, isLoading: loading} = useQuery({
+    const { data: earners, isLoading: loading } = useQuery({
         queryKey: ['achievement', achievement.id],
         queryFn: async () => {
             const {
                 data,
                 error
             } = await supabase.from('member_achievements').select('member:ev_member(character),*').eq('achievement_id', achievement.id)
-                .order('earned_at', {ascending: true}).returns<{
-                    member: { character: { name: string, avatar: string, id: number } },
+                .order('earned_at', { ascending: true }).overrideTypes<{
+                    member: { character: { name: string, avatar: string, id: number, realm: { slug: string } } },
                     earned_at: string
                 }[]>()
             if (error || !data) {
@@ -39,8 +40,8 @@ function AchievementInfo({achievement, onClose}: { achievement: Achievement, onC
         staleTime: 1000 * 60 * 30
     })
 
-    const [bgColor, setBgColor] = useState<string|undefined>(undefined)
-    const [borderColor, setBorderColor] = useState<string|undefined>(undefined)
+    const [bgColor, setBgColor] = useState<string | undefined>(undefined)
+    const [borderColor, setBorderColor] = useState<string | undefined>(undefined)
 
     useEffect(() => {
         // @ts-ignore
@@ -65,12 +66,12 @@ function AchievementInfo({achievement, onClose}: { achievement: Achievement, onC
         >
             <div
                 className="w-full h-full rounded-xl p-6 flex items-center justify-center bg-wood-900 border"
-                style={(bgColor && borderColor) ? {backgroundColor: bgColor, borderColor: borderColor}: undefined}
+                style={(bgColor && borderColor) ? { backgroundColor: bgColor, borderColor: borderColor } : undefined}
             >
                 <div
                     className="transform lg:scale-150"
                 >
-                <AchievementCard achievement={achievement} isAchieved={true}/>
+                    <AchievementCard achievement={achievement} isAchieved={true} />
                 </div>
             </div>
             <div className="w-full h-full flex flex-col gap-4 items-center justify-center overflow-auto">
@@ -80,12 +81,12 @@ function AchievementInfo({achievement, onClose}: { achievement: Achievement, onC
                     {loading && <span className="text-stone-100 text-lg">Loading...</span>}
                     {!loading && earners?.length === 0 &&
                         <span className="text-stone-100 text-lg">No earners yet</span>}
-                    {!loading && earners?.map(({member: {character}, earned_at}) => (
+                    {!loading && earners?.map(({ member: { character }, earned_at }) => (
                         <Link key={character.id}
-                              href={`/roster/${encodeURIComponent(character.name.toLowerCase())}`}
-                              className="w-full h-full max-h-32 flex flex-col gap-4 items-center justify-center border border-wood-100 p-4 hover:border-gold hover:shadow-gold hover:cursor-pointer">
+                            href={createRosterMemberRoute(character.name.toLowerCase(), character?.realm?.slug ?? 'spineshatter')}
+                            className="w-full h-full max-h-32 flex flex-col gap-4 items-center justify-center border border-wood-100 p-4 hover:border-gold hover:shadow-gold hover:cursor-pointer">
                             <div className="w-full h-full flex flex-col gap-2 items-center justify-center"
-                                 onClick={() => onClose()}>
+                                onClick={() => onClose()}>
                                 <div
                                     className="w-full h-full min-w-48 flex items-center justify-center gap-4">
                                     <img
@@ -107,12 +108,12 @@ function AchievementInfo({achievement, onClose}: { achievement: Achievement, onC
 }
 
 
-function AchievementWithAlert({achievement, isAchieved}: { achievement: Achievement, isAchieved: boolean }) {
+function AchievementWithAlert({ achievement, isAchieved }: { achievement: Achievement, isAchieved: boolean }) {
     const blendy = useRef<Blendy | null>(null)
     const [isClicked, setIsClicked] = useState(false)
     const achievementToggleKey = `achievement-${achievement.id}`
     useEffect(() => {
-        blendy.current = createBlendy({animation: 'spring'})
+        blendy.current = createBlendy({ animation: 'spring' })
     }, [achievement])
     const handleOnClick = useCallback(() => {
         setIsClicked(true)
@@ -127,28 +128,28 @@ function AchievementWithAlert({achievement, isAchieved}: { achievement: Achievem
 
     return <>
         {isClicked && createPortal((
-                <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center" onClick={handleOnClose}>
-                    <div data-blendy-to={achievementToggleKey}
-                         onClick={(e) => e.stopPropagation()}
-                         className={`w-[900px] h-[750px] flex items-center justify-center p-8 border border-wood-100 bg-wood rounded-xl relative transition-all duration-300`}>
-                        <div
-                            className={`w-full h-full flex items-center justify-center gap-4 opacity-0 ${isClicked ? 'opacity-100' : ''} transition-all duration-300`}
-                        >
-                            <AchievementInfo achievement={achievement} onClose={handleOnClose}/>
-                        </div>
-                        <Button isIconOnly onPress={handleOnClose} className="absolute top-1 right-1 rounded-full" variant="light">
-                            <FontAwesomeIcon icon={faClose} className="text-default"/>
-                        </Button>
+            <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center" onClick={handleOnClose}>
+                <div data-blendy-to={achievementToggleKey}
+                    onClick={(e) => e.stopPropagation()}
+                    className={`w-[900px] h-[750px] flex items-center justify-center p-8 border border-wood-100 bg-wood rounded-xl relative transition-all duration-300`}>
+                    <div
+                        className={`w-full h-full flex items-center justify-center gap-4 opacity-0 ${isClicked ? 'opacity-100' : ''} transition-all duration-300`}
+                    >
+                        <AchievementInfo achievement={achievement} onClose={handleOnClose} />
                     </div>
+                    <Button isIconOnly onPress={handleOnClose} className="absolute top-1 right-1 rounded-full" variant="light">
+                        <FontAwesomeIcon icon={faClose} className="text-default" />
+                    </Button>
                 </div>
-            ),
+            </div>
+        ),
             document.body
         )}
-        <AchievementCard achievement={achievement} isAchieved={isAchieved} handleOnClick={handleOnClick}/>
+        <AchievementCard achievement={achievement} isAchieved={isAchieved} handleOnClick={handleOnClick} />
     </>
 }
 
-export function AchievementCard({achievement, isAchieved, handleOnClick}: {
+export function AchievementCard({ achievement, isAchieved, handleOnClick }: {
     achievement: Achievement,
     isAchieved: boolean,
     handleOnClick?: () => void
@@ -177,7 +178,7 @@ export function AchievementCard({achievement, isAchieved, handleOnClick}: {
             </div>
             {isAchieved && !!achievement?.earned_at && (
                 <div>
-					<span
+                    <span
                         className="text-stone-100 text-xs">On: {moment(achievement.earned_at).format('YY-MM-DD')}</span>
                 </div>
             )}
@@ -185,14 +186,14 @@ export function AchievementCard({achievement, isAchieved, handleOnClick}: {
     )
 }
 
-export default function ({achieved, notAchieved, achievedPoints}: {
+export default function ({ achieved, notAchieved, achievedPoints }: {
     achieved?: Achievement[],
     notAchieved?: Achievement[],
     achievedPoints?: number
 }) {
     const userAchievements = useMemo(() => {
         if (!achieved || !notAchieved) return []
-        const group = Object.groupBy([...achieved, ...notAchieved], ({category}) => category)
+        const group = Object.groupBy([...achieved, ...notAchieved], ({ category }) => category)
         return (Object.entries(group).map(([category, achievements]) => ({
             category, achievements: achievements?.sort((a: Achievement, b: Achievement) => {
                 if (a.earned_at === undefined) return 1
@@ -210,17 +211,17 @@ export default function ({achieved, notAchieved, achievedPoints}: {
     return (
         <ScrollShadow
             className="p-4 w-full h-full overflow-auto scrollbar-pill">
-            {userAchievements?.map(({category, achievements}: { achievements: Achievement[], category: string }) => (
+            {userAchievements?.map(({ category, achievements }: { achievements: Achievement[], category: string }) => (
                 <div key={category} className="flex flex-col gap-4 items-start justify-start mb-4">
                     <h2 className="text-gold text-2xl font-bold">Category: <span
                         className="capitalize">{category}</span></h2>
                     <ScrollShadow orientation="horizontal"
-                                  className="flex overflow-auto w-full scrollbar-pill gap-4 items-center justify-start p-8 lg:flex-wrap">
+                        className="flex overflow-auto w-full scrollbar-pill gap-4 items-center justify-start p-8 lg:flex-wrap">
                         {achievements.map((achievement: Achievement) => {
                             const isAchieved = achievement.earned_at !== undefined
                             return (
                                 <AchievementWithAlert key={achievement.id} achievement={achievement}
-                                                      isAchieved={isAchieved}/>
+                                    isAchieved={isAchieved} />
                             )
                         })}
                     </ScrollShadow>

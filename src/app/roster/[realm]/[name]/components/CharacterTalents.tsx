@@ -1,10 +1,10 @@
 'use client'
-import { CharacterViewOptions } from "@/app/roster/[name]/components/CharacterViewOptions";
+import { CharacterViewOptions } from "@/app/roster/[realm]/[name]/components/CharacterViewOptions";
 import {
     ClassSpecialization,
     getClassTalents, TalentsPlaceholder
-} from "@/app/roster/[name]/components/talents/talentsPlaceholders";
-import { TalentTree } from "@/app/roster/[name]/components/talents/TalentTree";
+} from "@/app/roster/[realm]/[name]/components/talents/talentsPlaceholders";
+import { TalentTree } from "@/app/roster/[realm]/[name]/components/talents/TalentTree";
 import { Tooltip } from "@heroui/react";
 import { useState } from "react";
 

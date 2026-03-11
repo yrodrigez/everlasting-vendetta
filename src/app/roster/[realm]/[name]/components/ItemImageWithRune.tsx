@@ -2,7 +2,7 @@
 import {ItemDetails} from "@/components/CharacterItem";
 import {Button, Modal, ModalBody, ModalContent, Tooltip, useDisclosure} from "@heroui/react";
 
-import {ItemDetailedView} from "@/app/roster/[name]/components/ItemDetailedView";
+import {ItemDetailedView} from "@/app/roster/[realm]/[name]/components/ItemDetailedView";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faClose} from "@fortawesome/free-solid-svg-icons";
 

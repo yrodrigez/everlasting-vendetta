@@ -1,11 +1,11 @@
 import CharacterAvatar from "@/components/CharacterAvatar";
 import { Tooltip } from "@/components/tooltip";
-import { CharacterGear } from "@/app/roster/[name]/components/CharacterGear";
-import { CharacterTalents } from "@/app/roster/[name]/components/CharacterTalents";
-import { CharacterViewOptions } from "@/app/roster/[name]/components/CharacterViewOptions";
-import GearScore from "@/app/roster/[name]/components/GearScore";
-import { LootHistory } from "@/app/roster/[name]/components/LootHistory";
-import { StatisticsView } from "@/app/roster/[name]/components/StatisticsView";
+import { CharacterGear } from "@/app/roster/[realm]/[name]/components/CharacterGear";
+import { CharacterTalents } from "@/app/roster/[realm]/[name]/components/CharacterTalents";
+import { CharacterViewOptions } from "@/app/roster/[realm]/[name]/components/CharacterViewOptions";
+import GearScore from "@/app/roster/[realm]/[name]/components/GearScore";
+import { LootHistory } from "@/app/roster/[realm]/[name]/components/LootHistory";
+import { StatisticsView } from "@/app/roster/[realm]/[name]/components/StatisticsView";
 import WoWService from "@/services/wow-service";
 import { GUILD_ID, GUILD_NAME } from '@/util/constants';
 import moment from "moment";
@@ -13,10 +13,10 @@ import Link from "next/link";
 
 import { Button } from "@/components/Button";
 import { createAPIService, createServerApiClient } from "@/lib/api";
-import { AttendanceHeatmap } from "@/app/roster/[name]/components/AttendanceHeatmap";
-import CharacterAchievements from "@/app/roster/[name]/components/CharacterAchievements";
-import CharacterProfessions from "@/app/roster/[name]/components/CharacterProfessions";
-import { fetchCharacterProfessionsSpells } from "@/app/roster/[name]/components/professions-api";
+import { AttendanceHeatmap } from "@/app/roster/[realm]/[name]/components/AttendanceHeatmap";
+import CharacterAchievements from "@/app/roster/[realm]/[name]/components/CharacterAchievements";
+import CharacterProfessions from "@/app/roster/[realm]/[name]/components/CharacterProfessions";
+import { fetchCharacterProfessionsSpells } from "@/app/roster/[realm]/[name]/components/professions-api";
 import { Achievement, MemberAchievement } from "@/types/Achievements";
 import { faBan, faUserXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -57,13 +57,14 @@ const getPlayerClassById = (classId: number | string) => {
 }
 
 const findItemBySlotType = (equipment: any = [], slotType: string) => {
-    return equipment.find((item: any) => item.slot.type === slotType) || {
+    const found = equipment.find((item: any) => item.slot.type === slotType) || {
         slot: { type: slotType },
         item: { id: 999999 },
         quality: { type: 'POOR', name: 'poor' },
         level: 0,
         name: 'Unknown'
     }
+    return found
 }
 
 const findEquipmentBySlotTypes = (equipment: any, slots: string[]) => {
@@ -154,12 +155,12 @@ async function fetchLootHistory(supabase: SupabaseClient, characterName: string,
     return Object.fromEntries(lootGroups.entries())
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ name: string }> }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ name: string, realm: string }> }): Promise<Metadata> {
     // Fetch or compute character information here
-    const { name: characterNameParam } = await params
-    const [name, ...realmSlugParts] = characterNameParam.split('-')
-    const realmSlug = realmSlugParts.join('-') || 'living-flame';
-    const characterName = decodeURIComponent(name.toLowerCase())
+    const { name: characterNameParam, realm: realmSlugParam } = await params
+
+    const realmSlug = decodeURIComponent(realmSlugParam.toLowerCase());
+    const characterName = decodeURIComponent(characterNameParam.toLowerCase());
 
     try {
         const characterInfo = await createAPIService().anon.getCharacter(realmSlug, characterName);
@@ -240,11 +241,11 @@ const fetchAchievements = async (supabase: SupabaseClient, characterId: number) 
 }
 
 
-export default async function Page({ params }: { params: Promise<{ name: string }> }) {
+export default async function Page({ params }: { params: Promise<{ name: string, realm: string }> }) {
 
-    const { name: characterNameParam } = await params
-    const [name, ...realmSlugParts] = characterNameParam.split('-')
-    const realmSlug = decodeURIComponent((realmSlugParts.join('-') || 'living-flame').toLowerCase()).trim();
+    const { name, realm: realmSlug } = await params
+
+
 
     const { accessToken, auth, getSupabase } = await createServerSession();
     const api = createServerApiClient(accessToken || null);
@@ -278,7 +279,7 @@ export default async function Page({ params }: { params: Promise<{ name: string 
 
     const supabase = await getSupabase();
     const [equipment, talents, characterStatistics, lootHistory, { data: isCharacterBanned }, { data: isMemberPresent }, achievementData, attendance, professions] = await Promise.all([
-        fetchEquipment(characterName, realmSlug),
+        fetchEquipment(characterName, realmSlug),//apiService.anon.getCharacterEquipment(realmSlug, characterName),
         getCharacterTalents(characterName, realmSlug),
         fetchCharacterStatistics(characterName, realmSlug),
         fetchLootHistory(supabase, characterName, realmSlug),
@@ -290,7 +291,7 @@ export default async function Page({ params }: { params: Promise<{ name: string 
             .maybeSingle(),
         supabase.from('ev_member').select('id').eq('id', characterInfo.id).maybeSingle(),
         fetchAchievements(supabase, characterInfo.id),
-        supabase.rpc('raid_attendance', { character_name: characterName }).returns<{
+        supabase.rpc('raid_attendance', { character_name: characterName, realm_slug: realmSlug }).overrideTypes<{
             id: string,
             raid_name: string,
             raid_date: string,
@@ -298,7 +299,7 @@ export default async function Page({ params }: { params: Promise<{ name: string 
         }[]>(),
         fetchCharacterProfessionsSpells(supabase, characterInfo.id)
     ])
-
+    
     const equipmentData = equipment.equipped_items
     const group1 = findEquipmentBySlotTypes(equipmentData, ['HEAD', 'NECK', 'SHOULDER', 'BACK', 'CHEST', 'SHIRT', 'TABARD', 'WRIST'])
     const group2 = findEquipmentBySlotTypes(equipmentData, ['HANDS', 'WAIST', 'LEGS', 'FEET', 'FINGER_1', 'FINGER_2', 'TRINKET_1', 'TRINKET_2'])

@@ -1,19 +1,20 @@
 'use client'
-import { Button } from "@/components/Button";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheck, faTrash } from "@fortawesome/free-solid-svg-icons";
-import { Chip, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip } from "@heroui/react";
-import React, { useCallback, useEffect, useMemo } from "react";
-import Link from "next/link";
 import { getClassIcon, getRoleIcon } from "@/app/apply/components/utils";
-import { useQuery } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { Button } from "@/components/Button";
+import { useCharacterStore } from "@/components/characterStore";
 import GearScore from "@/components/GearScore";
 import { useAuth } from "@/context/AuthContext";
-import { useCharacterStore } from "@/components/characterStore";
-import { useShallow } from "zustand/react/shallow";
-import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
 import api from "@/lib/api";
+import { createRosterMemberRoute } from "@/util/create-roster-member-route";
+import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
+import { faCheck, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Chip, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip } from "@heroui/react";
+import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import React, { useCallback, useEffect, useMemo } from "react";
+import { useShallow } from "zustand/react/shallow";
 
 export function Applicants({ applicants }: {
     applicants: {
@@ -100,7 +101,7 @@ export function Applicants({ applicants }: {
             case "name":
                 return (
                     <Link
-                        href={`/roster/${encodeURIComponent(name.toLowerCase())}-${realm}`}
+                        href={createRosterMemberRoute(name, realm)}
                         target={'_blank'}
                     >
                         <div className="flex flex-row items-center gap-2">

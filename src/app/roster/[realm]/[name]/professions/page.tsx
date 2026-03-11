@@ -1,8 +1,8 @@
-import { fetchCharacterProfessionsSpells } from "@/app/roster/[name]/components/professions-api";
+import { fetchCharacterProfessionsSpells } from "@/app/roster/[realm]/[name]/components/professions-api";
 import { cookies } from "next/headers";
 import createServerSession from '@/util/supabase/createServerSession';
 import WoWService from '@/services/wow-service';
-import CharacterProfessions from "@/app/roster/[name]/components/CharacterProfessions";
+import CharacterProfessions from "@/app/roster/[realm]/[name]/components/CharacterProfessions";
 import { GUILD_REALM_SLUG } from '@/util/constants';
 import CharacterAvatar from "@/components/CharacterAvatar";
 import { getBlizzardToken } from "@/lib/getBlizzardToken";

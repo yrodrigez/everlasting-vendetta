@@ -5,7 +5,7 @@ import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { ItemWithTooltip } from "@/app/raid/[id]/loot/components/LootItem";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClose, faPlus } from "@fortawesome/free-solid-svg-icons";
-import { fetchCharacterProfessionsSpells, fetchProfessionSpells } from "@/app/roster/[name]/components/professions-api";
+import { fetchCharacterProfessionsSpells, fetchProfessionSpells } from "@/app/roster/[realm]/[name]/components/professions-api";
 import { SupabaseClient } from "@supabase/supabase-js";
 import useToast from '@/util/useToast';
 import { Button } from "@/components/Button";

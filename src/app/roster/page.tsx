@@ -6,8 +6,9 @@ import createServerSession from '@/util/supabase/createServerSession';
 import { type SupabaseClient } from "@supabase/supabase-js";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { createAPIService } from "../../lib/api";
-import { CharacterViewOptions } from "./[name]/components/CharacterViewOptions";
+import { createAPIService } from "@/lib/api";
+import { CharacterViewOptions } from "@/app/roster/[realm]/[name]/components/CharacterViewOptions";
+import { createRosterMemberRoute } from '@/util/create-roster-member-route';
 
 export const dynamic = 'force-dynamic'
 
@@ -29,7 +30,7 @@ const MemberView = ({ member }: { member: Character & { icon: string, className:
     }
 
     return <Link
-        href={`/roster/${name.toLowerCase()}-${member.realm?.slug}`}
+        href={createRosterMemberRoute(member.name, member.realm.slug)}
         className={`flex relative overflow-hidden flex-1 w-64 min-w-64 max-w-64 flex-col mb-4 items-center gap-2 p-4 hover:cursor-pointer  hover:bg-opacity-30 hover:shadow-2xl hover:shadow-${className.toLowerCase()} transition-all  bg-dark backdrop-filter backdrop-blur-md rounded-lg border-[1px] border-gold`}>
         <div className="w-full h-full absolute top-0">
             {/* @ts-ignore*/}

@@ -23,6 +23,7 @@ import {
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
+import { createRosterMemberRoute } from "@/util/create-roster-member-route";
 
 
 export default function ApplyForm() {
@@ -35,10 +36,10 @@ export default function ApplyForm() {
     } as any);
 
     const contactWith = [
-        'Alveric',
-        'Felsargon',
-        'Templaari',
-        'Mephius'
+        { name: 'Alveric', realmSlug: 'spineshatter' },
+        { name: 'Valsargonia', realmSlug: 'spineshatter' },
+        { name: 'Bearlaari', realmSlug: 'spineshatter' },
+        { name: 'Rimefang', realmSlug: 'spineshatter' }
     ]
 
     const allowedRealms = [
@@ -216,8 +217,8 @@ export default function ApplyForm() {
                                     <p>Thank you for applying to our guild.</p>
                                     <p>In the meantime, you can contact us in game to speed up the process.</p>
                                     <p>You can reach out to any of our officers: {contactWith.map(((x, i) => {
-                                        return <span key={x}><Link className={'text-gold'}
-                                            href={`/roster/${x.toLowerCase()}`}>{x}</Link>{i === contactWith.length - 1 ? '' : i === contactWith.length - 2 ? ' or ' : ', '}</span>
+                                        return <span key={x.name}><Link className={'text-gold'}
+                                            href={createRosterMemberRoute(x.name, x.realmSlug)}>{x.name}</Link>{i === contactWith.length - 1 ? '' : i === contactWith.length - 2 ? ' or ' : ', '}</span>
                                     }))}</p>
                                     <p>Good luck!</p>
                                 </>),

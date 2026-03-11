@@ -1,4 +1,4 @@
-import {TalentTooltip} from "@/app/roster/[name]/components/talents/TalentTooltip";
+import {TalentTooltip} from "@/app/roster/[realm]/[name]/components/talents/TalentTooltip";
 
 function findTalentInSpecialization(talent: any, specialization: any) {
     return specialization?.talents?.find((talentSpec: any) => talentSpec.spell_tooltip?.spell?.name === talent.name)

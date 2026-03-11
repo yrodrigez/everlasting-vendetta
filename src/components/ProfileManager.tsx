@@ -21,14 +21,15 @@ import {
     type IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
 
-import { sendActionEvent } from '@/hooks/usePageEvent';
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
-import { useAuthManagerWindowStore } from "@/stores/auth-manager-window-store";
-import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
 import { useVistaStore } from "@/components/character-selection/vista-store";
 import { Swords } from "@/components/svg-icons";
 import SystemVolume from "@/components/system-volume";
+import { useAuth } from "@/context/AuthContext";
+import { sendActionEvent } from '@/hooks/usePageEvent';
+import { useAuthManagerWindowStore } from "@/stores/auth-manager-window-store";
+import { createRosterMemberRoute } from "@/util/create-roster-member-route";
+import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
+import { useRouter } from "next/navigation";
 
 export function isRoleAssignable(role: 'tank' | 'healer' | 'dps' | string, characterClass: string | undefined, realmSlug: string = 'living-flame'): boolean {
     if (!characterClass) return false
@@ -175,7 +176,7 @@ export default function ProfileManager() {
                             icon={faLink}
                         />
                         <MenuItem text={'My armory'} onClick={() => {
-                            window.location.href = `/roster/${encodeURIComponent(selectedCharacter.name.toLowerCase())}-${selectedCharacter.realm.slug}`;
+                            window.location.href = createRosterMemberRoute(selectedCharacter.name, selectedCharacter.realm.slug,);
                             setPopoverOpen(false)
                         }} icon={<span
                             className="w-4 h-4">

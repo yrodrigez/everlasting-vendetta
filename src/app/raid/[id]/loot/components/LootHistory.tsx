@@ -1,5 +1,5 @@
 import {CharacterWithLoot} from "@/app/raid/[id]/loot/components/types";
-import {CharacterViewOptions} from "@/app/roster/[name]/components/CharacterViewOptions";
+import {CharacterViewOptions} from "@/app/roster/[realm]/[name]/components/CharacterViewOptions";
 import LootHistoryList from "@/app/raid/[id]/loot/components/LootHistoryList";
 
 export function LootHistory({charactersWithLoot, charactersWithoutLoot}: {

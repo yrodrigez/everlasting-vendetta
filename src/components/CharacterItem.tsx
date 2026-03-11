@@ -1,15 +1,12 @@
 'use client'
-import { ItemImageWithRune } from "@/app/roster/[name]/components/ItemImageWithRune";
-import { use, useMemo, useState } from "react";
-import { useCharacterItemsStore } from "@/app/roster/[name]/characterItemsStore";
-import { Skeleton, Tooltip } from "@heroui/react";
-import { itemTypeInfo } from "@/app/roster/[name]/ilvl";
-import { useQuery } from "@tanstack/react-query";
+import { useCharacterItemsStore } from "@/app/roster/[realm]/[name]/characterItemsStore";
+import { itemTypeInfo } from "@/app/roster/[realm]/[name]/ilvl";
+import { useWoWItem } from '@/hooks/api/use-wow-item';
 import { faWandMagic, faWandMagicSparkles } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import api from "../lib/api";
+import { Skeleton, Tooltip } from "@heroui/react";
+import { useEffect, useState } from "react";
 import WoWHeadItem from "./wow-head-item";
-import { useWoWItem } from '@/hooks/api/use-wow-item';
 
 
 
@@ -217,7 +214,7 @@ export default function ({ item: _item, reverse, bottom, domain }: {
     }) */
 
     const { data, isError, isLoading: loading } = useWoWItem(id)
-    useMemo(() => {
+    useEffect(() => {
         if (data) {
             const { itemIconUrl, itemDetails, displayId } = data
             setItemIconUrl(itemIconUrl);

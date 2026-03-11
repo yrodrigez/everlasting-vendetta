@@ -1,6 +1,7 @@
 import { Avatar } from "@heroui/react";
 import { Character } from "./types";
 import Link from "next/link";
+import { createRosterMemberRoute } from "@/util/create-roster-member-route";
 
 const classColors: Record<string, string> = {
     warrior: "warrior",
@@ -26,7 +27,7 @@ export function CharacterCard({ character, isSelected, onSelect }: {
 
     return (
         <Link
-            href={`/roster/${encodeURIComponent(character.name.toLowerCase())}-${character.realm.slug}`}
+            href={createRosterMemberRoute(character.name.toLocaleLowerCase(), character?.realm?.slug ?? 'spineshatter')}
             onClick={onSelect}
             className={`
         relative cursor-pointer rounded-lg border p-3 transition-all duration-200

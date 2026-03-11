@@ -1,3 +1,3 @@
 export const createRosterMemberRoute = (characterName: string, realmSlug: string) => {
-    return `/roster/${encodeURIComponent(characterName.toLowerCase().trim())}-${encodeURIComponent(realmSlug.toLowerCase().trim())}`;
+    return `/roster/${encodeURIComponent(realmSlug.toLowerCase().trim())}/${encodeURIComponent(characterName.toLowerCase().trim())}`;
 }

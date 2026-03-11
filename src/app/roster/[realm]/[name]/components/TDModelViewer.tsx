@@ -1,6 +1,6 @@
 'use client'
 import { useCallback, useEffect, useState } from "react";
-import { useCharacterItemsStore } from "@/app/roster/[name]/characterItemsStore";
+import { useCharacterItemsStore } from "@/app/roster/[realm]/[name]/characterItemsStore";
 import useScreenSize from '@/hooks/useScreenSize';
 
 
@@ -27,7 +27,7 @@ export function TDModelViewer({ characterAppearance }: {
         // @ts-ignore
         window.WOTLK_TO_RETAIL_DISPLAY_ID_API = `https://wotlk.murlocvillage.com/api/items`
 
-        const { modelGenerator } = await import('@/app/roster/[name]/components/ModelGenerator');
+        const { modelGenerator } = await import('@/app/roster/[realm]/[name]/components/ModelGenerator');
 
         setGenerateModels(() => modelGenerator);
     }, []);
