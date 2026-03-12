@@ -61,19 +61,19 @@ export default function RaidItemsList({ initialReservedItems, resetId, isAdmin }
         let filteredItems = [...items]
         if (!!nameFilter) {
             // @ts-ignore - name is a string and includes is a string method
-            filteredItems = filteredItems.filter((item) => item.name.toLowerCase().includes(nameFilter.toLowerCase()))
+            filteredItems = filteredItems.filter((item) => item.name?.toLowerCase?.().includes?.(nameFilter.toLowerCase()))
         }
         if (!!itemClassFilter) {
             filteredItems = filteredItems.filter(({ description: item }) => {
                 if (!itemClassFilter || itemClassFilter?.length === 0) return true
 
-                return itemClassFilter.map((itemClass) => itemClass.toLowerCase()).includes(item.itemClass.toLowerCase())
+                return itemClassFilter.map((itemClass) => itemClass.toLowerCase?.()).includes(item.itemClass?.toLowerCase?.())
             })
         }
         if (!!itemSubClassFilter) {
             filteredItems = filteredItems.filter(({ description: item }) => {
                 if (!itemSubClassFilter || itemSubClassFilter?.length === 0) return true
-                return itemSubClassFilter.map((itemSubClass) => itemSubClass?.toLowerCase()).includes(item.itemSubclass?.toLowerCase())
+                return itemSubClassFilter.map((itemSubClass) => itemSubClass?.toLowerCase?.())?.includes?.(item.itemSubclass?.toLowerCase?.())
             })
         }
 
@@ -81,15 +81,15 @@ export default function RaidItemsList({ initialReservedItems, resetId, isAdmin }
             filteredItems = filteredItems.filter(({ description: item }) => {
                 if (!inventoryTypeFilter || inventoryTypeFilter.length === 0) return true
 
-                return inventoryTypeFilter.map((inventoryType) => inventoryType.toLowerCase()).includes(item.inventoryType.toLowerCase())
+                return inventoryTypeFilter.map((inventoryType) => inventoryType?.toLowerCase?.()).includes(item.inventoryType?.toLowerCase?.())
             })
         }
 
         if (!!qualityNameFilter) {
             filteredItems = filteredItems.filter(({ description: item }) => {
                 if (!qualityNameFilter || qualityNameFilter.length === 0) return true
-                const qualityName = ['Poor', 'Common', 'Uncommon', 'Rare', 'Epic', 'Legendary',][item.quality ?? 0]
-                return qualityNameFilter.includes(qualityName)
+                const qualityName = (['Poor', 'Common', 'Uncommon', 'Rare', 'Epic', 'Legendary',][item.quality ?? 0]).toLocaleLowerCase?.()
+                return qualityNameFilter?.includes?.(qualityName)
             })
         }
 
