@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 
-const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
-
-const fontColor = '#dbd2c3';
+const ReactApexChart = dynamic(() => import('react-apexcharts'), {
+    ssr: false,
+    loading: () => <div className="min-h-[300px] flex items-center justify-center">Loading...</div>,
+});
 
 type Props = {
     bnet: number;
@@ -13,47 +14,48 @@ type Props = {
 };
 
 export default function LoginBreakdownChart({ bnet, discord }: Props) {
-    const [loading, setLoading] = useState(true);
-    useEffect(() => { setLoading(false); }, []);
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => { setMounted(true); }, []);
 
-    const { series, options } = useMemo(() => {
-        const series = [bnet, discord];
-        const options = {
-            chart: {
-                type: 'donut' as const,
-                background: 'transparent',
-            },
-            labels: ['Battle.net', 'Discord'],
-            colors: ['#148eff', '#5865F2'],
-            legend: {
-                position: 'bottom' as const,
-                labels: { colors: fontColor },
-            },
-            dataLabels: {
-                enabled: true,
-                style: { fontSize: '14px' },
-            },
-            tooltip: { theme: 'dark' as const },
-            plotOptions: {
-                pie: {
-                    donut: {
-                        size: '55%',
-                        labels: {
+    if (!mounted) return <div className="min-h-[300px] flex items-center justify-center">Loading...</div>;
+
+    const series = [bnet, discord];
+    const options = {
+        chart: {
+            type: 'donut' as const,
+            background: 'transparent',
+        },
+        labels: ['Battle.net', 'Discord'],
+        colors: ['#0074e0', '#7289da'], // battlenet, discord from tailwind
+        legend: {
+            position: 'bottom' as const,
+            labels: { colors: '#DBD2C3' }, // ivory
+        },
+        dataLabels: {
+            enabled: true,
+            style: { fontSize: '14px' },
+        },
+        tooltip: { theme: 'dark' as const },
+        stroke: {
+            colors: ['#031111'], // dark
+            width: 2,
+        },
+        plotOptions: {
+            pie: {
+                donut: {
+                    size: '55%',
+                    labels: {
+                        show: true,
+                        total: {
                             show: true,
-                            total: {
-                                show: true,
-                                label: 'Total Logins',
-                                color: fontColor,
-                            },
+                            label: 'Total Logins',
+                            color: '#DBD2C3', // ivory
                         },
                     },
                 },
             },
-        };
-        return { series, options };
-    }, [bnet, discord]);
-
-    if (loading) return <div className="min-h-[300px] flex items-center justify-center">Loading...</div>;
+        },
+    };
 
     return <ReactApexChart options={options} series={series} type="donut" height={300} />;
 }

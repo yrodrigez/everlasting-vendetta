@@ -27,7 +27,7 @@ export default function RecentEventsFeed({ events }: Props) {
     }
 
     return (
-        <div className="max-h-[350px] overflow-y-auto scrollbar-pill space-y-2">
+        <div className="max-h-[350px] overflow-y-auto scrollbar-pill space-y-2 md:px-2">
             {events.map((event, i) => (
                 <div key={i} className="flex items-center gap-3 py-2 border-b border-dark-100/50 text-sm">
                     <span className={`px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap ${typeBadgeColors[event.event_type ?? ''] ?? typeBadgeColors.system}`}>

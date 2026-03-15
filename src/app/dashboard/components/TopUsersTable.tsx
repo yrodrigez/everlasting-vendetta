@@ -17,7 +17,7 @@ export default function TopUsersTable({ users }: Props) {
     }
 
     return (
-        <div className="overflow-x-auto max-h-[350px] overflow-y-auto scrollbar-pill">
+        <div className="overflow-x-auto max-h-[350px] overflow-y-auto scrollbar-pill md:px-2">
             <table className="w-full text-sm">
                 <thead className="sticky top-0 bg-dark">
                     <tr className="text-left text-gray-400 border-b border-dark-100">

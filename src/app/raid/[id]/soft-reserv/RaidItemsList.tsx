@@ -97,7 +97,14 @@ export default function RaidItemsList({ initialReservedItems, resetId, isAdmin }
     }
 
     const updateFilteredItems = () => {
-        setFilteredItems(filterItems(items))
+        setFilteredItems(() => {
+            try {
+                return filterItems(items)
+            } catch (e) {
+                console.error('Error filtering items', e)
+                return items
+            }
+        })
     }
 
     useEffect(() => {
