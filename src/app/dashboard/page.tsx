@@ -13,6 +13,7 @@ import GeoSection from './sections/GeoSection';
 import ActivitySection from './sections/ActivitySection';
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
 
 export default async function DashboardPage() {
     const { auth, getSupabase } = await createServerSession();
