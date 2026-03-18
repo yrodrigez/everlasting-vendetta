@@ -8,6 +8,7 @@ import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { useEffect, useRef, type ReactNode } from "react";
 import { ApiHealthBanner } from "../components/api-health-banner";
 import { AuthProvider } from "@/context/AuthContext";
+import { SupabaseProvider } from "@/context/SupabaseContext";
 import { useCharacterStore } from "../components/characterStore";
 import { useRouter } from "next/navigation";
 
@@ -16,32 +17,34 @@ function Providers({ children }: { children: ReactNode, didSsrRefresh?: boolean,
     const selectedCharacter = useCharacterStore(state => state.selectedCharacter);
     const router = useRouter();
     const isFirstRender = useRef(true);
-    
+
     useEffect(() => {
         if (isFirstRender.current) {
             isFirstRender.current = false;
             return;
         }
-        
+
         router.refresh();
     }, [selectedCharacter, router]);
 
     return (
         <AuthProvider>
-            <ReactQueryProvider>
-                <ApplicantsContext>
-                    <ModalProvider>
-                        <AchievementsProvider>
-                            <NextThemesProvider attribute="class" defaultTheme="light">
-                                <HeroUIProvider style={{ height: "100%" }}>
-                                    <ApiHealthBanner />
-                                    {children}
-                                </HeroUIProvider>
-                            </NextThemesProvider>
-                        </AchievementsProvider>
-                    </ModalProvider>
-                </ApplicantsContext>
-            </ReactQueryProvider>
+            <SupabaseProvider>
+                <ReactQueryProvider>
+                    <ApplicantsContext>
+                        <ModalProvider>
+                            <AchievementsProvider>
+                                <NextThemesProvider attribute="class" defaultTheme="light">
+                                    <HeroUIProvider style={{ height: "100%" }}>
+                                        <ApiHealthBanner />
+                                        {children}
+                                    </HeroUIProvider>
+                                </NextThemesProvider>
+                            </AchievementsProvider>
+                        </ModalProvider>
+                    </ApplicantsContext>
+                </ReactQueryProvider>
+            </SupabaseProvider>
         </AuthProvider>
     );
 }

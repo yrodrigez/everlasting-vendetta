@@ -3,17 +3,16 @@ import { getClassIcon, getRoleIcon } from "@/app/apply/components/utils";
 import { Button } from "@/components/Button";
 import { useCharacterStore } from "@/components/characterStore";
 import GearScore from "@/components/GearScore";
-import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/api";
 import { createRosterMemberRoute } from "@/util/create-roster-member-route";
-import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
+import { useSupabase, safeChannel } from "@/context/SupabaseContext";
 import { faCheck, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Chip, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip } from "@heroui/react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 export function Applicants({ applicants }: {
@@ -29,8 +28,7 @@ export function Applicants({ applicants }: {
         realm: string
     }[]
 }) {
-    const { accessToken } = useAuth();
-    const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
+    const supabase = useSupabase();
 
     const selectedCharacter = useCharacterStore(useShallow(state => state.selectedCharacter));
     const columns = [
@@ -67,7 +65,7 @@ export function Applicants({ applicants }: {
     useEffect(() => {
         if (!supabase) return;
 
-        const channel = supabase.channel(`applications_page`)
+        const channel = safeChannel(supabase, `applications_page`)
             .on('postgres_changes', {
                 event: '*',
                 schema: 'public',

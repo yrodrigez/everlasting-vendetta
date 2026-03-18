@@ -1,11 +1,10 @@
 'use client'
 import { Button } from "@/components/Button";
-import { useAuth } from "@/context/AuthContext";
-import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
+import { useSupabase } from "@/context/SupabaseContext";
 import { useMutation } from "@tanstack/react-query";
 import { useMessageBox } from '@/util/msgBox';
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 export default function CloneReservesCard({ originalResetId, reset, reserves }: {
     originalResetId: string,
@@ -13,8 +12,7 @@ export default function CloneReservesCard({ originalResetId, reset, reserves }: 
     reserves: { member_id: number, item_id: number }[]
 }) {
 
-    const { accessToken } = useAuth()
-    const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
+    const supabase = useSupabase();
 
     const { yesNo, alert } = useMessageBox()
     const router = useRouter()

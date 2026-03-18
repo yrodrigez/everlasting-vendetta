@@ -5,7 +5,7 @@ import { UserRoundCog, XIcon } from "lucide-react";
 export default function AdminActions({ children }: { children: React.ReactNode }) {
     const { isOpen, onOpenChange } = useDisclosure();
     return (
-        <Popover isOpen={isOpen} onOpenChange={onOpenChange}>
+        <Popover isOpen={isOpen} onOpenChange={onOpenChange} shouldCloseOnBlur={false}>
             <PopoverTrigger>
                 <Button isIconOnly size="sm" variant="light" className="ml-auto text-default">
                     {isOpen ? <XIcon /> : <UserRoundCog />}

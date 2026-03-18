@@ -28,7 +28,7 @@ import { useAuth } from "@/context/AuthContext";
 import { sendActionEvent } from '@/hooks/usePageEvent';
 import { useAuthManagerWindowStore } from "@/stores/auth-manager-window-store";
 import { createRosterMemberRoute } from "@/util/create-roster-member-route";
-import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
+import { useSupabase } from "@/context/SupabaseContext";
 import { useRouter } from "next/navigation";
 
 export function isRoleAssignable(role: 'tank' | 'healer' | 'dps' | string, characterClass: string | undefined, realmSlug: string = 'living-flame'): boolean {
@@ -78,8 +78,8 @@ const MenuItem = ({ text, onClick, icon }: { text: string, onClick: () => void, 
 export default function ProfileManager() {
     const selectedCharacter = useCharacterStore(state => state.selectedCharacter)
     const [popoverOpen, setPopoverOpen] = useState(false)
-    const { accessToken, isAuthenticated, user, logout } = useAuth()
-    const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
+    const { isAuthenticated, user, logout } = useAuth()
+    const supabase = useSupabase();
 
     const router = useRouter()
 

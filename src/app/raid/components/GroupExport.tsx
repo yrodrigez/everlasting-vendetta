@@ -10,11 +10,11 @@ import axios from "axios";
 import { aiGroupExport } from "@/lib/supa-functions/config";
 import { useMessageBox } from '@/util/msgBox';
 import { useAuth } from "@/context/AuthContext";
-import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
+import { useSupabase } from "@/context/SupabaseContext";
 
 export default function GroupExport({ resetId }: { resetId: string }) {
-    const { accessToken, user } = useAuth();
-    const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
+    const { user } = useAuth();
+    const supabase = useSupabase();
     const [copySuccess, setCopySuccess] = useState("");
     const [generateRoster, setGenerateRoster] = useState("");
 

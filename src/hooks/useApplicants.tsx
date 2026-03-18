@@ -3,19 +3,19 @@ import { Button } from "@/components/Button";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { useAuth } from "@/context/AuthContext";
 import { useShallow } from "zustand/react/shallow";
 import { useCharacterStore } from '@/components/characterStore';
-import { createClientComponentClient } from "../util/supabase/createClientComponentClient";
+import { useSupabase, safeChannel } from "@/context/SupabaseContext";
 import { useAudio } from '@/hooks/use-audio';
 
 
 export default function useApplicants() {
-    const { accessToken, user } = useAuth();
-    const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
+    const { user } = useAuth();
+    const supabase = useSupabase();
 
     const selectedCharacter = useCharacterStore(useShallow(state => state.selectedCharacter));
     const router = useRouter();
@@ -26,7 +26,7 @@ export default function useApplicants() {
     useEffect(() => {
         if (!supabase) return;
 
-        const channel = supabase.channel(`applications`)
+        const channel = safeChannel(supabase, `applications`)
             .on('postgres_changes', {
                 event: 'INSERT',
                 schema: 'public',

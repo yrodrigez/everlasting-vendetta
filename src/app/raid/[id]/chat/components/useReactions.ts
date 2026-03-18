@@ -1,4 +1,5 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
+import { safeChannel } from "@/context/SupabaseContext";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { useCharacterStore } from "@/components/characterStore";
@@ -132,7 +133,7 @@ export function useReactions(resetId: string, supabase: SupabaseClient | null) {
 
         refetchEmojis();
         refetch();
-        const channel = supabase.channel(`message_reactions:${resetId}`)
+        const channel = safeChannel(supabase, `message_reactions:${resetId}`)
             .on('postgres_changes', {
                 event: '*',
                 schema: 'public',

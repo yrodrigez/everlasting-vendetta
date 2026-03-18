@@ -2,13 +2,12 @@
 
 import useCreateRaidStore from "@/app/calendar/new/Components/useCreateRaidStore";
 import { Button } from "@/components/Button";
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import moment from "moment";
 import { useShallow } from "zustand/shallow";
 import { useCharacterStore } from "@/components/characterStore";
-import { useAuth } from "@/context/AuthContext";
-import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
+import { useSupabase } from "@/context/SupabaseContext";
 import { useMessageBox } from '@/util/msgBox';
 
 export function EditRaidButton({ reset }: { reset: { raid_id: string, id: string } }) {
@@ -26,8 +25,7 @@ export function EditRaidButton({ reset }: { reset: { raid_id: string, id: string
         onTimeBonusExtraAmmount: state.onTimeBonusExtraAmmount,
         onTimeBonusCutoffHours: state.onTimeBonusCutoffHours,
     })))
-    const { accessToken } = useAuth();
-    const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
+    const supabase = useSupabase();
 
     const selectedCharacter = useCharacterStore(state => state.selectedCharacter);
     const router = useRouter()

@@ -1,14 +1,12 @@
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { fetchResetParticipants } from "@/app/raid/api/fetchParticipants";
 import { useQuery } from "@tanstack/react-query";
 import { RaidParticipant } from "@/app/raid/api/types";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
-import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
+import { useSupabase, safeChannel } from "@/context/SupabaseContext";
 
 export function useParticipants(raidId: string, initialParticipants: RaidParticipant[]) {
-	const { accessToken } = useAuth()
-	const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
+	const supabase = useSupabase();
 
 	const { data: participants, refetch, } = useQuery({
 		queryKey: ['raid_participants', raidId],
@@ -27,19 +25,8 @@ export function useParticipants(raidId: string, initialParticipants: RaidPartici
 		
 		const participantChannelName = `raid_participants_${raidId}`
 		const resetChannelName = `reset_channel_${raidId}`
-		
-		// Remove existing channels first to avoid mismatch errors
-		const existingParticipantChannel = supabase.getChannels().find(c => c.topic === `realtime:${participantChannelName}`)
-		const existingResetChannel = supabase.getChannels().find(c => c.topic === `realtime:${resetChannelName}`)
-		
-		if (existingParticipantChannel) {
-			supabase.removeChannel(existingParticipantChannel)
-		}
-		if (existingResetChannel) {
-			supabase.removeChannel(existingResetChannel)
-		}
-		
-		const raidParticipantChannel = supabase.channel(participantChannelName)
+
+		const raidParticipantChannel = safeChannel(supabase, participantChannelName)
 			.on('postgres_changes', {
 				event: '*',
 				schema: 'public',
@@ -55,7 +42,7 @@ export function useParticipants(raidId: string, initialParticipants: RaidPartici
 				console.log('Raid participants channel subscription status:', status)
 			})
 
-		const resetChannel = supabase.channel(resetChannelName)
+		const resetChannel = safeChannel(supabase, resetChannelName)
 			.on('postgres_changes', {
 				event: '*',
 				schema: 'public',

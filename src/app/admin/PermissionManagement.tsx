@@ -8,8 +8,7 @@ import {
     MemberRole
 } from "@/app/admin/types"
 import { ROLE_ORDER } from '@/util/constants'
-import { useAuth } from "@/context/AuthContext"
-import { createClientComponentClient } from "@/util/supabase/createClientComponentClient"
+import { useSupabase } from "@/context/SupabaseContext"
 
 type Props = {
     users: UserProfile[]
@@ -35,8 +34,7 @@ export default function PermissionManagement({
     const [rolePermissionInputs, setRolePermissionInputs] = useState<Record<string, string>>({})
 
     // If you're using a session-based approach for Supabase
-    const { accessToken } = useAuth()
-    const supabaseBrowser = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
+    const supabaseBrowser = useSupabase();
 
 
     // ----------------------------------------------------------------

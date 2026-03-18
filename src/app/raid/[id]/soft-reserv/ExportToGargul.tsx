@@ -5,10 +5,9 @@ import type { Character, RaidItem } from "@/app/raid/[id]/soft-reserv/types";
 import pako from "pako";
 import { toast } from "sonner";
 import { type SupabaseClient } from "@supabase/supabase-js";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { RAID_STATUS } from "@/app/raid/components/utils";
-import { useAuth } from "@/context/AuthContext";
-import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
+import { useSupabase } from "@/context/SupabaseContext";
 
 function generateID(length: number) {
     let result = '';
@@ -83,8 +82,7 @@ export function ExportToGargul({ isReservationsOpen, reservationsByItem, loading
     resetId: string
 }) {
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
-    const { accessToken } = useAuth();
-    const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
+    const supabase = useSupabase();
 
 
     const [raidShortName, setRaidShortName] = useState<string | null>(null)

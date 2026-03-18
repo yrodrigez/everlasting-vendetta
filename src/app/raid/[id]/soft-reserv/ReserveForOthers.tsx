@@ -1,12 +1,11 @@
 import { Button } from "@/components/Button";
 import { Item } from "@/components/item/Item";
-import { useAuth } from "@/context/AuthContext";
 import { useFetchCharacter } from '@/hooks/api/use-fetch-character';
+import { useSupabase } from "@/context/SupabaseContext";
 import { fetchItems } from "@/lib/database/raid_loot_item/fetchItems";
 import { getRaidIdByResetId } from "@/lib/database/raid_resets/getRaidIdByResetId";
 import { useReservations } from "@/app/raid/[id]/soft-reserv/useReservations";
 import { createRosterMemberRoute } from '@/util/create-roster-member-route';
-import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
 import { faCartPlus, faUserTie } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -34,8 +33,7 @@ export function ReserveForOthers({ resetId, realmSlug }: { resetId: string, real
     const lowerCaseCharacterName = useMemo(() => characterName?.toLowerCase(), [characterName])
     const [itemId, setItemId] = useState<number | undefined>()
     const [isWriting, setIsWriting] = useState(false)
-    const { accessToken } = useAuth()
-    const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
+    const supabase = useSupabase();
     const timoutRef = useRef<NodeJS.Timeout>(null)
     const [selectedItem, setSelectedItem] = useState<any>(null)
     const [itemName, setItemName] = useState('' as string)

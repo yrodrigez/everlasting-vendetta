@@ -16,7 +16,6 @@ export function ChatControls({ onSubmit, showRedirect }: {
     })))
 
     const { user } = useAuth()
-    console.log('User in ChatControls:', user)
     return (
         <div className="w-full flex gap-2 relative">
             <Input placeholder="What's on your mind!?"

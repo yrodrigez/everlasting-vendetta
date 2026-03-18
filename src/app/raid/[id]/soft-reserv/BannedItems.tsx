@@ -5,11 +5,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClose, faCloudArrowDown } from "@fortawesome/free-solid-svg-icons";
 import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ScrollShadow, useDisclosure } from "@heroui/react";
 import { Button } from "@/components/Button";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useMessageBox } from '@/util/msgBox';
 import { useAuth } from "@/context/AuthContext";
-import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
+import { useSupabase } from "@/context/SupabaseContext";
 import { useRouter } from "next/navigation";
 import { useRaidItems } from "./raid-items-context";
 import moment from "moment";
@@ -22,8 +22,8 @@ export function BannedItems({ reset_id, isAdmin = false, raid_id, realmSlug, res
     reset_date: string
 }) {
     const { repository } = useRaidItems()
-    const { accessToken, isAuthenticated, user } = useAuth()
-    const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken])
+    const { isAuthenticated, user } = useAuth()
+    const supabase = useSupabase()
     const domain = realmSlug === 'living-flame' ? 'classic' : 'tbc'
 
     const [updateLoading, setUpdateLoading] = useState(false)
@@ -184,8 +184,8 @@ export function BannedItems({ reset_id, isAdmin = false, raid_id, realmSlug, res
 
 export function ImportRules({ raid_id, reset_id, reset_date }: { raid_id: string, reset_id: string, reset_date: string }) {
     const { repository } = useRaidItems()
-    const { accessToken, user } = useAuth()
-    const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken])
+    const { user } = useAuth()
+    const supabase = useSupabase()
 
     const { isOpen, onOpenChange, onClose, onOpen } = useDisclosure()
     const { alert } = useMessageBox()

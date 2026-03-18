@@ -1,21 +1,19 @@
 'use client'
 
 import { Button } from "@/components/Button";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useShallow } from "zustand/react/shallow";
 import { useCharacterStore } from "@/components/characterStore";
-import { useAuth } from "@/context/AuthContext";
-import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
+import { useSupabase, safeChannel } from "@/context/SupabaseContext";
 
 export default function ParticipateButton({ sound, children, eventId }: {
     sound: string,
     children: string,
     eventId?: number
 }) {
-    const { accessToken } = useAuth();
-    const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
+    const supabase = useSupabase();
 
     const selectedCharacter = useCharacterStore(useShallow(state => state.selectedCharacter));
     const router = useRouter();
@@ -46,7 +44,7 @@ export default function ParticipateButton({ sound, children, eventId }: {
     useEffect(() => {
         if (!supabase) return;
 
-        const channel = supabase.channel(`guild_events_participants_channel`)
+        const channel = safeChannel(supabase, `guild_events_participants_channel`)
             .on('postgres_changes', {
                 event: '*',
                 schema: 'public',

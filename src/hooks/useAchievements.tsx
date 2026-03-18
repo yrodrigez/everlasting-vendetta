@@ -5,7 +5,7 @@ import {
     type MemberAchievement, Reducer,
     type TableCondition
 } from "@/types/Achievements";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { useCharacterStore, type Character } from "@/components/characterStore";
 import mustache from "mustache";
@@ -15,7 +15,7 @@ import { GUILD_NAME } from '@/util/constants';
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import { useShallow } from "zustand/shallow";
-import { createClientComponentClient } from "../util/supabase/createClientComponentClient";
+import { useSupabase } from "@/context/SupabaseContext";
 
 export function displayAchievement(achievement: Achievement) {
 
@@ -272,10 +272,9 @@ async function recentlyLoggedIn(supabase: SupabaseClient, characterId: number) {
 }
 
 export default function useAchievements() {
-    const { accessToken, isAuthenticated } = useAuth();
+    const { isAuthenticated } = useAuth();
 
-
-    const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
+    const supabase = useSupabase();
 
     const selectedCharacter = useCharacterStore(useShallow(state => state.selectedCharacter));
 

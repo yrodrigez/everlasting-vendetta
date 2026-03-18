@@ -12,7 +12,7 @@ import { sendActionEvent } from '@/hooks/usePageEvent';
 import useScreenSize from '@/hooks/useScreenSize';
 import { GUILD_NAME, REGISTRATION_SOURCES } from '@/util/constants';
 import { useMessageBox } from '@/util/msgBox';
-import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
+import { useSupabase } from "@/context/SupabaseContext";
 import {
     faChair,
     faCircleCheck, faCircleQuestion, faCircleXmark, faClock,
@@ -83,8 +83,8 @@ export default function RaidParticipants({ participants, resetId, raidId, raidIn
     currentResets: { id: string, raid_date: string }[],
     sanctifiedData?: { characterName: string, count: number, characterId: string }[]
 }) {
-    const { accessToken, user } = useAuth()
-    const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
+    const { user } = useAuth()
+    const supabase = useSupabase();
     const selectedCharacter = useCharacterStore(useShallow(state => ({ ...state.selectedCharacter })));
     const router = useRouter();
 

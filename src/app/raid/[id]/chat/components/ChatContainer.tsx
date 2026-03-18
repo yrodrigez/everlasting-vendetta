@@ -7,16 +7,15 @@ import { useRouter } from "next/navigation";
 import { ChatControls } from "@/app/raid/[id]/chat/components/ChatControls";
 import { ChatMessages } from "@/app/raid/[id]/chat/components/ChatMessages";
 import { SupabaseClient } from "@supabase/supabase-js";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useChatStore } from "@/app/raid/[id]/chat/components/chatStore";
 import moment from "moment/moment";
 import useScreenSize from '@/hooks/useScreenSize';
 import { useQuery } from "@tanstack/react-query";
 import { useReactions } from "@/app/raid/[id]/chat/components/useReactions";
 import { useShallow } from "zustand/shallow";
-import { useAuth } from "@/context/AuthContext";
 import { useCharacterStore } from "@/components/characterStore";
-import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
+import { useSupabase, safeChannel } from "@/context/SupabaseContext";
 
 const tableFields = `*, character:ev_member(id,character)`;
 const table = 'reset_messages';
@@ -61,8 +60,7 @@ export function ChatContainer({ resetId: id, realmslug, showRedirect = false, ra
     raidName?: string
 }) {
     const router = useRouter()
-    const { accessToken } = useAuth()
-    const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
+    const supabase = useSupabase();
     const { selectedCharacter } = useCharacterStore(useShallow(state => ({
         selectedCharacter: state.selectedCharacter
     })))
@@ -123,7 +121,7 @@ export function ChatContainer({ resetId: id, realmslug, showRedirect = false, ra
 
     useEffect(() => {
         if (!supabase) return
-        const channel = supabase.channel(`raid_chat:${id}`)
+        const channel = safeChannel(supabase, `raid_chat:${id}`)
             .on('postgres_changes', {
                 event: '*',
                 schema: 'public',
@@ -163,9 +161,7 @@ export function ChatContainer({ resetId: id, realmslug, showRedirect = false, ra
             })
 
         return () => {
-            channel.unsubscribe().then(
-                () => console.log('Unsubscribed from chat channel')
-            )
+            supabase.removeChannel(channel)
         }
     }, [supabase, id, selectedCharacter])
 

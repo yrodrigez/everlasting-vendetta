@@ -1,7 +1,7 @@
 import { useAuth } from "@/context/AuthContext";
-import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
+import { useSupabase, safeChannel } from "@/context/SupabaseContext";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 
 export const useReservationsRealtime = (
     resetId: string,
@@ -11,10 +11,8 @@ export const useReservationsRealtime = (
     onHardReserveChange: (payload: any) => void,
     onRaidLootChange: (payload: any) => void,
 ) => {
-    const { isAuthenticated, accessToken } = useAuth();
-    const supabase = useMemo(() => {
-        return createClientComponentClient(accessToken);
-    }, [accessToken]);
+    const { isAuthenticated } = useAuth();
+    const supabase = useSupabase();
     const router = useRouter()
 
     const reservationsChannelName = `reservations:${resetId}`;
@@ -25,18 +23,8 @@ export const useReservationsRealtime = (
 
     useEffect(() => {
         if (!supabase || !resetId || !isAuthenticated) return;
-        supabase?.getChannels().forEach(channel => {
-            const topic = channel.topic
-            if (topic === `realtime:${reservationsChannelName}` ||
-                topic === `realtime:${resetChannelName}` ||
-                topic === `realtime:${extraReservationsChannelName}` ||
-                topic === `realtime:${raidLootChannelName}` ||
-                topic === `realtime:${hardReserveChannelName}`) {
-                supabase.removeChannel(channel)
-            }
-        });
-        const reservationsChannel = supabase
-            .channel(reservationsChannelName)
+
+        const reservationsChannel = safeChannel(supabase, reservationsChannelName)
             .on(
                 'postgres_changes',
                 {
@@ -51,8 +39,7 @@ export const useReservationsRealtime = (
                     }
                 });
 
-        const resetChannel = supabase
-            .channel(resetChannelName)
+        const resetChannel = safeChannel(supabase, resetChannelName)
             .on(
                 'postgres_changes',
                 {
@@ -66,7 +53,7 @@ export const useReservationsRealtime = (
                     }
                 });
 
-        const extraReservationsChannel = supabase.channel(extraReservationsChannelName)
+        const extraReservationsChannel = safeChannel(supabase, extraReservationsChannelName)
             .on('postgres_changes', {
                 event: '*',
                 schema: 'public',
@@ -78,7 +65,7 @@ export const useReservationsRealtime = (
                 }
             });
 
-        const raid_loot = supabase.channel(raidLootChannelName)
+        const raid_loot = safeChannel(supabase, raidLootChannelName)
             .on('postgres_changes', {
                 event: '*',
                 schema: 'public',
@@ -93,7 +80,7 @@ export const useReservationsRealtime = (
                 }
             });
 
-        const hardReserveChannel = supabase.channel(hardReserveChannelName)
+        const hardReserveChannel = safeChannel(supabase, hardReserveChannelName)
             .on('postgres_changes', {
                 event: '*',
                 schema: 'public',

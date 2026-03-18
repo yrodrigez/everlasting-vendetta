@@ -1,13 +1,12 @@
 'use client'
 import { Button } from "@/components/Button";
 import { Tooltip } from "@/components/tooltip";
-import { useAuth } from "@/context/AuthContext";
 import { useMessageBox } from '@/util/msgBox';
-import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
+import { useSupabase } from "@/context/SupabaseContext";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@heroui/react";
 import { ArrowRightLeft } from "lucide-react";
 import moment from "moment";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 export const MoveParticipant = ({
     memberId,
@@ -23,8 +22,7 @@ export const MoveParticipant = ({
     currentResets?: { id: string, raid_date: string }[];
 }) => {
     const { yesNo, alert } = useMessageBox();
-    const { accessToken } = useAuth()
-    const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
+    const supabase = useSupabase();
 
     const handleMove = async (newResetId: string) => {
         const confirmed = await yesNo({

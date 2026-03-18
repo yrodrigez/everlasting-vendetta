@@ -2,8 +2,7 @@
 import { createContext, useContext, useState, ReactNode, useMemo, useCallback } from 'react'
 import type { Character, RaidItem, Reservation } from "@/app/raid/[id]/soft-reserv/types"
 import { useReservationsRealtime } from './use-reservations-realtime'
-import { createClientComponentClient } from '@/util/supabase/createClientComponentClient'
-import { useAuth } from '@/context/AuthContext'
+import { useSupabase } from '@/context/SupabaseContext'
 import { ReservationsRepository } from './reservations-repository'
 import { useCharacterStore } from '@/components/characterStore'
 import { useQuery } from '@tanstack/react-query'
@@ -44,8 +43,7 @@ const RaidItemsContext = createContext<RaidItemsContextType | null>(null)
 export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen, initialReservations, raidId, raidStatus = null }: { resetId: string, children: ReactNode, initialItems?: RaidItem[], isOpen: boolean, initialReservations: Reservation[], raidId: string, raidStatus?: string | null }) => {
     //const [items, setItems] = useState<RaidItem[]>(initialItems)
     const [isReservationsOpen, setIsReservationsOpen] = useState<boolean>(isOpen)
-    const { accessToken } = useAuth();
-    const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
+    const supabase = useSupabase();
     const repository = useMemo(() => new ReservationsRepository(supabase), [supabase]);
     const selectedCharacter = useCharacterStore(state => state.selectedCharacter);
     const [reserves, setReserves] = useState<Reservation[]>(initialReservations);

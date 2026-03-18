@@ -20,7 +20,7 @@ import { useCharacterStore } from "@/components/characterStore";
 import { useShallow } from "zustand/react/shallow";
 import { sendActionEvent } from '@/hooks/usePageEvent';
 import api from "@/lib/api";
-import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
+import { useSupabase, safeChannel } from "@/context/SupabaseContext";
 
 export type ProfessionName =
     'Blacksmithing'
@@ -196,8 +196,7 @@ const Recipe = ({ spell, hideMats, onDelete }: {
 }
 
 const AddProfession = ({ availableProfessions, characterId }: { availableProfessions: { name: string, id: number }[], characterId: number }) => {
-    const { accessToken } = useAuth()
-    const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
+    const supabase = useSupabase();
     const { selectedCharacter } = useCharacterStore(useShallow(state => ({ selectedCharacter: state.selectedCharacter })));
     const [selectedProfessionId, setSelectedProfessionId] = useState<number>(availableProfessions[0]?.id)
     const PAGE_SIZE = 50
@@ -358,8 +357,8 @@ export default function CharacterProfessions({ professions, characterId, classNa
     className?: string
 }) {
     const [selectedProfession, setSelectedProfession] = useState<Profession | null>(professions[0])
-    const { accessToken, user } = useAuth()
-    const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
+    const { user } = useAuth()
+    const supabase = useSupabase();
     const { selectedCharacter } = useCharacterStore(useShallow(state => ({ selectedCharacter: state.selectedCharacter })));
     const isOwn = useMemo(() => {
         if (user) return user.roles?.includes(ROLE.ADMIN) || user.roles?.includes(ROLE.MODERATOR) || selectedCharacter?.id === characterId
@@ -397,7 +396,7 @@ export default function CharacterProfessions({ professions, characterId, classNa
     })
     useEffect(() => {
         if (!supabase || !isOwn) return;
-        const channel = supabase.channel(`public:member_profession_spells:member_id=eq.${characterId}`)
+        const channel = safeChannel(supabase, `public:member_profession_spells:member_id=eq.${characterId}`)
             .on('postgres_changes', {
                 event: '*',
                 schema: 'public',

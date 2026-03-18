@@ -3,12 +3,13 @@ import { Button } from "@/components/Button";
 import WoWHeadItem from "@/components/wow-head-item";
 import { useAuth } from "@/context/AuthContext";
 import { useMessageBox } from '@/util/msgBox';
-import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
+import { useSupabase } from "@/context/SupabaseContext";
 import { ScrollShadow } from "@heroui/react";
 import { Trash2Icon } from "lucide-react";
 import moment from "moment/moment";
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo } from "react";
+
 
 export function LootHistory({ lootHistory }: {
 	lootHistory: Record<string, {
@@ -30,11 +31,8 @@ export function LootHistory({ lootHistory }: {
 	})
 
 
-	const { authReady, isAuthenticated, user, accessToken } = useAuth()
-	const supabase = useMemo(() => {
-		if (!authReady || !isAuthenticated || !accessToken) return null;
-		return createClientComponentClient(accessToken);
-	}, [authReady, isAuthenticated, accessToken]);
+	const { user } = useAuth()
+	const supabase = useSupabase();
 
 	const isDeletePermission = useMemo(() => {
 		if (!user) return false;

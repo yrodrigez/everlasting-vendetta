@@ -15,9 +15,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "@/components/Button";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useAuth } from "@/context/AuthContext";
-import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
+import { useCallback, useEffect, useState } from "react";
+import { useSupabase } from "@/context/SupabaseContext";
 
 export function RaidResetCard({
 	raidDate,
@@ -54,8 +53,7 @@ export function RaidResetCard({
 	const participants = id ? useParticipants(id, raidRegistrations) : []
 	const isRaidCurrent = moment().isBetween(raidStart, raidEnd)
 	const isToday = moment().format('YYYY-MM-DD') === raidStart.format('YYYY-MM-DD')
-	const { accessToken } = useAuth();
-	const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken]);
+	const supabase = useSupabase();
 	const [borderColor, setBorderColor] = useState<any>()
 	const [shadeColor, setShadeColor] = useState<any>()
 	const isExpired = moment().subtract(12, 'hours').isAfter(raidEnd)

@@ -1,20 +1,18 @@
 'use client'
 
 import { Button } from "@/components/Button";
-import { useAuth } from "@/context/AuthContext";
 import { sendActionEvent } from '@/hooks/usePageEvent';
-import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
+import { useSupabase } from "@/context/SupabaseContext";
 import { Lock, LockOpen } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 
 export function LockRaidButton({ resetId, currentStatus }: {
     resetId: string
     currentStatus: string | null
 }) {
     const isLocked = currentStatus === 'locked'
-    const { accessToken } = useAuth()
-    const supabase = useMemo(() => createClientComponentClient(accessToken), [accessToken])
+    const supabase = useSupabase()
     const router = useRouter()
     const [loading, setLoading] = useState(false)
 

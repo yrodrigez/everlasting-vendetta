@@ -8,9 +8,7 @@ import Image from "next/image";
 import React, { useCallback } from "react";
 import Link from "next/link";
 import { ExtraReserveActions } from "@/app/raid/[id]/soft-reserv/ExtraReserveActions";
-import { useAuth } from "@/context/AuthContext";
-import { createClientComponentClient } from '@/util/supabase/createClientComponentClient';
-import { create } from "node:domain";
+import { useSupabase } from "@/context/SupabaseContext";
 import { createRosterMemberRoute } from '@/util/create-roster-member-route';
 
 
@@ -73,8 +71,7 @@ async function fetchResetMembers(resetId: string, supabase: SupabaseClient) {
 
 export function ExtraReserveButton({ resetId, realmSlug }: { resetId: string, realmSlug: string }) {
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
-    const { accessToken } = useAuth()
-    const supabase = React.useMemo(() => createClientComponentClient(accessToken), [accessToken]);
+    const supabase = useSupabase();
 
     const getStatusChip = useCallback((status: string) => {
         const color = ((status: string) => {
