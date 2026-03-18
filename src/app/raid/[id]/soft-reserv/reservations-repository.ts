@@ -279,7 +279,7 @@ export class ReservationsRepository {
             .select('id, character, dateTime, offspec, raid_id')
             .eq('itemID', itemId)
             .order('dateTime', { ascending: false })
-            .limit(20)
+            .limit(50)
             .overrideTypes<LootHistoryEntry[]>()
 
         if (error) {

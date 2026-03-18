@@ -97,8 +97,14 @@ function ItemLootHistory({ entries, isLoading }: { entries: LootHistoryEntry[], 
     return (
         <ScrollShadow className="flex flex-col gap-1 max-h-32 overflow-auto scrollbar-pill">
             {entries.map((entry) => (
-                <div key={entry.id} className="flex items-center justify-between gap-2 p-1.5 rounded bg-white/5">
-                    <span className="text-xs font-bold truncate">{entry.character ?? 'Unknown'}</span>
+                <Link
+                    target="_blank"
+                    href={`/raid/${entry.raid_id}/loot`}
+                    key={entry.id}
+                    className="flex items-center justify-between gap-2 p-1.5 rounded bg-white/5"
+                >
+                    <span
+                        className="text-xs font-bold truncate">{entry.character ?? 'Unknown'}</span>
                     <div className="flex items-center gap-2 shrink-0">
                         {entry.offspec === 1 && (
                             <Chip size="sm" variant="flat" classNames={{ base: 'h-4 px-1 bg-gold border border-gold-100 text-dark', content: 'text-[10px] p-0' }}>
@@ -109,7 +115,7 @@ function ItemLootHistory({ entries, isLoading }: { entries: LootHistoryEntry[], 
                             {moment(entry.dateTime).format('MMM D, YYYY')}
                         </span>
                     </div>
-                </div>
+                </Link>
             ))}
         </ScrollShadow>
     );

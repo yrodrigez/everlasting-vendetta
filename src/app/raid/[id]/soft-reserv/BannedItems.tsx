@@ -9,7 +9,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useMessageBox } from '@/util/msgBox';
 import { useAuth } from "@/context/AuthContext";
-import { useSupabase } from "@/context/SupabaseContext";
+import { useSupabase, safeChannel } from "@/context/SupabaseContext";
 import { useRouter } from "next/navigation";
 import { useRaidItems } from "./raid-items-context";
 import moment from "moment";
@@ -44,8 +44,7 @@ export function BannedItems({ reset_id, isAdmin = false, raid_id, realmSlug, res
     useEffect(() => {
         if (!supabase || !reset_id || !isAuthenticated) return
 
-        const channel = supabase
-            .channel(`banned_items_rules:${reset_id}`)
+        const channel = safeChannel(supabase, `hard_reserve_rules:${reset_id}`)
             .on('postgres_changes', {
                 event: '*',
                 schema: 'public',

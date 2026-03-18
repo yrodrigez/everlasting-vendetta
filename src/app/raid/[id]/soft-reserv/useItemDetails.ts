@@ -1,13 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import { useRaidItems } from '@/app/raid/[id]/soft-reserv/raid-items-context';
 import { useAuth } from '@/context/AuthContext';
-import { useSupabase } from '@/context/SupabaseContext';
+import { useSupabase, safeChannel } from '@/context/SupabaseContext';
 import { useEffect, useRef, useState } from 'react';
 
 export function useItemDetails(itemId: number | null, resetId: string) {
     const { repository } = useRaidItems();
     const { isAuthenticated } = useAuth();
     const supabase = useSupabase();
+
     const [realtimeError, setRealtimeError] = useState(false);
     const refetchRef = useRef<(() => void) | null>(null);
 
@@ -33,8 +34,7 @@ export function useItemDetails(itemId: number | null, resetId: string) {
 
         const channelName = `item_rules:${resetId}:${itemId}`;
 
-        const channel = supabase
-            .channel(channelName)
+        const channel = safeChannel(supabase, channelName)
             .on('postgres_changes', {
                 event: '*',
                 schema: 'public',
