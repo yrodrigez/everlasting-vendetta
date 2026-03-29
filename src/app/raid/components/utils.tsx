@@ -39,7 +39,7 @@ export async function assistRaid(raidId: string, selectedDays: any = [], selecte
                     <FontAwesomeIcon icon={faTriangleExclamation} />
                 </div>
                 <div className="ml-3">
-                    <p className="text-sm font-medium ">{`Failed to assist raid: ${error.error}`}</p>
+                    <p className="text-sm font-medium ">{`Failed to confirm raid: ${error.error}`}</p>
                 </div>
             </div>
         ), {
@@ -47,7 +47,7 @@ export async function assistRaid(raidId: string, selectedDays: any = [], selecte
             position: 'top-center'
         })
 
-        console.error('Error assisting raid', response)
+        console.error('Error confirming raid', response)
         return
     }
 

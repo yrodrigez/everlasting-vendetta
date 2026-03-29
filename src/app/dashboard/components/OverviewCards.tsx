@@ -34,3 +34,20 @@ export default function OverviewCards({ eventsToday, events7d, events30d, unique
         </div>
     );
 }
+
+export function OverviewCardsSkeleton() {
+    return (
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+            {Array.from({ length: 5 }).map((_, i) => (
+                <Card key={i} className="bg-dark border border-dark-100 min-w-[150px] flex-1">
+                    <CardHeader>
+                        <div className="h-4 w-20 bg-dark-100 rounded animate-pulse" />
+                    </CardHeader>
+                    <CardBody>
+                        <div className="h-9 w-24 bg-dark-100 rounded animate-pulse" />
+                    </CardBody>
+                </Card>
+            ))}
+        </div>
+    );
+}

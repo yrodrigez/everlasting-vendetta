@@ -1,18 +1,22 @@
 'use client'
 import { getClassIcon, getRoleIcon } from "@/app/apply/components/utils";
 import { RaidParticipant } from "@/app/raid/api/types";
+import AdminActions from "@/app/raid/components/admin-actions";
 import BenchParticipant from "@/app/raid/components/BenchParticipant";
+import { getSubscriptionStatusText } from "@/app/raid/components/get-status-text";
+import { MoveParticipant } from "@/app/raid/components/move-participant";
 import { useParticipants } from "@/app/raid/components/useParticipants";
 import { RAID_STATUS } from "@/app/raid/components/utils";
 import { Button } from "@/components/Button";
 import { useCharacterStore } from "@/components/characterStore";
 import GearScore from "@/components/GearScore";
 import { useAuth } from "@/context/AuthContext";
+import { useSupabase } from "@/context/SupabaseContext";
 import { sendActionEvent } from '@/hooks/usePageEvent';
 import useScreenSize from '@/hooks/useScreenSize';
-import { GUILD_NAME, REGISTRATION_SOURCES } from '@/util/constants';
+import { GUILD_NAME } from '@/util/constants';
+import { createRosterMemberRoute } from "@/util/create-roster-member-route";
 import { useMessageBox } from '@/util/msgBox';
-import { useSupabase } from "@/context/SupabaseContext";
 import {
     faChair,
     faCircleCheck, faCircleQuestion, faCircleXmark, faClock,
@@ -21,42 +25,13 @@ import {
     faTrash, faTriangleExclamation
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Chip, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip } from "@heroui/react";
+import { Avatar, Chip, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip } from "@heroui/react";
 import { useQuery } from "@tanstack/react-query";
 import moment from "moment";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
-import AdminActions from "@/app/raid/components/admin-actions";
-import { MoveParticipant } from "@/app/raid/components/move-participant";
-import { createRosterMemberRoute } from "@/util/create-roster-member-route";
-
-
-
-const BadgeCheckIcon = ({ className }: { className: string }) => {
-    const c = "fadl";
-
-    return (
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 512 512"
-            role="img"
-            aria-labelledby={c}
-            className={className}
-            fill="currentColor"
-        >
-            <g>
-                <path
-                    d="M32 256c0 28.3 15.9 53 39.4 65.4c6.8 3.6 10.1 11.5 7.8 18.8c-7.8 25.4-1.6 54.1 18.4 74.1s48.7 26.2 74.1 18.4c7.3-2.3 15.2 1 18.8 7.8C203 464.1 227.7 480 256 480s53-15.9 65.4-39.4c3.6-6.8 11.5-10.1 18.8-7.8c25.4 7.8 54.1 1.6 74.1-18.4s26.2-48.7 18.4-74.1c-2.3-7.3 1-15.2 7.8-18.8C464.1 309 480 284.3 480 256s-15.9-53-39.4-65.4c-6.8-3.6-10.1-11.5-7.8-18.8c7.8-25.4 1.6-54.1-18.4-74.1s-48.7-26.2-74.1-18.4c-7.3 2.3-15.2-1-18.8-7.8C309 47.9 284.3 32 256 32s-53 15.9-65.4 39.4c-3.6 6.8-11.5 10.1-18.8 7.8c-25.4-7.8-54.1-1.6-74.1 18.4s-26.2 48.7-18.4 74.1c2.3 7.3-1 15.2-7.8 18.8C47.9 203 32 227.7 32 256zm116.7-11.3c6.2-6.2 16.4-6.2 22.6 0L224 297.4 340.7 180.7c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6l-128 128c-6.2 6.2-16.4 6.2-22.6 0l-64-64c-6.2-6.2-6.2-16.4 0-22.6z" />
-                <path
-                    className="text-white"
-                    d="M190.6 71.4C203 47.9 227.7 32 256 32s53 15.9 65.4 39.4c3.6 6.8 11.5 10.1 18.8 7.8c25.4-7.8 54.1-1.6 74.1 18.4s26.2 48.7 18.4 74.1c-2.3 7.3 1 15.2 7.8 18.8C464.1 203 480 227.7 480 256s-15.9 53-39.4 65.4c-6.8 3.6-10.1 11.5-7.8 18.8c7.8 25.4 1.6 54.1-18.4 74.1s-48.7 26.2-74.1 18.4c-7.3-2.3-15.2 1-18.8 7.8C309 464.1 284.3 480 256 480s-53-15.9-65.4-39.4c-3.6-6.8-11.5-10.1-18.8-7.8c-25.4 7.8-54.1 1.6-74.1-18.4s-26.2-48.7-18.4-74.1c2.3-7.3-1-15.2-7.8-18.8C47.9 309 32 284.3 32 256s15.9-53 39.4-65.4c6.8-3.6 10.1-11.5 7.8-18.8c-7.8-25.4-1.6-54.1 18.4-74.1s48.7-26.2 74.1-18.4c7.3 2.3 15.2-1 18.8-7.8zM256 0c-36.1 0-68 18.1-87.1 45.6c-33-6-68.3 3.8-93.9 29.4s-35.3 60.9-29.4 93.9C18.1 188 0 219.9 0 256s18.1 68 45.6 87.1c-6 33 3.8 68.3 29.4 93.9s60.9 35.3 93.9 29.4C188 493.9 219.9 512 256 512s68-18.1 87.1-45.6c33 6 68.3-3.8 93.9-29.4s35.3-60.9 29.4-93.9C493.9 324 512 292.1 512 256s-18.1-68-45.6-87.1c6-33-3.8-68.3-29.4-93.9s-60.9-35.3-93.9-29.4C324 18.1 292.1 0 256 0zM363.3 203.3c6.2-6.2 6.2-16.4 0-22.6s-16.4-6.2-22.6 0L224 297.4l-52.7-52.7c-6.2-6.2-16.4-6.2-22.6 0s-6.2 16.4 0 22.6l64 64c6.2 6.2 16.4 6.2 22.6 0l128-128z" />
-            </g>
-
-        </svg>
-    );
-};
 
 
 const GuildMemberIndicator = (character: any) => {
@@ -114,7 +89,6 @@ export default function RaidParticipants({ participants, resetId, raidId, raidIn
         }
     }, [isMobile, user, selectedCharacter]);
 
-    const [onlyConfirmed, setOnlyConfirmed] = useState(true)
     const { yesNo } = useMessageBox()
     const { data: guildEvent } = useQuery({
         queryKey: ['guildEvent', resetId],
@@ -138,7 +112,6 @@ export default function RaidParticipants({ participants, resetId, raidId, raidIn
 
     const renderCell = useCallback((registration: { member: RaidParticipant } & any, columnKey: React.Key) => {
         const { name, avatar, playable_class, id, realm = { slug: 'living-flame' } } = registration.member?.character
-        const { registration_source } = registration.member
         const registrationDetails = registration.details
         const sanctifiedCount = sanctifiedData?.find(x => x.characterId === id)?.count
 
@@ -162,25 +135,8 @@ export default function RaidParticipants({ participants, resetId, raidId, raidIn
                 )
             case "gs":
                 return (
-                    /*session?.guild?.id === GUILD_ID ? (*/
                     <GearScore realm={realm.slug} characterName={name} min={minGs}
                         allowForce={user?.isAdmin || (selectedCharacter?.id || 0) === registration?.member?.character?.id} />
-                    /*) : (
-                        <Tooltip
-                            content={`Gear score is available only for guild members`}
-                            placement="top"
-                        >
-                            <Chip variant="flat"
-                                    color="warning"
-                                  className="text-warning"
-                                  size="sm"
-                                  startContent={
-                                      <FontAwesomeIcon icon={faCircleQuestion}/>}
-                            >
-                                EV-only
-                            </Chip>
-                        </Tooltip>
-                    )*/
                 )
             case "name":
                 return (
@@ -198,25 +154,11 @@ export default function RaidParticipants({ participants, resetId, raidId, raidIn
                             <div
                                 className="relative overflow-visible"
                             >
-                                <img
+                                <Avatar
                                     alt="User avatar"
-                                    width={24}
-                                    height={24}
                                     className={`min-w-8 min-h-8 max-w-8 max-h-8 rounded-full ${!registration.is_confirmed && 'grayscale'} border border-gold`}
                                     src={avatar}
                                 />
-                                {registration_source === REGISTRATION_SOURCES.BNET_OAUTH && (
-                                    <div className="absolute -bottom-0.5 -right-1 w-3 h-3">
-                                        <Tooltip
-                                            content="Loged in using Battle.net"
-                                            placement="top"
-                                        >
-                                            <BadgeCheckIcon
-                                                className="text-battlenet text-xs"
-                                            />
-                                        </Tooltip>
-                                    </div>
-                                )}
                             </div>
                             <div className="flex items-center break-all">
                                 <h5 className={`text-gold font-bold mr-2`}>{name} {(name === selectedCharacter?.name) ? '(You)' : null}</h5>
@@ -277,7 +219,7 @@ export default function RaidParticipants({ participants, resetId, raidId, raidIn
                             case RAID_STATUS.TENTATIVE:
                                 return 'secondary'
                             case RAID_STATUS.DECLINED:
-                                return 'danger'
+                                return 'default'
                             default:
                                 return 'warning'
                         }
@@ -307,7 +249,7 @@ export default function RaidParticipants({ participants, resetId, raidId, raidIn
                             <span
                                 className="mr-1"
                             ><FontAwesomeIcon icon={statusIcon(registrationDetails.status)} /></span>
-                            {registrationDetails.status}
+                            {getSubscriptionStatusText(registrationDetails.status)}
                         </Chip>
                     );
                 }
@@ -315,30 +257,6 @@ export default function RaidParticipants({ participants, resetId, raidId, raidIn
                     <Chip color={'warning'} size="sm" variant="flat" className="text-warning">
                         Pending
                     </Chip>
-                );
-
-            case "days":
-                return (
-                    <div className="flex gap">
-                        {(days).sort((a: string, b: string) => {
-                            //sorts the dates starting on Wednesday
-                            const days = ['Wed', 'Thur', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue'];
-                            return days.indexOf(a) - days.indexOf(b);
-                        }).map((day: string) => {
-                            const isToday = day.indexOf(moment().format('ddd')) >= 0;
-                            const isDayRegistered = (registrationDetails?.days ?? []).find((d: string) => day.indexOf(d) >= 0);
-                            return (
-                                <Chip
-                                    key={day}
-                                    className={`text-${isDayRegistered ? 'success' : 'danger'}` + ((raidInProgress && isToday) ? 'border-2 border-gold' : '')}
-                                    color={isDayRegistered ? 'success' : 'danger'}
-                                    size="sm"
-                                    variant="flat">
-                                    {day.substring(0, 2)}
-                                </Chip>
-                            )
-                        })}
-                    </div>
                 );
 
             case "is_guildie":
@@ -418,25 +336,6 @@ export default function RaidParticipants({ participants, resetId, raidId, raidIn
             }}
             className="w-full h-full flex flex-col gap-2 scrollbar-pill overflow-auto"
             isHeaderSticky
-            topContent={<div className="flex flex-row items-center gap-2 justify-center">
-                <Button
-                    className="flex-1"
-                    onPress={() => setOnlyConfirmed(true)}
-                    isDisabled={onlyConfirmed}
-                >
-                    {onlyConfirmed ? 'Showing only confirmed' : 'Show only confirmed '}
-                    <FontAwesomeIcon icon={faPersonCircleCheck} />
-                </Button>
-                <Button
-                    className="flex-1"
-                    onPress={() => setOnlyConfirmed(false)}
-                    isDisabled={!onlyConfirmed}
-                >
-                    {onlyConfirmed ? 'Show all ' : 'Showing all '}
-                    <FontAwesomeIcon icon={faPersonCircleXmark} />
-                </Button>
-            </div>}
-            topContentPlacement="outside"
         >
             <TableHeader
                 className="shadow-gold shadow"
@@ -451,9 +350,15 @@ export default function RaidParticipants({ participants, resetId, raidId, raidIn
             <TableBody
                 className="scrollbar-pill"
                 emptyContent={"No one signed up yet."}
+                items={stateParticipants
+                    ?.sort((a: any, b: any) => {
+                        if (a.details?.status === 'confirmed' && b.details?.status !== 'confirmed') {
+                            return -1
+                        }
+                        if (a.details?.status !== 'confirmed' && b.details?.status === 'confirmed') {
+                            return 1
+                        }
 
-                items={stateParticipants?.filter((x: any) => !onlyConfirmed || x.details.status === 'confirmed')
-                    .sort((a: any, b: any) => {
                         const aCreated = new Date(a.created_at)
                         const bCreated = new Date(b.created_at)
                         return aCreated.getTime() - bCreated.getTime()
