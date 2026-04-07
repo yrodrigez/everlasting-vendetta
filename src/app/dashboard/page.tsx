@@ -49,28 +49,31 @@ export default async function DashboardPage() {
     const supabase = await getSupabase();
     const repository = new WebEventsRepository(supabase);
 
+    const activeUserStatsPromise = repository.getActiveUserStats();
+    const guildMembersPromise = repository.getGuildMembers();
+
     return (
         <div className="flex flex-col gap-6 p-4 w-full">
             <h1 className="text-3xl font-bold">Guild Dashboard</h1>
             <Suspense fallback={<OverviewCardsSkeleton />}>
-                <OverviewSection repository={repository} />
+                <OverviewSection repository={repository} activeUserStatsPromise={activeUserStatsPromise} />
             </Suspense>
             <Suspense fallback={<ActiveUsersSkeleton />}>
-                <ActiveUsersSection repository={repository} />
+                <ActiveUsersSection repository={repository} activeUserStatsPromise={activeUserStatsPromise} />
             </Suspense>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <Suspense fallback={<CardSkeleton />}>
                     <LoginSection repository={repository} />
                 </Suspense>
                 <Suspense fallback={<CardSkeleton />}>
-                    <ClassDistributionSection repository={repository} />
+                    <ClassDistributionSection repository={repository} guildMembersPromise={guildMembersPromise} />
                 </Suspense>
             </div>
             <Suspense fallback={<CardSkeleton />}>
                 <SessionActivitySection repository={repository} />
             </Suspense>
             <Suspense fallback={<CardSkeleton />}>
-                <LootSection repository={repository} />
+                <LootSection repository={repository} guildMembersPromise={guildMembersPromise} />
             </Suspense>
             <Suspense fallback={<CardSkeleton />}>
                 <GeoSection repository={repository} />

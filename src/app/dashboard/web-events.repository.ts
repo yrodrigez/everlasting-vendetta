@@ -35,23 +35,6 @@ export interface LootByRaid {
     top: { character: string; count: { ms: number; os: number } }[];
 }
 
-async function withPagination<T>(
-    buildQuery: (offset: number, limit: number) => PromiseLike<{ data: T[] | null; error: unknown }>,
-    pageSize = 1000
-): Promise<T[]> {
-    const result: T[] = [];
-    let offset = 0;
-    while (true) {
-        const { data, error } = await buildQuery(offset, offset + pageSize - 1);
-        if (error) { console.error("withPagination error:", error); break; }
-        if (!data || data.length === 0) break;
-        result.push(...data);
-        if (data.length < pageSize) break;
-        offset += pageSize;
-    }
-    return result;
-}
-
 
 export class WebEventsRepository {
     constructor(private supabase: SupabaseClient) { }
@@ -69,23 +52,18 @@ export class WebEventsRepository {
         const sevenDaysAgo = this.daysAgo(7).toISOString();
         const thirtyDaysAgo = this.daysAgo(30).toISOString();
 
-        const [
-            { count: eventsToday },
-            { count: events7d },
-            { count: events30d },
-            { count: pageViews30d },
-        ] = await Promise.all([
-            this.supabase.from("web_events").select("*", { count: "exact", head: true }).gte("created_at", todayStart).neq("ip_address", "127.0.0.1"),
-            this.supabase.from("web_events").select("*", { count: "exact", head: true }).gte("created_at", sevenDaysAgo).neq("ip_address", "127.0.0.1"),
-            this.supabase.from("web_events").select("*", { count: "exact", head: true }).gte("created_at", thirtyDaysAgo).neq("ip_address", "127.0.0.1"),
-            this.supabase.from("web_events").select("*", { count: "exact", head: true }).eq("event_type", "page_view").gte("created_at", thirtyDaysAgo).neq("ip_address", "127.0.0.1"),
-        ]);
+        const { data } = await this.supabase.rpc("get_overview_counts", {
+            today_start: todayStart,
+            seven_days_ago: sevenDaysAgo,
+            thirty_days_ago: thirtyDaysAgo,
+        }).single<{ events_today: number; events_7d: number; events_30d: number; page_views_30d: number }>();
+
 
         return {
-            eventsToday: eventsToday ?? 0,
-            events7d: events7d ?? 0,
-            events30d: events30d ?? 0,
-            pageViews30d: pageViews30d ?? 0,
+            eventsToday: Number(data?.events_today ?? 0),
+            events7d: Number(data?.events_7d ?? 0),
+            events30d: Number(data?.events_30d ?? 0),
+            pageViews30d: Number(data?.page_views_30d ?? 0),
         };
     }
 
@@ -134,69 +112,45 @@ export class WebEventsRepository {
     public async getLoginBreakdown(): Promise<LoginBreakdown> {
         const thirtyDaysAgo = this.daysAgo(30).toISOString();
 
-        const [
-            { count: bnetClientLogins },
-            { count: discordClientLogins },
-            { data: serverLoginEvents },
-        ] = await Promise.all([
-            this.supabase.from("web_events").select("*", { count: "exact", head: true }).eq("event_name", "login_bnet").gte("created_at", thirtyDaysAgo).neq("ip_address", "127.0.0.1"),
-            this.supabase.from("web_events").select("*", { count: "exact", head: true }).eq("event_name", "login_discord").gte("created_at", thirtyDaysAgo).neq("ip_address", "127.0.0.1"),
-            this.supabase.from("web_events").select("metadata").eq("event_name", "login_success").gte("created_at", thirtyDaysAgo).neq("ip_address", "127.0.0.1"),
-        ]);
-
-        let serverBnet = 0;
-        let serverDiscord = 0;
-        for (const event of serverLoginEvents ?? []) {
-            const meta = event.metadata as Record<string, unknown> | null;
-            if (meta?.provider === "battlenet") serverBnet++;
-            else if (meta?.provider === "discord") serverDiscord++;
-        }
+        const { data } = await this.supabase.rpc("get_login_breakdown", { since: thirtyDaysAgo }).single<{
+            bnet_client: number; discord_client: number; bnet_server: number; discord_server: number;
+        }>();
 
         return {
-            totalBnet: (bnetClientLogins ?? 0) + serverBnet,
-            totalDiscord: (discordClientLogins ?? 0) + serverDiscord,
+            totalBnet: Number(data?.bnet_client ?? 0) + Number(data?.bnet_server ?? 0),
+            totalDiscord: Number(data?.discord_client ?? 0) + Number(data?.discord_server ?? 0),
         };
     }
 
     public async getSessionActivity(): Promise<{ refreshTrend: { date: string; count: number }[]; revokeTrend: { date: string; count: number }[] }> {
         const thirtyDaysAgo = this.daysAgo(30).toISOString();
 
-        // Token refresh/revoke are server-side events — don't filter by ip_address
-        const allEvents = await withPagination<{ event_name: string; created_at: string }>(
-            (offset, limit) => this.supabase
-                .from("web_events")
-                .select("event_name, created_at")
-                .in("event_name", ["token_refresh", "token_revoke"])
-                .gte("created_at", thirtyDaysAgo)
-                .order("created_at", { ascending: true })
-                .range(offset, limit)
-        );
+        const { data } = await this.supabase.rpc("get_session_activity", { since: thirtyDaysAgo });
 
-        const grouped = groupEventsByDayAndName(allEvents);
-        return {
-            refreshTrend: grouped["token_refresh"] ?? [],
-            revokeTrend: grouped["token_revoke"] ?? [],
-        };
+        const refreshTrend: { date: string; count: number }[] = [];
+        const revokeTrend: { date: string; count: number }[] = [];
+        for (const row of data ?? []) {
+            const entry = { date: String(row.date), count: Number(row.count) };
+            if (row.event_name === "token_refresh") refreshTrend.push(entry);
+            else if (row.event_name === "token_revoke") revokeTrend.push(entry);
+        }
+
+        return { refreshTrend, revokeTrend };
     }
 
     public async getTopUsersWithProfiles(): Promise<TopUserProfile[]> {
         const thirtyDaysAgo = this.daysAgo(30).toISOString();
 
-        const topUsersRaw = await withPagination<{ user_id: string }>(
-            (offset, limit) => this.supabase
-                .from("web_events")
-                .select("user_id")
-                .gte("created_at", thirtyDaysAgo)
-                .not("user_id", "is", null)
-                .neq("ip_address", "127.0.0.1")
-                .range(offset, limit)
-        );
+        const { data: topUsersRaw } = await this.supabase.rpc("get_top_users_by_event_count", {
+            since: thirtyDaysAgo,
+            result_limit: 10,
+        });
 
-        const validTopUsers = topUsersRaw.filter(
-            (e): e is { user_id: string } => e.user_id !== null
-        );
-        const topUsersList = getTopUsers(validTopUsers, 10);
-        const topUserIds = topUsersList.map((u) => u.userId);
+        const topUsersList = (topUsersRaw ?? []).map((u: { user_id: string; event_count: number }) => ({
+            userId: u.user_id,
+            count: Number(u.event_count),
+        }));
+        const topUserIds = topUsersList.map((u: { userId: string; count: number }) => u.userId);
 
         if (topUserIds.length === 0) return [];
 
@@ -219,7 +173,7 @@ export class WebEventsRepository {
             }
         }
 
-        return topUsersList.map((u) => {
+        return topUsersList.map((u: { userId: string; count: number }) => {
             const profile = profileMap.get(u.userId);
             return {
                 userId: u.userId,
@@ -247,25 +201,9 @@ export class WebEventsRepository {
     public async getGeoDistribution(): Promise<{ country: string; countryName: string; count: number }[]> {
         const thirtyDaysAgo = this.daysAgo(30).toISOString();
 
-        const ipData = await withPagination<{ ip_address: string }>(
-            (offset, limit) => this.supabase
-                .from("web_events")
-                .select("ip_address")
-                .neq("ip_address", null)
-                .neq("ip_address", "127.0.0.1")
-                .neq("user_agent", "node")
-                .neq("event_name", "token_refresh")
-                .neq("event_name", "login_bnet")
-                .neq("event_name", "login_discord")
-                .neq("event_name", "login_success")
-                .neq("event_name", "token_revoke")
-                .neq("event_name", "discord_invite_clicked")
-                .neq("event_name", "account_created")
-                .gte("created_at", thirtyDaysAgo)
-                .range(offset, limit)
-        );
+        const { data } = await this.supabase.rpc("get_distinct_ips", { since: thirtyDaysAgo });
 
-        const distinctIps = [...new Set(ipData.map((e) => e.ip_address).filter(Boolean))];
+        const distinctIps = (data ?? []).map((r: { ip_address: string }) => r.ip_address).filter(Boolean);
         return aggregateUsersByCountry(distinctIps);
     }
 
@@ -291,38 +229,23 @@ export class WebEventsRepository {
 
         if (memberNames.length === 0) return [];
 
-        const lootHistory = await withPagination<Record<string, unknown>>(
-            (offset, limit) => this.supabase
-                .from("ev_loot_history")
-                .select("character, raid_id, raid_resets(raid_id, raid_date, ev_raid(name, image)), offspec")
-                .neq("character", "_disenchanted")
-                .in("character", memberNames)
-                .range(offset, limit)
-        );
+        const { data } = await this.supabase.rpc("get_top_loot_by_raid", { member_names: memberNames });
 
         const lootByRaid: Record<string, { raidName: string; raidImage: string | null; latestDate: string; characters: Record<string, { ms: number; os: number }> }> = {};
 
-        for (const entry of lootHistory) {
-            const r = entry;
-            const resetRaw = Array.isArray(r.raid_resets) ? r.raid_resets[0] : r.raid_resets;
-            const reset = resetRaw as Record<string, unknown> | null;
-            const raidRaw = Array.isArray(reset?.ev_raid) ? (reset.ev_raid as unknown[])[0] : reset?.ev_raid;
-            const raid = raidRaw as Record<string, unknown> | null;
-            const raidName = raid?.name as string | undefined;
-            const raidImage = (raid?.image as string) ?? null;
-            const raidId = reset?.raid_id as string | undefined;
-            const raidDate = (reset?.raid_date as string) ?? "";
-            const character = r.character as string | undefined;
+        for (const row of data ?? []) {
+            const raidId = row.raid_id as string;
+            const raidName = row.raid_name as string;
+            const raidImage = (row.raid_image as string) ?? null;
+            const raidDate = (row.latest_date as string) ?? "";
+            const character = row.character as string;
             if (!raidName || !raidId || !character) continue;
             if (!lootByRaid[raidId]) lootByRaid[raidId] = { raidName, raidImage, latestDate: raidDate, characters: {} };
             if (raidDate > lootByRaid[raidId].latestDate) lootByRaid[raidId].latestDate = raidDate;
-            const offspec = r.offspec as boolean | undefined;
-            if (!lootByRaid[raidId].characters[character]) lootByRaid[raidId].characters[character] = { ms: 0, os: 0 };
-            if (offspec) {
-                lootByRaid[raidId].characters[character].os += 1;
-            } else {
-                lootByRaid[raidId].characters[character].ms += 1;
-            }
+            lootByRaid[raidId].characters[character] = {
+                ms: Number(row.ms_count),
+                os: Number(row.os_count),
+            };
         }
 
         return Object.entries(lootByRaid)
@@ -388,31 +311,3 @@ function getCountryName(code: string): string {
     }
 }
 
-function getTopUsers(events: { user_id: string }[], limit: number): { userId: string; count: number }[] {
-    const counts: Record<string, number> = {};
-    for (const event of events) {
-        counts[event.user_id] = (counts[event.user_id] || 0) + 1;
-    }
-    return Object.entries(counts)
-        .map(([userId, count]) => ({ userId, count }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, limit);
-}
-
-function groupEventsByDayAndName(
-    events: { created_at: string; event_name: string }[]
-): Record<string, { date: string; count: number }[]> {
-    const grouped: Record<string, Record<string, number>> = {};
-    for (const event of events) {
-        const date = event.created_at.split("T")[0];
-        if (!grouped[event.event_name]) grouped[event.event_name] = {};
-        grouped[event.event_name][date] = (grouped[event.event_name][date] || 0) + 1;
-    }
-    const result: Record<string, { date: string; count: number }[]> = {};
-    for (const [name, dates] of Object.entries(grouped)) {
-        result[name] = Object.entries(dates)
-            .map(([date, count]) => ({ date, count }))
-            .sort((a, b) => a.date.localeCompare(b.date));
-    }
-    return result;
-}

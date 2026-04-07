@@ -4,10 +4,11 @@ import TopLootByRaid from "../components/TopLootByRaid";
 
 interface Props {
     repository: WebEventsRepository;
+    guildMembersPromise: Promise<Awaited<ReturnType<WebEventsRepository["getGuildMembers"]>>>;
 }
 
-export default async function LootSection({ repository }: Props) {
-    const guildMembers = await repository.getGuildMembers();
+export default async function LootSection({ repository, guildMembersPromise }: Props) {
+    const guildMembers = await guildMembersPromise;
     const topLootByRaid = await repository.getTopLootByRaid(guildMembers);
 
     return (

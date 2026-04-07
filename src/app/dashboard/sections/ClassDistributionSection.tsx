@@ -4,10 +4,11 @@ import ClassDistributionChart from "../components/ClassDistributionChart";
 
 interface Props {
     repository: WebEventsRepository;
+    guildMembersPromise: Promise<Awaited<ReturnType<WebEventsRepository["getGuildMembers"]>>>;
 }
 
-export default async function ClassDistributionSection({ repository }: Props) {
-    const guildMembers = await repository.getGuildMembers();
+export default async function ClassDistributionSection({ repository, guildMembersPromise }: Props) {
+    const guildMembers = await guildMembersPromise;
     const classDistribution = repository.getClassDistribution(guildMembers);
 
     return (

@@ -4,11 +4,12 @@ import ActiveUsersChart from "../components/ActiveUsersChart";
 
 interface Props {
     repository: WebEventsRepository;
+    activeUserStatsPromise: Promise<{ dau: number; wau: number; mau: number }>;
 }
 
-export default async function ActiveUsersSection({ repository }: Props) {
+export default async function ActiveUsersSection({ repository, activeUserStatsPromise }: Props) {
     const [stats, dailyActiveUsers, raidSchedule] = await Promise.all([
-        repository.getActiveUserStats(),
+        activeUserStatsPromise,
         repository.getDailyActiveUsers(),
         repository.getRaidSchedule(),
     ]);

@@ -3,12 +3,13 @@ import OverviewCards from "../components/OverviewCards";
 
 interface Props {
     repository: WebEventsRepository;
+    activeUserStatsPromise: Promise<{ dau: number; wau: number; mau: number }>;
 }
 
-export default async function OverviewSection({ repository }: Props) {
+export default async function OverviewSection({ repository, activeUserStatsPromise }: Props) {
     const [overview, stats] = await Promise.all([
         repository.getOverviewCounts(),
-        repository.getActiveUserStats(),
+        activeUserStatsPromise,
     ]);
 
     return (
