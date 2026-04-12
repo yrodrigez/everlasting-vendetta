@@ -23,7 +23,7 @@ import { faCartPlus, faGift } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Metadata } from "next";
 
-const raidResetAttr = 'raid_date, id, raid:ev_raid(name, min_level, image, min_gs), time, end_date, end_time, days, status, realm, is_reservations_allowed, created_by, raid_id'
+const raidResetAttr = 'raid_date, id, raid:ev_raid(name, min_level, image, min_gs, size), time, end_date, end_time, days, status, realm, is_reservations_allowed, created_by, raid_id'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60;
 
@@ -247,10 +247,10 @@ export default async function ({ params }: { params: Promise<{ id: string }> }) 
                         </h4>
                         <small className="text-primary">Start {raidDate} - {raidTime} to {endTime}</small>
                         <small className="text-primary">End: {end_date}</small>
-                        <KpisView
-                            raidInProgress={raidInProgress}
+                        <KpisView                        
                             participants={participants}
                             raidId={id}
+                            raidSize={reset?.raid?.size}
                         />
                         <RaidTimeInfo
                             raidTime={raidTime}

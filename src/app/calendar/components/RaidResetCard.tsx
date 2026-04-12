@@ -33,6 +33,7 @@ export function RaidResetCard({
 	registrationStatus,
 	status,
 	createdBy,
+	size
 }: {
 	id?: string,
 	raidDate: string,
@@ -47,7 +48,8 @@ export function RaidResetCard({
 	endTime: string
 	registrationStatus?: string
 	status?: 'online' | 'offline',
-	createdBy?: string
+	createdBy?: string,
+	size?: number
 }) {
 	const raidStart = moment(`${raidDate}T${raidTime}`);
 	const raidEnd = moment(`${raidDate}T${endTime}`);
@@ -62,19 +64,21 @@ export function RaidResetCard({
 
 	const registrationStatusIcon = useCallback((registrationStatus: string) => {
 		if (registrationStatus === 'confirmed') {
-			return <FontAwesomeIcon icon={faCircleCheck} className="text-success" />
+			return <span
+				className="text-success text-xs py-0.5 px-1 border border-success rounded-full z-50 bg-dark"
+			><FontAwesomeIcon icon={faCircleCheck} /> Signed up</span>
 		}
 
 		if (registrationStatus === 'declined') {
-			return <FontAwesomeIcon icon={faCircleXmark} className="text-danger" />
+			return <span className="text-danger text-xs py-0.5 px-1 border border-danger rounded-full z-50 bg-dark"><FontAwesomeIcon icon={faCircleXmark} /> Can't come</span>
 		}
 
 		if (registrationStatus === 'tentative') {
-			return <FontAwesomeIcon icon={faCircleQuestion} className="text-secondary" />
+			return <span className="text-secondary text-xs py-0.5 px-1 border border-secondary rounded-full z-50 bg-dark"><FontAwesomeIcon icon={faCircleQuestion} /> Tentative</span>
 		}
 
 		if (registrationStatus === 'late') {
-			return <FontAwesomeIcon icon={faClock} className="text-warning" />
+			return <span className="text-warning text-xs py-0.5 px-1 border border-warning rounded-full z-50 bg-dark"><FontAwesomeIcon icon={faClock} /> Late</span>
 		}
 
 		return null
@@ -125,7 +129,7 @@ export function RaidResetCard({
 				className={`w-full h-full rounded-md absolute top-0 left-0 -z-10 ${status === 'offline' || isExpired ? 'grayscale' : ''}`}>
 				<div className="w-full h-full backdrop-brightness-50 backdrop-filter backdrop-blur-xs rounded-md" />
 			</div>
-			<div className="flex flex-col  shadow-xl ">
+			<div className="flex flex-col">
 				<h4 className={`font-bold text-large text-gold`}>
 					{raidName}
 					{status === 'offline' ? (<span className="text-xs">&nbsp;(Cancelled)</span>) : null}
@@ -144,7 +148,7 @@ export function RaidResetCard({
 				{id && <KpisView
 					participants={participants || []}
 					raidId={id}
-					raidInProgress={moment().isBetween(moment(raidDate), moment(raidDate).add(1, 'days'))}
+					raidSize={size}
 				/>}
 				{modifiedBy && <Tooltip
 					isDisabled={!lastModified}

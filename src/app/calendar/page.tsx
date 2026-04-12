@@ -27,12 +27,12 @@ function isRaidExpired(raid_date: string, time?: string | null): boolean {
         .isBefore(moment())
 }
 
-const RAID_RESET_SELECT = 'raid_date, id, raid:ev_raid(name, min_level, image), time, end_date, modifiedBy:ev_member!modified_by(character), modified_at, end_time, status, createdBy:ev_member!created_by(character)'
+const RAID_RESET_SELECT = 'raid_date, id, raid:ev_raid(name, min_level, image, size), time, end_date, modifiedBy:ev_member!modified_by(character), modified_at, end_time, status, createdBy:ev_member!created_by(character)'
 
 type RaidResetRow = {
     raid_date: string
     id: string
-    raid: { name: string; min_level: number; image: string }
+    raid: { name: string; min_level: number; image: string; size: number }
     time: string
     end_date: string
     modifiedBy: { character: { name: string } }
@@ -231,6 +231,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
                         endTime={raidReset.end_time}
                         registrationStatus={raidReset.registrationStatus}
                         status={raidReset.status}
+                        size={raidReset.raid.size}
                     />
                 })}
                 {shouldShowCreate && (<CreateNewCard />)}
