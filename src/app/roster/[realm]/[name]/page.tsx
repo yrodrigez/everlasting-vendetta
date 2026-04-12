@@ -224,14 +224,16 @@ const onSubmit = async ({
 
 const fetchAchievements = async (supabase: SupabaseClient, characterId: number) => {
 
-    const { data: achievements } = await supabase.from('achievements').select('*').returns<Achievement[]>()
-    const { data } = await supabase.from('member_achievements').select('*').eq('member_id', characterId).returns<MemberAchievement[]>()
+    const [{ data: achievements }, { data: achievedAchievements }] = await Promise.all([
+        supabase.from('achievements').select('*').overrideTypes<Achievement[]>(),
+        supabase.from('member_achievements').select('*').eq('member_id', characterId).overrideTypes<MemberAchievement[]>()
+    ])
 
-    const achieved = achievements?.filter((ach) => data?.find((a) => a.achievement_id === ach.id)).map((ach) => ({
+    const achieved = achievements?.filter((ach) => achievedAchievements?.find((a) => a.achievement_id === ach.id)).map((ach) => ({
         ...ach,
-        earned_at: data?.find((a) => a.achievement_id === ach.id)?.earned_at ?? null
+        earned_at: achievedAchievements?.find((a) => a.achievement_id === ach.id)?.earned_at ?? null
     }))
-    const notAchieved = achievements?.filter((ach) => !data?.find((a) => a.achievement_id === ach.id))
+    const notAchieved = achievements?.filter((ach) => !achievedAchievements?.find((a) => a.achievement_id === ach.id))
 
     return {
         achieved,
@@ -244,8 +246,6 @@ const fetchAchievements = async (supabase: SupabaseClient, characterId: number) 
 export default async function Page({ params }: { params: Promise<{ name: string, realm: string }> }) {
 
     const { name, realm: realmSlug } = await params
-
-
 
     const { accessToken, auth, getSupabase } = await createServerSession();
     const api = createServerApiClient(accessToken || null);
@@ -299,8 +299,8 @@ export default async function Page({ params }: { params: Promise<{ name: string,
         }[]>(),
         fetchCharacterProfessionsSpells(supabase, characterInfo.id)
     ])
-    
-    const equipmentData = equipment.equipped_items
+
+    const equipmentData = equipment?.equipped_items ?? []
     const group1 = findEquipmentBySlotTypes(equipmentData, ['HEAD', 'NECK', 'SHOULDER', 'BACK', 'CHEST', 'SHIRT', 'TABARD', 'WRIST'])
     const group2 = findEquipmentBySlotTypes(equipmentData, ['HANDS', 'WAIST', 'LEGS', 'FEET', 'FINGER_1', 'FINGER_2', 'TRINKET_1', 'TRINKET_2'])
     const group3 = findEquipmentBySlotTypes(equipmentData, ['MAIN_HAND', 'OFF_HAND', 'RANGED'])
@@ -368,20 +368,25 @@ export default async function Page({ params }: { params: Promise<{ name: string,
                     innerContainerClassName={'w-full flex-1 min-h-0'}
                     items={[
                         {
-                            label: 'Gear', name: 'gear', children: <CharacterGear
-                                domain={realmSlug === 'living-flame' ? 'classic' : 'tbc'}
-                                characterName={characterName}
-                                gear={{
-                                    group1,
-                                    group2,
-                                    group3
-                                }} />
+                            label: 'Gear', name: 'gear', children: (
+                                equipmentData.error ? <div className="p-4 text-center text-muted">Equipment service unavailable</div> :
+                                    <CharacterGear
+                                        domain={realmSlug === 'living-flame' ? 'classic' : 'tbc'}
+                                        characterName={characterName}
+                                        gear={{
+                                            group1,
+                                            group2,
+                                            group3
+                                        }} />)
                         },
                         {
-                            label: 'Talents', name: 'talents', children: <CharacterTalents
-                                characterInfo={characterInfo}
-                                talents={talents}
-                            />
+                            label: 'Talents', name: 'talents', children: (
+                                talents.error ? <div className="p-4 text-center text-muted">Talents service unavailable</div> :
+                                    <CharacterTalents
+                                        characterInfo={characterInfo}
+                                        talents={talents}
+                                    />
+                            )
                         },
                         {
                             label: 'Achievements',

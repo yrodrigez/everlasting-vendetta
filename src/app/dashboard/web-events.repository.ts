@@ -52,12 +52,16 @@ export class WebEventsRepository {
         const sevenDaysAgo = this.daysAgo(7).toISOString();
         const thirtyDaysAgo = this.daysAgo(30).toISOString();
 
-        const { data } = await this.supabase.rpc("get_overview_counts", {
+        const { data, error } = await this.supabase.rpc("get_overview_counts", {
             today_start: todayStart,
             seven_days_ago: sevenDaysAgo,
             thirty_days_ago: thirtyDaysAgo,
         }).single<{ events_today: number; events_7d: number; events_30d: number; page_views_30d: number }>();
 
+        if (error) {
+            console.error("Error fetching overview counts:", error);
+            return { eventsToday: 0, events7d: 0, events30d: 0, pageViews30d: 0 };
+        }
 
         return {
             eventsToday: Number(data?.events_today ?? 0),
@@ -68,7 +72,14 @@ export class WebEventsRepository {
     }
 
     public async getActiveUserStats(): Promise<{ dau: number; wau: number; mau: number }> {
-        const { data } = await this.supabase.rpc("get_active_user_stats").single<{ dau: number; wau: number; mau: number }>();
+        const now = Date.now();
+        const { data, error } = await this.supabase.rpc("get_active_user_stats").single<{ dau: number; wau: number; mau: number }>();
+
+        if (error) {
+            const errorAge = now - new Date().getTime();
+            console.error(`Error fetching active user stats after ${errorAge}ms:`, error);
+            return { dau: 0, wau: 0, mau: 0 };
+        }
 
         return {
             dau: Number(data?.dau ?? 0),
@@ -85,6 +96,7 @@ export class WebEventsRepository {
             .select("raid_date, raid:ev_raid(name)")
             .gte("raid_date", startDate)
             .order("raid_date", { ascending: true });
+
 
         const schedule: Record<string, string[]> = {};
         for (const row of data ?? []) {

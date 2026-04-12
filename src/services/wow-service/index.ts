@@ -191,7 +191,7 @@ export default class WoWService_Impl implements WoWService {
 
         if (!response.ok) {
             console.error('Error fetching character talents:', response.status, response.statusText, await response.text())
-            return {}
+            return { error: 'Error fetching character talents' }
         }
 
         return await response.json()
@@ -214,6 +214,11 @@ export default class WoWService_Impl implements WoWService {
                 'Authorization': 'Bearer ' + token
             }
         })
+
+        if (!response.ok) {
+            console.error('Error fetching character equipment:', response.status, response.statusText, await response.text())
+            return { error: 'Error fetching character equipment' }
+        }
 
         return response.json()
     }

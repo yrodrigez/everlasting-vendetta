@@ -2,44 +2,95 @@ import { type ChatMessage } from "./chatStore";
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { Button, Popover, PopoverContent, PopoverTrigger, Spinner, Tooltip, useDisclosure } from "@heroui/react";
+import { Button, Popover, PopoverContent, PopoverTrigger, Tooltip, useDisclosure } from "@heroui/react";
 
 import { ChevronDown, ChevronUp, SmilePlus } from "lucide-react";
 import { MessageReaction, Reaction } from "@/app/raid/[id]/chat/components/useReactions";
 import { useCharacterStore } from "@/components/characterStore";
 import { useShallow } from "zustand/shallow";
 import { createRosterMemberRoute } from '@/util/create-roster-member-route';
+import { useCharacter } from "@/hooks/api/use-character";
+import { useDiscordSelectedCharacter } from "@/hooks/api/use-discord-selected-character";
 
-const isCharacterAvailable = async (name: string) => {
-    if (!name) return false
-    const response = await fetch(`/api/v1/services/wow/getCharacterByName?name=${encodeURIComponent(name.toLowerCase())}&temporal=true`)
-    return response.ok
-}
+const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
+
+const MentionChipSkeleton = ({ label }: { label: string }) => (
+    <span className="inline-flex items-center gap-1 align-middle px-2 py-0.5 rounded-full bg-dark-100/60 border border-dark-100 animate-pulse">
+        <span className="w-4 h-4 rounded-full bg-dark-100" />
+        <span className="text-xs text-gray-400">@{label}</span>
+    </span>
+);
+
+const MentionChipFallback = ({ text }: { text: string }) => (
+    <span className="inline-flex items-center gap-1 align-middle px-2 py-0.5 rounded-full bg-dark-100/40 border border-dark-100">
+        <span className="text-xs text-gray-300">{text}</span>
+    </span>
+);
+
+const CharacterChip = ({ name, realmSlug, avatar, className }: {
+    name: string,
+    realmSlug: string,
+    avatar?: string,
+    className?: string,
+}) => {
+    const classLower = className?.toLowerCase();
+    const borderClass = classLower ? `border-${classLower}` : 'border-dark-100';
+    const textClass = classLower ? `text-${classLower}` : 'text-white';
+    return (
+        <Link
+            href={createRosterMemberRoute(name, realmSlug)}
+            target="_blank"
+            className={`inline-flex items-center gap-1.5 align-middle pl-0.5 pr-2.5 py-0.5 rounded-full border bg-dark ${borderClass} hover:bg-dark`}
+        >
+            {avatar && (
+                <img src={avatar} alt={`${name}'s avatar`} className={`w-5 h-5 rounded-full border ${borderClass}`} />
+            )}
+            <span className={`text-sm font-semibold ${textClass}`}>{capitalize(name)}</span>
+        </Link>
+    );
+};
 
 const CharacterMention = ({ name, realmSlug }: { name: string, realmSlug: string }) => {
-    const capitalize = useCallback((str: string) => {
-        return str.charAt(0).toUpperCase() + str.slice(1);
-    }, [name]);
+    const isCharacterNameValid = useMemo(() => /^\p{L}{2,12}$/u.test(name.toLocaleLowerCase()), [name])
+    const { character, isLoading } = useCharacter(realmSlug, name)
 
-    const { data: isAvailable, isLoading } = useQuery({
-        queryKey: ['character', name],
-        queryFn: async () => {
-            return await isCharacterAvailable(name)
-        },
-        refetchOnWindowFocus: false,
-        staleTime: Infinity
-    })
+    if (isLoading) return <MentionChipSkeleton label={capitalize(name)} />;
 
-    return isLoading ?
-        <div className="inline-flex items-baseline text-gray-500 whitespace-nowrap">
-            <Spinner size="sm"
-                color="current" />{capitalize(name)}
-        </div> : isAvailable ? (
-            <Link href={createRosterMemberRoute(name, realmSlug)} target="_blank" className="text-blue-500">
-                @{capitalize(name)}
-            </Link>
-        ) : (<span>@{name}</span>)
-}
+    if (!isCharacterNameValid || !character) {
+        return <MentionChipFallback text={`@${name}`} />;
+    }
+
+    return (
+        <CharacterChip
+            name={character.name || name}
+            realmSlug={realmSlug}
+            avatar={character.avatar}
+            className={character.character_class?.name}
+        />
+    );
+};
+
+const DiscordMention = ({ discordId, realmSlug }: { discordId: string, realmSlug: string }) => {
+    const { character: discordCharacter, isLoading: isLoadingDiscord } = useDiscordSelectedCharacter(discordId);
+    const { character, isLoading: isLoadingCharacter } = useCharacter(realmSlug, discordCharacter?.name ?? '');
+
+    if (isLoadingDiscord || (discordCharacter?.name && isLoadingCharacter)) {
+        return <MentionChipSkeleton label={discordCharacter?.name ? capitalize(discordCharacter.name) : '...'} />;
+    }
+
+    if (!discordCharacter?.name || !character) {
+        return <MentionChipFallback text={`<@${discordId}>`} />;
+    }
+
+    return (
+        <CharacterChip
+            name={character.name}
+            realmSlug={realmSlug}
+            avatar={character.avatar}
+            className={character.character_class?.name}
+        />
+    );
+};
 
 const extractYouTubeID = (url: string) => {
     const youtubeRegex = /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/;
@@ -161,27 +212,26 @@ const ChatMessageContent = ({
 
     const findAtMentions = useCallback(
         (content: ReactNode[]) => {
-            const atMentionsPattern = /@(\w+)/g;
+            const mentionPattern = /(<@\d+>|@\p{L}+)/u;
 
             return content.flatMap((item, i) => {
                 if (typeof item !== 'string') return item;
 
-                return item.split(' ').map((part: string, j: number) => {
-                    if (part.match(atMentionsPattern)) {
-                        return <CharacterMention key={`mention-${i}-${j}`} name={part.replaceAll('@', '')} realmSlug={realmSlug} />;
+                const parts = item.split(mentionPattern);
+
+                return parts.map((part, j) => {
+                    const discordMatch = part.match(/^<@(\d+)>$/);
+                    if (discordMatch) {
+                        return <DiscordMention key={`discord-${i}-${j}`} discordId={discordMatch[1]} realmSlug={realmSlug} />;
+                    }
+
+                    const nameMatch = part.match(/^@(\p{L}+)$/u);
+                    if (nameMatch) {
+                        return <CharacterMention key={`mention-${i}-${j}`} name={nameMatch[1]} realmSlug={realmSlug} />;
                     }
 
                     return part;
-                }).reduce((acc, curr) => {
-                    if (typeof curr === 'string' && typeof acc[acc.length - 1] === 'string') {
-                        acc[acc.length - 1] += ` ${curr}`;
-                    } else {
-                        acc.push(' ')
-                        acc.push(curr);
-                        acc.push(' ')
-                    }
-                    return acc;
-                }, [] as ReactNode[]);
+                });
             });
         },
         [children, realmSlug]
@@ -189,7 +239,7 @@ const ChatMessageContent = ({
 
     const processedContent = findAtMentions(findURLs(children));
 
-    return <div className="overflow-auto max-w-60 scrollbar-pill">{processedContent}</div>;
+    return <div className="overflow-auto max-w-60 scrollbar-pill whitespace-pre-wrap">{processedContent}</div>;
 };
 
 

@@ -317,5 +317,16 @@ export const createAPIService = (_api: AxiosInstance = api) => ({
         // Don't throw error to avoid breaking user experience if analytics fails
       }
     }
+  },
+  discord: {
+    getSelectedCharacter: async (discordId: string): Promise<{ character: { name: string, id: string, avatar: string, character_class: { name: string } } } | null> => {
+      try {
+        const { data } = await _api.get(`/discord/${discordId}/selected-character`);
+        return data;
+      } catch (error) {
+        console.error('Error fetching selected character for Discord:', error);
+        throw error;
+      }
+    }
   }
 });
