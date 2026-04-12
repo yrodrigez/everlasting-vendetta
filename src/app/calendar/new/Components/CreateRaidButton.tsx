@@ -10,7 +10,7 @@ import { useCharacterStore } from "@/components/characterStore";
 import { useSupabase } from "@/context/SupabaseContext";
 
 export function CreateRaidButton() {
-    const { raid, endTime, startTime, startDate, endDate, days, allowSoftReserves, softReservesAmmount, onTimeBonusExtraEnabled, onTimeBonusExtraAmmount, onTimeBonusCutoffHours } = useCreateRaidStore(useShallow(state => ({
+    const { raid, endTime, startTime, startDate, endDate, days, allowSoftReserves, softReservesAmmount, onTimeBonusExtraEnabled, onTimeBonusExtraAmmount, onTimeBonusCutoffHours, createdById } = useCreateRaidStore(useShallow(state => ({
         raid: state.raid,
         endTime: state.endTime,
         startTime: state.startTime,
@@ -23,6 +23,7 @@ export function CreateRaidButton() {
         onTimeBonusExtraEnabled: state.onTimeBonusExtraEnabled,
         onTimeBonusExtraAmmount: state.onTimeBonusExtraAmmount,
         onTimeBonusCutoffHours: state.onTimeBonusCutoffHours,
+        createdById: state.createdById,
     })))
 
     const supabase = useSupabase();
@@ -32,7 +33,7 @@ export function CreateRaidButton() {
     const router = useRouter()
 
     const createReset = useCallback(async () => {
-        if (!raid || !startTime || !endTime || !startDate || !endDate || !days?.length || !supabase || !selectedCharacter || !realm) return
+        if (!raid || !startTime || !endTime || !startDate || !endDate || !days?.length || !supabase || !selectedCharacter || !realm || !createdById) return
 
         const shouldAddADay = (
             moment(`${startDate}T${startTime}`).isAfter(
@@ -46,7 +47,7 @@ export function CreateRaidButton() {
             raid_date: moment(startDate).format('YYYY-MM-DD'),
             end_date: moment(endDate).add(+shouldAddADay, 'days').format('YYYY-MM-DD'),
             min_lvl: raid.min_level,
-            created_by: selectedCharacter?.id,
+            created_by: createdById,
             modified_by: selectedCharacter?.id,
             days,
             realm,
@@ -55,6 +56,7 @@ export function CreateRaidButton() {
             on_time_bonus_enabled: onTimeBonusExtraEnabled,
             on_time_bonus_extra_reservations: onTimeBonusExtraAmmount,
             on_time_bonus_cutoff_hours: onTimeBonusCutoffHours,
+            name: raid.name,
         }
 
         const { data, error } = await supabase.from('raid_resets').insert(payload)
@@ -69,11 +71,11 @@ export function CreateRaidButton() {
 
         router.push('/raid/' + data?.[0].id)
 
-    }, [raid, endTime, startTime, startDate, endDate, days, selectedCharacter, realm, supabase, router, allowSoftReserves, softReservesAmmount, onTimeBonusExtraEnabled, onTimeBonusExtraAmmount, onTimeBonusCutoffHours])
+    }, [raid, endTime, startTime, startDate, endDate, days, selectedCharacter, realm, supabase, router, allowSoftReserves, softReservesAmmount, onTimeBonusExtraEnabled, onTimeBonusExtraAmmount, onTimeBonusCutoffHours, createdById])
 
     return (
         <Button
-            isDisabled={!raid || !startTime || !endTime || !startDate || !endDate || !days?.length || !selectedCharacter || !realm}
+            isDisabled={!raid || !startTime || !endTime || !startDate || !endDate || !days?.length || !selectedCharacter || !realm || !createdById}
             onPress={createReset}
         >
             Create Raid

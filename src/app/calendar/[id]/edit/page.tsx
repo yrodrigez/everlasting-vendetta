@@ -12,6 +12,7 @@ import createServerSession from '@/util/supabase/createServerSession';
 import moment from "moment";
 import { RealmSelection } from "../../new/Components/realm-selection";
 import { SoftReservesManager } from "../../new/Components/soft-reserves-manager";
+import { CreatedBySelector } from "../../new/Components/CreatedBySelector";
 
 export const dynamic = 'force-dynamic'
 
@@ -43,6 +44,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                         className="flex w-full gap-2 items-center lg:items-start flex-col">
                         <RaidsSelector raids={raids || []} />
                         <RealmSelection />
+                        <CreatedBySelector />
                         <div className="flex w-full justify-between max-w-[400px] gap-2 flex-col">
                             <StartDate />
                             <TimeManager />

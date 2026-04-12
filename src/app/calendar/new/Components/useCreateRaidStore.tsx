@@ -32,6 +32,8 @@ interface RaidStore {
     setOnTimeBonusExtraAmmount: (ammount: number) => void
     onTimeBonusCutoffHours: number,
     setOnTimeBonusCutoffHours: (hours: number) => void
+    createdById?: number,
+    setCreatedById: (id?: number) => void
 }
 
 const initialState = {
@@ -53,7 +55,9 @@ const initialState = {
     onTimeBonusExtraAmmount: 1,
     setOnTimeBonusExtraAmmount: () => { },
     onTimeBonusCutoffHours: 24,
-    setOnTimeBonusCutoffHours: () => { }
+    setOnTimeBonusCutoffHours: () => { },
+    createdById: undefined,
+    setCreatedById: () => { },
 };
 
 export default createStore<RaidStore>(((set) => ({
@@ -70,4 +74,5 @@ export default createStore<RaidStore>(((set) => ({
     setOnTimeBonusExtraEnabled: (onTimeBonusExtraEnabled) => set({ onTimeBonusExtraEnabled }),
     setOnTimeBonusExtraAmmount: (onTimeBonusExtraAmmount) => set({ onTimeBonusExtraAmmount }),
     setOnTimeBonusCutoffHours: (onTimeBonusCutoffHours) => set({ onTimeBonusCutoffHours }),
+    setCreatedById: (createdById) => set({ createdById }),
 })));

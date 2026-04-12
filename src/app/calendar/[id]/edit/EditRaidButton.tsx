@@ -11,7 +11,7 @@ import { useSupabase } from "@/context/SupabaseContext";
 import { useMessageBox } from '@/util/msgBox';
 
 export function EditRaidButton({ reset }: { reset: { raid_id: string, id: string } }) {
-    const { raid, endTime, startTime, startDate, endDate, days, realm, allowSoftReserves, softReservesAmmount, onTimeBonusExtraEnabled, onTimeBonusExtraAmmount, onTimeBonusCutoffHours } = useCreateRaidStore(useShallow(state => ({
+    const { raid, endTime, startTime, startDate, endDate, days, realm, allowSoftReserves, softReservesAmmount, onTimeBonusExtraEnabled, onTimeBonusExtraAmmount, onTimeBonusCutoffHours, createdById } = useCreateRaidStore(useShallow(state => ({
         raid: state.raid,
         endTime: state.endTime,
         startTime: state.startTime,
@@ -24,6 +24,7 @@ export function EditRaidButton({ reset }: { reset: { raid_id: string, id: string
         onTimeBonusExtraEnabled: state.onTimeBonusExtraEnabled,
         onTimeBonusExtraAmmount: state.onTimeBonusExtraAmmount,
         onTimeBonusCutoffHours: state.onTimeBonusCutoffHours,
+        createdById: state.createdById,
     })))
     const supabase = useSupabase();
 
@@ -33,7 +34,7 @@ export function EditRaidButton({ reset }: { reset: { raid_id: string, id: string
     const { alert, yesNo } = useMessageBox()
 
     const createReset = useCallback(async () => {
-        if (!raid || !startTime || !endTime || !startDate || !endDate || !days?.length || !supabase || !selectedCharacter) return
+        if (!raid || !startTime || !endTime || !startDate || !endDate || !days?.length || !supabase || !selectedCharacter || !createdById) return
 
         if (raid.id !== reset.raid_id) {
             const confirmation = await yesNo({
@@ -72,6 +73,7 @@ export function EditRaidButton({ reset }: { reset: { raid_id: string, id: string
             raid_date: moment(startDate).format('YYYY-MM-DD'),
             end_date: moment(endDate).format('YYYY-MM-DD'),
             min_lvl: raid.min_level,
+            created_by: createdById,
             modified_by: selectedCharacter?.id,
             modified_at: new Date().toISOString(),
             days,
@@ -102,11 +104,11 @@ export function EditRaidButton({ reset }: { reset: { raid_id: string, id: string
             router.push('/raid/' + data?.id)
         }
 
-    }, [raid, endTime, startTime, startDate, endDate, days, reset.id, selectedCharacter, realm, allowSoftReserves, softReservesAmmount, onTimeBonusExtraEnabled, onTimeBonusExtraAmmount, onTimeBonusCutoffHours])
+    }, [raid, endTime, startTime, startDate, endDate, days, reset.id, selectedCharacter, realm, allowSoftReserves, softReservesAmmount, onTimeBonusExtraEnabled, onTimeBonusExtraAmmount, onTimeBonusCutoffHours, createdById])
 
     return (
         <Button
-            isDisabled={!raid || !startTime || !endTime || !startDate || !endDate || !days?.length}
+            isDisabled={!raid || !startTime || !endTime || !startDate || !endDate || !days?.length || !createdById}
             onPress={createReset}
         >
             Edit Raid

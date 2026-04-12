@@ -31,7 +31,8 @@ export function RaidResetCard({
 	lastModified,
 	endTime,
 	registrationStatus,
-	status
+	status,
+	createdBy,
 }: {
 	id?: string,
 	raidDate: string,
@@ -45,7 +46,8 @@ export function RaidResetCard({
 	lastModified?: string
 	endTime: string
 	registrationStatus?: string
-	status?: 'online' | 'offline'
+	status?: 'online' | 'offline',
+	createdBy?: string
 }) {
 	const raidStart = moment(`${raidDate}T${raidTime}`);
 	const raidEnd = moment(`${raidDate}T${endTime}`);
@@ -147,7 +149,7 @@ export function RaidResetCard({
 				{modifiedBy && <Tooltip
 					isDisabled={!lastModified}
 					content={lastModified && `Last modified: ${moment(lastModified).format('dddd, MMMM D, YYYY - HH:mm:ss')}`}>
-					<small className="text-primary absolute bottom-1 right-4 select-none">By: {modifiedBy}</small>
+					<small className="text-primary absolute bottom-1 right-4 select-none">By: {createdBy}</small>
 				</Tooltip>}
 			</div>
 			<div className=" flex gap-1">

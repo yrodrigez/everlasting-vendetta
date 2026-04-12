@@ -1,5 +1,6 @@
 import getAvailableRaids from "@/app/calendar/api/getAvailableRaids";
 import { CreateRaidButton } from "@/app/calendar/new/Components/CreateRaidButton";
+import { CreatedBySelector } from "@/app/calendar/new/Components/CreatedBySelector";
 import { DaysSelection } from "@/app/calendar/new/Components/DaysSelection";
 import { RaidCard } from "@/app/calendar/new/Components/RaidCard";
 import RaidsSelector from "@/app/calendar/new/Components/RaidsSelector";
@@ -35,6 +36,7 @@ export default async function Page() {
                     className="flex w-full gap-2 items-center lg:items-start flex-col">
                     <RaidsSelector raids={raids || []} />
                     <RealmSelection />
+                    <CreatedBySelector />
                     <div className="flex w-full justify-between max-w-[400px] gap-2 flex-col">
                         <StartDate />
                         <TimeManager />

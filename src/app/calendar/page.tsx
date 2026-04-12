@@ -27,7 +27,7 @@ function isRaidExpired(raid_date: string, time?: string | null): boolean {
         .isBefore(moment())
 }
 
-const RAID_RESET_SELECT = 'raid_date, id, raid:ev_raid(name, min_level, image), time, end_date, modifiedBy:ev_member!modified_by(character), modified_at, end_time, status'
+const RAID_RESET_SELECT = 'raid_date, id, raid:ev_raid(name, min_level, image), time, end_date, modifiedBy:ev_member!modified_by(character), modified_at, end_time, status, createdBy:ev_member!created_by(character)'
 
 type RaidResetRow = {
     raid_date: string
@@ -39,6 +39,7 @@ type RaidResetRow = {
     modified_at: string
     end_time: string
     status?: 'online' | 'offline'
+    createdBy: { character: { name: string } }
 }
 
 async function fetchCalendarPage(supabase: SupabaseClient, page: number) {
@@ -225,6 +226,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
                         raidTime={raidReset.time}
                         raidRegistrations={raidReset.raidRegistrations}
                         modifiedBy={raidReset.modifiedBy?.character?.name}
+                        createdBy={raidReset.createdBy?.character?.name}
                         lastModified={raidReset.modified_at}
                         endTime={raidReset.end_time}
                         registrationStatus={raidReset.registrationStatus}

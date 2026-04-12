@@ -17,6 +17,7 @@ export function ResetCRUDStoreManager({reset, children}: { reset: any, children:
         setOnTimeBonusExtraEnabled,
         setOnTimeBonusExtraAmmount,
         setOnTimeBonusCutoffHours,
+        setCreatedById,
     } = useCreateRaidStore(useShallow(state => ({
         setRaid: state.setRaid,
         setStartDate: state.setStartDate,
@@ -30,6 +31,7 @@ export function ResetCRUDStoreManager({reset, children}: { reset: any, children:
         setOnTimeBonusExtraEnabled: state.setOnTimeBonusExtraEnabled,
         setOnTimeBonusExtraAmmount: state.setOnTimeBonusExtraAmmount,
         setOnTimeBonusCutoffHours: state.setOnTimeBonusCutoffHours,
+        setCreatedById: state.setCreatedById,
     })))
 
     useEffect(() => {
@@ -45,6 +47,7 @@ export function ResetCRUDStoreManager({reset, children}: { reset: any, children:
         setOnTimeBonusExtraEnabled(reset.on_time_bonus_enabled ?? false)
         setOnTimeBonusExtraAmmount(reset.on_time_bonus_extra_reservations ?? 0)
         setOnTimeBonusCutoffHours(reset.on_time_bonus_cutoff_hours ?? 0)
+        setCreatedById(reset.created_by ?? undefined)
     }, []);
 
     return children

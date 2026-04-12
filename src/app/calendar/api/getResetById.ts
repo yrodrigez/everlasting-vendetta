@@ -20,6 +20,7 @@ export default async function getResetById(id: string, supabase: SupabaseClient)
             end_time: string;
             name: string;
             realm: string;
+            created_by: number | null;
         }>();
 
     if (error) {
