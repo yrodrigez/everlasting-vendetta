@@ -18,6 +18,7 @@ export default function CalendarPagination({ totalPages, currentPage }: {
                     router.push(`/calendar?p=${page}`);
                 }
             }}
+            
             classNames={{
                 cursor: "!bg-gold !text-dark shadow-lg !border-gold-100 transition-colors duration-200",
                 item: "!bg-dark text-default border border-dark-100 hover:!bg-moss hover:!border-moss-100 transition-colors duration-200",

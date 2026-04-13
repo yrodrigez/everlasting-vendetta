@@ -5,7 +5,6 @@ import { RaidResetCard } from "@/app/calendar/components/RaidResetCard";
 import CalendarPagination from "@/app/calendar/components/CalendarPagination";
 import CreateNewCard from "@/app/calendar/components/CreateNewCard";
 import Refresher from "@/app/calendar/components/Refresher";
-import { fetchResetParticipants } from "@/app/raid/api/fetchParticipants";
 import { Button } from "@/components/Button";
 import { PageEvent } from '@/hooks/usePageEvent';
 import createServerSession from '@/util/supabase/createServerSession';
@@ -13,8 +12,8 @@ import { faAdd } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { Metadata } from "next";
-import { ParticipantsService } from "../raid/api/participants.service";
 import { MemberRolesRepository } from "../raid/api/member-roles.repository";
+import { ParticipantsService } from "../raid/api/participants.service";
 
 export const dynamic = 'force-dynamic'
 
@@ -213,9 +212,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
     const shouldShowCreate = canCreate && raidResets.length < MAX_RAID_RESETS && currentPage === totalPages
 
     return (
-        <main className="flex flex-col justify-between items-center relative h-full w-full gap-2">
+        <main className="flex flex-col justify-center items-center relative h-full w-full gap-2">
             <PageEvent name="calendar" />
-            <div className="flex gap-3 flex-col md:flex-wrap md:flex-row px-8 md:px-4 h-full overflow-auto scrollbar-pill justify-start items-start self-start">
+            <div className="flex gap-3 flex-col px-8 overflow-auto scrollbar-pill justify-start items-start self-start md:px-4 md:mb-auto md:grid md:grid-cols-3 md:grid-rows-3 md:auto-rows-max">
                 {raidResetsWithParticipants.sort((a, b) => {
                     return moment(a.raid_date).diff(moment(b.raid_date));
                 }).map((raidReset: any, index: number) => {
