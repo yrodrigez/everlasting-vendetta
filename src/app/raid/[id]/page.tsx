@@ -4,7 +4,6 @@ import moment from "moment/moment";
 import { type SupabaseClient } from "@supabase/supabase-js";
 
 import { ChatContainer } from "@/app/raid/[id]/chat/components/ChatContainer";
-import { fetchResetParticipants } from "@/app/raid/api/fetchParticipants";
 import AssistActions from "@/app/raid/components/AssistActions";
 import { ClassSummary } from "@/app/raid/components/ClassSummary";
 import { DiscordLink } from "@/app/raid/components/DiscordLink";
@@ -22,6 +21,8 @@ import createServerSession from '@/util/supabase/createServerSession';
 import { faCartPlus, faGift } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Metadata } from "next";
+import { MemberRolesRepository } from "../api/member-roles.repository";
+import { ParticipantsService } from "../api/participants.service";
 
 const raidResetAttr = 'raid_date, id, raid:ev_raid(name, min_level, image, min_gs, size), time, end_date, end_time, days, status, realm, is_reservations_allowed, created_by, raid_id'
 export const dynamic = 'force-dynamic'
@@ -192,8 +193,11 @@ export default async function ({ params }: { params: Promise<{ id: string }> }) 
         return <div>Could not find reset</div>
     }
 
+    const memberRolesRepository = new MemberRolesRepository(supabase);
+    const participantsService = new ParticipantsService(supabase, memberRolesRepository);
+
     const [participants, [previousReset, nextReset], hasLootReservations, hasLootHistory, characterGearScore, currentResets] = await Promise.all([
-        fetchResetParticipants(supabase, reset.id),
+        participantsService.fetchParticipantsWithRoles(reset.id),
         findPreviousAndNextReset(supabase, reset.raid_date),
         fetchHasLootReservations(supabase, reset.id, isLoggedInUser?.selectedCharacter?.id),
         supabase.from('ev_loot_history').select('id').eq('raid_id', reset.id).limit(1),
@@ -247,7 +251,7 @@ export default async function ({ params }: { params: Promise<{ id: string }> }) 
                         </h4>
                         <small className="text-primary">Start {raidDate} - {raidTime} to {endTime}</small>
                         <small className="text-primary">End: {end_date}</small>
-                        <KpisView                        
+                        <KpisView
                             participants={participants}
                             raidId={id}
                             raidSize={reset?.raid?.size}
@@ -287,6 +291,8 @@ export default async function ({ params }: { params: Promise<{ id: string }> }) 
                         raidId={reset.raid_id}
                         days={days}
                         minGs={reset.raid.min_gs}
+                        createdById={created_by}
+                        raidSize={reset.raid.size}
                     />
                     {!!isLoggedInUser ? (<div className="w-full lg:max-w-80 flex-grow-0 max-h-fit">
                         <ChatContainer realmslug={realm} raidName={`${raidName} (${raidDate})`} resetId={id} showRedirect={true} />

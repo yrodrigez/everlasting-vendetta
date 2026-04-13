@@ -1,19 +1,20 @@
 import moment from "moment-timezone";
 
 import { RaidResetCard } from "@/app/calendar/components/RaidResetCard";
-import { cookies } from "next/headers";
 
-import { Metadata } from "next";
-import { Button } from "@/components/Button";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAdd } from "@fortawesome/free-solid-svg-icons";
-import { type SupabaseClient } from "@supabase/supabase-js";
-import createServerSession from '@/util/supabase/createServerSession';
-import { fetchResetParticipants } from "@/app/raid/api/fetchParticipants";
-import Refresher from "@/app/calendar/components/Refresher";
-import CreateNewCard from "@/app/calendar/components/CreateNewCard";
 import CalendarPagination from "@/app/calendar/components/CalendarPagination";
+import CreateNewCard from "@/app/calendar/components/CreateNewCard";
+import Refresher from "@/app/calendar/components/Refresher";
+import { fetchResetParticipants } from "@/app/raid/api/fetchParticipants";
+import { Button } from "@/components/Button";
 import { PageEvent } from '@/hooks/usePageEvent';
+import createServerSession from '@/util/supabase/createServerSession';
+import { faAdd } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { type SupabaseClient } from "@supabase/supabase-js";
+import { Metadata } from "next";
+import { ParticipantsService } from "../raid/api/participants.service";
+import { MemberRolesRepository } from "../raid/api/member-roles.repository";
 
 export const dynamic = 'force-dynamic'
 
@@ -195,8 +196,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
     const user = await auth.getSession()
     const { p: page = '0' } = await searchParams
     const { raidResets, totalPages, currentPage } = await fetchCalendarPage(supabase, normalizePage(parseInt(page)))
+
+    const memberRolesRepository = new MemberRolesRepository(supabase)
+    const participantsService = new ParticipantsService(supabase, memberRolesRepository);
     const raidResetsWithParticipants = await Promise.all(raidResets.map(async (raidReset: any) => {
-        const raidRegistrations = await fetchResetParticipants(supabase, raidReset.id)
+        const raidRegistrations = await participantsService.fetchParticipantsWithRoles(raidReset.id)
 
         return {
             ...raidReset,

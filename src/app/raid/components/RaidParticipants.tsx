@@ -20,13 +20,14 @@ import { useMessageBox } from '@/util/msgBox';
 import {
     faChair,
     faCircleCheck, faCircleQuestion, faCircleXmark, faClock,
-    faPersonCircleCheck,
-    faPersonCircleXmark,
-    faTrash, faTriangleExclamation
+    faCrown,
+    faInfoCircle,
+    faTrash
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Avatar, Chip, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip } from "@heroui/react";
 import { useQuery } from "@tanstack/react-query";
+import { is } from "cheerio/dist/commonjs/api/traversing";
 import moment from "moment";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -48,7 +49,7 @@ const GuildMemberIndicator = (character: any) => {
     )
 }
 
-export default function RaidParticipants({ participants, resetId, raidId, raidInProgress, days, minGs, sanctifiedData, currentResets }: {
+export default function RaidParticipants({ participants, resetId, raidId, minGs, currentResets, createdById, raidSize = 10 }: {
     participants: RaidParticipant[],
     resetId: string,
     raidId: string,
@@ -56,7 +57,9 @@ export default function RaidParticipants({ participants, resetId, raidId, raidIn
     days: string[],
     minGs: number,
     currentResets: { id: string, raid_date: string }[],
-    sanctifiedData?: { characterName: string, count: number, characterId: string }[]
+    sanctifiedData?: { characterName: string, count: number, characterId: string }[],
+    createdById: number,
+    raidSize: number
 }) {
     const { user } = useAuth()
     const supabase = useSupabase();
@@ -78,7 +81,7 @@ export default function RaidParticipants({ participants, resetId, raidId, raidIn
             setColumns([
                 ...initialColumns,
                 { name: "GEAR SCORE", uid: "gs" },
-                (sanctifiedData ? { name: "SANCT", uid: "sanctified" } : { name: "GUILDIE", uid: "is_guildie" }),
+                //(sanctifiedData ? { name: "SANCT", uid: "sanctified" } : { name: "GUILDIE", uid: "is_guildie" }),
             ])
             if (user?.isAdmin) {
                 setColumns(cols => [
@@ -110,29 +113,17 @@ export default function RaidParticipants({ participants, resetId, raidId, raidIn
         retry: 3,
     })
 
-    const renderCell = useCallback((registration: { member: RaidParticipant } & any, columnKey: React.Key) => {
+    const renderCell = useCallback((registration: { member: RaidParticipant } & any, columnKey: React.Key, isOverflow: boolean) => {
         const { name, avatar, playable_class, id, realm = { slug: 'living-flame' } } = registration.member?.character
         const registrationDetails = registration.details
-        const sanctifiedCount = sanctifiedData?.find(x => x.characterId === id)?.count
+        const roles = registration.roles || []
+        const isPriority = ['GUILD_MASTER', 'COMRADE', 'RAID_LEADER', 'LOOT_MASTER', 'RAIDER'].some(r => roles.includes(r))
+        const isRaidLeader = roles.includes('RAID_LEADER') || createdById === registration.member.character.id
+
+        const isGuildie = registration.member.character.guild?.name === GUILD_NAME
 
         switch (columnKey) {
-            case "sanctified":
-                return (
 
-                    <Tooltip content={`Sanctified: ${sanctifiedCount}`}>
-                        <div className="flex flex-row items-center gap-0.5">
-                            <span
-                                className="w-full h-full py-1 flex items-center justify-center bg-sanctified-900 border border-sanctified-50 text-xs font-bold text-sanctified rounded-full relative"
-                            >{sanctifiedCount}
-                                {sanctifiedCount !== undefined && sanctifiedCount < 8 && (
-                                    <FontAwesomeIcon icon={faTriangleExclamation}
-                                        className="text-red-600 absolute -right-4" beat />
-                                )}
-                            </span>
-                        </div>
-                    </Tooltip>
-
-                )
             case "gs":
                 return (
                     <GearScore realm={realm.slug} characterName={name} min={minGs}
@@ -140,31 +131,77 @@ export default function RaidParticipants({ participants, resetId, raidId, raidIn
                 )
             case "name":
                 return (
-                    <Link
-                        href={createRosterMemberRoute(name, realm.slug)}
-                        target={'_blank'}
-                    >
-                        <div className="flex flex-row items-center gap-2">
-                            <Tooltip
-                                content={`Confirmed at: ${moment(registration.created_at).format('MMM Do, h:mm:ss a')}`}>
-                                <span
-                                    className="min-w-4 flex flex-row-reverse"
-                                >{registration.position}</span>
-                            </Tooltip>
-                            <div
-                                className="relative overflow-visible"
-                            >
-                                <Avatar
-                                    alt="User avatar"
-                                    className={`min-w-8 min-h-8 max-w-8 max-h-8 rounded-full ${!registration.is_confirmed && 'grayscale'} border border-gold`}
-                                    src={avatar}
-                                />
+                    <Tooltip
+                        className="border border-wood-100"
+                        isDisabled={!isOverflow}
+                        showArrow
+                        content={<>
+                            <div className="flex items-center gap-2 max-w-72 flex-col p-2">
+                                <FontAwesomeIcon icon={faChair} />
+                                <span>This spot exceeds the raid size limit of <strong>{raidSize}</strong>. If the raid is full, this participant may be moved to other raid or be benched.</span>
+                                <span className="text-gray-500 text-xs flex gap-1 flex-col">
+                                    <span className="flex items-center gap-1"><FontAwesomeIcon icon={faInfoCircle} /> Bench priority (lowest priority gets benched first):</span>
+                                    <ol className="list-decimal list-inside ml-2">
+                                        <li>Confirmed participants over tentative/pending</li>
+                                        <li>Raiders</li>
+                                        <li>Guild members</li>
+                                        <li>Non-guild members</li>
+                                        <li>Earlier sign-ups over later ones</li>
+                                    </ol>
+                                </span>
                             </div>
-                            <div className="flex items-center break-all">
-                                <h5 className={`text-gold font-bold mr-2`}>{name} {(name === selectedCharacter?.name) ? '(You)' : null}</h5>
+                        </>} placement="top">
+                        <Link
+                            href={createRosterMemberRoute(name, realm.slug)}
+                            target={'_blank'}
+                            className="relative"
+                        >
+                            <div className="flex flex-row items-center gap-2">
+                                {isGuildie ? (
+                                    <Tooltip showArrow content={<div>
+                                        <div className="flex gap-4 flex-col">
+                                            <div className="flex items-center gap-1">
+                                                <FontAwesomeIcon icon={faCircleCheck} className="text-success" />
+                                                {`Guild member rank: ${isRaidLeader ? 'Raid Leader' : isPriority ? 'Raider' : 'Guildie'}`}
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <FontAwesomeIcon icon={faClock} />
+                                                Confirmed at: {moment(registration.created_at).format('MMM Do, h:mm:ss a')}
+                                            </div>
+
+                                            <span className="text-gray-500 text-xs flex gap-1"><FontAwesomeIcon icon={faInfoCircle} />Guild members have priority for raid spots.</span>
+                                        </div>
+                                    </div>} placement="top">
+                                        <div
+                                            className="relative flex items-center justify-center"
+                                        >
+                                            <FontAwesomeIcon className={`w-3 h-3 ${isRaidLeader ? 'text-legendary' : isPriority ? 'text-yellow-400' : 'text-moss-100'} `} icon={faCrown} />
+                                            {isRaidLeader && (<div
+                                                className={`shadow-sm shadow-legendary rounded-full absolute top-0 left-0 w-full h-full flex items-center justify-center`}
+                                            >
+                                                <div
+                                                    className={`rounded-full absolute top-0 left-0 w-full h-full bg-legendary/50`}
+                                                />
+                                            </div>)}
+                                        </div>
+                                    </Tooltip>
+                                ) : <div className="w-4" />}
+                                <div
+                                    className="relative overflow-visible"
+                                >
+                                    <Avatar
+                                        alt="User avatar"
+                                        className={`min-w-7 min-h-7 max-w-7 max-h-7 rounded-full ${!registration.is_confirmed && 'grayscale'} border border-gold`}
+                                        src={avatar}
+                                    />
+                                </div>
+                                <div className="flex items-center break-all w-full gap-1">
+
+                                    <h5 className={`text-${playable_class?.name?.toLowerCase() ?? 'gold'} mr-2`}>{name} {(name === selectedCharacter?.name) ? '(You)' : null}</h5>
+                                </div>
                             </div>
-                        </div>
-                    </Link>
+                        </Link>
+                    </Tooltip>
                 )
                     ;
             case "role":
@@ -351,11 +388,41 @@ export default function RaidParticipants({ participants, resetId, raidId, raidIn
                 className="scrollbar-pill"
                 emptyContent={"No one signed up yet."}
                 items={stateParticipants
-                    ?.sort((a: any, b: any) => {
+                    ?.sort((a: { details?: { status?: string }, created_at: string, roles?: string[], member: { character: { id: number, guild?: { name?: string } } } }, b: { details?: { status?: string }, created_at: string, roles?: string[], member: { character: { id: number, guild?: { name?: string } } } }) => {
+
                         if (a.details?.status === 'confirmed' && b.details?.status !== 'confirmed') {
                             return -1
                         }
                         if (a.details?.status !== 'confirmed' && b.details?.status === 'confirmed') {
+                            return 1
+                        }
+
+                        const isARaidLeader = a.roles?.includes('RAID_LEADER') || createdById === (a.member.character?.id || 0)
+                        const isBRaidLeader = b.roles?.includes('RAID_LEADER') || createdById === (b.member.character?.id || 0)
+                        if (isARaidLeader && !isBRaidLeader) {
+                            return -1
+                        }
+                        if (!isARaidLeader && isBRaidLeader) {
+                            return 1
+                        }
+
+                        const aIsGuildie = a.member.character.guild?.name === GUILD_NAME
+                        const bIsGuildie = b.member.character.guild?.name === GUILD_NAME
+
+                        if (aIsGuildie && !bIsGuildie) {
+                            return -1
+                        }
+                        if (!aIsGuildie && bIsGuildie) {
+                            return 1
+                        }
+
+                        const aIsPriority = a.roles ? ['GUILD_MASTER', 'COMRADE', 'RAID_LEADER', 'LOOT_MASTER', 'RAIDER'].some(r => a.roles?.includes(r)) : false
+                        const bIsPriority = b.roles ? ['GUILD_MASTER', 'COMRADE', 'RAID_LEADER', 'LOOT_MASTER', 'RAIDER'].some(r => b.roles?.includes(r)) : false
+
+                        if (aIsPriority && !bIsPriority) {
+                            return -1
+                        }
+                        if (!aIsPriority && bIsPriority) {
                             return 1
                         }
 
@@ -374,13 +441,14 @@ export default function RaidParticipants({ participants, resetId, raidId, raidIn
                         return [...acc, curr]
                     }, [])}>
                 {(item: any) => {
-                    const isSpecial = guildEvent?.find((x: any) => x.member_id === item.member.character.id)
+                    const index = stateParticipants.findIndex((p) => p.member.character.id === item.member.character.id)
+                    const isOverflow = index >= raidSize
                     return (
                         <TableRow
                             key={item.member.character.id}
-                            className={`${isSpecial ? 'border-legendary shadow-sm shadow-legendary bg-legendary/50' : ''}`}
+                            className={`${isOverflow ? 'opacity-50' : ''}`}
                         >
-                            {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+                            {(columnKey) => <TableCell>{renderCell(item, columnKey, isOverflow)}</TableCell>}
                         </TableRow>
                     )
                 }}

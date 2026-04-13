@@ -8,7 +8,7 @@ export type RaidParticipant = {
             name: string;
             avatar: string;
             playable_class?: { name: string };
-            realm: { name: string, id: number, slug: string  };
+            realm: { name: string, id: number, slug: string };
             level: number;
             guild?: { id: number; name: string };
         }
@@ -24,4 +24,5 @@ export type RaidParticipant = {
     };
     raid_id: string;
     created_at: string;
+    roles?: string[];
 }

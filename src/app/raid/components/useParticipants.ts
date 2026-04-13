@@ -1,18 +1,21 @@
-import { useEffect } from "react";
-import { fetchResetParticipants } from "@/app/raid/api/fetchParticipants";
-import { useQuery } from "@tanstack/react-query";
 import { RaidParticipant } from "@/app/raid/api/types";
+import { safeChannel, useSupabase } from "@/context/SupabaseContext";
+import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useSupabase, safeChannel } from "@/context/SupabaseContext";
+import { useEffect } from "react";
+import { MemberRolesRepository } from "../api/member-roles.repository";
+import { ParticipantsService } from "../api/participants.service";
 
 export function useParticipants(raidId: string, initialParticipants: RaidParticipant[]) {
 	const supabase = useSupabase();
 
-	const { data: participants, refetch, } = useQuery({
+	const { data: participants = [], refetch, } = useQuery({
 		queryKey: ['raid_participants', raidId],
 		queryFn: () => {
 			if (!supabase) return [] as RaidParticipant[]
-			return fetchResetParticipants(supabase, raidId)
+			const memberRolesRepository = new MemberRolesRepository(supabase);
+			const participantsService = new ParticipantsService(supabase, memberRolesRepository);
+			return participantsService.fetchParticipantsWithRoles(raidId)
 		},
 		initialData: initialParticipants,
 		enabled: !!supabase
@@ -22,7 +25,7 @@ export function useParticipants(raidId: string, initialParticipants: RaidPartici
 
 	useEffect(() => {
 		if (!supabase) return
-		
+
 		const participantChannelName = `raid_participants_${raidId}`
 		const resetChannelName = `reset_channel_${raidId}`
 
@@ -35,8 +38,8 @@ export function useParticipants(raidId: string, initialParticipants: RaidPartici
 			}, async () => {
 				await refetch()
 				router.refresh()
-			}).subscribe((status, error)=>{
-				if(error) {
+			}).subscribe((status, error) => {
+				if (error) {
 					console.error('Error subscribing to raid participants channel:', error)
 				}
 				console.log('Raid participants channel subscription status:', status)
@@ -51,8 +54,8 @@ export function useParticipants(raidId: string, initialParticipants: RaidPartici
 			}, async () => {
 				await refetch()
 				router.refresh()
-			}).subscribe((status, error)=>{
-				if(error) {
+			}).subscribe((status, error) => {
+				if (error) {
 					console.error('Error subscribing to raid resets channel:', error)
 				}
 				console.log('Raid resets channel subscription status:', status)
