@@ -443,10 +443,11 @@ export default function RaidParticipants({ participants, resetId, raidId, minGs,
                 {(item: any) => {
                     const index = stateParticipants.findIndex((p) => p.member.character.id === item.member.character.id)
                     const isOverflow = index >= raidSize
+                    const isThreshold = index === raidSize
                     return (
                         <TableRow
                             key={item.member.character.id}
-                            className={`${isOverflow ? 'opacity-50' : ''}`}
+                            className={`${isOverflow ? 'opacity-50' : ''} ${isThreshold ? 'border-t border-wood-100' : ''} `}
                         >
                             {(columnKey) => <TableCell>{renderCell(item, columnKey, isOverflow)}</TableCell>}
                         </TableRow>
