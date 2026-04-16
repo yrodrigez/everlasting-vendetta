@@ -14,6 +14,7 @@ import { type SupabaseClient } from "@supabase/supabase-js";
 import { Metadata } from "next";
 import { MemberRolesRepository } from "../raid/api/member-roles.repository";
 import { ParticipantsService } from "../raid/api/participants.service";
+import { ScrollShadow } from "@/components/scroll-shadow";
 
 export const dynamic = 'force-dynamic'
 
@@ -208,19 +209,22 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
         }
     }))
 
-    const canCreate = user?.permissions?.some(p => p === 'reset.create')
+    const isAdmin = user?.roles?.some(p => p === 'ADMIN') || false
+    const canCreate = user?.permissions?.some(p => p === 'reset.create') || isAdmin
+    const canEdit = user?.permissions?.some(p => p === 'reset.edit') || isAdmin
     const shouldShowCreate = canCreate && raidResets.length < MAX_RAID_RESETS && currentPage === totalPages
 
     return (
         <main className="flex flex-col justify-center items-center relative h-full w-full gap-2">
             <PageEvent name="calendar" />
-            <div className="flex gap-3 flex-col px-8 overflow-auto scrollbar-pill justify-start items-start self-start md:px-4 md:mb-auto md:grid md:grid-cols-3 md:grid-rows-3 md:auto-rows-max">
+            <ScrollShadow className="flex gap-3 flex-col px-8 overflow-auto scrollbar-pill lg:px-4 mb-auto lg:grid lg:grid-cols-3">
                 {raidResetsWithParticipants.sort((a, b) => {
                     return moment(a.raid_date).diff(moment(b.raid_date));
                 }).map((raidReset: any, index: number) => {
+                    const isResetEditable = canEdit && moment(raidReset.raid_date + 'T' + raidReset.time).isAfter(moment())
                     return <RaidResetCard
                         raidEndDate={raidReset.end_date}
-                        isEditable={user?.permissions?.some(p => p === 'reset.edit') && moment(raidReset.raid_date + 'T' + raidReset.time).isAfter(moment())}
+                        isEditable={isResetEditable}
                         id={raidReset.id}
                         key={index}
                         raidName={raidReset.raid.name}
@@ -238,7 +242,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
                     />
                 })}
                 {shouldShowCreate && (<CreateNewCard />)}
-            </div>
+            </ScrollShadow>
             <CalendarPagination
                 currentPage={currentPage}
                 totalPages={totalPages}

@@ -35,7 +35,7 @@ export default function CreateNewCard() {
     return (
         <Link
             href="/calendar/new"
-            className="relative group w-[300px] h-[256px] rounded-md border border-wood-100 bg-wood-900 backdrop-blur p-3 flex flex-col items-center justify-center overflow-hidden">
+            className="relative group w-[300px] h-[256px] min-h-[256px] rounded-md border border-wood-100 bg-wood-900 backdrop-blur p-3 flex flex-col items-center justify-center overflow-hidden">
             {/* Raid backgrounds crossfade */}
             <div className="absolute inset-0 z-0">
                 {RAID_BACKGROUNDS.map((src, i) => (

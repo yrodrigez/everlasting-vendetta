@@ -1,5 +1,8 @@
-import { useWoWZamingCss } from '@/hooks/useWoWZamingCss';
 import { Character, LootHistoryEntry, RaidItem, RaidLootItemRule, ReserveRule } from "@/app/raid/[id]/soft-reserv/types";
+import { useCharacterStore } from "@/components/characterStore";
+import { useAuth } from "@/context/AuthContext";
+import { useWoWZamingCss } from '@/hooks/useWoWZamingCss';
+import { GUILD_NAME } from '@/util/constants';
 import { createRosterMemberRoute } from '@/util/create-roster-member-route';
 import {
     faCartPlus,
@@ -13,19 +16,48 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button, Chip, Modal, ModalContent, ScrollShadow, Tooltip } from "@heroui/react";
-import Link from "next/link";
-import { useCallback, useMemo, useState } from "react";
-import { useItemDetails } from "./useItemDetails";
-import { useRaidItems } from "./raid-items-context";
-import { useCharacterStore } from "@/components/characterStore";
-import { useAuth } from "@/context/AuthContext";
-import { toast } from "sonner";
+import { BowArrow, Cross, Shield, ShieldAlert, Swords } from "lucide-react";
 import moment from "moment";
-import { GUILD_NAME } from '@/util/constants';
-import { MessageCircleWarning, ShieldAlert } from "lucide-react";
+import Link from "next/link";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
+import { useRaidItems } from "./raid-items-context";
+import { useItemDetails } from "./useItemDetails";
 
 const WOW_CLASSES = ['warrior', 'paladin', 'hunter', 'rogue', 'priest', 'shaman', 'mage', 'warlock', 'druid'] as const;
 const WOW_SPECS = ['tank', 'healer', 'dps', 'rdps'] as const;
+const ALLOWED_GUILD_ROLES = ['RAIDER', 'GUILD_MASTER', 'RAID_LEADER', 'COMRADE'] as const;
+
+const isRole = (currentUserRole: string, evalRole: string): boolean => {
+    if (!currentUserRole) return false;
+    const hierarchy = {
+        'GUILD_MASTER': 0,
+        'RAID_LEADER': 1,
+        'COMRADE': 2,
+        'RAIDER': 3,
+    };
+
+    return hierarchy[currentUserRole as keyof typeof hierarchy] <= hierarchy[evalRole as keyof typeof hierarchy];
+}
+
+const displayGuildRoleName = (role: string) => {
+    return role.split('_').map(x => x.toLocaleLowerCase()).map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+}
+
+const getSpecIcon = (spec: string) => {
+    const size = 12
+    switch (spec) {
+        case 'tank':
+            return <Shield size={size} />;
+        case 'healer':
+            return <Cross size={size} />;
+        case 'dps':
+            return <Swords size={size} />;
+        case 'rdps':
+            return <BowArrow size={size} />;
+    }
+    return null;
+}
 
 export const ItemTooltip = ({ item, qualityColor }: {
     item: RaidItem,
@@ -157,6 +189,17 @@ function ItemRulesPanel({ rules, isAdmin, resetId, itemId, hardReserve, removeHa
             toast.error('Please select at least one spec');
             return;
         }
+
+        if (selectedRuleName === 'max_reserves' && (!ruleValue.max_reserves || ruleValue.max_reserves < 1)) {
+            toast.error('Please enter a valid number of max reserves');
+            return;
+        }
+
+        if (selectedRuleName === 'allowed_guild_roles' && (!ruleValue.allowed_guild_roles || !ruleValue.allowed_guild_roles.length)) {
+            toast.error('Please select at least one guild role');
+            return;
+        }
+
         setIsSaving(true);
 
         // If adding a hard_reserve rule, also trigger the hard reserve logic
@@ -196,6 +239,29 @@ function ItemRulesPanel({ rules, isAdmin, resetId, itemId, hardReserve, removeHa
         if (!selectedRuleName) return null;
 
         switch (selectedRuleName) {
+            case 'allowed_guild_roles':
+                return (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                        {ALLOWED_GUILD_ROLES.map(role => (
+                            <Chip
+                                key={role}
+                                size="sm"
+                                variant={ruleValue.allowed_guild_roles?.includes(role) ? 'solid' : 'bordered'}
+                                className={`cursor-pointer capitalize ${ruleValue.allowed_guild_roles?.includes(role) ? 'bg-gold text-black' : ' text-gold border-gold'}`}
+                                onClick={() => {
+                                    const current = ruleValue.allowed_guild_roles || [];
+                                    const updated = current.includes(role)
+                                        ? current.filter((r: string) => r !== role)
+                                        : [...current, role];
+                                    setRuleValue({ allowed_guild_roles: updated });
+                                }}
+                            >
+                                {displayGuildRoleName(role)}
+                            </Chip>
+                        ))}
+                    </div>
+
+                );
             case 'allowed_classes':
                 return (
                     <div className="flex flex-wrap gap-1 mt-2">
@@ -274,12 +340,15 @@ function ItemRulesPanel({ rules, isAdmin, resetId, itemId, hardReserve, removeHa
         }
     };
 
+
+
     const getRuleDisplayLabel = (rule: RaidLootItemRule) => {
         const name = rule.rule?.type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') ?? `Rule #${rule.rule_id}`;
         const val = rule.value;
-        if (val?.allowed_classes) return `${name}: ${val.allowed_classes.join(', ')}`;
-        if (val?.allowed_specs) return `${name}: ${val.allowed_specs.join(', ')}`;
+        if (val?.allowed_classes) return <span>{`${name}: `}{val.allowed_classes.map((x: string) => <span key={x} className={`text-${x} font-bold`}>{x.charAt(0).toUpperCase() + x.slice(1)} </span>)}</span>;
+        if (val?.allowed_specs) return <span className="flex gap-1">{`${name}: `}{val.allowed_specs.map((x: string) => <span key={x} className="inline-flex items-center gap-0.5 mr-1">{getSpecIcon(x)} <span className="font-bold">{x.charAt(0).toUpperCase() + x.slice(1)} </span></span>)}</span>;
         if (val?.max_reserves) return `${name}: ${val.max_reserves}`;
+        if (val?.allowed_guild_roles) return `${name}: ${val.allowed_guild_roles.map((x: string) => x.split('_').map(x => x.toLocaleLowerCase()).map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')).join(', ')}`;
         return name;
     };
 
@@ -396,10 +465,14 @@ function ModalItemContent({
     resetId: string;
     onClose: () => void;
 }) {
-    const [activeTab, setActiveTab] = useState<'history' | 'rules'>('history');
     const { lootHistory, itemRules, isLoading: detailsLoading } = useItemDetails(item.id, resetId);
+    const [activeTab, setActiveTab] = useState<'history' | 'rules'>('rules');
     const selectedCharacter = useCharacterStore(state => state.selectedCharacter);
-
+    const { user } = useAuth();
+    useEffect(() => {
+        if (!itemRules.length) setActiveTab('history');
+        else if (activeTab === 'history') setActiveTab('rules');
+    }, [itemRules.length]);
     const ruleViolation = useMemo(() => {
         if (!itemRules.length || !selectedCharacter) return null;
 
@@ -438,6 +511,13 @@ function ModalItemContent({
 
             if (ruleType === 'hard_reserve') {
                 return 'This item is hard reserved';
+            }
+
+            if (ruleType === 'allowed_guild_roles' && val?.allowed_guild_roles?.length) {
+                const playerGuildRole = user?.roles ? val.allowed_guild_roles.find((role: string) => user.roles.some(userRole => isRole(userRole, role))) : null;
+                if (!playerGuildRole) {
+                    return `Restricted to guild roles: ${val.allowed_guild_roles.map((role: string) => displayGuildRoleName(role)).join(', ')}`;
+                }
             }
         }
 
@@ -527,17 +607,6 @@ function ModalItemContent({
             {/* Bottom section: tabs */}
             <div className="bg-black/30 border-t border-white/10">
                 <div className="flex border-b border-white/10">
-
-                    <button
-                        onClick={() => setActiveTab('history')}
-                        className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold transition-colors ${activeTab === 'history'
-                            ? 'text-gold border-b-2 border-gold'
-                            : 'text-gray-400 hover:text-gray-200'
-                            }`}
-                    >
-                        <FontAwesomeIcon icon={faHistory} className="text-[10px]" />
-                        Loot History
-                    </button>
                     <button
                         onClick={() => setActiveTab('rules')}
                         className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold transition-colors ${activeTab === 'rules'
@@ -547,6 +616,16 @@ function ModalItemContent({
                     >
                         <FontAwesomeIcon icon={faGavel} className="text-[10px]" />
                         Rules
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('history')}
+                        className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold transition-colors ${activeTab === 'history'
+                            ? 'text-gold border-b-2 border-gold'
+                            : 'text-gray-400 hover:text-gray-200'
+                            }`}
+                    >
+                        <FontAwesomeIcon icon={faHistory} className="text-[10px]" />
+                        Loot History
                     </button>
                 </div>
                 <div className="p-3 min-h-20">

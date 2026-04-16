@@ -323,13 +323,13 @@ export class ReservationsRepository {
     public async addItemRule(resetId: string, itemId: number, ruleId: number, value: Record<string, any>, userId: string): Promise<boolean> {
         const { error } = await this.supabase
             .from('raid_loot_item_rules')
-            .insert({
+            .upsert({
                 reset_id: resetId,
                 item_id: itemId,
                 rule_id: ruleId,
                 value,
                 created_by: userId
-            })
+            }, { onConflict: 'reset_id, item_id, rule_id' })
 
         if (error) {
             console.error('Error adding item rule:', error)

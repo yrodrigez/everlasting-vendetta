@@ -3,13 +3,13 @@ import { faCloudArrowUp } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from "@heroui/react";
 
-import { useWoWItem } from '@/hooks/api/use-wow-item';
 import { useSupabase } from "@/context/SupabaseContext";
-import { useQuery } from "@tanstack/react-query";
-import Link from "next/dist/client/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useWoWItem } from '@/hooks/api/use-wow-item';
 import { createAPIService } from "@/lib/api";
 import { useMessageBox } from '@/util/msgBox';
+import { useQuery } from "@tanstack/react-query";
+import Link from "next/dist/client/link";
+import { useCallback, useRef, useState } from "react";
 
 export function AddItem({ resetId }: { resetId: string }) {
     const supabase = useSupabase();
