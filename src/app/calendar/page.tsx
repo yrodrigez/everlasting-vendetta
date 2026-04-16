@@ -217,7 +217,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
     return (
         <main className="flex flex-col justify-center items-center relative h-full w-full gap-2">
             <PageEvent name="calendar" />
-            <ScrollShadow className="flex gap-3 flex-col px-8 overflow-auto scrollbar-pill lg:px-4 mb-auto lg:grid lg:grid-cols-3">
+            <ScrollShadow className="flex gap-3 flex-col p-8 overflow-auto scrollbar-pill mb-auto md:grid lg:grid-cols-3 md:grid-cols-2">
                 {raidResetsWithParticipants.sort((a, b) => {
                     return moment(a.raid_date).diff(moment(b.raid_date));
                 }).map((raidReset: any, index: number) => {
@@ -234,6 +234,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
                         raidRegistrations={raidReset.raidRegistrations}
                         modifiedBy={raidReset.modifiedBy?.character?.name}
                         createdBy={raidReset.createdBy?.character?.name}
+                        createdByCharacter={raidReset.createdBy?.character}
                         lastModified={raidReset.modified_at}
                         endTime={raidReset.end_time}
                         registrationStatus={raidReset.registrationStatus}

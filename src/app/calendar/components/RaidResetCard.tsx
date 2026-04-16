@@ -17,6 +17,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "@/components/Button";
 import { useCallback, useEffect, useState } from "react";
 import { useSupabase } from "@/context/SupabaseContext";
+import { CharacterChip } from "@/components/character-chip";
 
 export function RaidResetCard({
 	raidDate,
@@ -33,7 +34,8 @@ export function RaidResetCard({
 	registrationStatus,
 	status,
 	createdBy,
-	size
+	size,
+	createdByCharacter,
 }: {
 	id?: string,
 	raidDate: string,
@@ -49,7 +51,8 @@ export function RaidResetCard({
 	registrationStatus?: string
 	status?: 'online' | 'offline',
 	createdBy?: string,
-	size?: number
+	size?: number,
+	createdByCharacter?: { name: string, playable_class: { name: string, }, avatar?: string }
 }) {
 	const raidStart = moment(`${raidDate}T${raidTime}`);
 	const raidEnd = moment(`${raidDate}T${endTime}`);
@@ -153,7 +156,17 @@ export function RaidResetCard({
 				{modifiedBy && <Tooltip
 					isDisabled={!lastModified}
 					content={lastModified && `Last modified: ${moment(lastModified).format('dddd, MMMM D, YYYY - HH:mm:ss')}`}>
-					<small className="text-primary absolute bottom-1 right-4 select-none">By: {createdBy}</small>
+					{/* <small className="text-primary absolute bottom-1 right-4 select-none">By: {createdBy}</small> */}
+					<div className="absolute bottom-1 right-2 flex items-center gap-1">
+						By:
+						<CharacterChip
+							size="xs"
+							name={createdByCharacter?.name || createdBy || 'Unknown'}
+							realmSlug={createdByCharacter ? 'unknown' : 'unknown'}
+							avatar={createdByCharacter?.avatar}
+							className={createdByCharacter?.playable_class?.name || 'unknown'}
+						/>
+					</div>
 				</Tooltip>}
 			</div>
 			<div className=" flex gap-1">
