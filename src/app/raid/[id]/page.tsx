@@ -150,11 +150,11 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     };
 }
 
-async function getCharacterGearScore(characterName: string | undefined) {
+async function getCharacterGearScore(characterName: string | undefined, realmSlug: string = GUILD_REALM_SLUG): Promise<number> {
     if (!characterName) return 99999
     const response = await fetch(`${process.env.NEXT_PUBLIC_EV_API_URL}/gearscore`, {
         method: 'POST',
-        body: JSON.stringify({ characters: [{ name: characterName, realm: GUILD_REALM_SLUG }] }),
+        body: JSON.stringify({ characters: [{ name: characterName, realm: realmSlug }] }),
         headers: {
             'Authorization': `Bearer ${process.env.NEXT_PUBLIC_EV_ANON_TOKEN}`
         }
@@ -201,7 +201,7 @@ export default async function ({ params }: { params: Promise<{ id: string }> }) 
         findPreviousAndNextReset(supabase, reset.raid_date),
         fetchHasLootReservations(supabase, reset.id, isLoggedInUser?.selectedCharacter?.id),
         supabase.from('ev_loot_history').select('id').eq('raid_id', reset.id).limit(1),
-        getCharacterGearScore(isLoggedInUser?.selectedCharacter?.name),
+        getCharacterGearScore(isLoggedInUser?.selectedCharacter?.name, reset?.raid?.realm),
         supabase
             .from('raid_resets')
             .select('id, raid_date')

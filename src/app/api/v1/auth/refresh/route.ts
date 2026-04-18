@@ -24,15 +24,15 @@ export async function POST(_: NextRequest) {
         if (error instanceof RefreshSessionError) {
             const maybeCause = (error as { cause?: unknown }).cause;
             if (maybeCause) {
-                console.error('Token refresh failed', maybeCause);
+                console.error('Token refresh failed - cause: ', maybeCause);
             } else {
-                console.error('Token refresh failed', error);
+                console.error('Token refresh failed - ', error);
             }
 
             return NextResponse.json({ error: error.message }, { status: error.statusCode });
         }
 
-        console.error('Token refresh failed', error);
+        console.error('Token refresh failed with unknown error - ', error);
         return NextResponse.json({ error: 'Refresh failed' }, { status: 500 });
     } finally {
         revalidatePath('/');

@@ -216,7 +216,10 @@ function handleError(req: NextRequest, res: NextResponse, error: unknown): NextR
     res.cookies.delete(SESSION_INFO_COOKIE_KEY);
   }
 
-  console.error('Refresh token middleware failed', error);
+  const errorMessage = error instanceof Error ? error.message : String(error);
+  const url = new URL(req.url);
+  console.error(`Refresh token middleware error on ${url.pathname} - `, errorMessage);
+  
   return res;
 }
 
