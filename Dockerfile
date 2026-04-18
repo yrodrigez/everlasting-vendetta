@@ -12,7 +12,6 @@ COPY next.config.mjs ./
 COPY next-env.d.ts ./
 COPY public ./public
 COPY src ./src
-COPY .env.local ./
 
 RUN pnpm install --frozen-lockfile
 RUN pnpm run build
