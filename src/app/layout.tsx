@@ -4,7 +4,6 @@ import ResizeManager from "@/components/ResizeManager";
 import createServerSession from "@/util/supabase/createServerSession";
 import { config } from '@fortawesome/fontawesome-svg-core';
 import '@fortawesome/fontawesome-svg-core/styles.css';
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Script from 'next/script';
@@ -79,7 +78,6 @@ export default async function RootLayout({
                 <Script src="/scripts/color-thief.min.js" strategy="beforeInteractive" />
                 <Script src="/scripts/pixel-canvas.js" strategy="beforeInteractive" />
                 <Script src="https://wow.zamimg.com/js/tooltips.js" strategy="beforeInteractive" />
-                <SpeedInsights />
             </body>
         </html>
     );
