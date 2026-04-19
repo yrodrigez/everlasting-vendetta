@@ -27,7 +27,6 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Avatar, Chip, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip } from "@heroui/react";
 import { useQuery } from "@tanstack/react-query";
-import { is } from "cheerio/dist/commonjs/api/traversing";
 import moment from "moment";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

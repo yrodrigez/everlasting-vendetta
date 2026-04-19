@@ -129,8 +129,8 @@ export default function ActiveUsersChart({ data, raidSchedule }: Props) {
         tooltip: {
             theme: 'dark' as const,
             x: {
-                formatter: (_val: number, opts: { dataPointIndex: number }) => {
-                    const dateStr = categories[opts.dataPointIndex];
+                formatter: (_val: string | number, opts?: { dataPointIndex: number }) => {
+                    const dateStr = categories[opts?.dataPointIndex ?? 0];
                     const date = new Date(dateStr + 'T00:00:00');
                     const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
                     const day = date.getDay();
