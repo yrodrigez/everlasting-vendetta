@@ -6,8 +6,9 @@
       "dev": "next dev",
       "build": "next build",
       "start": "next start",
+      "vps:start": "node .next/standalone/server.js",
       "lint": "next lint",
-      "gen-types": "npx supabase gen types typescript --project-id ijzwizzfjawlixolcuia > ./src/app/types/database.ts"
+      "gen-types": "npx supabase gen types typescript --project-id ijzwizzfjawlixolcuia > ./src/types/database.ts"
    },
    "dependencies": {
       "@fortawesome/fontawesome-svg-core": "^7.2.0",

@@ -104,6 +104,66 @@ export type Database = {
         }
         Relationships: []
       }
+      bosses: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          id: number
+          info_url: string | null
+          name: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: number
+          info_url?: string | null
+          name: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: number
+          info_url?: string | null
+          name?: string
+        }
+        Relationships: []
+      }
+      bosses_items: {
+        Row: {
+          boss_id: number | null
+          created_at: string
+          id: number
+          item_id: number | null
+        }
+        Insert: {
+          boss_id?: number | null
+          created_at?: string
+          id?: number
+          item_id?: number | null
+        }
+        Update: {
+          boss_id?: number | null
+          created_at?: string
+          id?: number
+          item_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bosses-items_boss_id_fkey"
+            columns: ["boss_id"]
+            isOneToOne: false
+            referencedRelation: "bosses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bosses-items_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "raid_loot_item"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_message_read: {
         Row: {
           created_at: string
@@ -332,6 +392,7 @@ export type Database = {
           id: number
           message: string | null
           name: string
+          realm_slug: string
           reviewed_by: number | null
           role: string
           status: string | null
@@ -343,6 +404,7 @@ export type Database = {
           id?: number
           message?: string | null
           name: string
+          realm_slug?: string
           reviewed_by?: number | null
           role: string
           status?: string | null
@@ -354,6 +416,7 @@ export type Database = {
           id?: number
           message?: string | null
           name?: string
+          realm_slug?: string
           reviewed_by?: number | null
           role?: string
           status?: string | null
@@ -484,6 +547,7 @@ export type Database = {
           character: Json | null
           created_at: string
           id: number
+          is_selected: boolean | null
           registration_source: string | null
           updated_at: string | null
           user_id: string | null
@@ -493,6 +557,7 @@ export type Database = {
           character?: Json | null
           created_at?: string
           id?: number
+          is_selected?: boolean | null
           registration_source?: string | null
           updated_at?: string | null
           user_id?: string | null
@@ -502,6 +567,7 @@ export type Database = {
           character?: Json | null
           created_at?: string
           id?: number
+          is_selected?: boolean | null
           registration_source?: string | null
           updated_at?: string | null
           user_id?: string | null
@@ -670,14 +736,17 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          order: number | null
         }
         Insert: {
           created_at?: string
           id: string
+          order?: number | null
         }
         Update: {
           created_at?: string
           id?: string
+          order?: number | null
         }
         Relationships: []
       }
@@ -1385,6 +1454,65 @@ export type Database = {
           },
         ]
       }
+      raid_loot_item_rules: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: number
+          item_id: number
+          reset_id: string
+          rule_id: number
+          value: Json
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: number
+          item_id: number
+          reset_id: string
+          rule_id: number
+          value: Json
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: number
+          item_id?: number
+          reset_id?: string
+          rule_id?: number
+          value?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "raid_loot_item_rules_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "raid_loot_item_rules_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "raid_loot_item"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "raid_loot_item_rules_reset_id_fkey"
+            columns: ["reset_id"]
+            isOneToOne: false
+            referencedRelation: "raid_resets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "raid_loot_item_rules_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "reserve_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       raid_loot_reservation: {
         Row: {
           created_at: string
@@ -1440,6 +1568,38 @@ export type Database = {
           },
         ]
       }
+      raid_reset_channels: {
+        Row: {
+          channel_id: string
+          created_at: string | null
+          guild_id: string
+          id: number
+          reset_id: string
+        }
+        Insert: {
+          channel_id: string
+          created_at?: string | null
+          guild_id: string
+          id?: number
+          reset_id: string
+        }
+        Update: {
+          channel_id?: string
+          created_at?: string | null
+          guild_id?: string
+          id?: number
+          reset_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "raid_reset_channels_reset_id_fkey"
+            columns: ["reset_id"]
+            isOneToOne: true
+            referencedRelation: "raid_resets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       raid_resets: {
         Row: {
           created_at: string
@@ -1449,15 +1609,21 @@ export type Database = {
           end_time: string | null
           id: string
           image_url: string | null
+          is_reservations_allowed: boolean | null
           max_delay_days: number | null
           min_gs: number | null
           min_lvl: number | null
           modified_at: string | null
           modified_by: number | null
           name: string | null
+          on_time_bonus_cutoff_hours: number | null
+          on_time_bonus_enabled: boolean | null
+          on_time_bonus_extra_reservations: number | null
           raid_date: string
           raid_id: string | null
+          realm: string | null
           reservations_closed: boolean | null
+          reserve_ammount: number | null
           status: string | null
           time: string | null
         }
@@ -1469,15 +1635,21 @@ export type Database = {
           end_time?: string | null
           id?: string
           image_url?: string | null
+          is_reservations_allowed?: boolean | null
           max_delay_days?: number | null
           min_gs?: number | null
           min_lvl?: number | null
           modified_at?: string | null
           modified_by?: number | null
           name?: string | null
+          on_time_bonus_cutoff_hours?: number | null
+          on_time_bonus_enabled?: boolean | null
+          on_time_bonus_extra_reservations?: number | null
           raid_date: string
           raid_id?: string | null
+          realm?: string | null
           reservations_closed?: boolean | null
+          reserve_ammount?: number | null
           status?: string | null
           time?: string | null
         }
@@ -1489,15 +1661,21 @@ export type Database = {
           end_time?: string | null
           id?: string
           image_url?: string | null
+          is_reservations_allowed?: boolean | null
           max_delay_days?: number | null
           min_gs?: number | null
           min_lvl?: number | null
           modified_at?: string | null
           modified_by?: number | null
           name?: string | null
+          on_time_bonus_cutoff_hours?: number | null
+          on_time_bonus_enabled?: boolean | null
+          on_time_bonus_extra_reservations?: number | null
           raid_date?: string
           raid_id?: string | null
+          realm?: string | null
           reservations_closed?: boolean | null
+          reserve_ammount?: number | null
           status?: string | null
           time?: string | null
         }
@@ -1546,6 +1724,27 @@ export type Database = {
         }
         Relationships: []
       }
+      realms: {
+        Row: {
+          created_at: string
+          id: number
+          name: string | null
+          slug: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name?: string | null
+          slug?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: string | null
+          slug?: string | null
+        }
+        Relationships: []
+      }
       recipients: {
         Row: {
           avatar: string
@@ -1567,6 +1766,24 @@ export type Database = {
           email?: string
           id?: string
           name?: string
+        }
+        Relationships: []
+      }
+      reserve_rules: {
+        Row: {
+          created_at: string
+          id: number
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          type: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          type?: string
         }
         Relationships: []
       }
@@ -1610,6 +1827,7 @@ export type Database = {
           created_at: string
           id: number
           reset_id: string
+          source: string
         }
         Insert: {
           character_id?: number | null
@@ -1617,6 +1835,7 @@ export type Database = {
           created_at?: string
           id?: number
           reset_id: string
+          source?: string
         }
         Update: {
           character_id?: number | null
@@ -1624,6 +1843,7 @@ export type Database = {
           created_at?: string
           id?: number
           reset_id?: string
+          source?: string
         }
         Relationships: [
           {
@@ -1638,6 +1858,51 @@ export type Database = {
             columns: ["reset_id"]
             isOneToOne: false
             referencedRelation: "raid_resets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_profile_settings: {
+        Row: {
+          created_at: string | null
+          display_character_id: number | null
+          id: number
+          profile_visibility: string | null
+          show_battle_tag: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          display_character_id?: number | null
+          id?: number
+          profile_visibility?: string | null
+          show_battle_tag?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          display_character_id?: number | null
+          id?: number
+          profile_visibility?: string | null
+          show_battle_tag?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_profile_settings_display_character_id_fkey"
+            columns: ["display_character_id"]
+            isOneToOne: false
+            referencedRelation: "ev_member"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_profile_settings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -1666,6 +1931,48 @@ export type Database = {
           last_modified?: string | null
           name?: string | null
           user_name?: string | null
+        }
+        Relationships: []
+      }
+      web_events: {
+        Row: {
+          created_at: string
+          event_name: string
+          event_type: string
+          id: number
+          ip_address: string | null
+          metadata: Json | null
+          page_path: string | null
+          page_url: string | null
+          referrer: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_name: string
+          event_type: string
+          id?: number
+          ip_address?: string | null
+          metadata?: Json | null
+          page_path?: string | null
+          page_url?: string | null
+          referrer?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_name?: string
+          event_type?: string
+          id?: number
+          ip_address?: string | null
+          metadata?: Json | null
+          page_path?: string | null
+          page_url?: string | null
+          referrer?: string | null
+          user_agent?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -1926,84 +2233,119 @@ export type Database = {
         Args: { char_id: number; reset_uuid: string }
         Returns: number
       }
-      count_reservations: {
-        Args:
-          | { member_id_arg: number; reset_id_arg: number }
-          | { member_id_arg: number; reset_id_arg: string }
-        Returns: number
-      }
-      duplicate_molten_core_raid: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      count_reservations:
+        | {
+            Args: { member_id_arg: number; reset_id_arg: number }
+            Returns: number
+          }
+        | {
+            Args: { member_id_arg: number; reset_id_arg: string }
+            Returns: number
+          }
+      duplicate_molten_core_raid: { Args: never; Returns: undefined }
       duplicate_raid: {
-        Args: { p_interval: unknown; p_raid_id: string }
+        Args: { p_interval: string; p_raid_id: string }
         Returns: undefined
       }
-      execute_raid_nagger: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
+      execute_raid_nagger: { Args: never; Returns: Json }
+      get_accessible_rooms: { Args: { user_id: string }; Returns: string[] }
+      get_active_user_stats: {
+        Args: never
+        Returns: {
+          dau: number
+          mau: number
+          wau: number
+        }[]
       }
-      get_accessible_rooms: {
-        Args: { user_id: string }
-        Returns: string[]
+      get_character_id: { Args: never; Returns: number }
+      get_daily_active_users: {
+        Args: { days_back?: number }
+        Returns: {
+          count: number
+          date: string
+        }[]
       }
-      get_character_id: {
-        Args: Record<PropertyKey, never>
-        Returns: number
+      get_distinct_ips: {
+        Args: { since: string }
+        Returns: {
+          ip_address: string
+        }[]
       }
-      get_guild_roster_history: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
-      get_last_raid_date: {
-        Args: { p_raid_id: string }
-        Returns: string
+      get_guild_roster_history: { Args: never; Returns: Json }
+      get_last_raid_date: { Args: { p_raid_id: string }; Returns: string }
+      get_login_breakdown: {
+        Args: { since: string }
+        Returns: {
+          bnet_client: number
+          bnet_server: number
+          discord_client: number
+          discord_server: number
+        }[]
       }
       get_member_item_count: {
         Args: { _item_id: number; _member_id: number; _reset_id: string }
         Returns: number
       }
       get_member_profession_spell_count: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           member_name: string
           profession_name: string
+          realm_slug: string
           spell_count: number
         }[]
       }
-      get_permissions: {
-        Args: Record<PropertyKey, never>
-        Returns: string
+      get_overview_counts: {
+        Args: {
+          seven_days_ago: string
+          thirty_days_ago: string
+          today_start: string
+        }
+        Returns: {
+          events_30d: number
+          events_7d: number
+          events_today: number
+          page_views_30d: number
+        }[]
       }
-      has_permission: {
-        Args: { verify_permission: string }
-        Returns: boolean
+      get_permissions: { Args: never; Returns: string }
+      get_session_activity: {
+        Args: { since: string }
+        Returns: {
+          count: number
+          date: string
+          event_name: string
+        }[]
       }
-      id_admin: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
+      get_top_loot_by_raid: {
+        Args: { member_names: string[] }
+        Returns: {
+          character: string
+          latest_date: string
+          ms_count: number
+          os_count: number
+          raid_id: string
+          raid_image: string
+          raid_name: string
+        }[]
       }
-      id_text: {
-        Args: { id_column: string }
-        Returns: string
+      get_top_users_by_event_count: {
+        Args: { result_limit?: number; since: string }
+        Returns: {
+          event_count: number
+          user_id: string
+        }[]
       }
-      initialize_permissions: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      has_permission: { Args: { verify_permission: string }; Returns: boolean }
+      id_admin: { Args: never; Returns: boolean }
+      id_text: { Args: { id_column: string }; Returns: string }
+      initialize_permissions: { Args: never; Returns: undefined }
       insert_login_if_not_exists: {
         Args: { _member_id: number }
         Returns: undefined
       }
-      is_admin_deprecated: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      is_role: {
-        Args: { verify_role: string }
-        Returns: boolean
-      }
+      is_admin_deprecated: { Args: never; Returns: boolean }
+      is_role: { Args: { verify_role: string }; Returns: boolean }
       is_user_alloed_to_see_members: {
         Args: { tu_puta_madre_id: boolean }
         Returns: boolean
@@ -2028,7 +2370,7 @@ export type Database = {
         Returns: boolean
       }
       raid_attendance: {
-        Args: { character_name: string }
+        Args: { character_name: string; realm_slug: string }
         Returns: {
           id: string
           participated: boolean
@@ -2046,27 +2388,34 @@ export type Database = {
           end_time: string | null
           id: string
           image_url: string | null
+          is_reservations_allowed: boolean | null
           max_delay_days: number | null
           min_gs: number | null
           min_lvl: number | null
           modified_at: string | null
           modified_by: number | null
           name: string | null
+          on_time_bonus_cutoff_hours: number | null
+          on_time_bonus_enabled: boolean | null
+          on_time_bonus_extra_reservations: number | null
           raid_date: string
           raid_id: string | null
+          realm: string | null
           reservations_closed: boolean | null
+          reserve_ammount: number | null
           status: string | null
           time: string | null
         }[]
+        SetofOptions: {
+          from: "*"
+          to: "raid_resets"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
-      run_weekly_raids: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      test_select_last_raid: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      run_weekly_raids: { Args: never; Returns: undefined }
+      test_select_last_raid: { Args: never; Returns: undefined }
+      user_characters: { Args: { p_user_id: string }; Returns: number[] }
     }
     Enums: {
       [_ in never]: never

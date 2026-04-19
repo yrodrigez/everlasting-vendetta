@@ -2,17 +2,18 @@
 import { generateModels } from 'wow-model-viewer';
 import { type WowModelViewer } from 'wow-model-viewer/types/wow_model_viewer';
 
-
+declare class WoWModelViewer extends WowModelViewer {
+    destroy: () => void;
+}
 
 class ModelGenerator {
     private isExecuting = false;
-    private model: WowModelViewer | null = null;
+    private model: WoWModelViewer | null = null;
 
     constructor(private readonly character: { id: number, [key: string]: any } = { id: 0 }) { }
 
     public destroy() {
-        // @ts-ignore - prevent multiple instances
-        this.model?.destroy?.();
+        this.model?.destroy();
         this.model = null;
     }
 
@@ -32,7 +33,7 @@ class ModelGenerator {
                 return this.model;
             }
 
-            this.model = await generateModels(modelId, containerId, character);
+            this.model = await generateModels(modelId, containerId, character) as WoWModelViewer;
             return this.model;
         } catch (error) {
             console.error("Error generating models:", error);
