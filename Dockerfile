@@ -33,4 +33,4 @@ COPY --from=builder /app/.next/static ./static
 
 EXPOSE 3000
 
-CMD ["pnpm", "run", "vps:start"]
+CMD ["node", "server.js"]
