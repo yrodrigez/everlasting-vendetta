@@ -1,4 +1,4 @@
-export function getSubscriptionStatusText(status: 'confirmed' | 'declined' | 'tentative' | 'late' | 'unknown') {
+export function getSubscriptionStatusText(status: 'confirmed' | 'declined' | 'tentative' | 'late' | 'unknown' | 'bench') {
     switch (status) {
         case 'confirmed':
             return 'Confirmed'
@@ -8,8 +8,9 @@ export function getSubscriptionStatusText(status: 'confirmed' | 'declined' | 'te
             return 'Tentative'
         case 'late':
             return 'Late'
+        case 'bench':
+            return 'Benched'
         default:
             return 'Unknown'
     }
-
 }

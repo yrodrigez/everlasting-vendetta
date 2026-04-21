@@ -7,6 +7,23 @@ import { RAID_STATUS } from "@/app/raid/components/utils";
 export class ReservationsRepository {
     constructor(private supabase: SupabaseClient) { }
 
+    public async memberHasReservations(resetId: string, characterId: number): Promise<boolean> {
+        const { data, error } = await this.supabase
+            .from('raid_loot_reservation')
+            .select('id')
+            .eq('reset_id', resetId)
+            .eq('member_id', characterId)
+            .limit(1)
+            .overrideTypes<{ id: string }[]>()
+
+        if (error) {    
+            console.error('Error checking member reservations:', error)
+            return false
+        }
+
+        return !!data?.length
+    }
+
     public async getHardReservations(resetId: string): Promise<{ item_id: number, item: any }[]> {
         const { data, error } = await this.supabase.from('reset_hard_reserve')
             .select('item_id, item:raid_loot_item(*)')

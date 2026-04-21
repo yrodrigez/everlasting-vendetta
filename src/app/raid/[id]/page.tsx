@@ -24,7 +24,7 @@ import { Metadata } from "next";
 import { MemberRolesRepository } from "../api/member-roles.repository";
 import { ParticipantsService } from "../api/participants.service";
 
-const raidResetAttr = 'raid_date, id, raid:ev_raid(name, min_level, image, min_gs, size), time, end_date, end_time, days, status, realm, is_reservations_allowed, created_by, raid_id'
+const RAID_RESETS_COLUMNS = 'raid_date, id, raid:ev_raid(name, min_level, image, min_gs, size), time, end_date, end_time, days, status, realm, is_reservations_allowed, created_by, raid_id'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60;
 
@@ -44,7 +44,7 @@ async function fetchNextReset(supabase: any) {
     const nextWednesday = findNextWednesday()
 
     return supabase.from('raid_resets')
-        .select(raidResetAttr)
+        .select(RAID_RESETS_COLUMNS)
         .gte('end_date', moment().format('YYYY-MM-DD'))
         .gte('raid_date', nextWednesday)
         .order('raid_date', { ascending: true })
@@ -54,7 +54,7 @@ async function fetchNextReset(supabase: any) {
 
 async function fetchCurrentReset(supabase: any) {
     return supabase.from('raid_resets')
-        .select(raidResetAttr)
+        .select(RAID_RESETS_COLUMNS)
         .gte('end_date', moment().format('YYYY-MM-DD'))
         .order('raid_date', { ascending: true })
         .limit(1)
@@ -70,7 +70,7 @@ async function fetchResetFromId(supabase: any, id: string) {
     }
 
     return supabase.from('raid_resets')
-        .select(raidResetAttr)
+        .select(RAID_RESETS_COLUMNS)
         .eq('id', data[0]?.id)
         .limit(1)
         .single()
@@ -249,8 +249,8 @@ export default async function ({ params }: { params: Promise<{ id: string }> }) 
                                 minGs={reset?.raid?.min_gs}
                             />}
                         </h4>
-                        <small className="text-primary">Start {raidDate} - {raidTime} to {endTime}</small>
-                        <small className="text-primary">End: {end_date}</small>
+                        <span className="text-lg font-bold">Starts: {raidStartDate.format('dddd, MMMM D')} at {raidTime.split(':').slice(0, 2).join(':')} </span>
+                        <small className="text-primary">Ends: {endTime.split(':').slice(0, 2).join(':')}</small>
                         <KpisView
                             participants={participants}
                             raidId={id}

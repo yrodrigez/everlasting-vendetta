@@ -7,6 +7,7 @@ import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@heroui/r
 import { ArrowRightLeft } from "lucide-react";
 import moment from "moment";
 import { useEffect, useState } from "react";
+import { sendActionEvent } from "@/hooks/usePageEvent";
 
 export const MoveParticipant = ({
     memberId,
@@ -45,6 +46,7 @@ export const MoveParticipant = ({
                 return;
             }
             alert({ message: 'Participant moved successfully!', type: 'success' });
+            sendActionEvent('move_participant', { memberId, fromResetId: resetId, toResetId: newResetId });
             onSuccess();
         } catch (error) {
             alert({ message: 'An error occurred while moving the participant.', type: 'error' });

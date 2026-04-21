@@ -52,7 +52,7 @@ export function RaidResetCard({
 	status?: 'online' | 'offline',
 	createdBy?: string,
 	size?: number,
-	createdByCharacter?: { name: string, playable_class: { name: string, }, avatar?: string }
+	createdByCharacter?: { name: string, playable_class: { name: string, }, avatar?: string, realm: { slug: string } }
 }) {
 	const raidStart = moment(`${raidDate}T${raidTime}`);
 	const raidEnd = moment(`${raidDate}T${endTime}`);
@@ -162,7 +162,7 @@ export function RaidResetCard({
 						<CharacterChip
 							size="xs"
 							name={createdByCharacter?.name || createdBy || 'Unknown'}
-							realmSlug={createdByCharacter ? 'unknown' : 'unknown'}
+							realmSlug={createdByCharacter?.realm?.slug || 'spineshatter'}
 							avatar={createdByCharacter?.avatar}
 							className={createdByCharacter?.playable_class?.name || 'unknown'}
 						/>
