@@ -34,11 +34,11 @@ const KEYS = {
 }
 
 export function RaidOptions({
-                                nextResetId,
-                                previousResetId,
-                                currentResetId,
-                                hasLoot,
-                            }: {
+    nextResetId,
+    previousResetId,
+    currentResetId,
+    hasLoot,
+}: {
     nextResetId: string,
     previousResetId: string,
     currentResetId: string,
@@ -51,14 +51,14 @@ export function RaidOptions({
         setModalHeader,
         setModalBody,
     } = useModal()
-    const {alert} = useMessageBox()
+    const { alert } = useMessageBox()
     return (
         <Dropdown>
             <DropdownTrigger>
                 <Button
                     className={'rounded bg-transparent text-default hover:bg-wood bg-moss'}
                     isIconOnly>
-                    <FontAwesomeIcon icon={faGear}/>
+                    <FontAwesomeIcon icon={faGear} />
                 </Button>
             </DropdownTrigger>
             <DropdownMenu
@@ -85,7 +85,7 @@ export function RaidOptions({
                     if (key === KEYS.SHARE) {
                         const url = window.location.href
                         if (!navigator?.clipboard?.writeText) {
-                            alert({message: 'Could not copy link to clipboard', type: 'error'})
+                            alert({ message: 'Could not copy link to clipboard', type: 'error' })
                             return
                         }
                         navigator.clipboard.writeText(url.substring(
@@ -95,7 +95,7 @@ export function RaidOptions({
                             toast.custom(() => (
                                 <div
                                     className="flex gap-2 items-center justify-center bg-wood border border-wood-100 p-4 rounded-lg text-default shadow-wood-100 shadow-lg">
-                                    <FontAwesomeIcon icon={faCircleInfo}/>
+                                    <FontAwesomeIcon icon={faCircleInfo} />
                                     <span>Link copied to clipboard</span>
                                 </div>
                             ), {
@@ -106,7 +106,7 @@ export function RaidOptions({
                             toast.custom(() => (
                                 <div
                                     className="flex gap-2 items-center justify-center bg-red-600 border border-bg-red-500 p-4 rounded-lg text-default shadow-wood-100 shadow-lg">
-                                    <FontAwesomeIcon icon={faTriangleExclamation}/>
+                                    <FontAwesomeIcon icon={faTriangleExclamation} />
                                     <span>An error occurred while copying the link to the clipboard!</span>
                                 </div>
                             ), {
@@ -152,7 +152,7 @@ export function RaidOptions({
                     className="flex items-center gap-2 justify-between"
                 >
                     <div className="flex items-center gap-2 justify-between">
-                        Next <FontAwesomeIcon icon={faForward}/>
+                        Next <FontAwesomeIcon icon={faForward} />
                     </div>
                 </DropdownItem>
                 <DropdownItem
@@ -160,54 +160,54 @@ export function RaidOptions({
                     isReadOnly={!previousResetId}
                 >
                     <div className="flex items-center gap-2 justify-between">
-                        Previous <FontAwesomeIcon icon={faBackward}/>
+                        Previous <FontAwesomeIcon icon={faBackward} />
                     </div>
                 </DropdownItem>
                 <DropdownItem key={KEYS.CURRENT}>
                     <div className="flex items-center gap-2 justify-between">
-                        Current <FontAwesomeIcon icon={faCalendarDay}/>
+                        Current <FontAwesomeIcon icon={faCalendarDay} />
                     </div>
                 </DropdownItem>
                 <DropdownItem
                     key={KEYS.LOOT}
                     isReadOnly={!hasLoot}>
                     <div className="flex items-center gap-2 justify-between">
-                        Loot <FontAwesomeIcon icon={faGift}/>
+                        Loot <FontAwesomeIcon icon={faGift} />
                     </div>
                 </DropdownItem>
                 <DropdownItem
                     key={KEYS.SOFT_RESERVES}
                 >
                     <div className="flex items-center gap-2 justify-between">
-                        Soft Reserves <FontAwesomeIcon icon={faCartPlus}/>
+                        Soft Reserves <FontAwesomeIcon icon={faCartPlus} />
                     </div>
                 </DropdownItem>
                 <DropdownItem
                     key={KEYS.SHARE}
                 >
                     <div className="flex items-center gap-2 justify-between">
-                        Share link <FontAwesomeIcon icon={faShareNodes}/>
+                        Share link <FontAwesomeIcon icon={faShareNodes} />
                     </div>
                 </DropdownItem>
                 <DropdownItem
                     key={KEYS.chat}
                 >
                     <div className="flex items-center gap-2 justify-between">
-                        Chat <FontAwesomeIcon icon={faComments}/>
+                        Chat <FontAwesomeIcon icon={faComments} />
                     </div>
                 </DropdownItem>
                 <DropdownItem
                     key={KEYS.groupExport}
                 >
                     <div className="flex items-center gap-2 justify-between">
-                        Group export<FontAwesomeIcon icon={faUsers}/>
+                        Group export<FontAwesomeIcon icon={faUsers} />
                     </div>
                 </DropdownItem>
                 <DropdownItem
                     key={KEYS.upload_loot}
                 >
                     <div className="flex items-center gap-2 justify-between">
-                        Upload loot <FontAwesomeIcon icon={faUpload}/>
+                        Upload loot <FontAwesomeIcon icon={faUpload} />
                     </div>
                 </DropdownItem>
             </DropdownMenu>

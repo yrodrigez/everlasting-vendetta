@@ -15,17 +15,27 @@ export const MoveParticipant = ({
     resetId,
     onSuccess,
     currentResets,
+    raidStartDate,
+    raidEndDate,
 }: {
     memberId: string;
     raidId: string;
     resetId: string | null;
     onSuccess: () => void;
-    currentResets?: { id: string, raid_date: string }[];
+    currentResets?: { id: string, raid_date: string, raid_time: string }[];
+    raidStartDate: string;
+    raidEndDate: string;
 }) => {
     const { yesNo, alert } = useMessageBox();
     const supabase = useSupabase();
 
+    const isRaidStarted = moment().isAfter(moment(raidStartDate));
+    const isRaidOver = moment().isAfter(moment(raidEndDate));
     const handleMove = async (newResetId: string) => {
+        if (isRaidStarted || isRaidOver) {
+            alert({ message: 'Cannot move participant while raid is in progress or over.', type: 'error' });
+            return;
+        }
         const confirmed = await yesNo({
             title: 'Move Participant',
             message: 'Are you sure you want to move this participant to the new raid session? This action cannot be undone.',
@@ -79,7 +89,7 @@ export const MoveParticipant = ({
     }, [currentResets, resetId, memberId, supabase]);
 
     return (
-        (availableResets?.length ?? 0) > 0 && (
+        (availableResets?.length ?? 0) > 0 && !isRaidStarted && !isRaidOver && (
             <div className="flex items-center gap-2 grow p-2 border border-wood-100 rounded-lg justify-between w-full">
                 <span className="text-default">Move participant</span>
                 <Dropdown>
@@ -93,7 +103,7 @@ export const MoveParticipant = ({
                         }}>
                         {availableResets?.map(reset => (
                             <DropdownItem key={reset.id} value={reset.id}>
-                                {moment(reset.raid_date).format('dddd, MMMM D')}
+                                {moment(reset.raid_date + ' ' + reset.raid_time).format('dddd, MMMM D, h:mm A')}
                             </DropdownItem>
                         )) ?? <DropdownItem key={'disabled'} value={'disabled'}>No other raid sessions available</DropdownItem>}
                     </DropdownMenu>
@@ -101,14 +111,14 @@ export const MoveParticipant = ({
             </div>
         ) || (
             <Tooltip
-                className="w-48 border border-wood-100"
-                content="No other raid sessions available to move this participant to. They are already participating in all of them or there are no other raid sessions in the future."
+                className="w-48 border-wood-100 border shadow-md shadow-black/50 "
+                content={ isRaidOver ? "The raid is over. Participants cannot be moved." : isRaidStarted ? "The raid has already started. Participants cannot be moved." : "No other raid sessions available to move this participant to. They are already participating in all of them or there are no other raid sessions in the future."}
                 placement="top"
                 showArrow
             >
                 <div className="flex items-center gap-2 grow p-2 border border-wood-100 rounded-lg justify-between w-full opacity-50 cursor-not-allowed">
                     <span className="text-default">Move participant</span>
-                    <Button isIconOnly size="sm" disabled><ArrowRightLeft /></Button>
+                    <Button isIconOnly size="sm" disabled aria-label="Move participant"><ArrowRightLeft /></Button>
                 </div>
             </Tooltip>
         )

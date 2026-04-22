@@ -1,4 +1,3 @@
-import { useAssistanceStore } from "@/app/raid/components/assistanceStore";
 import { ShouldReserveModal } from "@/app/raid/components/ShouldReserveModal";
 import { assistRaid } from "@/app/raid/components/utils";
 import { useCharacterStore } from "@/components/characterStore";
@@ -15,7 +14,6 @@ export function TentativeAssistance({ raidId, hasLootReservations = false }: {
     hasLootReservations: boolean
 }) {
     const [loading, setLoading] = useState(false)
-    const selectedDays = useAssistanceStore(state => state.selectedDays)
     const { selectedCharacter } = useCharacterStore(useShallow(state => ({ selectedCharacter: state.selectedCharacter })));
     const selectedRole = selectedCharacter?.selectedRole
     const { isMobile } = useScreenSize()
@@ -27,13 +25,13 @@ export function TentativeAssistance({ raidId, hasLootReservations = false }: {
                 color={'secondary'}
                 isIconOnly={isMobile}
                 className={`rounded flex-1`}
-                disabled={loading || !selectedDays?.length}
-                isDisabled={loading || !selectedDays?.length}
-                onClick={() =>
+                disabled={loading}
+                isDisabled={loading}
+                onPress={() =>
                     (async () => {
                         setLoading(true)
                         sendActionEvent('raid_tentative', { raidId, characterName: selectedCharacter?.name });
-                        await assistRaid(raidId, selectedDays, selectedCharacter, selectedRole, 'tentative', hasLootReservations, onOpen)
+                        await assistRaid(raidId, selectedCharacter, selectedRole, 'tentative', hasLootReservations, onOpen)
                         setLoading(false)
                     })()
                 }

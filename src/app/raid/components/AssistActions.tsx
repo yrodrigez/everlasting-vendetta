@@ -1,19 +1,18 @@
 'use client'
-import { Button } from "@/components/Button";
-import { useCharacterStore } from "@/components/characterStore";
-import { useAuth } from "@/context/AuthContext";
-import { useAssistanceStore } from "@/app/raid/components/assistanceStore";
 import { ConfirmAssistance } from "@/app/raid/components/ConfirmAssistance";
 import DeclineAssistance from "@/app/raid/components/DeclineAssistance";
 import { LateAssistance } from "@/app/raid/components/LateAssistance";
 import { TentativeAssistance } from "@/app/raid/components/TentativeAssistance";
 import { RAID_STATUS } from "@/app/raid/components/utils";
+import { Button } from "@/components/Button";
+import { useCharacterStore } from "@/components/characterStore";
+import { useAuth } from "@/context/AuthContext";
 import { useAuthManagerWindowStore } from "@/stores/auth-manager-window-store";
 import { faCheck } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Accessibility, ArrowUpCircle, CalendarOff, CircleOff, Key, Lock, ShieldAlert } from "lucide-react";
 import moment from "moment-timezone";
-import React, { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 export const WEEK_DAYS = {
@@ -38,7 +37,6 @@ export default function AssistActions({
     participants,
     hasLootReservations = false,
     endTime,
-    days = [WEEK_DAYS.WEDNESDAY, WEEK_DAYS.SATURDAY],
     status,
     realm
 }: {
@@ -47,29 +45,17 @@ export default function AssistActions({
     endDate: string,
     participants: any[]
     hasLootReservations?: boolean
-    days?: string[]
     endTime: string
-    status?: 'online' | 'offline' | 'locked'
+    status?: 'online' | 'offline' | 'locked' 
     realm: string
 }) {
     const { isAuthenticated } = useAuth();
     const selectedCharacter = useCharacterStore(useShallow(state => state.selectedCharacter));
     const selectedRole = useMemo(() => selectedCharacter?.selectedRole, [selectedCharacter])
-    const setDays = useAssistanceStore(state => state.setDays)
+
 
     const openCharacterSelectionWindow = useAuthManagerWindowStore(state => state.onOpen);
     const { onOpen: openAuth } = useAuthManagerWindowStore()
-
-
-    const [bounce, setBounce] = React.useState(false)
-
-    useEffect(() => {
-        setDays(days)
-        setBounce(true)
-        setTimeout(() => {
-            setBounce(false)
-        }, 2300)
-    }, [selectedCharacter]);
 
 
     if (!isAuthenticated) {

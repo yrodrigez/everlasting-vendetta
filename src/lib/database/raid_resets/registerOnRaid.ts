@@ -1,8 +1,6 @@
-import {Day} from "@/app/calendar/new/Components/useCreateRaidStore";
-import {MemberRole} from "@/types/Member";
+import { MemberRole } from "@/types/Member";
 
 export async function registerOnRaid(characterId: string | number, raidId: string, details: {
-                                  "days": Day[],
                                   "role": MemberRole,
                                   "status": 'confirmed' | 'declined' | 'late' | 'tentative',
                                   "className": 'warrior' | 'paladin' | 'hunter' | 'rogue' | 'priest' | 'shaman' | 'mage' | 'warlock' | 'druid'

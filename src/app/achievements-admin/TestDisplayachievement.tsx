@@ -14,6 +14,7 @@ export function TestDisplayAchievement({achievement}: { achievement: Achievement
 			}}
 			type="button"
 			isIconOnly
+			aria-label={`Test display achievement ${achievement.name}`}
 			className={'bg-blue-600 border border-blue-500 text-white'}
 		>
 			<FontAwesomeIcon icon={faDisplay} />

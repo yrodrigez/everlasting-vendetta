@@ -89,28 +89,6 @@ export class ReservationsRepository {
         return !!data?.length
     }
 
-    // TODO move to a reset repository
-    public async getResetDays(resetId: string): Promise<Day[]> {
-        try {
-            const { data, error } = await this.supabase
-                .from('raid_resets')
-                .select('days')
-                .eq('id', resetId)
-                .limit(1)
-                .maybeSingle()
-
-
-            if (error) {
-                console.error('fetchResetDays error:', error)
-                return []
-            }
-
-            return data?.days ?? []
-        } catch (err) {
-            return []
-        }
-    }
-
 
     public groupByItem(reservations: Reservation[]) {
         // @ts-ignore

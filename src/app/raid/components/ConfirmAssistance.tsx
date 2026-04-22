@@ -1,4 +1,3 @@
-import { useAssistanceStore } from "@/app/raid/components/assistanceStore";
 import { assistRaid } from "@/app/raid/components/utils";
 import { Popover, PopoverContent, PopoverTrigger, useDisclosure } from "@heroui/react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -18,14 +17,13 @@ export function ConfirmAssistance({ raidId, hasLootReservations = false }: {
     raidId: string,
     hasLootReservations?: boolean
 }) {
-    const selectedDays = useAssistanceStore(state => state.selectedDays)
     const selectedCharacter = useCharacterStore(useShallow(state => state.selectedCharacter));
     const selectedRole = useMemo(() => selectedCharacter?.selectedRole, [selectedCharacter])
     const [loading, setLoading] = useState(false)
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure()
     const className = useMemo(() => selectedCharacter?.playable_class?.name, [selectedCharacter])
     const setRole = useCharacterStore(state => state.setRole)
-    const realm = useMemo(() => selectedCharacter?.realm?.slug, [selectedCharacter])    
+    const realm = useMemo(() => selectedCharacter?.realm?.slug, [selectedCharacter])
     const assignableRoles = useMemo(() => {
         return Object.values(PLAYABLE_ROLES).filter(role => role.value.split('-').every((x: string) => isRoleAssignable(x.toLowerCase(), className?.toLowerCase(), realm ?? 'living-flame')));
     }, [className, selectedRole, selectedCharacter, realm])
@@ -51,20 +49,20 @@ export function ConfirmAssistance({ raidId, hasLootReservations = false }: {
     const confirmRaid = useCallback(((role = selectedRole) => {
         setLoading(true)
         sendActionEvent('raid_confirm', { raidId, role, characterName: selectedCharacter?.name });
-        assistRaid(raidId, selectedDays, selectedCharacter, role, 'confirmed', hasLootReservations, onOpen).finally(() => {
+        assistRaid(raidId, selectedCharacter, role, 'confirmed', hasLootReservations, onOpen).finally(() => {
             setLoading(false)
             router.refresh()
             onOpenChangeRoles()
         })
 
-    }), [raidId, selectedDays, selectedCharacter, selectedRole, hasLootReservations, onOpen])
+    }), [raidId, selectedCharacter, selectedRole, hasLootReservations, onOpen])
     const router = useRouter()
 
     return (
         <>
             <Button
-                disabled={loading || !selectedDays?.length || isOpenRoles}
-                isDisabled={loading || !selectedDays?.length}
+                disabled={loading || isOpenRoles}
+                isDisabled={loading}
                 onMouseEnter={() => setIsHovering(true)}
                 onMouseLeave={() => setIsHovering(false)}
                 isLoading={loading}

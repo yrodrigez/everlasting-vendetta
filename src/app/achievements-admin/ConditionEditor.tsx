@@ -99,6 +99,7 @@ export function ConditionEditor({ code, name }: { code?: string, name: string })
 					})
 				}}
 				isIconOnly
+				aria-label="Test condition"
 			>
 				<FontAwesomeIcon icon={faFlask} />
 			</Button>

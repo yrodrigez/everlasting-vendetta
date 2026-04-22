@@ -211,6 +211,7 @@ export function Applicants({ applicants }: {
                     <div className="flex flex-row items-center gap-2">
                         <Button
                             isIconOnly={true}
+                            aria-label={`Accept application from ${name}`}
                             className="text-white"
                             isDisabled={!!reviewer}
                             color={'success'}
@@ -223,6 +224,7 @@ export function Applicants({ applicants }: {
                         </Button>
                         <Button
                             isIconOnly={true}
+                            aria-label={`Decline application from ${name}`}
                             className="text-white"
                             color={'danger'}
                             size={'sm'}

@@ -184,6 +184,7 @@ export function RaidResetCard({
 					>
 						<Button
 							isIconOnly
+							aria-label={status === 'offline' ? 'Set raid online' : 'Set raid offline'}
 							color={status === 'offline' ? 'success' : 'danger'}
 							className={`rounded`}
 							onPress={() => {
@@ -194,6 +195,7 @@ export function RaidResetCard({
 						</Button>
 						{status === 'offline' ? null : (<Button
 							isIconOnly
+							aria-label="Edit raid"
 							className={`bg-wood border border-wood-100 text-stone-100`}
 							onPress={() => {
 								router.push(`/calendar/${id}/edit`)

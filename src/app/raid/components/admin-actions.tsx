@@ -1,5 +1,5 @@
 import { Button } from "@/components/Button";
-import { Popover, PopoverContent, PopoverTrigger, useDisclosure, MenuItem } from "@heroui/react";
+import { Popover, PopoverContent, PopoverTrigger, useDisclosure } from "@heroui/react";
 import { UserRoundCog, XIcon } from "lucide-react";
 
 export default function AdminActions({ children }: { children: React.ReactNode }) {
@@ -7,7 +7,7 @@ export default function AdminActions({ children }: { children: React.ReactNode }
     return (
         <Popover isOpen={isOpen} onOpenChange={onOpenChange} shouldCloseOnBlur={false}>
             <PopoverTrigger>
-                <Button isIconOnly size="sm" variant="light" className="ml-auto text-default">
+                <Button isIconOnly size="sm" variant="light" className="ml-auto text-default" aria-label="Admin actions">
                     {isOpen ? <XIcon /> : <UserRoundCog />}
                 </Button>
             </PopoverTrigger>

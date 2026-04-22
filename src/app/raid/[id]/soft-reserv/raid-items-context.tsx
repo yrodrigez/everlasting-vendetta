@@ -1,19 +1,18 @@
 'use client'
-import { createContext, useContext, useState, ReactNode, useMemo, useCallback } from 'react'
 import type { Character, RaidItem, Reservation } from "@/app/raid/[id]/soft-reserv/types"
-import { useReservationsRealtime } from './use-reservations-realtime'
-import { useSupabase } from '@/context/SupabaseContext'
-import { ReservationsRepository } from './reservations-repository'
 import { useCharacterStore } from '@/components/characterStore'
-import { useQuery } from '@tanstack/react-query'
-import { Day } from '@/app/calendar/new/Components/useCreateRaidStore'
-import { toast } from 'sonner'
+import { useSupabase } from '@/context/SupabaseContext'
+import { useAudio } from '@/hooks/use-audio'
+import { sendActionEvent } from '@/hooks/usePageEvent'
 import { registerOnRaid } from '@/lib/database/raid_resets/registerOnRaid'
 import { MemberRole } from '@/types/Member'
-import { sendActionEvent } from '@/hooks/usePageEvent'
 import { useMessageBox } from '@/util/msgBox'
+import { useQuery } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
-import { useAudio } from '@/hooks/use-audio'
+import { createContext, ReactNode, useCallback, useContext, useMemo, useState } from 'react'
+import { toast } from 'sonner'
+import { ReservationsRepository } from './reservations-repository'
+import { useReservationsRealtime } from './use-reservations-realtime'
 
 
 interface RaidItemsContextType {
@@ -29,7 +28,6 @@ interface RaidItemsContextType {
     isLoading: boolean
     isPending: boolean
     isPresent: boolean
-    resetDays: Day[]
     reserve: (itemId: number, characterId?: number) => Promise<void>
     remove: (reserveId: string) => Promise<void>
     hardReserve: (itemId: number) => Promise<void>
@@ -41,7 +39,6 @@ interface RaidItemsContextType {
 const RaidItemsContext = createContext<RaidItemsContextType | null>(null)
 
 export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen, initialReservations, raidId, raidStatus = null }: { resetId: string, children: ReactNode, initialItems?: RaidItem[], isOpen: boolean, initialReservations: Reservation[], raidId: string, raidStatus?: string | null }) => {
-    //const [items, setItems] = useState<RaidItem[]>(initialItems)
     const [isReservationsOpen, setIsReservationsOpen] = useState<boolean>(isOpen)
     const supabase = useSupabase();
     const repository = useMemo(() => new ReservationsRepository(supabase), [supabase]);
@@ -78,20 +75,19 @@ export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen
         queryKey: ['use-reservations', resetId, selectedCharacter?.id],
         queryFn: async () => {
 
-            const [isPresent, resetDays] = await Promise.all([
+            const [isPresent] = await Promise.all([
                 selectedCharacter?.id ? repository.isUserPresentInReservations(resetId, selectedCharacter?.id) : Promise.resolve(false),
-                repository.getResetDays(resetId)
             ])
 
 
-            return { isPresent, resetDays }
+            return { isPresent }
         },
         staleTime: Infinity,
         enabled: !!resetId && !!supabase && !!selectedCharacter,
     });
 
-    const { isPresent, resetDays } = useMemo(() => {
-        return data ?? { isPresent: false, resetDays: [] }
+    const { isPresent } = useMemo(() => {
+        return data ?? { isPresent: false }
     }, [data]);
 
     const { data: items, refetch } = useQuery({
@@ -223,7 +219,6 @@ export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen
                 const className = (selectedCharacter?.playable_class?.name?.toLowerCase() ?? 'mage') as 'warrior' | 'paladin' | 'hunter' | 'rogue' | 'priest' | 'shaman' | 'mage' | 'warlock' | 'druid';
 
                 registerOnRaid(selectedCharacter.id, resetId, {
-                    days: resetDays,
                     role: selectedCharacter.selectedRole as MemberRole,
                     status: 'confirmed',
                     className
@@ -237,7 +232,7 @@ export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen
             setReserves(previousReserves);
             toast.error('Error reserving item');
         }
-    }, [resetId, supabase, items, isPresent, selectedCharacter, resetDays, reserves, repository, reserveAudio, maxReservationsAudio, raidStatus]);
+    }, [resetId, supabase, items, isPresent, selectedCharacter, reserves, repository, reserveAudio, maxReservationsAudio, raidStatus]);
 
     const remove = useCallback(async (reservationId: string) => {
         if (!selectedCharacter?.id || !supabase) return
@@ -361,7 +356,6 @@ export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen
             isLoading,
             isPending,
             isPresent,
-            resetDays,
             reserve,
             remove,
             hardReserve,

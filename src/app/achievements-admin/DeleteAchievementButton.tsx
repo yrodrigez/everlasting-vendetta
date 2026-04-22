@@ -7,13 +7,14 @@ export default function DeleteAchievementButton() {
 	return (
 		<Button
 			size="sm"
-			onClick={(e) => {
+			onPress={() => {
 				if (!confirm('Are you sure you want to delete this achievement?')) {
-					e.preventDefault();
+					return;
 				}
 			}}
 			type="submit"
 			isIconOnly
+			aria-label="Delete achievement"
 			className={'bg-red-600 border border-red-500 text-white'}>
 			<FontAwesomeIcon icon={faTrash}/>
 		</Button>

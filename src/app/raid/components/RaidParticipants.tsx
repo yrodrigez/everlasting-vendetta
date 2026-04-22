@@ -48,17 +48,19 @@ const GuildMemberIndicator = (character: any) => {
     )
 }
 
-export default function RaidParticipants({ participants, resetId, raidId, minGs, currentResets, createdById, raidSize = 10 }: {
+export default function RaidParticipants({ participants, resetId, raidId, minGs, currentResets, createdById, raidSize = 10, isRaidOver, raidStartDate, raidEndDate }: {
     participants: RaidParticipant[],
     resetId: string,
     raidId: string,
     raidInProgress: boolean
-    days: string[],
     minGs: number,
-    currentResets: { id: string, raid_date: string }[],
+    currentResets: { id: string, raid_date: string, raid_time: string }[],
     sanctifiedData?: { characterName: string, count: number, characterId: string }[],
     createdById: number,
-    raidSize: number
+    raidSize: number,
+    isRaidOver: boolean,
+    raidStartDate: string,
+    raidEndDate: string,
 }) {
     const { user } = useAuth()
     const supabase = useSupabase();
@@ -312,9 +314,11 @@ export default function RaidParticipants({ participants, resetId, raidId, minGs,
                             <MoveParticipant
                                 memberId={registration.member.character.id}
                                 raidId={raidId}
-                                currentResets={currentResets ?? []}
+                                currentResets={(currentResets ?? []).filter(r => r.id !== resetId)}
                                 resetId={resetId}
                                 onSuccess={router.refresh}
+                                raidStartDate={raidStartDate}
+                                raidEndDate={raidEndDate}
                             />
                             <div
                                 className="flex items-center gap-2 justify-between w-full p-2 border text-red-600 border-red-600 hover:bg-red-700 hover:text-default rounded-lg transition-all duration-200"

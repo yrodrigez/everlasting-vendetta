@@ -242,7 +242,7 @@ export default async function Page({ searchParams }: {
 							<div className={'col-span-1 flex gap-2 items-center justify-center'}>
 								<form action={redirectToEdit}>
 									<input type={'hidden'} name={'id'} value={achievement.id} />
-									<Button size="sm" isIconOnly type="submit">
+									<Button size="sm" isIconOnly type="submit" aria-label={`Edit achievement ${achievement.name}`}>
 										<FontAwesomeIcon icon={faPencil} />
 									</Button>
 								</form>

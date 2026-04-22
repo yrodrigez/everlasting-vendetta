@@ -24,9 +24,16 @@ export function Button({ children, tooltip, ...oldprops }: { children?: ReactNod
 		props.className = `${defaultClassNames} bg-green-800 text-white border border-green-700 ${props.className ? props.className : ''}`
 		props.color = undefined
 	}
-	
+
+	if (props.isIconOnly && !props['aria-label']) {
+		props['aria-label'] = typeof children === 'string' ? children : 'non-text button';
+	}
+
 	if (tooltip) {
-		return <Tooltip {...tooltip}>
+		return <Tooltip {...tooltip}
+			className={`text-default bg-wood border border-wood-100 shadow-md shadow-black/50 ${tooltip.className ? tooltip.className : ''}`}
+			showArrow={tooltip.showArrow !== undefined ? tooltip.showArrow : true}
+		>
 			<MuiButton {...props}>{children}</MuiButton>
 		</Tooltip>
 	}

@@ -48,7 +48,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
     return (
         <main className="flex flex-col justify-center items-center relative h-full w-full gap-2">
             <PageEvent name="calendar" />
-            <ScrollShadow className="flex gap-3 flex-col p-8 overflow-auto scrollbar-pill mb-auto md:grid lg:grid-cols-3 md:grid-cols-2">
+            <ScrollShadow className="flex gap-3 flex-col p-8 overflow-auto scrollbar-pill mb-auto md:grid lg:grid-cols-3 md:grid-cols-2 rounded-xl">
                 {raidResetsWithParticipants.sort((a, b) => {
                     return moment(a.raid_date).diff(moment(b.raid_date));
                 }).map((raidReset: any, index: number) => {
@@ -79,10 +79,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
                 currentPage={currentPage}
                 totalPages={totalPages}
             />
-            <div className={
-                `absolute top-0 lg:-right-8 -right-1 h-full`
-            }>
-                <div className="sticky top-0 flex flex-col gap-2">
+            <div className="absolute top-0 md:-right-2 right-2 h-full">
+                <div className="sticky top-2 flex flex-col gap-2">
                     {canCreate &&
                         <Button href={'/calendar/new'} as="a" isIconOnly>
                             <FontAwesomeIcon icon={faAdd} />

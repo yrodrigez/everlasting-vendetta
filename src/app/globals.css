@@ -204,8 +204,23 @@ body {
     }
 }
 
+@keyframes attention-arrow {
+    0%, 100% {
+        transform: translate3d(-12px, -50%, 0);
+        opacity: 0.75;
+    }
+    50% {
+        transform: translate3d(2px, -50%, 0);
+        opacity: 1;
+    }
+}
+
 .animate-blink-and-glow {
     animation: border-blink 2s infinite alternate ease-in-out, glow 65s infinite alternate ease-in-out;
+}
+
+.animate-attention-arrow {
+    animation: attention-arrow 0.9s ease-in-out infinite;
 }
 
 .glow-animation {

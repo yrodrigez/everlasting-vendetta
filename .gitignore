@@ -37,3 +37,4 @@ package-lock.json
 # typescript
 *.tsbuildinfo
 sqltests.sql
+.next-env.d.ts

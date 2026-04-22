@@ -10,7 +10,8 @@ export const RAID_STATUS = {
     BENCH: 'bench'
 }
 
-export async function assistRaid(raidId: string, selectedDays: any = [], selectedCharacter: any, selectedRole: any, status: string, hasLootReservations: boolean = false, onOpen: any) {
+export type RaidStatusType = typeof RAID_STATUS[keyof typeof RAID_STATUS]
+export async function assistRaid(raidId: string, selectedCharacter: any, selectedRole: any, status: RaidStatusType, hasLootReservations: boolean = false, onOpen: any) {
     const response = await fetch('/api/v1/services/calendar/raid/assist', {
         method: 'POST',
         headers: {
@@ -19,8 +20,7 @@ export async function assistRaid(raidId: string, selectedDays: any = [], selecte
         body: JSON.stringify({
             id: raidId,
             currentCharacter: selectedCharacter,
-            details: {
-                days: selectedDays,
+            details: {                
                 role: selectedRole,
                 className: selectedCharacter?.playable_class?.name?.toLowerCase(),
                 status: status

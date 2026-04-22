@@ -24,7 +24,7 @@ export default function DeclineAssistance({ raidId }: { raidId: string }) {
                 (async () => {
                     setLoading(true)
                     sendActionEvent('raid_decline', { raidId, characterName: selectedCharacter?.name });
-                    await assistRaid(raidId, [], selectedCharacter, selectedRole, 'declined', true, () => { }) // TODO: change the logic here
+                    await assistRaid(raidId, selectedCharacter, selectedRole, 'declined', true, () => { }) // TODO: change the logic here
                     setLoading(false)
                 })()
             }

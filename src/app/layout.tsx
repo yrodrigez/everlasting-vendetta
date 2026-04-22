@@ -60,7 +60,7 @@ export default async function RootLayout({
                             className="flex w-full custom-h-full-minus-header bg-no-repeat bg-center bg-cover"
                             style={{ backgroundImage: "url('/banner.webp')" }}>
                             <div
-                                className="p-3 w-full h-full overflow-auto scrollbar-pill bg-[rgba(19,19,19,.78)] backdrop-filter backdrop-blur-sm justify-center items-center flex">
+                                className="p-3 w-screen h-full overflow-auto scrollbar-pill bg-[rgba(19,19,19,.78)] backdrop-filter backdrop-blur-sm justify-center items-center flex">
                                 <div className="flex flex-col md:max-w-[1000px] w-full h-full grow-0">
                                     {children}
                                 </div>
