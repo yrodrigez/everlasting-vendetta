@@ -9,7 +9,6 @@ COPY postcss.config.js ./
 COPY tsconfig.json ./
 COPY tailwind.config.ts ./
 COPY next.config.mjs ./
-COPY next-env.d.ts ./
 COPY public ./public
 COPY src ./src
 
