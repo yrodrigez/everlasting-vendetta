@@ -38,12 +38,16 @@ export function RaidOptions({
     previousResetId,
     currentResetId,
     hasLoot,
+    raidSize,
+    createdById,
 }: {
     nextResetId: string,
     previousResetId: string,
     currentResetId: string,
     hasLoot: boolean
     raidStarted: boolean
+    raidSize: number
+    createdById: number
 }) {
     const router = useRouter()
     const {
@@ -139,6 +143,8 @@ export function RaidOptions({
                         setModalBody(
                             <GroupExport
                                 resetId={currentResetId}
+                                raidSize={raidSize}
+                                createdById={createdById}
                             />
                         )
                         open()

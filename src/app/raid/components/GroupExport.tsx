@@ -1,6 +1,5 @@
 "use client";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { type Role } from "@/components/characterStore";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Spinner, Tooltip } from "@heroui/react";
 import { Button } from "@/components/Button";
@@ -11,107 +10,152 @@ import { aiGroupExport } from "@/lib/supa-functions/config";
 import { useMessageBox } from '@/util/msgBox';
 import { useAuth } from "@/context/AuthContext";
 import { useSupabase } from "@/context/SupabaseContext";
+import { MemberRolesRepository } from "@/app/raid/api/member-roles.repository";
+import { ParticipantsService } from "@/app/raid/api/participants.service";
+import { createParticipantsComparator } from "@/app/raid/raid-priority-comparator";
+import { createAPIService } from "@/lib/api";
 
-export default function GroupExport({ resetId }: { resetId: string }) {
+const MAX_PARTICIPANTS = 40;
+const MAIN_GROUP_SIZE = 5;
+const OVERFLOW_GROUP_NUMBERS = [8, 7, 6];
+
+export default function GroupExport({ resetId, raidSize, createdById }: { resetId: string, raidSize: number, createdById: number }) {
     const { user } = useAuth();
     const supabase = useSupabase();
+    const apiService = useMemo(() => createAPIService(), []);
     const [copySuccess, setCopySuccess] = useState("");
     const [generateRoster, setGenerateRoster] = useState("");
 
-    const { data: participants } = useQuery({
+    const { data: participants = [] } = useQuery({
         queryKey: ["resetExport", resetId],
         queryFn: async () => {
-            if (!supabase) {
-                return [];
-            }
-
-            const { data, error } = await supabase
-                .from("ev_raid_participant")
-                .select("member:ev_member!inner(character), details, updated_at, created_at")
-                .eq("raid_id", resetId)
-                .neq("details->>status", "declined")
-                .neq("details->>status", "bench")
-                .order("created_at", { ascending: false })
-                .order("updated_at", { ascending: false })
-                .overrideTypes<{
-                    member: {
-                        character: {
-                            name: string;
-                        };
-                    };
-                    details: {
-                        role: Role;
-                        status: string;
-                    };
-                    updated_at: string;
-                }[], { merge: false }>();
-
-            if (error) {
-                throw new Error("Error fetching reset");
-            }
-
-
-            return data;
+            if (!supabase) return [];
+            const memberRolesRepository = new MemberRolesRepository(supabase);
+            const participantsService = new ParticipantsService(supabase, memberRolesRepository);
+            const rows = await participantsService.fetchParticipantsWithRoles(resetId);
+            return rows.filter((p) => {
+                const status = p.details?.status as string | undefined;
+                return status !== "declined" && status !== "bench";
+            });
         },
         enabled: !!supabase,
     });
 
+    const participantIdsKey = participants.map((p) => p.member.character.id).sort((a, b) => a - b).join(",");
+
+    const { data: participantGearScores = [] } = useQuery({
+        queryKey: ["group-export-gear-scores", resetId, participantIdsKey],
+        queryFn: async () => {
+            const characters = participants
+                .map((participant) => {
+                    const character = participant.member.character;
+                    if (!character?.name || !character.realm?.slug) return null;
+                    return { name: character.name, realm: character.realm.slug };
+                })
+                .filter((c): c is { name: string, realm: string } => !!c);
+            if (!characters.length) return [] as { characterName: string, isFullEnchanted: boolean }[];
+            const { data = [] } = await apiService.anon.gearScore(characters, false);
+            return data.map(({ characterName, isFullEnchanted }) => ({ characterName, isFullEnchanted }));
+        },
+        enabled: participants.length > 0,
+        staleTime: 3600000,
+    });
+
+    const { data: participantReliabilityScores = [] } = useQuery({
+        queryKey: ["group-export-reliability", resetId, participantIdsKey],
+        queryFn: async () => {
+            const results = await Promise.all(
+                participants.map(async (participant) => {
+                    const character = participant.member.character;
+                    const { data, error } = await supabase
+                        .rpc("get_recent_raid_reliability_rating", {
+                            p_character_name: character.name.toLowerCase(),
+                            p_realm_slug: character.realm.slug,
+                        })
+                        .single<{ final_recent_reliability: number | null }>();
+                    if (error) {
+                        console.error("Error fetching participant reliability", character.name, error);
+                        return { characterName: character.name, finalRecentReliability: 0 };
+                    }
+                    return {
+                        characterName: character.name,
+                        finalRecentReliability: Number(data?.final_recent_reliability ?? 0),
+                    };
+                })
+            );
+            return results;
+        },
+        enabled: !!supabase && participants.length > 0,
+        staleTime: Infinity,
+    });
+
+    const fullEnchantByCharacterName = useMemo(() => new Map(
+        participantGearScores.map(({ characterName, isFullEnchanted }) => [characterName.toLowerCase(), isFullEnchanted])
+    ), [participantGearScores]);
+
+    const reliabilityByCharacterName = useMemo(() => new Map(
+        participantReliabilityScores.map(({ characterName, finalRecentReliability }) => [characterName.toLowerCase(), finalRecentReliability])
+    ), [participantReliabilityScores]);
+
+    const participantsComparator = useMemo(
+        () => createParticipantsComparator(reliabilityByCharacterName, fullEnchantByCharacterName, createdById),
+        [reliabilityByCharacterName, fullEnchantByCharacterName, createdById]
+    );
+
     useEffect(() => {
-        if (!participants?.length) return;
-        const sortedParticipants = participants.sort((a, b) => {
-            const rolePriority = {
-                tank: 1,
-                "tank-healer": 2,
-                "tank-dps": 2,
-                healer: 3,
-                dps: 4,
-                "healer-dps": 5,
-                rdps: 4,
-                "tank-rdps": 2,
-                "healer-rdps": 3,
-            };
+        if (!participants.length) return;
 
-            return rolePriority[a.details.role] - rolePriority[b.details.role];
-        });
+        const sortedParticipants = [...participants].sort(participantsComparator);
+        const capped = sortedParticipants.slice(0, MAX_PARTICIPANTS);
+        const main = capped.slice(0, raidSize);
+        const overflow = capped.slice(raidSize);
 
-        const tanks = sortedParticipants.filter((p) => p.details.role.includes("tank"));
-        const others = sortedParticipants.filter((p) => !p.details.role.includes("tank"));
+        const mainTanks = main.filter((p) => p.details.role.includes("tank"));
+        const mainOthers = main.filter((p) => !p.details.role.includes("tank"));
 
-        const groups = [] as string[][];
-        let currentGroup = [] as string[];
+        const mainGroups: string[][] = [];
+        let currentGroup: string[] = [];
 
-
-        tanks.forEach((tank, index) => {
+        mainTanks.forEach((tank, index) => {
             currentGroup.push(tank.member.character.name);
-            if (currentGroup.length === 5 || (index === tanks.length - 1 && currentGroup.length > 0)) {
-                groups.push(currentGroup);
+            if (currentGroup.length === MAIN_GROUP_SIZE || (index === mainTanks.length - 1 && currentGroup.length > 0)) {
+                mainGroups.push(currentGroup);
                 currentGroup = [];
             }
         });
 
-
-        others.forEach((participant, index) => {
+        mainOthers.forEach((participant, index) => {
             currentGroup.push(participant.member.character.name);
-            if (currentGroup.length === 5 || index === others.length - 1) {
-                groups.push(currentGroup);
+            if (currentGroup.length === MAIN_GROUP_SIZE || index === mainOthers.length - 1) {
+                mainGroups.push(currentGroup);
                 currentGroup = [];
             }
         });
 
-        const formattedTanksGroup = `9:${tanks.map((tank) => tank.member.character.name).join(",")}`;
+        const overflowChunks: string[][] = [];
+        for (let i = 0; i < overflow.length && overflowChunks.length < OVERFLOW_GROUP_NUMBERS.length; i += MAIN_GROUP_SIZE) {
+            overflowChunks.push(overflow.slice(i, i + MAIN_GROUP_SIZE).map((p) => p.member.character.name));
+        }
 
-        const formattedGroups = groups
-            .map((group, index) => `${index + 1}:${group.join(",")}`)
-            .join("\n");
+        const mainLines = mainGroups
+            .slice(0, OVERFLOW_GROUP_NUMBERS[OVERFLOW_GROUP_NUMBERS.length - 1] - 1)
+            .map((group, index) => `${index + 1}:${group.join(",")}`);
 
-        setGenerateRoster(`${formattedGroups}\n${formattedTanksGroup}`);
-    }, [participants]);
+        const overflowLines = overflowChunks.map(
+            (group, index) => `${OVERFLOW_GROUP_NUMBERS[index]}:${group.join(",")}`
+        );
+
+        const allTanksWithinCap = capped.filter((p) => p.details.role.includes("tank"));
+        const tanksLine = `9:${allTanksWithinCap.map((tank) => tank.member.character.name).join(",")}`;
+
+        setGenerateRoster([...mainLines, ...overflowLines, tanksLine].join("\n"));
+    }, [participants, participantsComparator, raidSize]);
 
     const userHasPermission = useMemo(() => {
         if (!user) return false;
         const { roles } = user;
 
-        return roles?.includes("GUILD_MASTER") || roles?.includes("RAID_LEADER") || roles?.includes("LOOT_MASTER");
+        return roles?.includes("GUILD_MASTER");
     }, [user])
 
     const copyToClipboard = useCallback(() => {

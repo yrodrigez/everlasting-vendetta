@@ -115,7 +115,7 @@ export default async function Home() {
                 </div>
             </div>
             <div
-                className="flex flex-col h-full p-2 gap-3 items-center lg:flex-row lg:flex-wrap lg:items-start lg:justify-center lg:max-w-[1000px]">
+                className="flex flex-col h-full p-2 gap-3 items-center lg:flex-row lg:flex-wrap lg:items-start lg:justify-center lg:max-w-[1200px]">
                 {intro.map((section, index) => <CustomSection key={index} {...section} />)}
             </div>
         </main>

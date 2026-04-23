@@ -174,6 +174,8 @@ export default async function ({ params }: { params: Promise<{ id: string }> }) 
                             previousResetId={previousReset?.data?.id}
                             nextResetId={nextReset?.data?.id}
                             raidStarted={raidStarted}
+                            raidSize={reset.raid.size}
+                            createdById={created_by}
                         />
                         <DiscordLink raidId={id} />
                         {is_reservations_allowed && (

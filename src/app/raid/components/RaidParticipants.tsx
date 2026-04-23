@@ -15,6 +15,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useSupabase } from "@/context/SupabaseContext";
 import { sendActionEvent } from '@/hooks/usePageEvent';
 import useScreenSize from '@/hooks/useScreenSize';
+import { createAPIService } from "@/lib/api";
 import { GUILD_NAME } from '@/util/constants';
 import { createRosterMemberRoute } from "@/util/create-roster-member-route";
 import { useMessageBox } from '@/util/msgBox';
@@ -31,8 +32,9 @@ import { useQuery } from "@tanstack/react-query";
 import moment from "moment";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
+import { createParticipantsComparator } from "../raid-priority-comparator";
 
 
 const GuildMemberIndicator = (character: any) => {
@@ -53,6 +55,54 @@ type RaidParticipantWithPosition = RaidParticipant & {
     position: number;
 }
 
+type ParticipantGearScore = {
+    characterName: string;
+    isFullEnchanted: boolean;
+}
+
+type ParticipantReliability = {
+    characterName: string;
+    finalRecentReliability: number;
+}
+
+function getReliabilityColor(score: number) {
+    if (score >= 95) return {
+        text: 'text-legendary',
+        background: 'bg-legendary-900',
+        border: 'border-legendary',
+    }
+
+    if (score >= 80) return {
+        text: 'text-epic',
+        background: 'bg-epic-900',
+        border: 'border-epic',
+    }
+
+    if (score >= 65) return {
+        text: 'text-rare',
+        background: 'bg-rare-900',
+        border: 'border-rare',
+    }
+
+    if (score >= 50) return {
+        text: 'text-uncommon',
+        background: 'bg-uncommon-900',
+        border: 'border-uncommon',
+    }
+
+    if (score >= 35) return {
+        text: 'text-common',
+        background: 'bg-common-900',
+        border: 'border-common',
+    }
+
+    return {
+        text: 'text-gray-400',
+        background: 'bg-gray-900',
+        border: 'border-gray-500',
+    }
+}
+
 export default function RaidParticipants({ participants, resetId, raidId, minGs, currentResets, createdById, raidSize = 10, isRaidOver, raidStartDate, raidEndDate }: {
     participants: RaidParticipant[],
     resetId: string,
@@ -71,67 +121,110 @@ export default function RaidParticipants({ participants, resetId, raidId, minGs,
     const supabase = useSupabase();
     const selectedCharacter = useCharacterStore(useShallow(state => ({ ...state.selectedCharacter })));
     const router = useRouter();
+    const apiService = createAPIService();
 
     const stateParticipants = useParticipants(resetId, participants)
     const { isMobile } = useScreenSize()
-    const sortedParticipants: RaidParticipantWithPosition[] = [...(stateParticipants ?? [])]
-        .sort((a, b) => {
+    const { data: participantGearScores = [] } = useQuery({
+        queryKey: ['raid-participant-gear-scores', resetId, stateParticipants.map((participant) => participant.member.character.id).sort((a, b) => a - b).join(',')],
+        queryFn: async () => {
+            const characters = stateParticipants
+                .map((participant) => {
+                    const character = participant.member.character
+                    if (!character?.name || !character.realm?.slug) return null
 
-            if (a.details?.status === 'confirmed' && b.details?.status !== 'confirmed') {
-                return -1
-            }
-            if (a.details?.status !== 'confirmed' && b.details?.status === 'confirmed') {
-                return 1
-            }
+                    return {
+                        name: character.name,
+                        realm: character.realm.slug,
+                    }
+                })
+                .filter((character): character is { name: string, realm: string } => !!character)
 
-            const isARaidLeader = a.roles?.includes('RAID_LEADER') || createdById === (a.member.character?.id || 0)
-            const isBRaidLeader = b.roles?.includes('RAID_LEADER') || createdById === (b.member.character?.id || 0)
-            if (isARaidLeader && !isBRaidLeader) {
-                return -1
-            }
-            if (!isARaidLeader && isBRaidLeader) {
-                return 1
-            }
+            if (!characters.length) return [] as ParticipantGearScore[]
 
-            const aIsGuildie = a.member.character.guild?.name === GUILD_NAME
-            const bIsGuildie = b.member.character.guild?.name === GUILD_NAME
+            const { data = [] } = await apiService.anon.gearScore(characters, false)
+            return data.map(({ characterName, isFullEnchanted }) => ({
+                characterName,
+                isFullEnchanted,
+            }))
+        },
+        enabled: stateParticipants.length > 0,
+        staleTime: 3600000,
+    })
+    const { data: participantReliabilityScores = [] } = useQuery({
+        queryKey: ['raid-participant-reliability', resetId, stateParticipants.map((participant) => participant.member.character.id).sort((a, b) => a - b).join(',')],
+        queryFn: async () => {
+            const reliabilityResults = await Promise.all(
+                stateParticipants.map(async (participant) => {
+                    const character = participant.member.character
+                    const { data, error } = await supabase
+                        .rpc('get_recent_raid_reliability_rating', {
+                            p_character_name: character.name.toLowerCase(),
+                            p_realm_slug: character.realm.slug,
+                        })
+                        .single<{ final_recent_reliability: number | null }>()
 
-            if (aIsGuildie && !bIsGuildie) {
-                return -1
-            }
-            if (!aIsGuildie && bIsGuildie) {
-                return 1
-            }
+                    if (error) {
+                        console.error('Error fetching participant reliability', character.name, error)
+                        return {
+                            characterName: character.name,
+                            finalRecentReliability: 0,
+                        }
+                    }
 
-            const aIsPriority = a.roles ? ['GUILD_MASTER', 'COMRADE', 'RAID_LEADER', 'LOOT_MASTER', 'RAIDER'].some(r => a.roles?.includes(r)) : false
-            const bIsPriority = b.roles ? ['GUILD_MASTER', 'COMRADE', 'RAID_LEADER', 'LOOT_MASTER', 'RAIDER'].some(r => b.roles?.includes(r)) : false
+                    return {
+                        characterName: character.name,
+                        finalRecentReliability: Number(data?.final_recent_reliability ?? 0),
+                    }
+                })
+            )
 
-            if (aIsPriority && !bIsPriority) {
-                return -1
-            }
-            if (!aIsPriority && bIsPriority) {
-                return 1
-            }
+            return reliabilityResults satisfies ParticipantReliability[]
+        },
+        enabled: !!supabase && stateParticipants.length > 0,
+        staleTime: Infinity,
+    })
+    const fullEnchantByCharacterName = useMemo(() => new Map(
+        participantGearScores.map(({ characterName, isFullEnchanted }) => [characterName.toLowerCase(), isFullEnchanted])
+    ), [participantGearScores])
+    const reliabilityByCharacterName = useMemo(() => new Map(
+        participantReliabilityScores.map(({ characterName, finalRecentReliability }) => [characterName.toLowerCase(), finalRecentReliability])
+    ), [participantReliabilityScores])
 
+    const participantsComparator = useMemo(() => createParticipantsComparator(reliabilityByCharacterName, fullEnchantByCharacterName, createdById), [reliabilityByCharacterName, fullEnchantByCharacterName, createdById])
 
-
-            const aCreated = new Date(a.created_at)
-            const bCreated = new Date(b.created_at)
-            return aCreated.getTime() - bCreated.getTime()
-        })
+    const sortedParticipants: RaidParticipantWithPosition[] = useMemo(() => [...(stateParticipants ?? [])]
+        .sort(participantsComparator)
         .map((participant, index) => ({
             ...participant,
             position: index + 1
-        }))
+        })), [stateParticipants, participantsComparator])
     const isSelectedParticipantPresent = sortedParticipants.some((participant) => participant.member.character.id === selectedCharacter?.id)
     const { focusedParticipantId, isFocusActive } = useScrollToRaidParticipant({
         participantId: selectedCharacter?.id,
         isParticipantPresent: isSelectedParticipantPresent,
     })
+
+    useEffect(() => {
+        if (typeof document === 'undefined') return
+        const rows = document.querySelectorAll<HTMLElement>('[id^="participant-"]')
+        const blurClasses = ['blur-[1px]', 'opacity-35']
+        const focusClasses = ['bg-gold/30', 'border-gold/70', 'shadow-md', 'shadow-gold/20']
+        rows.forEach((row) => {
+            const rowId = Number(row.id.replace('participant-', ''))
+            const isRowFocused = focusedParticipantId !== null && rowId === focusedParticipantId
+            const shouldBlur = isFocusActive && !isRowFocused
+            const shouldHighlight = isFocusActive && isRowFocused
+            blurClasses.forEach((cls) => row.classList.toggle(cls, shouldBlur))
+            focusClasses.forEach((cls) => row.classList.toggle(cls, shouldHighlight))
+        })
+    }, [focusedParticipantId, isFocusActive, sortedParticipants])
+
     const initialColumns = [
         { name: "NAME", uid: "name" },
         { name: "ROLE", uid: "role" },
         { name: "STATUS", uid: "status" },
+        { name: "ATTENDANCE", uid: "reliability" },
     ]
     const [columns, setColumns] = useState(initialColumns)
     useEffect(() => {
@@ -198,15 +291,22 @@ export default function RaidParticipants({ participants, resetId, raidId, minGs,
                         content={<>
                             <div className="flex items-center gap-2 max-w-72 flex-col p-2">
                                 <FontAwesomeIcon icon={faChair} />
-                                <span>This spot exceeds the raid size limit of <strong>{raidSize}</strong>. If the raid is full, this participant may be moved to other raid or be benched.</span>
+                                <span>
+                                    This spot exceeds the raid size limit of <strong>{raidSize}</strong>. If the raid is full, this participant may be moved to another raid or benched.
+                                </span>
+
                                 <span className="text-gray-500 text-xs flex gap-1 flex-col">
-                                    <span className="flex items-center gap-1"><FontAwesomeIcon icon={faInfoCircle} /> Bench priority (lowest priority gets benched first):</span>
+                                    <span className="flex items-center gap-1">
+                                        <FontAwesomeIcon icon={faInfoCircle} />
+                                        Bench order (participants listed first are more likely to be benched):
+                                    </span>
+
                                     <ol className="list-decimal list-inside ml-2">
-                                        <li>Confirmed participants over tentative/pending</li>
-                                        <li>Raiders</li>
-                                        <li>Guild members</li>
-                                        <li>Non-guild members</li>
-                                        <li>Earlier sign-ups over later ones</li>
+                                        <li>Non-raiders before raiders</li>
+                                        <li>Participants who are not fully enchanted before those who are</li>
+                                        <li>Lower recent raid reliability score before higher ones</li>
+                                        <li>Non-guild members before guild members</li>
+                                        <li>Later sign-ups before earlier sign-ups</li>
                                     </ol>
                                 </span>
                             </div>
@@ -255,14 +355,8 @@ export default function RaidParticipants({ participants, resetId, raidId, minGs,
                                         src={avatar}
                                     />
                                 </div>
-                                <div className="flex items-center break-all w-full gap-1">
-
+                                <div className="flex items-center break-all w-full gap-1 flex-wrap">
                                     <h5 className={`text-${playable_class?.name?.toLowerCase() ?? 'gold'} mr-2`}>{name} {isYourself ? '(You)' : null}</h5>
-                                    {isYourself && registration.position ? (
-                                        <Chip color="warning" size="sm" variant="flat" className="text-gold">
-                                            #{registration.position}
-                                        </Chip>
-                                    ) : null}
                                 </div>
                             </div>
                         </Link>
@@ -361,6 +455,28 @@ export default function RaidParticipants({ participants, resetId, raidId, minGs,
                     </Chip>
                 );
 
+            case "reliability": {
+                const reliabilityScore = reliabilityByCharacterName.get(name.toLowerCase()) ?? 0
+                const reliabilityColor = getReliabilityColor(reliabilityScore)
+
+                return (
+                    <Tooltip
+                        className="border border-wood-100"
+                        showArrow
+                        content={`Raid attendance score: ${reliabilityScore.toFixed(2)}`}
+                        placement="top"
+                    >
+                        <div className="flex items-center gap-1 justify-between w-20">
+                            <span
+                                className={`${reliabilityColor.text} ${reliabilityColor.background} px-2 py-1 text-xs rounded-full border font-bold ${reliabilityColor.border} flex items-center justify-center min-w-14 max-w-14`}
+                            >
+                                {Math.round(reliabilityScore)}
+                            </span>
+                        </div>
+                    </Tooltip>
+                )
+            }
+
             case "is_guildie":
                 return <GuildMemberIndicator {...registration.member.character} />
 
@@ -430,7 +546,7 @@ export default function RaidParticipants({ participants, resetId, raidId, minGs,
             default:
                 return <></>;
         }
-    }, [selectedCharacter, supabase, guildEvent, yesNo, user]);
+    }, [selectedCharacter, supabase, guildEvent, yesNo, user, reliabilityByCharacterName, createdById]);
 
     return (
         <Table
@@ -459,12 +575,11 @@ export default function RaidParticipants({ participants, resetId, raidId, minGs,
                     const isOverflow = item.position > raidSize
                     const isThreshold = item.position === raidSize
                     const isYourself = selectedCharacter?.id === item.member.character.id
-                    const isFocusedParticipant = focusedParticipantId === item.member.character.id
                     return (
                         <TableRow
                             key={item.member.character.id}
                             id={`participant-${item.member.character.id}`}
-                            className={`transition-all duration-300 ${isThreshold ? 'border-b-wood-100' : ''} ${isOverflow ? 'opacity-50' : ''} ${isFocusActive && !isFocusedParticipant ? 'blur-[1px] opacity-35' : ''} ${isFocusActive && isFocusedParticipant ? 'bg-gold/30 border-gold/70 shadow-md shadow-gold/20' : ''}`}
+                            className={`transition-all duration-300 ${isYourself ? 'bg-gold/25 border-gold/60' : ''} ${isThreshold ? 'border-b border-b-wood-100' : ''} ${isOverflow ? 'opacity-50' : ''}`}
                         >
                             {(columnKey) => <TableCell>{renderCell(item, columnKey, isOverflow)}</TableCell>}
                         </TableRow>
