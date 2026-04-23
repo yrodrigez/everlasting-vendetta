@@ -6,6 +6,7 @@ import BenchParticipant from "@/app/raid/components/BenchParticipant";
 import { getSubscriptionStatusText } from "@/app/raid/components/get-status-text";
 import { MoveParticipant } from "@/app/raid/components/move-participant";
 import { useParticipants } from "@/app/raid/components/useParticipants";
+import { useScrollToRaidParticipant } from "@/app/raid/components/useScrollToRaidParticipant";
 import { RAID_STATUS } from "@/app/raid/components/utils";
 import { Button } from "@/components/Button";
 import { useCharacterStore } from "@/components/characterStore";
@@ -48,6 +49,10 @@ const GuildMemberIndicator = (character: any) => {
     )
 }
 
+type RaidParticipantWithPosition = RaidParticipant & {
+    position: number;
+}
+
 export default function RaidParticipants({ participants, resetId, raidId, minGs, currentResets, createdById, raidSize = 10, isRaidOver, raidStartDate, raidEndDate }: {
     participants: RaidParticipant[],
     resetId: string,
@@ -69,6 +74,60 @@ export default function RaidParticipants({ participants, resetId, raidId, minGs,
 
     const stateParticipants = useParticipants(resetId, participants)
     const { isMobile } = useScreenSize()
+    const sortedParticipants: RaidParticipantWithPosition[] = [...(stateParticipants ?? [])]
+        .sort((a, b) => {
+
+            if (a.details?.status === 'confirmed' && b.details?.status !== 'confirmed') {
+                return -1
+            }
+            if (a.details?.status !== 'confirmed' && b.details?.status === 'confirmed') {
+                return 1
+            }
+
+            const isARaidLeader = a.roles?.includes('RAID_LEADER') || createdById === (a.member.character?.id || 0)
+            const isBRaidLeader = b.roles?.includes('RAID_LEADER') || createdById === (b.member.character?.id || 0)
+            if (isARaidLeader && !isBRaidLeader) {
+                return -1
+            }
+            if (!isARaidLeader && isBRaidLeader) {
+                return 1
+            }
+
+            const aIsGuildie = a.member.character.guild?.name === GUILD_NAME
+            const bIsGuildie = b.member.character.guild?.name === GUILD_NAME
+
+            if (aIsGuildie && !bIsGuildie) {
+                return -1
+            }
+            if (!aIsGuildie && bIsGuildie) {
+                return 1
+            }
+
+            const aIsPriority = a.roles ? ['GUILD_MASTER', 'COMRADE', 'RAID_LEADER', 'LOOT_MASTER', 'RAIDER'].some(r => a.roles?.includes(r)) : false
+            const bIsPriority = b.roles ? ['GUILD_MASTER', 'COMRADE', 'RAID_LEADER', 'LOOT_MASTER', 'RAIDER'].some(r => b.roles?.includes(r)) : false
+
+            if (aIsPriority && !bIsPriority) {
+                return -1
+            }
+            if (!aIsPriority && bIsPriority) {
+                return 1
+            }
+
+
+
+            const aCreated = new Date(a.created_at)
+            const bCreated = new Date(b.created_at)
+            return aCreated.getTime() - bCreated.getTime()
+        })
+        .map((participant, index) => ({
+            ...participant,
+            position: index + 1
+        }))
+    const isSelectedParticipantPresent = sortedParticipants.some((participant) => participant.member.character.id === selectedCharacter?.id)
+    const { focusedParticipantId, isFocusActive } = useScrollToRaidParticipant({
+        participantId: selectedCharacter?.id,
+        isParticipantPresent: isSelectedParticipantPresent,
+    })
     const initialColumns = [
         { name: "NAME", uid: "name" },
         { name: "ROLE", uid: "role" },
@@ -82,7 +141,6 @@ export default function RaidParticipants({ participants, resetId, raidId, minGs,
             setColumns([
                 ...initialColumns,
                 { name: "GEAR SCORE", uid: "gs" },
-                //(sanctifiedData ? { name: "SANCT", uid: "sanctified" } : { name: "GUILDIE", uid: "is_guildie" }),
             ])
             if (user?.isAdmin) {
                 setColumns(cols => [
@@ -120,6 +178,7 @@ export default function RaidParticipants({ participants, resetId, raidId, minGs,
         const roles = registration.roles || []
         const isPriority = ['GUILD_MASTER', 'COMRADE', 'RAID_LEADER', 'LOOT_MASTER', 'RAIDER'].some(r => roles.includes(r))
         const isRaidLeader = roles.includes('RAID_LEADER') || createdById === registration.member.character.id
+        const isYourself = selectedCharacter?.id === id
 
         const isGuildie = registration.member.character.guild?.name === GUILD_NAME
 
@@ -198,7 +257,12 @@ export default function RaidParticipants({ participants, resetId, raidId, minGs,
                                 </div>
                                 <div className="flex items-center break-all w-full gap-1">
 
-                                    <h5 className={`text-${playable_class?.name?.toLowerCase() ?? 'gold'} mr-2`}>{name} {(name === selectedCharacter?.name) ? '(You)' : null}</h5>
+                                    <h5 className={`text-${playable_class?.name?.toLowerCase() ?? 'gold'} mr-2`}>{name} {isYourself ? '(You)' : null}</h5>
+                                    {isYourself && registration.position ? (
+                                        <Chip color="warning" size="sm" variant="flat" className="text-gold">
+                                            #{registration.position}
+                                        </Chip>
+                                    ) : null}
                                 </div>
                             </div>
                         </Link>
@@ -390,67 +454,17 @@ export default function RaidParticipants({ participants, resetId, raidId, minGs,
             <TableBody
                 className="scrollbar-pill"
                 emptyContent={"No one signed up yet."}
-                items={stateParticipants
-                    ?.sort((a: { details?: { status?: string }, created_at: string, roles?: string[], member: { character: { id: number, guild?: { name?: string } } } }, b: { details?: { status?: string }, created_at: string, roles?: string[], member: { character: { id: number, guild?: { name?: string } } } }) => {
-
-                        if (a.details?.status === 'confirmed' && b.details?.status !== 'confirmed') {
-                            return -1
-                        }
-                        if (a.details?.status !== 'confirmed' && b.details?.status === 'confirmed') {
-                            return 1
-                        }
-
-                        const isARaidLeader = a.roles?.includes('RAID_LEADER') || createdById === (a.member.character?.id || 0)
-                        const isBRaidLeader = b.roles?.includes('RAID_LEADER') || createdById === (b.member.character?.id || 0)
-                        if (isARaidLeader && !isBRaidLeader) {
-                            return -1
-                        }
-                        if (!isARaidLeader && isBRaidLeader) {
-                            return 1
-                        }
-
-                        const aIsGuildie = a.member.character.guild?.name === GUILD_NAME
-                        const bIsGuildie = b.member.character.guild?.name === GUILD_NAME
-
-                        if (aIsGuildie && !bIsGuildie) {
-                            return -1
-                        }
-                        if (!aIsGuildie && bIsGuildie) {
-                            return 1
-                        }
-
-                        const aIsPriority = a.roles ? ['GUILD_MASTER', 'COMRADE', 'RAID_LEADER', 'LOOT_MASTER', 'RAIDER'].some(r => a.roles?.includes(r)) : false
-                        const bIsPriority = b.roles ? ['GUILD_MASTER', 'COMRADE', 'RAID_LEADER', 'LOOT_MASTER', 'RAIDER'].some(r => b.roles?.includes(r)) : false
-
-                        if (aIsPriority && !bIsPriority) {
-                            return -1
-                        }
-                        if (!aIsPriority && bIsPriority) {
-                            return 1
-                        }
-
-                        const aCreated = new Date(a.created_at)
-                        const bCreated = new Date(b.created_at)
-                        return aCreated.getTime() - bCreated.getTime()
-                    }).map((x: any, index) => {
-                        return {
-                            ...x,
-                            position: index + 1
-                        }
-                    }).reduce((acc, curr) => {
-                        if (selectedCharacter?.id === curr.member.character.id) {
-                            return [curr, ...acc]
-                        }
-                        return [...acc, curr]
-                    }, [])}>
+                items={sortedParticipants}>
                 {(item: any) => {
-                    const index = stateParticipants.findIndex((p) => p.member.character.id === item.member.character.id)
-                    const isOverflow = index >= raidSize
-                    const isThreshold = index === raidSize
+                    const isOverflow = item.position > raidSize
+                    const isThreshold = item.position === raidSize
+                    const isYourself = selectedCharacter?.id === item.member.character.id
+                    const isFocusedParticipant = focusedParticipantId === item.member.character.id
                     return (
                         <TableRow
                             key={item.member.character.id}
-                            className={`${isOverflow ? 'opacity-50' : ''} ${isThreshold ? 'border-t border-wood-100' : ''} `}
+                            id={`participant-${item.member.character.id}`}
+                            className={`transition-all duration-300 ${isThreshold ? 'border-b-wood-100' : ''} ${isOverflow ? 'opacity-50' : ''} ${isFocusActive && !isFocusedParticipant ? 'blur-[1px] opacity-35' : ''} ${isFocusActive && isFocusedParticipant ? 'bg-gold/30 border-gold/70 shadow-md shadow-gold/20' : ''}`}
                         >
                             {(columnKey) => <TableCell>{renderCell(item, columnKey, isOverflow)}</TableCell>}
                         </TableRow>
