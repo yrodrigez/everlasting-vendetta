@@ -26,10 +26,11 @@ export async function registerOnRaid(userId: string, characterId: string | numbe
     }
 
     const { data: existsParticipantsSameUserId, error } = await supabase.from('ev_raid_participant')
-        .select('member_id, character:ev_member(user_id)')
+        .select('member_id, character:ev_member!inner(user_id)')
         .eq('raid_id', raidId)
         .neq('details->>status', 'declined')
         .eq('character.user_id', userId)
+        .neq('member_id', characterId)
         .overrideTypes<{ member_id: string, character: { user_id: string } }[]>()
 
     if (error) {
@@ -38,6 +39,7 @@ export async function registerOnRaid(userId: string, characterId: string | numbe
     }
 
     if (existsParticipantsSameUserId && existsParticipantsSameUserId.length > 0) {
+        console.warn('User is trying to register multiple characters for the same raid', { userId, raidId, existingCharacters: existsParticipantsSameUserId })
         return { error: { code: '403', message: 'You have already registered another character for this raid' }, data: null }
     }
 
