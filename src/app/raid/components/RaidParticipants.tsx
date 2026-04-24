@@ -34,7 +34,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
-import { createParticipantsComparator } from "../raid-priority-comparator";
+import { createParticipantsComparator, getRaidReadinessScore } from "../raid-priority-comparator";
 
 
 const GuildMemberIndicator = (character: any) => {
@@ -66,40 +66,34 @@ type ParticipantReliability = {
 }
 
 function getReliabilityColor(score: number) {
-    if (score >= 95) return {
+    if (score >= (26.6 * 4)) return {
         text: 'text-legendary',
         background: 'bg-legendary-900',
         border: 'border-legendary',
     }
 
-    if (score >= 80) return {
+    if (score >= 26.6*3) return {
         text: 'text-epic',
         background: 'bg-epic-900',
         border: 'border-epic',
     }
 
-    if (score >= 65) return {
+    if (score >= (26.6*2)) return {
         text: 'text-rare',
         background: 'bg-rare-900',
         border: 'border-rare',
     }
 
-    if (score >= 50) return {
+    if (score >= 26.6) return {
         text: 'text-uncommon',
         background: 'bg-uncommon-900',
         border: 'border-uncommon',
     }
 
-    if (score >= 35) return {
+    return {
         text: 'text-common',
         background: 'bg-common-900',
         border: 'border-common',
-    }
-
-    return {
-        text: 'text-gray-400',
-        background: 'bg-gray-900',
-        border: 'border-gray-500',
     }
 }
 
@@ -188,7 +182,7 @@ export default function RaidParticipants({ participants, resetId, raidId, minGs,
         participantGearScores.map(({ characterName, isFullEnchanted }) => [characterName.toLowerCase(), isFullEnchanted])
     ), [participantGearScores])
     const reliabilityByCharacterName = useMemo(() => new Map(
-        participantReliabilityScores.map(({ characterName, finalRecentReliability }) => [characterName.toLowerCase(), finalRecentReliability])
+        participantReliabilityScores.map(({ characterName, finalRecentReliability }) => [characterName.toLowerCase(), finalRecentReliability || 1])
     ), [participantReliabilityScores])
 
     const participantsComparator = useMemo(() => createParticipantsComparator(reliabilityByCharacterName, fullEnchantByCharacterName, createdById), [reliabilityByCharacterName, fullEnchantByCharacterName, createdById])
@@ -224,7 +218,7 @@ export default function RaidParticipants({ participants, resetId, raidId, minGs,
         { name: "NAME", uid: "name" },
         { name: "ROLE", uid: "role" },
         { name: "STATUS", uid: "status" },
-        { name: "ATTENDANCE", uid: "reliability" },
+        { name: "RRS", uid: "reliability" },
     ]
     const [columns, setColumns] = useState(initialColumns)
     useEffect(() => {
@@ -457,20 +451,21 @@ export default function RaidParticipants({ participants, resetId, raidId, minGs,
 
             case "reliability": {
                 const reliabilityScore = reliabilityByCharacterName.get(name.toLowerCase()) ?? 0
-                const reliabilityColor = getReliabilityColor(reliabilityScore)
+                const readinessScore = getRaidReadinessScore(registration, reliabilityByCharacterName, fullEnchantByCharacterName)
+                const reliabilityColor = getReliabilityColor(readinessScore)
 
                 return (
                     <Tooltip
                         className="border border-wood-100"
                         showArrow
-                        content={`Raid attendance score: ${reliabilityScore.toFixed(2)}`}
+                        content={`Raid attendance score: ${reliabilityScore.toFixed(2)} | Raid readiness score: ${readinessScore.toFixed(2)}`}
                         placement="top"
                     >
                         <div className="flex items-center gap-1 justify-between w-20">
                             <span
                                 className={`${reliabilityColor.text} ${reliabilityColor.background} px-2 py-1 text-xs rounded-full border font-bold ${reliabilityColor.border} flex items-center justify-center min-w-14 max-w-14`}
                             >
-                                {Math.round(reliabilityScore)}
+                                {Math.round(readinessScore)}
                             </span>
                         </div>
                     </Tooltip>

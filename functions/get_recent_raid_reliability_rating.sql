@@ -75,7 +75,7 @@ recent_weeks AS (
         WHERE vr.save_week_start < cp.current_save_week_start
         AND vr.save_week_start > ('2026-01-01'::timestamp)
         ORDER BY vr.save_week_start DESC
-        LIMIT 10
+        LIMIT 12
     ) x
 ),
 recent_valid_resets AS (

@@ -131,9 +131,77 @@ export function createServerApiClient(accessToken: string | null) {
   return serverApi;
 }
 
+export interface APIServicePort {
+  anon: {
+    getCharacterAvatar: (realmSlug: string, characterName: string) => Promise<AvatarOutput>;
+    getItem: (itemId: number, options?: { force?: boolean }) => Promise<ItemOutput>;
+    gearScore: (characters: { name: string; realm: string }[], force?: boolean) => Promise<GearScoreOutput>;
+    getCharacter: (realmSlug: string, characterName: string) => Promise<FetchCharacterOutput>;
+    getGuildRoster: () => Promise<FetchCharacterOutput[]>;
+    getCharacterEquipment: (realmSlug: string, characterName: string) => Promise<{
+      characterName: string;
+      equippedItems: {
+        id: number;
+        inventoryType: string;
+        isEnchanted: boolean;
+        qualityType: string;
+        fetchUrl: string;
+        icon: string;
+        name: string;
+        level: number;
+        quality: {
+          type: string;
+          name: string;
+        };
+        tooltip: string;
+        displayId: number;
+        itemLevel: number;
+        gems: {
+          id: number;
+          itemId: number;
+          displayString: string;
+          fetchUrl: string;
+        }[];
+      }[];
+    }>;
+  };
+  auth: {
+    getMyProfile: () => Promise<{ members: any, accounts: any }>;
+    getUserCharacters: (realmSlug: string) => Promise<UserCharactersOutput>;
+  };
+  realms: {
+    getAllowed: () => Promise<{ id: number, name: string, slug: string }[]>;
+  };
+  characters: {
+    link: (characterName: string, realmSlug: string) => Promise<any>;
+    setSelected: (characterId: string) => Promise<any>;
+  };
+  raids: {
+    addItem: ({ raidId, itemId, bossName }: { raidId: string, itemId: number, bossName: string | undefined }) => Promise<{
+      item: {
+        id: number;
+        name: string;
+      }
+      raidId: string;
+      request_id: string;
+    }>;
+  };
+  analytics: {
+    sendEvent: (params: {
+      event_name: string;
+      event_type?: string;
+      page_url?: string;
+      page_path?: string;
+      referrer?: string;
+      metadata?: Record<string, any>;
+    }) => Promise<void>;
+  };
+  discord: {
+    getSelectedCharacter: (discordId: string) => Promise<{ character: { name: string, id: string, avatar: string, character_class: { name: string } } } | null>;
+  };
+}
 
-
-export const createAPIService = (_api: AxiosInstance = api) => ({
+export const createAPIService = (_api: AxiosInstance = api): APIServicePort => ({
   anon: {
     getCharacterAvatar: async (realmSlug: string, characterName: string): Promise<AvatarOutput> => {
       try {
