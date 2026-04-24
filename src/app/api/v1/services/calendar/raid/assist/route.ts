@@ -11,9 +11,15 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Error - raidId is mandatory!' })
     }
 
-    const { getSupabase } = await createServerSession();
+    const { getSupabase, auth } = await createServerSession();
 
     const supabase = await getSupabase();
+    const user = await auth.getSession()
+    if (!user?.id) {
+        return NextResponse.json({ error: 'Unauthorized' }, {
+            status: 401
+        })
+    }
     const accessToken = await supabase.realtime?.accessToken?.()
     if (!accessToken) {
         return NextResponse.json({ error: 'Error - no access token!' }, {
@@ -24,9 +30,8 @@ export async function POST(request: NextRequest) {
     const {
         data: participants,
         error: errorOnRegister
-    } = await registerOnRaid(currentCharacter.id, raidId, details, supabase)
+    } = await registerOnRaid(user.id, currentCharacter.id, raidId, details, supabase)
     if (errorOnRegister) {
-
         if (errorOnRegister.code === '42501') {
             return NextResponse.json({ error: 'You are currently benched and cannot update your status.' }, {
                 status: 403

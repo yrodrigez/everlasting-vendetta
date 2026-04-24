@@ -16,10 +16,18 @@ export type ParticipantReliability = {
 }
 const PRIORITY_ROLES = ['GUILD_MASTER', 'COMRADE', 'RAID_LEADER', 'LOOT_MASTER', 'RAIDER'] as const
 
-const NON_PRIORITY_OVERRIDE_MIN_RELIABILITY = 80
-const NON_PRIORITY_OVERRIDE_MIN_DIFF = 15
-const NON_PRIORITY_ENCHANT_OVERRIDE_MIN_RELIABILITY = 70
-const NON_PRIORITY_ENCHANT_OVERRIDE_MIN_DIFF = 10
+const CROSS_BUCKET_CLOSE_DIFF = 10
+const CROSS_BUCKET_CLOSE_MIN_RELIABILITY = 70
+const SAME_BUCKET_DECISIVE_RELIABILITY_DIFF = 10
+
+const comparePriority = (a: RaidParticipant, b: RaidParticipant) => {
+    const aPriority = isPriorityParticipant(a)
+    const bPriority = isPriorityParticipant(b)
+
+    if (aPriority === bPriority) return 0
+
+    return aPriority ? -1 : 1
+}
 
 const compareValues = (a: number | string, b: number | string) => {
     if (a < b) return -1
@@ -51,7 +59,7 @@ const getCharacterKey = (p: RaidParticipant) =>
     p.member.character.name.toLowerCase()
 
 const getStatusRank = (p: RaidParticipant) =>
-    p.details?.status === 'confirmed' ? 0 : 1
+    ['confirmed', 'late', 'tentative'].includes(p.details?.status ?? 'declined') ? 0 : 1
 
 const getReliability = (p: RaidParticipant, reliabilityByCharacterName: Map<string, number>) =>
     reliabilityByCharacterName.get(getCharacterKey(p)) ?? 0
@@ -78,56 +86,78 @@ const isPriorityParticipant = (p: RaidParticipant) => {
     return hasPriorityRole
 }
 
-const comparePriorityWithOverride = (
-    a: RaidParticipant,
-    b: RaidParticipant,
-    reliabilityByCharacterName: Map<string, number>,
-    fullEnchantByCharacterName: Map<string, boolean>,
-    createdById: number
-) => {
+const compareRaidCreator =
+    (createdById: number) =>
+        (a: RaidParticipant, b: RaidParticipant) => {
+            const aIsCreator = a.member.id === createdById
+            const bIsCreator = b.member.id === createdById
 
-    // if its the creator should always be priority, no matter the reliability or enchantment, unless the non-priority participant has significantly higher reliability and enchantment, then the creator should be deprioritized
-    if (createdById === a.member.id || createdById === b.member.id) {
-        return createdById === a.member.id ? -1 : 1
-    }
+            if (aIsCreator === bIsCreator) return 0
 
-    const aPriority = isPriorityParticipant(a)
-    const bPriority = isPriorityParticipant(b)
+            return aIsCreator ? -1 : 1
+        }
 
-    if (aPriority === bPriority) {
-        return 0
-    }
+const getReliabilityBucketRank = (reliability: number) => {
 
-    const priorityParticipant = aPriority ? a : b
-    const nonPriorityParticipant = aPriority ? b : a
+    if (reliability >= 80) return 0
+    if (reliability >= 50) return 1
+    if (reliability >= 30) return 2
+    if (reliability >= 10) return 3
 
-    const priorityReliability = getReliability(priorityParticipant, reliabilityByCharacterName)
-    const nonPriorityReliability = getReliability(nonPriorityParticipant, reliabilityByCharacterName)
-
-    const priorityEnchanted = isFullyEnchanted(priorityParticipant, fullEnchantByCharacterName)
-    const nonPriorityEnchanted = isFullyEnchanted(nonPriorityParticipant, fullEnchantByCharacterName)
-
-    const reliabilityDiff = nonPriorityReliability - priorityReliability
-
-    const nonPriorityOverrides =
-        (nonPriorityReliability >= NON_PRIORITY_OVERRIDE_MIN_RELIABILITY && reliabilityDiff >= NON_PRIORITY_OVERRIDE_MIN_DIFF) ||
-        (
-            nonPriorityReliability >= NON_PRIORITY_ENCHANT_OVERRIDE_MIN_RELIABILITY &&
-            nonPriorityEnchanted &&
-            reliabilityDiff >= NON_PRIORITY_ENCHANT_OVERRIDE_MIN_DIFF &&
-            !priorityEnchanted
-        )
-
-    if (nonPriorityOverrides) {
-        return aPriority ? 1 : -1
-    }
-
-    return aPriority ? -1 : 1
+    return 4
 }
 
+const compareReliabilityEnchantAndPriority = (
+    reliabilityByCharacterName: Map<string, number>,
+    fullEnchantByCharacterName: Map<string, boolean>
+) =>
+    (a: RaidParticipant, b: RaidParticipant) => {
+        const aReliability = getReliability(a, reliabilityByCharacterName)
+        const bReliability = getReliability(b, reliabilityByCharacterName)
+
+        const aBucketRank = getReliabilityBucketRank(aReliability)
+        const bBucketRank = getReliabilityBucketRank(bReliability)
+
+        const aEnchanted = isFullyEnchanted(a, fullEnchantByCharacterName)
+        const bEnchanted = isFullyEnchanted(b, fullEnchantByCharacterName)
+
+        const reliabilityDiff = Math.abs(aReliability - bReliability)
+
+        const sameBucket = aBucketRank === bBucketRank
+
+        const closeAcrossBucketBoundary =
+            Math.abs(aBucketRank - bBucketRank) === 1 &&
+            Math.min(aReliability, bReliability) >= CROSS_BUCKET_CLOSE_MIN_RELIABILITY &&
+            reliabilityDiff <= CROSS_BUCKET_CLOSE_DIFF
+
+        const shouldTreatAsSameReliabilityGroup =
+            sameBucket || closeAcrossBucketBoundary
+
+        if (!shouldTreatAsSameReliabilityGroup) {
+            return compareValues(aBucketRank, bBucketRank)
+        }
+
+        if (aEnchanted !== bEnchanted) {
+            return aEnchanted ? -1 : 1
+        }
+
+        if (reliabilityDiff >= SAME_BUCKET_DECISIVE_RELIABILITY_DIFF) {
+            return compareValues(bReliability, aReliability)
+        }
+
+        const priorityResult = comparePriority(a, b)
+
+        if (priorityResult !== 0) {
+            return priorityResult
+        }
+
+        return compareValues(bReliability, aReliability)
+    }
+
 export const createParticipantsComparator = (reliabilityByCharacterName: Map<string, number>, fullEnchantByCharacterName: Map<string, boolean>, createdById: number) => chainComparators<RaidParticipant>(
+    compareRaidCreator(createdById),
     compareAsc(getStatusRank),
-    (a, b) => comparePriorityWithOverride(a, b, reliabilityByCharacterName, fullEnchantByCharacterName, createdById),
+    compareReliabilityEnchantAndPriority(reliabilityByCharacterName, fullEnchantByCharacterName),
     compareDesc(p => getReliability(p, reliabilityByCharacterName)),
     compareAsc(p => getEnchantRank(p, fullEnchantByCharacterName)),
     compareAsc(getGuildRank),

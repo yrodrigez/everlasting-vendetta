@@ -13,6 +13,7 @@ import { createContext, ReactNode, useCallback, useContext, useMemo, useState } 
 import { toast } from 'sonner'
 import { ReservationsRepository } from './reservations-repository'
 import { useReservationsRealtime } from './use-reservations-realtime'
+import { useAuth } from "@/context/AuthContext"
 
 
 interface RaidItemsContextType {
@@ -136,11 +137,11 @@ export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen
             const extraItems = await repository.fetchMaxReservations(resetId, selectedCharacter?.id)
             setMaxReservations(extraItems)
         },
-        async (payload) => {
+        async () => {
             // On Hard Reserve change
             refetch();
         },
-        async (payload) => {
+        async () => {
             // On Raid Loot change
             refetch();
         }
@@ -150,13 +151,29 @@ export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen
     const removeReserveAudio = useAudio('/sounds/PutDownCloth_Leather01.ogg');
     const maxReservationsAudio = useAudio('/sounds/HumanMale_err_itemmaxcount01.ogg');
 
-
+    const { user } = useAuth();
     const reserve = useCallback(async (itemId: number, characterId = selectedCharacter?.id) => {
-        if (!characterId || !supabase) return
+        if (!characterId || !supabase || !user) return
 
         if (raidStatus === 'locked' && !isPresent) {
             toast.error('Raid is locked. You must be a participant to reserve items.')
             return
+        }
+
+        if (!isPresent && selectedCharacter) {
+            const className = (selectedCharacter?.playable_class?.name?.toLowerCase() ?? 'mage') as 'warrior' | 'paladin' | 'hunter' | 'rogue' | 'priest' | 'shaman' | 'mage' | 'warlock' | 'druid';
+
+            const { error } = await registerOnRaid(user.id, selectedCharacter.id, resetId, {
+                role: selectedCharacter.selectedRole as MemberRole,
+                status: 'confirmed',
+                className
+            }, supabase);
+
+            if (error) {
+                console.error('Error registering on raid', error);
+                toast.error('Error reserving item: ' + error.message);
+                return;
+            }
         }
 
         const item = items.find(({ id }) => id === itemId)
@@ -215,15 +232,7 @@ export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen
             }));
 
 
-            if (!isPresent && selectedCharacter) {
-                const className = (selectedCharacter?.playable_class?.name?.toLowerCase() ?? 'mage') as 'warrior' | 'paladin' | 'hunter' | 'rogue' | 'priest' | 'shaman' | 'mage' | 'warlock' | 'druid';
 
-                registerOnRaid(selectedCharacter.id, resetId, {
-                    role: selectedCharacter.selectedRole as MemberRole,
-                    status: 'confirmed',
-                    className
-                }, supabase);
-            }
 
             // Realtime will handle final synchronization with real data from DB
         } catch (error) {
