@@ -5,6 +5,7 @@ import AdminActions from "@/app/raid/components/admin-actions";
 import BenchParticipant from "@/app/raid/components/BenchParticipant";
 import { getSubscriptionStatusText } from "@/app/raid/components/get-status-text";
 import { MoveParticipant } from "@/app/raid/components/move-participant";
+import { RrsBadge } from "@/app/raid/components/RrsBadge";
 import { useParticipants } from "@/app/raid/components/useParticipants";
 import { useScrollToRaidParticipant } from "@/app/raid/components/useScrollToRaidParticipant";
 import { RAID_STATUS } from "@/app/raid/components/utils";
@@ -15,7 +16,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useSupabase } from "@/context/SupabaseContext";
 import { sendActionEvent } from '@/hooks/usePageEvent';
 import useScreenSize from '@/hooks/useScreenSize';
-import { createAPIService } from "@/lib/api";
+import type { RaidParticipantRrsScore } from "@/lib/api";
 import { GUILD_NAME } from '@/util/constants';
 import { createRosterMemberRoute } from "@/util/create-roster-member-route";
 import { useMessageBox } from '@/util/msgBox';
@@ -34,7 +35,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
-import { createParticipantsComparator, getRaidReadinessScore } from "../raid-priority-comparator";
+import { createParticipantScoreKey, createParticipantsComparator, getRaidReadinessScore } from "../raid-priority-comparator";
 
 
 const GuildMemberIndicator = (character: any) => {
@@ -55,51 +56,10 @@ type RaidParticipantWithPosition = RaidParticipant & {
     position: number;
 }
 
-type ParticipantGearScore = {
-    characterName: string;
-    isFullEnchanted: boolean;
-}
-
-type ParticipantReliability = {
-    characterName: string;
-    finalRecentReliability: number;
-}
-
-function getReliabilityColor(score: number) {
-    if (score >= (26.6 * 4)) return {
-        text: 'text-legendary',
-        background: 'bg-legendary-900',
-        border: 'border-legendary',
-    }
-
-    if (score >= 26.6*3) return {
-        text: 'text-epic',
-        background: 'bg-epic-900',
-        border: 'border-epic',
-    }
-
-    if (score >= (26.6*2)) return {
-        text: 'text-rare',
-        background: 'bg-rare-900',
-        border: 'border-rare',
-    }
-
-    if (score >= 26.6) return {
-        text: 'text-uncommon',
-        background: 'bg-uncommon-900',
-        border: 'border-uncommon',
-    }
-
-    return {
-        text: 'text-common',
-        background: 'bg-common-900',
-        border: 'border-common',
-    }
-}
-
-export default function RaidParticipants({ participants, resetId, raidId, minGs, currentResets, createdById, raidSize = 10, isRaidOver, raidStartDate, raidEndDate }: {
+export default function RaidParticipants({ participants, resetId, participantScores, raidId, minGs, currentResets, createdById, raidSize = 10, isRaidOver, raidStartDate, raidEndDate }: {
     participants: RaidParticipant[],
     resetId: string,
+    participantScores: RaidParticipantRrsScore[],
     raidId: string,
     raidInProgress: boolean
     minGs: number,
@@ -115,77 +75,14 @@ export default function RaidParticipants({ participants, resetId, raidId, minGs,
     const supabase = useSupabase();
     const selectedCharacter = useCharacterStore(useShallow(state => ({ ...state.selectedCharacter })));
     const router = useRouter();
-    const apiService = createAPIService();
 
     const stateParticipants = useParticipants(resetId, participants)
     const { isMobile } = useScreenSize()
-    const { data: participantGearScores = [] } = useQuery({
-        queryKey: ['raid-participant-gear-scores', resetId, stateParticipants.map((participant) => participant.member.character.id).sort((a, b) => a - b).join(',')],
-        queryFn: async () => {
-            const characters = stateParticipants
-                .map((participant) => {
-                    const character = participant.member.character
-                    if (!character?.name || !character.realm?.slug) return null
+    const participantScoreByCharacterKey = useMemo(() => new Map(
+        participantScores.map((score) => [createParticipantScoreKey(score.characterName, score.realmSlug), score])
+    ), [participantScores])
 
-                    return {
-                        name: character.name,
-                        realm: character.realm.slug,
-                    }
-                })
-                .filter((character): character is { name: string, realm: string } => !!character)
-
-            if (!characters.length) return [] as ParticipantGearScore[]
-
-            const { data = [] } = await apiService.anon.gearScore(characters, false)
-            return data.map(({ characterName, isFullEnchanted }) => ({
-                characterName,
-                isFullEnchanted,
-            }))
-        },
-        enabled: stateParticipants.length > 0,
-        staleTime: 3600000,
-    })
-    const { data: participantReliabilityScores = [] } = useQuery({
-        queryKey: ['raid-participant-reliability', resetId, stateParticipants.map((participant) => participant.member.character.id).sort((a, b) => a - b).join(',')],
-        queryFn: async () => {
-            const reliabilityResults = await Promise.all(
-                stateParticipants.map(async (participant) => {
-                    const character = participant.member.character
-                    const { data, error } = await supabase
-                        .rpc('get_recent_raid_reliability_rating', {
-                            p_character_name: character.name.toLowerCase(),
-                            p_realm_slug: character.realm.slug,
-                        })
-                        .single<{ final_recent_reliability: number | null }>()
-
-                    if (error) {
-                        console.error('Error fetching participant reliability', character.name, error)
-                        return {
-                            characterName: character.name,
-                            finalRecentReliability: 0,
-                        }
-                    }
-
-                    return {
-                        characterName: character.name,
-                        finalRecentReliability: Number(data?.final_recent_reliability ?? 0),
-                    }
-                })
-            )
-
-            return reliabilityResults satisfies ParticipantReliability[]
-        },
-        enabled: !!supabase && stateParticipants.length > 0,
-        staleTime: Infinity,
-    })
-    const fullEnchantByCharacterName = useMemo(() => new Map(
-        participantGearScores.map(({ characterName, isFullEnchanted }) => [characterName.toLowerCase(), isFullEnchanted])
-    ), [participantGearScores])
-    const reliabilityByCharacterName = useMemo(() => new Map(
-        participantReliabilityScores.map(({ characterName, finalRecentReliability }) => [characterName.toLowerCase(), finalRecentReliability || 1])
-    ), [participantReliabilityScores])
-
-    const participantsComparator = useMemo(() => createParticipantsComparator(reliabilityByCharacterName, fullEnchantByCharacterName, createdById), [reliabilityByCharacterName, fullEnchantByCharacterName, createdById])
+    const participantsComparator = useMemo(() => createParticipantsComparator(participantScoreByCharacterKey, createdById), [participantScoreByCharacterKey, createdById])
 
     const sortedParticipants: RaidParticipantWithPosition[] = useMemo(() => [...(stateParticipants ?? [])]
         .sort(participantsComparator)
@@ -450,25 +347,11 @@ export default function RaidParticipants({ participants, resetId, raidId, minGs,
                 );
 
             case "reliability": {
-                const reliabilityScore = reliabilityByCharacterName.get(name.toLowerCase()) ?? 0
-                const readinessScore = getRaidReadinessScore(registration, reliabilityByCharacterName, fullEnchantByCharacterName)
-                const reliabilityColor = getReliabilityColor(readinessScore)
+                const participantScore = participantScoreByCharacterKey.get(createParticipantScoreKey(name, realm.slug))
+                const readinessScore = getRaidReadinessScore(registration, participantScoreByCharacterKey)
 
                 return (
-                    <Tooltip
-                        className="border border-wood-100"
-                        showArrow
-                        content={`Raid attendance score: ${reliabilityScore.toFixed(2)} | Raid readiness score: ${readinessScore.toFixed(2)}`}
-                        placement="top"
-                    >
-                        <div className="flex items-center gap-1 justify-between w-20">
-                            <span
-                                className={`${reliabilityColor.text} ${reliabilityColor.background} px-2 py-1 text-xs rounded-full border font-bold ${reliabilityColor.border} flex items-center justify-center min-w-14 max-w-14`}
-                            >
-                                {Math.round(readinessScore)}
-                            </span>
-                        </div>
-                    </Tooltip>
+                    <RrsBadge participantScore={participantScore} readinessScore={readinessScore} />
                 )
             }
 
@@ -541,7 +424,7 @@ export default function RaidParticipants({ participants, resetId, raidId, minGs,
             default:
                 return <></>;
         }
-    }, [selectedCharacter, supabase, guildEvent, yesNo, user, reliabilityByCharacterName, createdById]);
+    }, [selectedCharacter, supabase, guildEvent, yesNo, user, participantScoreByCharacterKey, createdById]);
 
     return (
         <Table
@@ -570,11 +453,12 @@ export default function RaidParticipants({ participants, resetId, raidId, minGs,
                     const isOverflow = item.position > raidSize
                     const isThreshold = item.position === raidSize
                     const isYourself = selectedCharacter?.id === item.member.character.id
+                    const isSizeLimitExceeded = sortedParticipants.length > raidSize
                     return (
                         <TableRow
                             key={item.member.character.id}
                             id={`participant-${item.member.character.id}`}
-                            className={`transition-all duration-300 ${isYourself ? 'bg-gold/25 border-gold/60' : ''} ${isThreshold ? 'border-b border-b-wood-100' : ''} ${isOverflow ? 'opacity-50' : ''}`}
+                            className={`transition-all duration-300 ${isYourself ? 'bg-gold/25 border-gold/60' : ''} ${(isThreshold && isSizeLimitExceeded) ? 'border-b border-b-wood-100' : ''} ${isOverflow ? 'opacity-50' : ''}`}
                         >
                             {(columnKey) => <TableCell>{renderCell(item, columnKey, isOverflow)}</TableCell>}
                         </TableRow>

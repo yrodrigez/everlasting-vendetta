@@ -1,20 +1,10 @@
 import { GUILD_NAME } from "@/util/constants";
 import { RaidParticipant } from "@/app/raid/api/types";
+import type { RaidParticipantRrsScore } from "@/lib/api";
 
 export type RaidParticipantWithPosition = RaidParticipant & {
     position: number;
 }
-
-export type ParticipantGearScore = {
-    characterName: string;
-    isFullEnchanted: boolean;
-}
-
-export type ParticipantReliability = {
-    characterName: string;
-    finalRecentReliability: number;
-}
-const PRIORITY_ROLES = ['GUILD_MASTER', 'COMRADE', 'RAID_LEADER', 'LOOT_MASTER', 'RAIDER'] as const
 
 const compareValues = (a: number | string, b: number | string) => {
     if (a < b) return -1
@@ -42,36 +32,34 @@ const chainComparators =
             return 0
         }
 
-const getCharacterKey = (p: RaidParticipant) =>
-    p.member.character.name.toLowerCase()
+export const createParticipantScoreKey = (characterName: string, realmSlug: string) =>
+    `${characterName.toLowerCase()}-${realmSlug.toLowerCase()}`
+
+const getCharacterKey = (p: RaidParticipant) => {
+    const character = p.member.character
+    return createParticipantScoreKey(character.name, character.realm.slug)
+}
 
 const getStatusRank = (p: RaidParticipant) =>
     ['confirmed', 'late', 'tentative'].includes(p.details?.status ?? 'declined') ? 0 : 1
 
-const getReliability = (p: RaidParticipant, reliabilityByCharacterName: Map<string, number>) =>
-    reliabilityByCharacterName.get(getCharacterKey(p)) ?? 0
+const getParticipantScore = (p: RaidParticipant, participantScoreByCharacterKey: Map<string, RaidParticipantRrsScore>) =>
+    participantScoreByCharacterKey.get(getCharacterKey(p))
 
-const isFullyEnchanted = (p: RaidParticipant, fullEnchantByCharacterName: Map<string, boolean>) =>
-    fullEnchantByCharacterName.get(getCharacterKey(p)) ?? false
+const getParticipationCount = (p: RaidParticipant, participantScoreByCharacterKey: Map<string, RaidParticipantRrsScore>) =>
+    getParticipantScore(p, participantScoreByCharacterKey)?.participationCount ?? 0
 
-const getEnchantRank = (p: RaidParticipant, fullEnchantByCharacterName: Map<string, boolean>) =>
-    isFullyEnchanted(p, fullEnchantByCharacterName) ? 0 : 1
+const isFullyEnchanted = (p: RaidParticipant, participantScoreByCharacterKey: Map<string, RaidParticipantRrsScore>) =>
+    getParticipantScore(p, participantScoreByCharacterKey)?.isFullEnchanted ?? false
+
+const getEnchantRank = (p: RaidParticipant, participantScoreByCharacterKey: Map<string, RaidParticipantRrsScore>) =>
+    isFullyEnchanted(p, participantScoreByCharacterKey) ? 0 : 1
 
 const getGuildRank = (p: RaidParticipant) =>
     p.member.character.guild?.name === GUILD_NAME ? 0 : 1
 
 const getCreatedAtTs = (p: RaidParticipant) =>
     new Date(p.created_at).getTime()
-
-const isPriorityParticipant = (p: RaidParticipant) => {
-    const hasPriorityRole =
-        p.roles?.some(role =>
-            PRIORITY_ROLES.includes(role as (typeof PRIORITY_ROLES)[number])
-        ) ?? false
-
-
-    return hasPriorityRole
-}
 
 const compareRaidCreator =
     (createdById: number) =>
@@ -85,38 +73,24 @@ const compareRaidCreator =
         }
 
 
-const FULL_ENCHANT_MULTIPLIER = 1.175
-const PRIORITY_ROLE_MULTIPLIER = 1.135
-
 export const getRaidReadinessScore = (
     participant: RaidParticipant,
-    reliabilityByCharacterName: Map<string, number>,
-    fullEnchantByCharacterName: Map<string, boolean>
+    participantScoreByCharacterKey: Map<string, RaidParticipantRrsScore>
 ) => {
-    const reliability = getReliability(participant, reliabilityByCharacterName)
-
-    const enchantMultiplier = isFullyEnchanted(participant, fullEnchantByCharacterName)
-        ? FULL_ENCHANT_MULTIPLIER
-        : 1
-
-    const priorityMultiplier = isPriorityParticipant(participant)
-        ? PRIORITY_ROLE_MULTIPLIER
-        : 1
-
-    return reliability * enchantMultiplier * priorityMultiplier
+    return getParticipantScore(participant, participantScoreByCharacterKey)?.rrs ?? 0
 }
 
 const getIsGuildMember = (p: RaidParticipant) =>
     p.member.character.guild?.name === GUILD_NAME
 
 
-export const createParticipantsComparator = (reliabilityByCharacterName: Map<string, number>, fullEnchantByCharacterName: Map<string, boolean>, createdById: number) => chainComparators<RaidParticipant>(
+export const createParticipantsComparator = (participantScoreByCharacterKey: Map<string, RaidParticipantRrsScore>, createdById: number) => chainComparators<RaidParticipant>(
     compareRaidCreator(createdById),
     compareAsc(getStatusRank),
     compareDesc(p => getIsGuildMember(p) ? 1 : 0),
-    compareDesc(p => getRaidReadinessScore(p, reliabilityByCharacterName, fullEnchantByCharacterName)),
-    compareDesc(p => getReliability(p, reliabilityByCharacterName)),
-    compareAsc(p => getEnchantRank(p, fullEnchantByCharacterName)),
+    compareDesc(p => getRaidReadinessScore(p, participantScoreByCharacterKey)),
+    compareDesc(p => getParticipationCount(p, participantScoreByCharacterKey)),
+    compareAsc(p => getEnchantRank(p, participantScoreByCharacterKey)),
     compareAsc(getGuildRank),
     compareAsc(getCreatedAtTs)
 )

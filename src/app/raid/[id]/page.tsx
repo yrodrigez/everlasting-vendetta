@@ -29,6 +29,8 @@ export const maxDuration = 60;
 
 export { generateMetadata } from './generate-metadata';
 
+const emptyRrs = { participantScores: [] }
+
 async function getCharacterGearScore(characterName: string | undefined, realmSlug: string = GUILD_REALM_SLUG): Promise<number> {
     if (!characterName) return 99999
     const response = await fetch(`${process.env.NEXT_PUBLIC_EV_API_URL}/gearscore`, {
@@ -48,7 +50,7 @@ async function getCharacterGearScore(characterName: string | undefined, realmSlu
 }
 
 export default async function ({ params }: { params: Promise<{ id: string }> }) {
-    const { getSupabase, auth } = await createServerSession();
+    const { getSupabase, auth, apiService } = await createServerSession();
     const isLoggedInUser = await auth.getSession()
     const { id: raidId } = await params
     const supabase = await getSupabase();
@@ -69,13 +71,17 @@ export default async function ({ params }: { params: Promise<{ id: string }> }) 
     const memberRolesRepository = new MemberRolesRepository(supabase);
     const participantsService = new ParticipantsService(supabase, memberRolesRepository);
 
-    const [participants, { previous: previousReset, next: nextReset }, hasLootReservations, hasLootHistory, characterGearScore, currentResets] = await Promise.all([
+    const [participants, { previous: previousReset, next: nextReset }, hasLootReservations, hasLootHistory, characterGearScore, currentResets, resetRrs] = await Promise.all([
         participantsService.fetchParticipantsWithRoles(reset.id),
         raidResetViewService.findPreviousAndNext(reset.raid_date),
         raidResetViewService.hasCharacterReservations(reset.id, isLoggedInUser?.selectedCharacter?.id),
         raidResetViewService.hasResetLootHistory(reset.id),
         getCharacterGearScore(isLoggedInUser?.selectedCharacter?.name, reset?.realm),
         raidResetViewService.findResetsCurrentResetsFromSameRaid(reset.raid_id, reset.id),
+        apiService.raids.getResetRrs(reset.id).catch((error) => {
+            console.error('Error fetching reset RRS', error)
+            return emptyRrs
+        }),
     ])
 
     const { id, raid_date: raidDate, raid, time: raidTime, end_date, end_time: endTime, status, realm, is_reservations_allowed, created_by } = reset
@@ -154,6 +160,7 @@ export default async function ({ params }: { params: Promise<{ id: string }> }) 
                         participants={participants}
                         currentResets={currentResets.data ?? []}
                         resetId={id}
+                        participantScores={resetRrs.participantScores}
                         raidId={reset.raid_id}
                         minGs={reset.raid.min_gs}
                         createdById={created_by}
@@ -176,6 +183,7 @@ export default async function ({ params }: { params: Promise<{ id: string }> }) 
                             raidStarted={raidStarted}
                             raidSize={reset.raid.size}
                             createdById={created_by}
+                            participantScores={resetRrs.participantScores}
                         />
                         <DiscordLink raidId={id} />
                         {is_reservations_allowed && (

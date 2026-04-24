@@ -1,5 +1,6 @@
 'use client';
 import GroupExport from "@/app/raid/components/GroupExport";
+import type { RaidParticipantRrsScore } from "@/lib/api";
 import { useModal } from '@/hooks/useModal';
 import { useMessageBox } from '@/util/msgBox';
 import {
@@ -40,6 +41,7 @@ export function RaidOptions({
     hasLoot,
     raidSize,
     createdById,
+    participantScores,
 }: {
     nextResetId: string,
     previousResetId: string,
@@ -48,6 +50,7 @@ export function RaidOptions({
     raidStarted: boolean
     raidSize: number
     createdById: number
+    participantScores: RaidParticipantRrsScore[]
 }) {
     const router = useRouter()
     const {
@@ -145,6 +148,7 @@ export function RaidOptions({
                                 resetId={currentResetId}
                                 raidSize={raidSize}
                                 createdById={createdById}
+                                participantScores={participantScores}
                             />
                         )
                         open()

@@ -121,6 +121,30 @@ type UserCharactersOutput = {
   };
 }[];
 
+export type RaidParticipantRrsScore = {
+  characterName: string;
+  realmSlug: string;
+  isPriorityRole: boolean;
+  isAlter: boolean;
+  isFullEnchanted: boolean;
+  participationCount: number;
+  totalRaids: number;
+  weeksSinceAccountCreation: number;
+  rrs: number;
+  multipliers: {
+    fullEnchant: number;
+    priorityRole: number;
+    alter: number;
+    signupTiming: number;
+  };
+}
+
+export type RaidResetRrsOutput = {
+  resetId: string;
+  participantScores: RaidParticipantRrsScore[];
+  request_id: string;
+}
+
 export function createServerApiClient(accessToken: string | null) {
   const serverApi = axios.create({
     baseURL: process.env.NEXT_PUBLIC_EV_API_URL,
@@ -177,6 +201,7 @@ export interface APIServicePort {
     setSelected: (characterId: string) => Promise<any>;
   };
   raids: {
+    getResetRrs: (resetId: string) => Promise<RaidResetRrsOutput>;
     addItem: ({ raidId, itemId, bossName }: { raidId: string, itemId: number, bossName: string | undefined }) => Promise<{
       item: {
         id: number;
@@ -338,6 +363,15 @@ export const createAPIService = (_api: AxiosInstance = api): APIServicePort => (
     },
   },
   raids: {
+    getResetRrs: async (resetId: string): Promise<RaidResetRrsOutput> => {
+      try {
+        const { data } = await _api.post(`/reset/${resetId}/rrs`);
+        return data;
+      } catch (error) {
+        console.error('Error fetching raid reset RRS:', error);
+        throw error;
+      }
+    },
     addItem: async ({ raidId, itemId, bossName }: { raidId: string, itemId: number, bossName: string | undefined }): Promise<{
       item: {
         id: number;

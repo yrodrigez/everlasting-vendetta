@@ -12,17 +12,16 @@ import { useAuth } from "@/context/AuthContext";
 import { useSupabase } from "@/context/SupabaseContext";
 import { MemberRolesRepository } from "@/app/raid/api/member-roles.repository";
 import { ParticipantsService } from "@/app/raid/api/participants.service";
-import { createParticipantsComparator } from "@/app/raid/raid-priority-comparator";
-import { createAPIService } from "@/lib/api";
+import { createParticipantScoreKey, createParticipantsComparator } from "@/app/raid/raid-priority-comparator";
+import type { RaidParticipantRrsScore } from "@/lib/api";
 
 const MAX_PARTICIPANTS = 40;
 const MAIN_GROUP_SIZE = 5;
 const OVERFLOW_GROUP_NUMBERS = [8, 7, 6];
 
-export default function GroupExport({ resetId, raidSize, createdById }: { resetId: string, raidSize: number, createdById: number }) {
+export default function GroupExport({ resetId, raidSize, createdById, participantScores }: { resetId: string, raidSize: number, createdById: number, participantScores: RaidParticipantRrsScore[] }) {
     const { user } = useAuth();
     const supabase = useSupabase();
-    const apiService = useMemo(() => createAPIService(), []);
     const [copySuccess, setCopySuccess] = useState("");
     const [generateRoster, setGenerateRoster] = useState("");
 
@@ -41,65 +40,13 @@ export default function GroupExport({ resetId, raidSize, createdById }: { resetI
         enabled: !!supabase,
     });
 
-    const participantIdsKey = participants.map((p) => p.member.character.id).sort((a, b) => a - b).join(",");
-
-    const { data: participantGearScores = [] } = useQuery({
-        queryKey: ["group-export-gear-scores", resetId, participantIdsKey],
-        queryFn: async () => {
-            const characters = participants
-                .map((participant) => {
-                    const character = participant.member.character;
-                    if (!character?.name || !character.realm?.slug) return null;
-                    return { name: character.name, realm: character.realm.slug };
-                })
-                .filter((c): c is { name: string, realm: string } => !!c);
-            if (!characters.length) return [] as { characterName: string, isFullEnchanted: boolean }[];
-            const { data = [] } = await apiService.anon.gearScore(characters, false);
-            return data.map(({ characterName, isFullEnchanted }) => ({ characterName, isFullEnchanted }));
-        },
-        enabled: participants.length > 0,
-        staleTime: 3600000,
-    });
-
-    const { data: participantReliabilityScores = [] } = useQuery({
-        queryKey: ["group-export-reliability", resetId, participantIdsKey],
-        queryFn: async () => {
-            const results = await Promise.all(
-                participants.map(async (participant) => {
-                    const character = participant.member.character;
-                    const { data, error } = await supabase
-                        .rpc("get_recent_raid_reliability_rating", {
-                            p_character_name: character.name.toLowerCase(),
-                            p_realm_slug: character.realm.slug,
-                        })
-                        .single<{ final_recent_reliability: number | null }>();
-                    if (error) {
-                        console.error("Error fetching participant reliability", character.name, error);
-                        return { characterName: character.name, finalRecentReliability: 0 };
-                    }
-                    return {
-                        characterName: character.name,
-                        finalRecentReliability: Number(data?.final_recent_reliability ?? 0),
-                    };
-                })
-            );
-            return results;
-        },
-        enabled: !!supabase && participants.length > 0,
-        staleTime: Infinity,
-    });
-
-    const fullEnchantByCharacterName = useMemo(() => new Map(
-        participantGearScores.map(({ characterName, isFullEnchanted }) => [characterName.toLowerCase(), isFullEnchanted])
-    ), [participantGearScores]);
-
-    const reliabilityByCharacterName = useMemo(() => new Map(
-        participantReliabilityScores.map(({ characterName, finalRecentReliability }) => [characterName.toLowerCase(), finalRecentReliability])
-    ), [participantReliabilityScores]);
+    const participantScoreByCharacterKey = useMemo(() => new Map(
+        participantScores.map((score) => [createParticipantScoreKey(score.characterName, score.realmSlug), score])
+    ), [participantScores]);
 
     const participantsComparator = useMemo(
-        () => createParticipantsComparator(reliabilityByCharacterName, fullEnchantByCharacterName, createdById),
-        [reliabilityByCharacterName, fullEnchantByCharacterName, createdById]
+        () => createParticipantsComparator(participantScoreByCharacterKey, createdById),
+        [participantScoreByCharacterKey, createdById]
     );
 
     useEffect(() => {
