@@ -22,6 +22,7 @@ import { faArrowLeftLong, faCartPlus, faGift } from "@fortawesome/free-solid-svg
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { MemberRolesRepository } from "../api/member-roles.repository";
 import { ParticipantsService } from "../api/participants.service";
+import type { RaidComposition } from "../raid-priority-comparator";
 import { RaidResetViewDIContainer } from "../raid-reset-view-di.container";
 
 export const dynamic = 'force-dynamic'
@@ -125,6 +126,7 @@ export default async function ({ params }: { params: Promise<{ id: string }> }) 
                         <span className="text-lg font-bold">Starts: {raidStartDate.format('dddd, MMMM D')} at {raidTime.split(':').slice(0, 2).join(':')} </span>
                         <small className="text-primary">Ends: {endTime.split(':').slice(0, 2).join(':')}</small>
                         <KpisView
+                            composition={reset.composition as RaidComposition}
                             participants={participants}
                             raidId={id}
                             raidSize={reset?.raid?.size}
@@ -165,6 +167,7 @@ export default async function ({ params }: { params: Promise<{ id: string }> }) 
                         minGs={reset.raid.min_gs}
                         createdById={created_by}
                         raidSize={reset.raid.size}
+                        composition={reset.composition as RaidComposition}
                         isRaidOver={isRaidOver}
                         raidStartDate={raidStartDate.toISOString()}
                         raidEndDate={raidEndDate.toISOString()}

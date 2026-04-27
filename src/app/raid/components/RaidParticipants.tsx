@@ -3,6 +3,7 @@ import { getClassIcon, getRoleIcon } from "@/app/apply/components/utils";
 import { RaidParticipant } from "@/app/raid/api/types";
 import AdminActions from "@/app/raid/components/admin-actions";
 import BenchParticipant from "@/app/raid/components/BenchParticipant";
+import ChangeParticipantRole from "@/app/raid/components/ChangeParticipantRole";
 import { getSubscriptionStatusText } from "@/app/raid/components/get-status-text";
 import { MoveParticipant } from "@/app/raid/components/move-participant";
 import { RrsBadge } from "@/app/raid/components/RrsBadge";
@@ -28,14 +29,16 @@ import {
     faTrash
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Avatar, Chip, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip } from "@heroui/react";
+import { Avatar, Chip, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@heroui/react";
 import { useQuery } from "@tanstack/react-query";
 import moment from "moment";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
-import { createParticipantScoreKey, createParticipantsComparator, getRaidReadinessScore } from "../raid-priority-comparator";
+import { createParticipantScoreKey, getRaidReadinessScore, sortParticipantsByComposition } from "../raid-priority-comparator";
+import type { CompositionRole, RaidComposition } from "../raid-priority-comparator";
+import { Tooltip } from "@/components/tooltip";
 
 
 const GuildMemberIndicator = (character: any) => {
@@ -54,9 +57,19 @@ const GuildMemberIndicator = (character: any) => {
 
 type RaidParticipantWithPosition = RaidParticipant & {
     position: number;
+    hasCompositionSpot?: boolean;
+    assignedCompositionRole?: CompositionRole;
+    isCompositionBucketStart?: boolean;
+    isCompositionBucketEnd?: boolean;
 }
 
-export default function RaidParticipants({ participants, resetId, participantScores, raidId, minGs, currentResets, createdById, raidSize = 10, isRaidOver, raidStartDate, raidEndDate }: {
+const compositionRoleLabels: Record<CompositionRole, string> = {
+    tank: 'Tank',
+    healer: 'Healer',
+    dps: 'DPS',
+}
+
+export default function RaidParticipants({ participants, resetId, participantScores, raidId, minGs, currentResets, createdById, raidSize = 10, composition, isRaidOver, raidStartDate, raidEndDate }: {
     participants: RaidParticipant[],
     resetId: string,
     participantScores: RaidParticipantRrsScore[],
@@ -67,6 +80,7 @@ export default function RaidParticipants({ participants, resetId, participantSco
     sanctifiedData?: { characterName: string, count: number, characterId: string }[],
     createdById: number,
     raidSize: number,
+    composition: RaidComposition,
     isRaidOver: boolean,
     raidStartDate: string,
     raidEndDate: string,
@@ -82,14 +96,19 @@ export default function RaidParticipants({ participants, resetId, participantSco
         participantScores.map((score) => [createParticipantScoreKey(score.characterName, score.realmSlug), score])
     ), [participantScores])
 
-    const participantsComparator = useMemo(() => createParticipantsComparator(participantScoreByCharacterKey, createdById), [participantScoreByCharacterKey, createdById])
+    const sortedParticipants: RaidParticipantWithPosition[] = useMemo(() => sortParticipantsByComposition(stateParticipants ?? [], participantScoreByCharacterKey, createdById, composition)
+        .map((participant, index, allParticipants) => {
+            const assignedCompositionRole = participant.assignedCompositionRole
+            const previousRole = allParticipants[index - 1]?.assignedCompositionRole
+            const nextRole = allParticipants[index + 1]?.assignedCompositionRole
 
-    const sortedParticipants: RaidParticipantWithPosition[] = useMemo(() => [...(stateParticipants ?? [])]
-        .sort(participantsComparator)
-        .map((participant, index) => ({
-            ...participant,
-            position: index + 1
-        })), [stateParticipants, participantsComparator])
+            return {
+                ...participant,
+                position: index + 1,
+                isCompositionBucketStart: !!assignedCompositionRole && assignedCompositionRole !== previousRole,
+                isCompositionBucketEnd: !!assignedCompositionRole && assignedCompositionRole !== nextRole,
+            }
+        }), [stateParticipants, participantScoreByCharacterKey, createdById, composition])
     const isSelectedParticipantPresent = sortedParticipants.some((participant) => participant.member.character.id === selectedCharacter?.id)
     const { focusedParticipantId, isFocusActive } = useScrollToRaidParticipant({
         participantId: selectedCharacter?.id,
@@ -136,25 +155,7 @@ export default function RaidParticipants({ participants, resetId, participantSco
     }, [isMobile, user, selectedCharacter]);
 
     const { yesNo } = useMessageBox()
-    const { data: guildEvent } = useQuery({
-        queryKey: ['guildEvent', resetId],
-        queryFn: async () => {
-            const { data = [], error = false } = (await supabase?.from('guild_events_participants').select('*')
-                .eq('event_id', 1)
-                .eq('position', 1))
-                ?? {}
-
-            if (error) {
-                console.error('Error fetching guild event', error)
-                return []
-            }
-
-            return data
-        },
-        enabled: !!resetId && !!supabase,
-        staleTime: 1000 * 60 * 5, // 5 minutes
-        retry: 3,
-    })
+    
 
     const renderCell = useCallback((registration: { member: RaidParticipant } & any, columnKey: React.Key, isOverflow: boolean) => {
         const { name, avatar, playable_class, id, realm = { slug: 'living-flame' } } = registration.member?.character
@@ -165,6 +166,12 @@ export default function RaidParticipants({ participants, resetId, participantSco
         const isYourself = selectedCharacter?.id === id
 
         const isGuildie = registration.member.character.guild?.name === GUILD_NAME
+        const roleValues = registrationDetails?.role?.split('-') ?? []
+        const assignedCompositionRole = registration.assignedCompositionRole as (CompositionRole | undefined)
+        const assignedCompositionRoleLabel = assignedCompositionRole ? compositionRoleLabels[assignedCompositionRole] : ''
+        const showAssignedRole = !!assignedCompositionRole && (
+            roleValues.length > 1
+        )
 
         switch (columnKey) {
 
@@ -189,15 +196,13 @@ export default function RaidParticipants({ participants, resetId, participantSco
                                 <span className="text-gray-500 text-xs flex gap-1 flex-col">
                                     <span className="flex items-center gap-1">
                                         <FontAwesomeIcon icon={faInfoCircle} />
-                                        Bench order (participants listed first are more likely to be benched):
+                                        Spot priority:
                                     </span>
 
                                     <ol className="list-decimal list-inside ml-2">
-                                        <li>Non-raiders before raiders</li>
-                                        <li>Participants who are not fully enchanted before those who are</li>
-                                        <li>Lower recent raid reliability score before higher ones</li>
-                                        <li>Non-guild members before guild members</li>
-                                        <li>Later sign-ups before earlier sign-ups</li>
+                                        <li>Main roles are picked before flex roles</li>
+                                        <li>Flex role tie-breaks: tank, then healer, then DPS</li>
+                                        <li>When role slots are full, remaining spots use RRS</li>
                                     </ol>
                                 </span>
                             </div>
@@ -246,8 +251,21 @@ export default function RaidParticipants({ participants, resetId, participantSco
                                         src={avatar}
                                     />
                                 </div>
-                                <div className="flex items-center break-all w-full gap-1 flex-wrap">
-                                    <h5 className={`text-${playable_class?.name?.toLowerCase() ?? 'gold'} mr-2`}>{name} {isYourself ? '(You)' : null}</h5>
+                                <div className="flex items-center min-w-0 gap-1.5 flex-nowrap">
+                                    <h5 className={`text-${playable_class?.name?.toLowerCase() ?? 'gold'} truncate`}>{name} {isYourself ? '(You)' : null}</h5>
+                                    {showAssignedRole && (
+                                        <Tooltip
+                                            showArrow
+                                            content={`${name} signed up as ${roleValues.join('/')} and is being counted as ${assignedCompositionRoleLabel} for this raid composition.`}
+                                            placement="top"
+                                        >
+                                            <img
+                                                className="w-4 h-4 rounded-full"
+                                                src={getRoleIcon(assignedCompositionRole!)}
+                                                alt={assignedCompositionRoleLabel}
+                                            />
+                                        </Tooltip>
+                                    )}
                                 </div>
                             </div>
                         </Link>
@@ -268,7 +286,7 @@ export default function RaidParticipants({ participants, resetId, participantSco
                                     src={getClassIcon(playable_class?.name)}
                                     alt={playable_class?.name}
                                 />
-                                {registrationDetails.role.split('-').map((roleValue: string, i: number, arr: string[]) => (
+                                {roleValues.map((roleValue: string, i: number, arr: string[]) => (
                                     <img
                                         key={roleValue}
                                         className={`
@@ -362,6 +380,12 @@ export default function RaidParticipants({ participants, resetId, participantSco
                 return (
                     <div className="w-full flex items-center gap-2">
                         <AdminActions>
+                            <ChangeParticipantRole
+                                resetId={resetId}
+                                memberId={registration.member.character.id}
+                                supabase={supabase}
+                                currentDetails={registrationDetails}
+                            />
                             <BenchParticipant
                                 resetId={resetId}
                                 memberId={registration.member.character.id}
@@ -424,7 +448,7 @@ export default function RaidParticipants({ participants, resetId, participantSco
             default:
                 return <></>;
         }
-    }, [selectedCharacter, supabase, guildEvent, yesNo, user, participantScoreByCharacterKey, createdById]);
+    }, [selectedCharacter, supabase, yesNo, user, participantScoreByCharacterKey, createdById]);
 
     return (
         <Table
@@ -450,15 +474,16 @@ export default function RaidParticipants({ participants, resetId, participantSco
                 emptyContent={"No one signed up yet."}
                 items={sortedParticipants}>
                 {(item: any) => {
-                    const isOverflow = item.position > raidSize
+                    const isOverflow = item.hasCompositionSpot === false || item.position > raidSize
                     const isThreshold = item.position === raidSize
                     const isYourself = selectedCharacter?.id === item.member.character.id
                     const isSizeLimitExceeded = sortedParticipants.length > raidSize
+                    
                     return (
                         <TableRow
                             key={item.member.character.id}
                             id={`participant-${item.member.character.id}`}
-                            className={`transition-all duration-300 ${isYourself ? 'bg-gold/25 border-gold/60' : ''} ${(isThreshold && isSizeLimitExceeded) ? 'border-b border-b-wood-100' : ''} ${isOverflow ? 'opacity-50' : ''}`}
+                            className={`transition-all duration-300  ${isYourself ? 'bg-gold/25' : ''} ${(isThreshold && isSizeLimitExceeded) ? 'border-b border-b-wood-100' : ''} ${isOverflow ? 'opacity-50' : ''}`}
                         >
                             {(columnKey) => <TableCell>{renderCell(item, columnKey, isOverflow)}</TableCell>}
                         </TableRow>

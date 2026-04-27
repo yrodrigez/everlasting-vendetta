@@ -25,7 +25,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
     const supabase = await getSupabase();
     const user = await auth.getSession();
     const { p: page = '0' } = await searchParams
-    const calendarService = new CalendarService(new RaidResetsRepository(supabase))
+    const raidResetRepository = new RaidResetsRepository(supabase)
+    const calendarService = new CalendarService(raidResetRepository)
     const { raidResets, totalPages, currentPage } = await calendarService.fetchCalendarPage(page)
 
     const memberRolesRepository = new MemberRolesRepository(supabase)
@@ -71,6 +72,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
                         registrationStatus={raidReset.registrationStatus}
                         status={raidReset.status}
                         size={raidReset.raid.size}
+                        composition={raidReset.composition}
                     />
                 })}
                 {shouldShowCreate && (<CreateNewCard />)}

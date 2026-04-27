@@ -1602,6 +1602,7 @@ export type Database = {
       }
       raid_resets: {
         Row: {
+          composition: Json | null
           created_at: string
           created_by: number | null
           days: Json
@@ -1628,6 +1629,7 @@ export type Database = {
           time: string | null
         }
         Insert: {
+          composition?: Json | null
           created_at?: string
           created_by?: number | null
           days?: Json
@@ -1654,6 +1656,7 @@ export type Database = {
           time?: string | null
         }
         Update: {
+          composition?: Json | null
           created_at?: string
           created_by?: number | null
           days?: Json

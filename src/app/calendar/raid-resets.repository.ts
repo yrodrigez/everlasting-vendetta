@@ -11,10 +11,11 @@ export type RaidResetRow = {
     end_time: string
     status?: 'online' | 'offline'
     createdBy: { character: { name: string } }
+    composition?: { tanks?: number; healers?: number; dps?: number; raid_lead?: number }
 }
 
 export default class RaidResetsRepository {
-    private readonly raidResetColumns = 'raid_date, id, raid:ev_raid(name, min_level, image, size), time, end_date, modifiedBy:ev_member!modified_by(character), modified_at, end_time, status, createdBy:ev_member!created_by(character)'
+    private readonly raidResetColumns = 'raid_date, id, raid:ev_raid(name, min_level, image, size), time, end_date, modifiedBy:ev_member!modified_by(character), modified_at, end_time, status, createdBy:ev_member!created_by(character), composition'
     constructor(private readonly supabase: SupabaseClient) { }
 
     async getRecentAndFutureRaids(safeCutoff: string): Promise<{ recentRaids: RaidResetRow[], oldExpiredCount: number, error: Error | null }> {

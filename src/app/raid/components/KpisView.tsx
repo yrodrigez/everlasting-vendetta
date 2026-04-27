@@ -12,6 +12,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useMemo } from "react";
+import { RaidComposition } from "../raid-priority-comparator";
 
 
 export const DpsIcon = ({ className }: { className: string }) => <svg className={className}
@@ -22,10 +23,11 @@ export const DpsIcon = ({ className }: { className: string }) => <svg className=
 		d="M400 16L166.6 249.4l96 96L496 112 512 0 400 16zM0 416l96 96 32-32-16-32 56-56 88 56 32-32L96 224 64 256l56 88L64 400 32 384 0 416z" />
 </svg>
 
-export function KpisView({ participants, raidId, raidSize }: {
+export function KpisView({ participants, raidId, raidSize, composition }: {
 	participants: RaidParticipant[],
 	raidId: string,
 	raidSize?: number | null
+	composition?: RaidComposition
 }) {
 
 	const rtParticipants = useParticipants(raidId, participants)
@@ -125,30 +127,33 @@ export function KpisView({ participants, raidId, raidSize }: {
 					const overflowPct = confirmed > raidSize ? ((confirmed - raidSize) / maxScale) * 100 : 0
 					const thresholdPct = (raidSize / maxScale) * 100
 					return (
-						<div
-							className="relative h-1 w-full rounded-full bg-dark/80 overflow-hidden mt-1 border border-dark-100"
-							role="progressbar"
-							aria-valuenow={confirmed}
-							aria-valuemin={0}
-							aria-valuemax={raidSize}
-							title={`${confirmed} / ${raidSize} confirmed`}
-						>
-							<div className="absolute left-0 top-0 h-full bg-moss-100" style={{ width: `${fillPct}%` }} />
-							{overflowPct > 0 && (
-								<div
-									className="absolute top-0 h-full bg-red-800"
-									style={{ left: `${thresholdPct}%`, width: `${overflowPct}%` }}
-								/>
-							)}
-							<Tooltip
-								content={`${confirmed} / ${raidSize} confirmed`}
+						<div className="flex items-center gap-1 mt-1 justify-normal" >
+							<div
+								className="relative h-1 w-full rounded-full bg-dark/80 overflow-hidden mt-1 border border-dark-100 grow-1"
+								role="progressbar"
+								aria-valuenow={confirmed}
+								aria-valuemin={0}
+								aria-valuemax={raidSize}
+								title={`${confirmed} / ${raidSize} confirmed`}
 							>
-								<div
-									className="absolute top-0 h-full w-px bg-red-500"
-									style={{ left: `${thresholdPct}%` }}
-									title={`Raid size: ${raidSize}`}
-								/>
-							</Tooltip>
+								<div className="absolute left-0 top-0 h-full bg-moss-100" style={{ width: `${fillPct}%` }} />
+								{overflowPct > 0 && (
+									<div
+										className="absolute top-0 h-full bg-red-800"
+										style={{ left: `${thresholdPct}%`, width: `${overflowPct}%` }}
+									/>
+								)}
+								<Tooltip
+									content={`${confirmed} / ${raidSize} confirmed`}
+								>
+									<div
+										className="absolute top-0 h-full w-px bg-red-500"
+										style={{ left: `${thresholdPct}%` }}
+										title={`Raid size: ${raidSize}`}
+									/>
+								</Tooltip>
+							</div>
+							<span className="text-xs text-gray-300 whitespace-pre block">{`${confirmed} / ${raidSize}`}</span>
 						</div>
 					)
 				})() : null}
@@ -156,7 +161,7 @@ export function KpisView({ participants, raidId, raidSize }: {
 			<div className="grid grid-cols-1 gap-1 w-24">
 				<div className="flex items-center justify-center">
 					<FontAwesomeIcon icon={faShield} className="mr-1" />
-					<span className="w-5 flex justify-end">{totalTank}</span>
+					<span className="w-8 flex justify-end whitespace-pre">{totalTank}{composition?.tanks ? ` / ${composition.tanks}` : ''}</span>
 					{flexTank > 0 ? (
 						<Tooltip showArrow content={flexTankEntries.length > 0 ? formatFlexTooltip(flexTankEntries) : `${flexTank} flex player(s)`}>
 							<span
@@ -169,7 +174,7 @@ export function KpisView({ participants, raidId, raidSize }: {
 				</div>
 				<div className="flex items-center justify-center">
 					<FontAwesomeIcon icon={faHeart} className="mr-1" />
-					<span className="w-5 flex justify-end">{totalHealer}</span>
+					<span className="w-10 flex justify-end whitespace-pre">{totalHealer}{composition?.healers ? ` / ${composition.healers}` : ''}</span>
 					{flexHealer > 0 ? (
 						<Tooltip showArrow content={flexHealerEntries.length > 0 ? formatFlexTooltip(flexHealerEntries) : `${flexHealer} flex player(s)`}>
 							<span
@@ -182,7 +187,7 @@ export function KpisView({ participants, raidId, raidSize }: {
 				</div>
 				<div className="flex items-center justify-center">
 					<DpsIcon className="w-4 h-4 mr-1" />
-					<span className="w-5 flex justify-end">{totalDps}</span>
+					<span className="w-10 flex justify-end whitespace-pre">{totalDps}{composition?.dps ? ` / ${composition.dps}` : ''}</span>
 					{flexDps > 0 ? (
 						<Tooltip showArrow content={flexDpsEntries.length > 0 ? formatFlexTooltip(flexDpsEntries) : `${flexDps} flex player(s)`}>
 							<span

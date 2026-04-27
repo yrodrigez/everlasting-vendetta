@@ -36,6 +36,7 @@ export function RaidResetCard({
 	createdBy,
 	size,
 	createdByCharacter,
+	composition,
 }: {
 	id?: string,
 	raidDate: string,
@@ -52,7 +53,8 @@ export function RaidResetCard({
 	status?: 'online' | 'offline',
 	createdBy?: string,
 	size?: number,
-	createdByCharacter?: { name: string, playable_class: { name: string, }, avatar?: string, realm: { slug: string } }
+	createdByCharacter?: { name: string, playable_class: { name: string, }, avatar?: string, realm: { slug: string } },
+	composition?: { tanks?: number; healers?: number; dps?: number; raid_lead?: number }
 }) {
 	const raidStart = moment(`${raidDate}T${raidTime}`);
 	const raidEnd = moment(`${raidDate}T${endTime}`);
@@ -149,6 +151,7 @@ export function RaidResetCard({
 					raidEndTime={endTime}
 				/>
 				{id && <KpisView
+					composition={composition}
 					participants={participants || []}
 					raidId={id}
 					raidSize={size}

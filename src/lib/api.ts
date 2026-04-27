@@ -127,8 +127,11 @@ export type RaidParticipantRrsScore = {
   isPriorityRole: boolean;
   isAlter: boolean;
   isFullEnchanted: boolean;
-  participationCount: number;
-  totalRaids: number;
+  coverageScore: number;
+  weightedWeeklyScore: number;
+  finalRecentReliability: number;
+  opportunitiesConsidered: number;
+  weeksConsidered: number;
   weeksSinceAccountCreation: number;
   rrs: number;
   multipliers: {

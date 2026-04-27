@@ -1,6 +1,8 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
 
-const RAID_RESETS_COLUMNS = 'raid_date, id, raid:ev_raid(name, min_level, image, min_gs, size), time, end_date, end_time, status, realm, is_reservations_allowed, created_by, raid_id'
+import type { Json } from "@/types/database";
+
+const RAID_RESETS_COLUMNS = 'raid_date, id, raid:ev_raid(name, min_level, image, min_gs, size), time, end_date, end_time, status, realm, is_reservations_allowed, created_by, raid_id, composition'
 
 export type RaidResetView = {
     raid_date: string
@@ -14,6 +16,7 @@ export type RaidResetView = {
     is_reservations_allowed: boolean
     created_by: number
     raid_id: string
+    composition: Json | null
 }
 
 function currentDate() {

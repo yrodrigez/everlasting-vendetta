@@ -41,6 +41,8 @@ function getNewJoinerBoost(weeksSinceAccountCreation: number) {
     if (weeksSinceAccountCreation <= 1) return 45
     if (weeksSinceAccountCreation === 2) return 50
     if (weeksSinceAccountCreation === 3) return 55
+    if (weeksSinceAccountCreation === 4) return 50
+    if (weeksSinceAccountCreation === 5) return 45
 
     return 0
 }
@@ -50,7 +52,11 @@ function formatMultiplierDelta(multiplier: number) {
     const absoluteDelta = Math.abs(delta)
     const formattedDelta = Number.isInteger(absoluteDelta) ? absoluteDelta.toFixed(0) : absoluteDelta.toFixed(1)
 
-    return `${delta > 0 ? '+' : '-'}${formattedDelta}%`
+    return `${delta > 0 ? '+' : delta < 0 ? '-' : ''}${formattedDelta}%`
+}
+
+function formatScore(value: number | undefined) {
+    return (value ?? 0).toFixed(2)
 }
 
 export function RrsBadge({ participantScore, readinessScore }: {
@@ -62,9 +68,9 @@ export function RrsBadge({ participantScore, readinessScore }: {
 
     const multipliers = participantScore?.multipliers;
     const hasModifiers = multipliers && (
-        multipliers.fullEnchant !== 1 || 
-        multipliers.priorityRole !== 1 || 
-        multipliers.alter !== 1 || 
+        multipliers.fullEnchant !== 1 ||
+        multipliers.priorityRole !== 1 ||
+        multipliers.alter !== 1 ||
         multipliers.signupTiming !== 1
     );
 
@@ -103,53 +109,64 @@ export function RrsBadge({ participantScore, readinessScore }: {
                         <span className="font-semibold text-default">{participantScore?.isAlter ? 'Yes' : 'No'}</span>
                         <span className="text-default/75">Fully enchanted</span>
                         <span className="font-semibold text-default">{participantScore?.isFullEnchanted ? 'Yes' : 'No'}</span>
-                        <span className="text-default/75">Participation</span>
-                        <span className="font-semibold text-default">{(participantScore?.participationCount ?? 0).toFixed(2)}</span>
-                        <span className="text-default/75">Total raids</span>
-                        <span className="font-semibold text-default">{participantScore?.totalRaids ?? 0}</span>
+                        <span className="text-default/75">Coverage score</span>
+                        <span className="font-semibold text-default">{formatScore(participantScore?.coverageScore)}</span>
+                        <span className="text-default/75">Weighted weekly score</span>
+                        <span className="font-semibold text-default">{formatScore(participantScore?.weightedWeeklyScore)}</span>
+                        <span className="text-default/75">Recent reliability</span>
+                        <span className="font-semibold text-default">{formatScore(participantScore?.finalRecentReliability)}</span>
+                        <span className="text-default/75">Opportunities considered</span>
+                        <span className="font-semibold text-default">{participantScore?.opportunitiesConsidered ?? 0}</span>
+                        <span className="text-default/75">Weeks considered</span>
+                        <span className="font-semibold text-default">{participantScore?.weeksConsidered ?? 0}</span>
                         <span className="text-default/75">Account age</span>
                         <span className="font-semibold text-default">{participantScore?.weeksSinceAccountCreation ?? 0} weeks</span>
-                        {newJoinerBoost > 0 ? (
-                            <>
-                                <span className="text-gold">New joiner boost</span>
-                                <span className="font-bold text-gold">{newJoinerBoost}</span>
-                            </>
-                        ) : null}
-                        {hasModifiers && (
+
+                        {(hasModifiers || newJoinerBoost > 0) && (
                             <>
                                 <span className="col-span-2 mt-1 border-t border-gold/30 pt-1 text-gold font-semibold">Modifiers</span>
-                                {multipliers.fullEnchant !== 1 && (
+                                {newJoinerBoost > 0 ? (
                                     <>
-                                        <span className="text-default/75">Full enchant</span>
-                                        <span className={`font-semibold ${multipliers.fullEnchant > 1 ? 'text-success' : 'text-danger'}`}>
-                                            {formatMultiplierDelta(multipliers.fullEnchant)}
-                                        </span>
+                                        <span className="text-default/75">New joiner boost</span>
+                                        <span className="font-bold text-success">{newJoinerBoost}</span>
                                     </>
-                                )}
-                                {multipliers.priorityRole !== 1 && (
-                                    <>
-                                        <span className="text-default/75">Raider role</span>
-                                        <span className={`font-semibold ${multipliers.priorityRole > 1 ? 'text-success' : 'text-danger'}`}>
-                                            {formatMultiplierDelta(multipliers.priorityRole)}
-                                        </span>
-                                    </>
-                                )}
-                                {multipliers.alter !== 1 && (
-                                    <>
-                                        <span className="text-default/75">Alter role</span>
-                                        <span className={`font-semibold ${multipliers.alter > 1 ? 'text-success' : 'text-danger'}`}>
-                                            {formatMultiplierDelta(multipliers.alter)}
-                                        </span>
-                                    </>
-                                )}
-                                {multipliers.signupTiming !== 1 && (
-                                    <>
-                                        <span className="text-default/75">Signup timing</span>
-                                        <span className={`font-semibold ${multipliers.signupTiming > 1 ? 'text-success' : 'text-danger'}`}>
-                                            {formatMultiplierDelta(multipliers.signupTiming)}
-                                        </span>
-                                    </>
-                                )}
+                                ) : null}
+                                <>{multipliers && (<>
+                                    {(multipliers?.fullEnchant ?? 0) && (
+                                        <>
+                                            <span className="text-default/75">Full enchant</span>
+                                            <span className={`font-semibold ${multipliers.fullEnchant > 1 ? 'text-success' : 'text-danger'}`}>
+                                                {formatMultiplierDelta(multipliers.fullEnchant) + (multipliers.fullEnchant !== 1 ? '' : ' / +17.5%')}
+                                            </span>
+                                        </>
+                                    )}
+                                    {(multipliers?.priorityRole ?? 0) !== 1 && (
+                                        <>
+                                            <span className="text-default/75">Raider role</span>
+                                            <span className={`font-semibold ${multipliers.priorityRole > 1 ? 'text-success' : 'text-danger'}`}>
+                                                {formatMultiplierDelta(multipliers.priorityRole)}
+                                            </span>
+                                        </>
+                                    )}
+                                    {(multipliers?.alter ?? 0) !== 1 && (
+                                        <>
+                                            <span className="text-default/75">Alter role</span>
+                                            <span className={`font-semibold ${multipliers.alter > 1 ? 'text-success' : 'text-danger'}`}>
+                                                {formatMultiplierDelta(multipliers.alter)}
+                                            </span>
+                                        </>
+                                    )}
+                                    {(multipliers?.signupTiming ?? 0) !== 1 && (
+                                        <>
+                                            <span className="text-default/75">Signup timing</span>
+                                            <span className={`font-semibold ${multipliers.signupTiming > 1 ? 'text-success' : 'text-danger'}`}>
+                                                {formatMultiplierDelta(multipliers.signupTiming)}
+                                            </span>
+                                        </>
+                                    )}
+                                </>)
+                                }
+                                </>
                             </>
                         )}
                     </div>
