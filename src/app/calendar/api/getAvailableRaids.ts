@@ -11,6 +11,7 @@ export default async function getAvailableRaids(supabase: SupabaseClient) {
             min_level: number,
             image: string,
             reservation_amount: number,
+            size: number,
         }[]>()
 
     if (raidsError) {

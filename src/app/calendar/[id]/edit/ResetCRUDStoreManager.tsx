@@ -1,6 +1,7 @@
 'use client'
 import {type ReactNode, useEffect} from "react";
 import useCreateRaidStore from "@/app/calendar/new/Components/useCreateRaidStore";
+import { createDefaultComposition, type RaidCompositionInput } from "@/app/calendar/new/Components/useCreateRaidStore";
 import {useShallow} from "zustand/shallow";
 
 export function ResetCRUDStoreManager({reset, children}: { reset: any, children: ReactNode }) {
@@ -18,6 +19,7 @@ export function ResetCRUDStoreManager({reset, children}: { reset: any, children:
         setOnTimeBonusExtraAmmount,
         setOnTimeBonusCutoffHours,
         setCreatedById,
+        setComposition,
     } = useCreateRaidStore(useShallow(state => ({
         setRaid: state.setRaid,
         setStartDate: state.setStartDate,
@@ -32,6 +34,7 @@ export function ResetCRUDStoreManager({reset, children}: { reset: any, children:
         setOnTimeBonusExtraAmmount: state.setOnTimeBonusExtraAmmount,
         setOnTimeBonusCutoffHours: state.setOnTimeBonusCutoffHours,
         setCreatedById: state.setCreatedById,
+        setComposition: state.setComposition,
     })))
 
     useEffect(() => {
@@ -48,7 +51,18 @@ export function ResetCRUDStoreManager({reset, children}: { reset: any, children:
         setOnTimeBonusExtraAmmount(reset.on_time_bonus_extra_reservations ?? 0)
         setOnTimeBonusCutoffHours(reset.on_time_bonus_cutoff_hours ?? 0)
         setCreatedById(reset.created_by ?? undefined)
+        setComposition(normalizeComposition(reset.composition, reset.raid?.size ?? 10))
     }, []);
 
     return children
+}
+
+function normalizeComposition(composition: RaidCompositionInput | null | undefined, raidSize: number): RaidCompositionInput {
+    if (!composition) return createDefaultComposition(raidSize)
+    return {
+        tanks: Number(composition.tanks) || 0,
+        healers: Number(composition.healers) || 0,
+        dps: Number(composition.dps) || 0,
+        raid_lead: 1,
+    }
 }

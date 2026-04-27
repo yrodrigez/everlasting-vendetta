@@ -2,10 +2,11 @@
 
 import { SelectItem } from "@heroui/react";
 import useCreateRaidStore from "@/app/calendar/new/Components/useCreateRaidStore";
+import type { RaidFormRaid } from "@/app/calendar/new/Components/useCreateRaidStore";
 import { Select } from "@/components/select";
 
 export default function RaidsSelector({ raids }: {
-    raids: { id: string, name: string, min_level: number, image: string, reservation_amount: number }[]
+    raids: RaidFormRaid[]
 }) {
     const setRaid = useCreateRaidStore(state => state.setRaid)
     const raid = useCreateRaidStore(state => state.raid)

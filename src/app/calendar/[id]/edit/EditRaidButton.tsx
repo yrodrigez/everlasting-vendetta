@@ -1,6 +1,7 @@
 'use client'
 
 import useCreateRaidStore from "@/app/calendar/new/Components/useCreateRaidStore";
+import { getCompositionCount } from "@/app/calendar/new/Components/useCreateRaidStore";
 import { Button } from "@/components/Button";
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
@@ -11,7 +12,7 @@ import { useSupabase } from "@/context/SupabaseContext";
 import { useMessageBox } from '@/util/msgBox';
 
 export function EditRaidButton({ reset }: { reset: { raid_id: string, id: string } }) {
-    const { raid, endTime, startTime, startDate, endDate, days, realm, allowSoftReserves, softReservesAmmount, onTimeBonusExtraEnabled, onTimeBonusExtraAmmount, onTimeBonusCutoffHours, createdById } = useCreateRaidStore(useShallow(state => ({
+    const { raid, endTime, startTime, startDate, endDate, days, realm, allowSoftReserves, softReservesAmmount, onTimeBonusExtraEnabled, onTimeBonusExtraAmmount, onTimeBonusCutoffHours, createdById, composition } = useCreateRaidStore(useShallow(state => ({
         raid: state.raid,
         endTime: state.endTime,
         startTime: state.startTime,
@@ -25,6 +26,7 @@ export function EditRaidButton({ reset }: { reset: { raid_id: string, id: string
         onTimeBonusExtraAmmount: state.onTimeBonusExtraAmmount,
         onTimeBonusCutoffHours: state.onTimeBonusCutoffHours,
         createdById: state.createdById,
+        composition: state.composition,
     })))
     const supabase = useSupabase();
 
@@ -34,7 +36,7 @@ export function EditRaidButton({ reset }: { reset: { raid_id: string, id: string
     const { alert, yesNo } = useMessageBox()
 
     const createReset = useCallback(async () => {
-        if (!raid || !startTime || !endTime || !startDate || !endDate || !days?.length || !supabase || !selectedCharacter || !createdById) return
+        if (!raid || !startTime || !endTime || !startDate || !endDate || !days?.length || !supabase || !selectedCharacter || !createdById || !composition || getCompositionCount(composition) !== raid.size) return
 
         if (raid.id !== reset.raid_id) {
             const confirmation = await yesNo({
@@ -82,6 +84,10 @@ export function EditRaidButton({ reset }: { reset: { raid_id: string, id: string
             on_time_bonus_enabled: onTimeBonusExtraEnabled,
             on_time_bonus_extra_reservations: onTimeBonusExtraAmmount,
             on_time_bonus_cutoff_hours: onTimeBonusCutoffHours,
+            composition: {
+                ...composition,
+                raid_lead: 1,
+            },
         }
 
 
@@ -104,11 +110,13 @@ export function EditRaidButton({ reset }: { reset: { raid_id: string, id: string
             router.push('/raid/' + data?.id)
         }
 
-    }, [raid, endTime, startTime, startDate, endDate, days, reset.id, selectedCharacter, realm, allowSoftReserves, softReservesAmmount, onTimeBonusExtraEnabled, onTimeBonusExtraAmmount, onTimeBonusCutoffHours, createdById])
+    }, [raid, endTime, startTime, startDate, endDate, days, reset.id, selectedCharacter, realm, allowSoftReserves, softReservesAmmount, onTimeBonusExtraEnabled, onTimeBonusExtraAmmount, onTimeBonusCutoffHours, createdById, composition])
+
+    const isCompositionValid = !!raid && !!composition && getCompositionCount(composition) === raid.size
 
     return (
         <Button
-            isDisabled={!raid || !startTime || !endTime || !startDate || !endDate || !days?.length || !createdById}
+            isDisabled={!raid || !startTime || !endTime || !startDate || !endDate || !days?.length || !createdById || !isCompositionValid}
             onPress={createReset}
         >
             Edit Raid

@@ -2,6 +2,7 @@ import { EditRaidButton } from "@/app/calendar/[id]/edit/EditRaidButton";
 import { ResetCRUDStoreManager } from "@/app/calendar/[id]/edit/ResetCRUDStoreManager";
 import getAvailableRaids from "@/app/calendar/api/getAvailableRaids";
 import getResetById from "@/app/calendar/api/getResetById";
+import { CompositionManager } from "@/app/calendar/new/Components/CompositionManager";
 import { DaysSelection } from "@/app/calendar/new/Components/DaysSelection";
 import { RaidCard } from "@/app/calendar/new/Components/RaidCard";
 import RaidsSelector from "@/app/calendar/new/Components/RaidsSelector";
@@ -51,6 +52,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                         </div>
                         <DaysSelection />
                         <SoftReservesManager />
+                        <CompositionManager />
                     </div>
                     <div
                         className="flex  justify-between gap-2 items-center lg:items-start lg:justify-end flex-col lg:flex-row">

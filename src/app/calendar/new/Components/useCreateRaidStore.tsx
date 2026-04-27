@@ -1,14 +1,32 @@
 import { create as createStore } from "zustand";
 export type Day = 'Sun' | 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat'
+export type RaidCompositionInput = {
+    tanks: number;
+    healers: number;
+    dps: number;
+    raid_lead: 1;
+}
+
+export type RaidFormRaid = {
+    id: string,
+    name: string,
+    min_level: number,
+    image: string,
+    reservation_amount: number,
+    size: number,
+}
+
+export const createDefaultComposition = (raidSize: number): RaidCompositionInput => {
+    if (raidSize < 25) return { tanks: 2, healers: 2, dps: 6, raid_lead: 1 }
+    return { tanks: 3, healers: 5, dps: 17, raid_lead: 1 }
+}
+
+export const getCompositionCount = (composition?: RaidCompositionInput) =>
+    (composition?.tanks ?? 0) + (composition?.healers ?? 0) + (composition?.dps ?? 0)
+
 interface RaidStore {
-    raid?: {
-        id: string,
-        name: string,
-        min_level: number,
-        image: string,
-        reservation_amount: number
-    },
-    setRaid: (raid?: { id: string, name: string, min_level: number, image: string, reservation_amount: number }) => void
+    raid?: RaidFormRaid,
+    setRaid: (raid?: RaidFormRaid) => void
     startDate: Date,
     setStartDate: (date: Date) => void
     endDate?: Date,
@@ -34,6 +52,8 @@ interface RaidStore {
     setOnTimeBonusCutoffHours: (hours: number) => void
     createdById?: number,
     setCreatedById: (id?: number) => void
+    composition?: RaidCompositionInput,
+    setComposition: (composition?: RaidCompositionInput) => void
 }
 
 const initialState = {
@@ -58,11 +78,13 @@ const initialState = {
     setOnTimeBonusCutoffHours: () => { },
     createdById: undefined,
     setCreatedById: () => { },
+    composition: undefined,
+    setComposition: () => { },
 };
 
 export default createStore<RaidStore>(((set) => ({
     ...initialState,
-    setRaid: (raid) => set({ raid }),
+    setRaid: (raid) => set({ raid, composition: raid ? createDefaultComposition(raid.size) : undefined }),
     setStartDate: (startDate) => set({ startDate }),
     setEndDate: (endDate) => set({ endDate }),
     setStartTime: (startTime) => set({ startTime }),
@@ -75,4 +97,5 @@ export default createStore<RaidStore>(((set) => ({
     setOnTimeBonusExtraAmmount: (onTimeBonusExtraAmmount) => set({ onTimeBonusExtraAmmount }),
     setOnTimeBonusCutoffHours: (onTimeBonusCutoffHours) => set({ onTimeBonusCutoffHours }),
     setCreatedById: (createdById) => set({ createdById }),
+    setComposition: (composition) => set({ composition: composition ? { ...composition, raid_lead: 1 } : undefined }),
 })));

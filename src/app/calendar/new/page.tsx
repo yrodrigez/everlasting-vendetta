@@ -1,5 +1,6 @@
 import getAvailableRaids from "@/app/calendar/api/getAvailableRaids";
 import { CreateRaidButton } from "@/app/calendar/new/Components/CreateRaidButton";
+import { CompositionManager } from "@/app/calendar/new/Components/CompositionManager";
 import { CreatedBySelector } from "@/app/calendar/new/Components/CreatedBySelector";
 import { DaysSelection } from "@/app/calendar/new/Components/DaysSelection";
 import { RaidCard } from "@/app/calendar/new/Components/RaidCard";
@@ -43,6 +44,7 @@ export default async function Page() {
                     </div>
                     <DaysSelection />
                     <SoftReservesManager />
+                    <CompositionManager />
                 </div>
                 <div
                     className="flex p-12 justify-between gap-2 items-center lg:items-start lg:justify-end flex-col lg:flex-row">
