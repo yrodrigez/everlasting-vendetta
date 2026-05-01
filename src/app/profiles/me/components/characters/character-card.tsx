@@ -1,3 +1,4 @@
+'use client';
 import { Avatar } from "@heroui/react";
 import { Character } from "./types";
 import Link from "next/link";
@@ -18,10 +19,10 @@ const classColors: Record<string, string> = {
     demonhunter: "demonhunter",
 };
 
-export function CharacterCard({ character, isSelected, onSelect }: {
+export function CharacterCard({ character, isSelected, onSelect = (() => { }) }: {
     character: Character;
     isSelected: boolean;
-    onSelect: () => void;
+    onSelect?: () => void;
 }) {
     const colorClass = classColors[character.className.toLowerCase()] || "priest";
 

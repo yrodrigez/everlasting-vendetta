@@ -4,6 +4,7 @@ import { RaidParticipant } from "@/app/raid/api/types";
 import AdminActions from "@/app/raid/components/admin-actions";
 import BenchParticipant from "@/app/raid/components/BenchParticipant";
 import ChangeParticipantRole from "@/app/raid/components/ChangeParticipantRole";
+import ChangeParticipantStatus from "@/app/raid/components/ChangeParticipantStatus";
 import { getSubscriptionStatusText } from "@/app/raid/components/get-status-text";
 import { MoveParticipant } from "@/app/raid/components/move-participant";
 import { RrsBadge } from "@/app/raid/components/RrsBadge";
@@ -383,6 +384,13 @@ export default function RaidParticipants({ participants, resetId, participantSco
                             <ChangeParticipantRole
                                 resetId={resetId}
                                 memberId={registration.member.character.id}
+                                supabase={supabase}
+                                currentDetails={registrationDetails}
+                            />
+                            <ChangeParticipantStatus
+                                resetId={resetId}
+                                memberId={registration.member.character.id}
+                                currentStatus={registrationDetails?.status}
                                 supabase={supabase}
                                 currentDetails={registrationDetails}
                             />

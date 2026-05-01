@@ -26,6 +26,8 @@ import createServerSession from '@/util/supabase/createServerSession';
 import { Metadata } from "next";
 import { revalidatePath } from "next/cache";
 import { notFound } from "next/navigation";
+import { CharacterRepository } from "@/infrastructure/roster/character.repository";
+import { AltersView } from "./components/alters-view";
 
 export const dynamic = 'force-dynamic'
 
@@ -278,7 +280,9 @@ export default async function Page({ params }: { params: Promise<{ name: string,
     }
 
     const supabase = await getSupabase();
-    const [equipment, talents, characterStatistics, lootHistory, { data: isCharacterBanned }, { data: isMemberPresent }, achievementData, attendance, professions] = await Promise.all([
+    const characterRepository = new CharacterRepository(supabase);
+
+    const [equipment, talents, characterStatistics, lootHistory, { data: isCharacterBanned }, { data: isMemberPresent }, achievementData, attendance, professions, alters] = await Promise.all([
         fetchEquipment(characterName, realmSlug),//apiService.anon.getCharacterEquipment(realmSlug, characterName),
         getCharacterTalents(characterName, realmSlug),
         fetchCharacterStatistics(characterName, realmSlug),
@@ -297,7 +301,8 @@ export default async function Page({ params }: { params: Promise<{ name: string,
             raid_date: string,
             participated: boolean,
         }[]>(),
-        fetchCharacterProfessionsSpells(supabase, characterInfo.id)
+        fetchCharacterProfessionsSpells(supabase, characterInfo.id),
+        characterRepository.findAlters(characterName, realmSlug)
     ])
 
     const equipmentData = equipment?.equipped_items ?? []
@@ -313,7 +318,7 @@ export default async function Page({ params }: { params: Promise<{ name: string,
     const isGuildMember = session?.isGuildMember || false
     const canBan = !!(session?.permissions.includes('member.ban') && characterInfo.guild?.id !== GUILD_ID && isMemberPresent && !isCharacterBanned) // can ban only if not in the same guild
     const canUnban = !!(session?.permissions.includes('member.unban') && characterInfo.guild?.id !== GUILD_ID && isCharacterBanned) // can unban only if not in the same guild
-
+    const canSeeAlters = !!(session?.roles?.includes('GUILD_MASTER') && isGuildMember)
     return (
         <>
             <PageEvent name="character_profile" metadata={{ characterName, realmSlug, className: characterInfo?.character_class?.name }} />
@@ -410,8 +415,18 @@ export default async function Page({ params }: { params: Promise<{ name: string,
                             label: 'Raid attendance',
                             name: 'raid-attendance',
                             children: <AttendanceHeatmap attendance={Array.isArray(attendance.data) ? attendance.data : []} />
-                        }
-                    ]}
+                        },
+                        (canSeeAlters ?
+                            {
+                                label: 'Characters',
+                                name: 'alters',
+                                children: <AltersView
+                                    name={characterName}
+                                    realm={realmSlug}
+                                    alters={alters}
+                                />
+                            } : null)
+                    ].filter((item) => !!item)}
                 />
                 <form
                     className="absolute top-0 right-0"

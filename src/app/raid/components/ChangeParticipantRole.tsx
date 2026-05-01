@@ -26,7 +26,6 @@ export default function ChangeParticipantRole({ supabase, resetId, memberId, cur
                         ...currentDetails,
                         role,
                     },
-                    updated_at: new Date().toISOString(),
                 })
                 .eq('raid_id', resetId)
                 .eq('member_id', memberId)
