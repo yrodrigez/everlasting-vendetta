@@ -1,7 +1,21 @@
 import ApplyForm from "@/app/apply/components/ApplyForm";
 import { PageEvent } from '@/hooks/usePageEvent';
+import { GUILD_REALM_NAME } from "@/util/constants";
+import type { Metadata } from 'next';
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'
+
+export const metadata: Metadata = {
+    title: "Apply to Everlasting Vendetta | Guild Recruitment",
+    description: `Apply to join Everlasting Vendetta, an active World of Warcraft guild on ${GUILD_REALM_NAME}. We're looking for dedicated raiders to join our ranks.`,
+    openGraph: {
+        title: "Apply to Everlasting Vendetta | Guild Recruitment",
+        description: `Apply to join Everlasting Vendetta, an active World of Warcraft guild on ${GUILD_REALM_NAME}.`,
+    },
+    twitter: {
+        card: 'summary_large_image',
+    },
+};
 
 export default function Page() {
     return (

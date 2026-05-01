@@ -1,6 +1,7 @@
 import { Button } from "@/components/Button";
 import LoopingVideo from "@/components/LoopingVideo";
 import { PageEvent } from '@/hooks/usePageEvent';
+import { GUILD_REALM_NAME } from "@/util/constants";
 import createServerSession from '@/util/supabase/createServerSession';
 import { Metadata } from "next";
 
@@ -53,8 +54,8 @@ export async function generateMetadata(): Promise<Metadata> {
     const metadataBase = new URL('https://www.everlastingvendetta.com/');
 
     return {
-        title: `Everlasting Vendetta - Raids on Living Flame`,
-        description: `Everlasting Vendetta is an active guild seeking raiders to join on the Living Flame server. Join us to conquer the greatest WoW challenges!`,
+        title: `Everlasting Vendetta - Raids on ${GUILD_REALM_NAME}`,
+        description: `Everlasting Vendetta is an active guild seeking raiders to join on the ${GUILD_REALM_NAME} server. Join us to conquer the greatest WoW challenges!`,
         keywords:
             'wow, world of warcraft, raids, upcoming raids, raiding, pve, guild events, Everlasting Vendetta',
         openGraph: {

@@ -8,8 +8,21 @@ import Sound from "@/app/events/components/Sound";
 import ParticipateButton from "@/app/events/components/ParticipateButton";
 import GearScore from "@/components/GearScore";
 import { createRosterMemberRoute } from "@/util/create-roster-member-route";
+import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic'
+
+export const metadata: Metadata = {
+    title: "The Path to Atiesh | Everlasting Vendetta",
+    description: "Follow the legendary journey to obtain Atiesh, Greatstaff of the Guardian. Learn about the requirements, queue system, and milestones for this special guild event.",
+    openGraph: {
+        title: "The Path to Atiesh | Everlasting Vendetta",
+        description: "Follow the legendary journey to obtain Atiesh, Greatstaff of the Guardian.",
+    },
+    twitter: {
+        card: 'summary_large_image',
+    },
+};
 
 const Splinter = () => (
     <span className="text-legendary inline-flex gap-2 items-center">

@@ -21,3 +21,5 @@ Disallow: /roster/
 # Explicitly allow crawling public informative pages
 Allow: /calendar
 
+Sitemap: https://www.everlastingvendetta.com/sitemap.xml
+

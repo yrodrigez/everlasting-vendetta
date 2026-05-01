@@ -14,9 +14,14 @@ import SessionActivitySection from './sections/SessionActivitySection';
 import LootSection from './sections/LootSection';
 import GeoSection from './sections/GeoSection';
 import ActivitySection from './sections/ActivitySection';
+import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
+
+export const metadata: Metadata = {
+    robots: { index: false, follow: false },
+};
 
 export default async function DashboardPage() {
     const { auth, getSupabase } = await createServerSession();

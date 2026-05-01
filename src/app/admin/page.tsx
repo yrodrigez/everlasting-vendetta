@@ -2,13 +2,18 @@ import PermissionManagement from "@/app/admin/PermissionManagement";
 import { MemberRole, Role, RolePermission, UserProfile } from "@/app/admin/types";
 import { GUILD_NAME, ROLE } from '@/util/constants';
 import createServerSession from '@/util/supabase/createServerSession';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    robots: { index: false, follow: false },
+};
 
 export default async function Page() {
     const { auth, getSupabase } = await createServerSession();
     const supabase = await getSupabase();
     const session = await auth.getSession()
 
-    if (!session || !session.id || !session.roles?.includes(ROLE.ADMIN)) {
+    if (!session || !session.id || !session.roles?.includes(ROLE.GUILD_MASTER)) {
         return <div
             className="w-full h-full flex items-center justify-center text-4xl text-red-500 font-bold flex-col gap-4"
         >

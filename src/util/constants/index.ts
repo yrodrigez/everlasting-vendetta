@@ -2,12 +2,12 @@ import { type Role } from "@/components/characterStore";
 
 export const GUILD_REALMS = [
     { name: 'Living Flame', slug: 'living-flame' },
-    { name: 'Shattered Hand', slug: 'shattered-hand' },
+    { name: 'Spineshatter', slug: 'spineshatter' },
 ]
-const GUILD_IDS = [2410263]
-export const GUILD_REALM_SLUG = 'living-flame'
+
+export const GUILD_REALM_SLUG = 'spineshatter'
 export const REALM_ID = 5827
-export const GUILD_REALM_NAME = 'Living Flame'
+export const GUILD_REALM_NAME = 'Spineshatter'
 export const EV_COOKIE_NAME = 'evToken'
 export const BNET_COOKIE_NAME = 'bnetToken'
 export const DISCORD_COOKIE_NAME = 'discordToken'

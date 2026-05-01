@@ -11,14 +11,30 @@ import React from "react";
 import { Toaster } from "sonner";
 import { SessionHandler } from "../components/SessionHandler";
 import "./globals.css";
+import { GUILD_REALM_NAME } from "@/util/constants";
 
 config.autoAddCss = false;
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-    title: "Everlasting Vendetta - Raids on Living Flame",
-    description: "Everlasting Vendetta is an active guild seeking raiders to join on the Living Flame server. Join us to conquer the greatest WoW challenges!",
+    metadataBase: new URL('https://www.everlastingvendetta.com'),
+    title: `Everlasting Vendetta - Raids on ${GUILD_REALM_NAME}`,
+    description: `Everlasting Vendetta is an active guild seeking raiders to join on the ${GUILD_REALM_NAME} server. Join us to conquer the greatest WoW challenges!`,
     keywords: "wow, world of warcraft, guild recruitment, raiding, pve, pvp, classic, tbc, burning crusade, shadowlands, lone wolf, everlasting vendetta, guild events, guild forum, season of discovery, sod",
+    robots: { index: true, follow: true },
+    openGraph: {
+        type: 'website',
+        locale: 'en_US',
+        siteName: 'Everlasting Vendetta',
+        title: `Everlasting Vendetta - Raids on ${GUILD_REALM_NAME}`,
+        description: `Everlasting Vendetta is an active guild seeking raiders to join on the ${GUILD_REALM_NAME} server. Join us to conquer the greatest WoW challenges!`,
+        url: 'https://www.everlastingvendetta.com',
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: `Everlasting Vendetta - Raids on ${GUILD_REALM_NAME}`,
+        description: `Everlasting Vendetta is an active guild seeking raiders to join on the ${GUILD_REALM_NAME} server.`,
+    },
 };
 
 
@@ -73,6 +89,30 @@ export default async function RootLayout({
                     </div>
                     <Toaster richColors position="top-center" />
                 </Providers>
+                <Script
+                    id="organization-schema"
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{
+                        __html: JSON.stringify({
+                            "@context": "https://schema.org",
+                            "@type": "Organization",
+                            "name": "Everlasting Vendetta",
+                            "url": "https://www.everlastingvendetta.com",
+                            "description": `Everlasting Vendetta is an active World of Warcraft guild on the ${GUILD_REALM_NAME} server, focused on raiding and community.`,
+                            "sameAs": [
+                                "https://www.youtube.com/@EverlastingVendetta"
+                            ],
+                            "areaServed": {
+                                "@type": "Place",
+                                "name": GUILD_REALM_NAME
+                            },
+                            "member": {
+                                "@type": "OrganizationRole",
+                                "roleName": "Guild"
+                            }
+                        })
+                    }}
+                />
                 <Script src="/scripts/jquery3.js" strategy="beforeInteractive" />
                 <Script src="/scripts/modelviewer.js" strategy="beforeInteractive" />
                 <Script src="/scripts/color-thief.min.js" strategy="beforeInteractive" />
