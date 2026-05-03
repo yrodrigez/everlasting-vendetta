@@ -1,10 +1,10 @@
-import { GoogleAnalytics } from "@next/third-parties/google";
+import { GoogleTagManager as MGoogleTagManager } from "@next/third-parties/google";
 
 
 export default function GoogleTagManager() {
     return (
-        <GoogleAnalytics
-            gaId="GTM-PFC76K44"
+        <MGoogleTagManager
+            gtmId="GTM-PFC76K44"
         />
     );
 }
