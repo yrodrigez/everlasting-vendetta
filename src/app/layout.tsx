@@ -12,6 +12,7 @@ import { Toaster } from "sonner";
 import { SessionHandler } from "../components/SessionHandler";
 import "./globals.css";
 import { GUILD_REALM_NAME } from "@/util/constants";
+import GoogleTagManager from "@/components/google/google-tag-manager";
 
 config.autoAddCss = false;
 const inter = Inter({ subsets: ["latin"] });
@@ -47,6 +48,7 @@ export default async function RootLayout({
     const session = await auth.getSession()
     return (
         <html lang="en" className="light" suppressHydrationWarning>
+            <GoogleTagManager />
             <body className={inter.className}
                 style={{ width: '100%', height: '100vh', overflow: 'auto', display: 'flex', flexDirection: 'column' }}
                 suppressHydrationWarning>

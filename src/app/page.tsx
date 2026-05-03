@@ -42,7 +42,7 @@ const CustomSection = ({ header, paragraphs, img }: { header: string, paragraphs
             ></div>
             <div
                 className="p-3 scrollbar-pill flex-col bg-dark border-gold/50 min-h-[calc(50%)] border overflow-hidden py-2 absolute rounded rounded-t-none bottom-0 w-[calc(100%)] shadow-small z-10">
-                <h1 className="font-bold text-xl text-gold self-start">{header}</h1>
+                <div className="font-bold text-xl text-gold self-start">{header}</div>
                 {paragraphs.map((paragraph, i) => <p key={i}>{paragraph}</p>)}
             </div>
 
