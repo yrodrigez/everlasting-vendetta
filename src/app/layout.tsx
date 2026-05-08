@@ -61,6 +61,7 @@ export default async function RootLayout({
                                     <div className="flex items-center md:w-[240px] flex-1 gap-2 lg:mr-0 justify-end">
                                         <HeaderMenuButton text="Home" />
                                         <HeaderMenuButton text="Apply" />
+                                        <HeaderMenuButton text="FAQ" />
                                         {/*<HeaderMenuButton text="Stats"/>*/}
                                         {/* <HeaderMenuButton text="Professions" /> */}
                                     </div>
@@ -69,6 +70,7 @@ export default async function RootLayout({
                                     <div className="flex items-center md:w-[240px] flex-1 gap-2 md:ml-2">
                                         <HeaderMenuButton text="Roster" />
                                         <HeaderMenuButton text="Calendar" />
+                                        
                                     </div>
                                 </div>
                             </div>
