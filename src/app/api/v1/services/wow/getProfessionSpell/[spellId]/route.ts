@@ -6,7 +6,7 @@ import pLimit from 'p-limit';
 
 const limit = pLimit(10);*/
 
-async function fetchProfessionSpell(spellId: any) {
+/* async function fetchProfessionSpell(spellId: any) {
     const spellData = await fetch(`https://nether.wowhead.com/tooltip/spell/${spellId}?dataEnv=4&locale=0`);
 
     if (!spellData.ok) {
@@ -20,14 +20,14 @@ async function fetchProfessionSpell(spellId: any) {
     }
 
     return {...spellJson, ...data, spellId};
-}
+} */
 
 
 export async function GET(request: NextRequest, context: any) {
     const {spellId} = await context.params;
-    if (!spellId || isNaN(spellId)) {
+    //if (!spellId || isNaN(spellId)) {
         return NextResponse.json({error: "Invalid spellId"}, {status: 400});
-    }
+    //}
 /*
     const {supabase} = await  createServerSession()
     const initialSpells = Array.from(new Set([]));
@@ -49,6 +49,6 @@ export async function GET(request: NextRequest, context: any) {
 
     return NextResponse.json({insertStatus, error});*/
 
-    const data = await fetchProfessionSpell(spellId)
-    return NextResponse.json(data);
+    /* const data = await fetchProfessionSpell(spellId)
+    return NextResponse.json(data); */
 }

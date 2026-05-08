@@ -19,7 +19,6 @@ export function useApiHealth() {
             }
         },
         refetchInterval: (query) => {
-            // Si hay error o data es false, refetch más seguido
             const isHealthy = query.state.data ?? true;
             return isHealthy ? 60000 : 10000;
         },

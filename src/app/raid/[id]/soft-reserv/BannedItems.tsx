@@ -71,7 +71,7 @@ export function BannedItems({ reset_id, isAdmin = false, raid_id, realmSlug, res
         queryKey: ['hard-reserve-rules-poll', reset_id],
         queryFn: () => repository.fetchHardReserveRules(reset_id),
         enabled: realtimeError && !!reset_id,
-        refetchInterval: 60000,
+        refetchInterval: realtimeError ? 60000 : false,
     })
 
     const updateFutureRaids = useCallback(async () => {

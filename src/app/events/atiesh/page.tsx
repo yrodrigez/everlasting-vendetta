@@ -44,20 +44,6 @@ const ItemLink = ({ id, name, img, rarity }: { id: number, name: string, img: st
     </span>
 );
 
-async function fetchGearScore(characterName: string) {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL!}/api/v1/services/member/character/${encodeURIComponent(characterName.toLowerCase())}/gs`)
-
-    if (!response?.ok) return { gs: 0, color: 'gray', isFullEnchanted: false };
-
-    try {
-        const { gs, color, isFullEnchanted } = await response.json();
-        return !!isFullEnchanted;
-    } catch (e) {
-        console.error('Error parsing response', e);
-        return { gs: 0, color: 'gray', isFullEnchanted: false };
-    }
-}
-
 export default async function AtieshMomentsPage() {
     const { auth, getSupabase } = await createServerSession();
     if (!auth) return <NotLoggedInView />;

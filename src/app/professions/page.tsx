@@ -8,6 +8,9 @@ import Link from "next/link";
 export const dynamic = 'force-dynamic'
 
 export default async function ProfessionsPage() {
+
+    return null; // removed
+/*
     const { getSupabase } = await createServerSession();
     const supabase = await getSupabase();
     const { data, error } = await supabase.rpc('get_member_profession_spell_count')
@@ -82,5 +85,5 @@ export default async function ProfessionsPage() {
                 </Link>
             })}
         </main>
-    )
+    )*/
 }

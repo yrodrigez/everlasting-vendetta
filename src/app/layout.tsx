@@ -58,11 +58,11 @@ export default async function RootLayout({
                             <div
                                 className="py-1 h-full w-full flex items-center justify-center border-b border-gold relative bg-[rgba(12,18,18)]">
                                 <div className="md:max-w-[900px] flex items-center justify-between h-full">
-                                    <div className="flex items-center md:w-[240px] flex-1 gap-2 justify-center mr-2 lg:mr-0">
+                                    <div className="flex items-center md:w-[240px] flex-1 gap-2 lg:mr-0 justify-end">
                                         <HeaderMenuButton text="Home" />
                                         <HeaderMenuButton text="Apply" />
                                         {/*<HeaderMenuButton text="Stats"/>*/}
-                                        <HeaderMenuButton text="Professions" />
+                                        {/* <HeaderMenuButton text="Professions" /> */}
                                     </div>
                                     <img alt="center-img" src="/center-img.webp"
                                         className="flex-1 rounded-full max-w-20 hidden md:flex my-auto" />

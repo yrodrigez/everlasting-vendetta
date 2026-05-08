@@ -22,8 +22,7 @@ export function useItemDetails(itemId: number | null, resetId: string) {
     const { data: itemRules, isLoading: rulesLoading, refetch: refetchRules } = useQuery({
         queryKey: ['item-rules', resetId, itemId],
         queryFn: () => repository.fetchItemRules(resetId, itemId!),
-        enabled: !!itemId && !!resetId,
-        staleTime: realtimeError ? 60000 : Infinity,
+        enabled: !!itemId && !!resetId && realtimeError,
         refetchInterval: realtimeError ? 60000 : false,
     });
 

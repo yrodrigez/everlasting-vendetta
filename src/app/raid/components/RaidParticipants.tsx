@@ -78,7 +78,6 @@ export default function RaidParticipants({ participants, resetId, participantSco
     raidInProgress: boolean
     minGs: number,
     currentResets: { id: string, raid_date: string, raid_time: string }[],
-    sanctifiedData?: { characterName: string, count: number, characterId: string }[],
     createdById: number,
     raidSize: number,
     composition: RaidComposition,

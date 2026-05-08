@@ -4,6 +4,8 @@ import { NextRequest, NextResponse } from "next/server";
 export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
+
+    return NextResponse.json({ count: 0 });/*
     try {
         const body = await req.json()
 
@@ -37,5 +39,5 @@ export async function POST(req: NextRequest) {
     } catch (e) {
         console.error('Error fetching sanctified items:', e)
         return NextResponse.json([{ count: 0 }]);
-    }
+    }*/
 }

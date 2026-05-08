@@ -77,7 +77,6 @@ export default function useApplicants() {
             setApplyCount(() => data?.length ?? 0)
             return data
         },
-        refetchInterval: 60000,
         enabled: !!supabase,
     })
 

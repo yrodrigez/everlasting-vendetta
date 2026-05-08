@@ -356,6 +356,9 @@ export default function CharacterProfessions({ professions, characterId, classNa
     characterId: number
     className?: string
 }) {
+
+    return null; // removed
+    /*
     const [selectedProfession, setSelectedProfession] = useState<Profession | null>(professions[0])
     const { user } = useAuth()
     const supabase = useSupabase();
@@ -531,4 +534,5 @@ export default function CharacterProfessions({ professions, characterId, classNa
             </div>
         </div>
     )
+        */
 }

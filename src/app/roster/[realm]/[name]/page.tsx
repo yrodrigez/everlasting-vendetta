@@ -282,7 +282,7 @@ export default async function Page({ params }: { params: Promise<{ name: string,
     const supabase = await getSupabase();
     const characterRepository = new CharacterRepository(supabase);
 
-    const [equipment, talents, characterStatistics, lootHistory, { data: isCharacterBanned }, { data: isMemberPresent }, achievementData, attendance, professions, alters] = await Promise.all([
+    const [equipment, talents, characterStatistics, lootHistory, { data: isCharacterBanned }, { data: isMemberPresent }, achievementData, attendance, alters] = await Promise.all([
         fetchEquipment(characterName, realmSlug),//apiService.anon.getCharacterEquipment(realmSlug, characterName),
         getCharacterTalents(characterName, realmSlug),
         fetchCharacterStatistics(characterName, realmSlug),
@@ -301,7 +301,6 @@ export default async function Page({ params }: { params: Promise<{ name: string,
             raid_date: string,
             participated: boolean,
         }[]>(),
-        fetchCharacterProfessionsSpells(supabase, characterInfo.id),
         characterRepository.findAlters(characterName, realmSlug)
     ])
 
@@ -397,14 +396,6 @@ export default async function Page({ params }: { params: Promise<{ name: string,
                             label: 'Achievements',
                             name: 'achievements',
                             children: <CharacterAchievements {...achievementData} />
-                        },
-                        {
-                            label: 'Professions',
-                            name: 'professions',
-                            children: <CharacterProfessions
-                                professions={professions}
-                                characterId={characterInfo.id}
-                            />
                         },
                         {
                             label: 'Loot History',

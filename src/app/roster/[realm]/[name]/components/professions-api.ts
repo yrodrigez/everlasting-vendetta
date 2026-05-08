@@ -1,13 +1,16 @@
-import {type SupabaseClient} from "@supabase/supabase-js";
-import {Profession, ProfessionName, ProfessionSpell} from "@/app/roster/[realm]/[name]/components/CharacterProfessions";
+import { type SupabaseClient } from "@supabase/supabase-js";
+import { Profession, ProfessionName, ProfessionSpell } from "@/app/roster/[realm]/[name]/components/CharacterProfessions";
 
 export async function fetchProfessionSpells(supabase: SupabaseClient, professionId: number, pagination: {
     page: number,
     pageSize: number
-} = {page: 1, pageSize: 50}, filter: undefined | {
+} = { page: 1, pageSize: 50 }, filter: undefined | {
     name?: string,
     ids?: number[]
 }) {
+
+    return [] as any; // removed
+    /*
     const {page, pageSize} = pagination
     const {data: professionSpells, error: spellError} = await supabase.from('profession_spells')
         .select('id, name, details, craftedItem:wow_items(id, details), profession:professions!inner(id, name)')
@@ -59,11 +62,14 @@ export async function fetchProfessionSpells(supabase: SupabaseClient, profession
         }
         return acc
     }, undefined as unknown as Profession)
+    */
 }
 
 export async function fetchCharacterProfessionsSpells(supabase: SupabaseClient, characterId: number, filter?: {
     spellName?: string,
 }) {
+    return [] as any; // removed
+    /*
     const {data: learned, error} = await supabase.from('member_profession_spells')
         .select('spell:profession_spells!inner(id),profession:professions!inner(id)')
         .eq('member_id', characterId)
@@ -102,4 +108,5 @@ export async function fetchCharacterProfessionsSpells(supabase: SupabaseClient, 
             spells: p?.spells.filter((s) => learnedSpells.includes(s.id))
         }
     })
+        */
 }

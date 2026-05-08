@@ -6,7 +6,7 @@ import { createBlizzardItemFetchUrl } from '@/util/constants';
 import createServerSession from '@/util/supabase/createServerSession';
 import { getBlizzardToken } from "@/lib/getBlizzardToken";
 import { getInventoryType } from "@/app/api/v1/services/wow/fetchItem/getInventoryType";
-
+/* 
 function knownItemLevelQuality(itemId: number) {
     const knownItemLevels = {
         215161: 45,
@@ -142,10 +142,10 @@ async function fetchNewItem(supabase: SupabaseClient, token: { value: string, na
     saveItemToDatabase(supabase, itemId, itemDetails, displayId).then() // Don't wait for this to finish
     const itemIconUrl = itemDetails.icon
     return NextResponse.json({ itemIconUrl, itemDetails, displayId })
-}
+} */
 
 export async function GET(request: NextRequest) {
-    const url = new URL(request.url)
+    /* const url = new URL(request.url)
     const itemId = Number(url.searchParams.get('itemId'))
     const force = url.searchParams.get('force') === 'true'
 
@@ -180,5 +180,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ itemIconUrl, itemDetails, displayId })
     }
 
-    return fetchNewItem(supabase, data.token, itemId)
+    return fetchNewItem(supabase, data.token, itemId) */
+
+    return NextResponse.json({ error: 'Endpoint disabled' }, { status: 503 })
 }
