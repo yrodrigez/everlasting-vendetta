@@ -13,6 +13,7 @@ import { SessionHandler } from "../components/SessionHandler";
 import "./globals.css";
 import { GUILD_REALM_NAME } from "@/util/constants";
 import GoogleTagManager from "@/components/google/google-tag-manager";
+import VxHomeButton from "@/components/vx-exchange/vx-home-button";
 
 config.autoAddCss = false;
 const inter = Inter({ subsets: ["latin"] });
@@ -58,19 +59,17 @@ export default async function RootLayout({
                             <div
                                 className="py-1 h-full w-full flex items-center justify-center border-b border-gold relative bg-[rgba(12,18,18)]">
                                 <div className="md:max-w-[900px] flex items-center justify-between h-full">
-                                    <div className="flex items-center md:w-[240px] flex-1 gap-2 lg:mr-0 justify-end">
+                                    <div className="flex items-center md:w-[240px] flex-1 gap-1 lg:mr-0 justify-end">
                                         <HeaderMenuButton text="Home" />
                                         <HeaderMenuButton text="Apply" />
                                         <HeaderMenuButton text="FAQ" />
-                                        {/*<HeaderMenuButton text="Stats"/>*/}
-                                        {/* <HeaderMenuButton text="Professions" /> */}
                                     </div>
                                     <img alt="center-img" src="/center-img.webp"
                                         className="flex-1 rounded-full max-w-20 hidden md:flex my-auto" />
-                                    <div className="flex items-center md:w-[240px] flex-1 gap-2 md:ml-2">
+                                    <div className="flex items-center md:w-[240px] flex-1 gap-1 md:ml-2">
                                         <HeaderMenuButton text="Roster" />
+                                        <VxHomeButton />
                                         <HeaderMenuButton text="Calendar" />
-                                        
                                     </div>
                                 </div>
                             </div>

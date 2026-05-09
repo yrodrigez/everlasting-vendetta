@@ -1,6 +1,11 @@
 packages:
   - .
 
+allowBuilds:
+  '@heroui/shared-utils': true
+  sharp: true
+  supabase: true
+
 ignoredBuiltDependencies:
   - '@vercel/speed-insights'
   - bcrypt

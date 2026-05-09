@@ -21,7 +21,7 @@ export const HeaderMenuButton = ({text, url, onClick}: {
 }) => {
     const key = text.toLowerCase();
     const allowed = ['apply', 'roster', 'calendar', 'stats', 'professions', 'faq'];
-    const className = "px-2 py-1 flex flex-col items-center rounded hover:cursor-pointer hover:bg-white hover:bg-opacity-20 backdrop-filter backdrop-blur-md min-w-16 max-w-16";
+    const className = "px-2 py-1 flex flex-col items-center rounded hover:cursor-pointer hover:bg-white hover:bg-opacity-20 backdrop-filter backdrop-blur-md min-w-16 max-w-16 transition-all duration-300 ease-in-out";
 
 
     return text === 'Apply' ? (
