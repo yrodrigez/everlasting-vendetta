@@ -1,23 +1,22 @@
 import NotLoggedInView from "@/components/NotLoggedInView";
 import { SomethingWentWrong } from "@/components/something-went-wrong";
 import { PageEvent } from "@/hooks/usePageEvent";
-import { ROLE } from "@/util/constants";
 import createServerSession from "@/util/supabase/createServerSession";
 import { Cinzel } from "next/font/google";
-import VxExchange from "./components/vx-exchange";
 import type { Metadata } from "next";
+import VxLeaderboard from "./components/vx-leaderboard";
 
 const cinzel = Cinzel({ subsets: ["latin"], weight: ["400", "700"], display: "swap" });
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-    title: "Vendetta Exchange",
-    description: "Vendetta Exchange is the guild prediction market for Everlasting Vendetta members.",
+    title: "VX Leaderboard",
+    description: "Vendetta Exchange leaderboard for Everlasting Vendetta members.",
     robots: { index: false, follow: false },
 };
 
-export default async function VxPage() {
+export default async function VxLeaderboardPage() {
     const { auth } = await createServerSession();
     const session = await auth.getSession();
 
@@ -37,11 +36,8 @@ export default async function VxPage() {
 
     return (
         <>
-            <PageEvent name="vx_page_view" />
-            <VxExchange
-                headingClassName={cinzel.className}
-                isGuildMaster={session.roles?.includes(ROLE.GUILD_MASTER) ?? false}
-            />
+            <PageEvent name="vx_leaderboard_view" />
+            <VxLeaderboard headingClassName={cinzel.className} />
         </>
     );
 }

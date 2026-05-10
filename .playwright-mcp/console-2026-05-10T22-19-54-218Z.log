@@ -1,0 +1,407 @@
+[     841ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[     874ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[     991ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[    2249ms] [LOG] [Fast Refresh] done in 1364ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[    2712ms] [LOG] VX exchange realtime subscription not enabled due to missing market IDs or disabled state. @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[    2714ms] [LOG] VX exchange realtime subscription not enabled due to missing market IDs or disabled state. @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[    3171ms] [LOG] Setting up VX exchange realtime subscription for market IDs: 4a4437e9-0a8f-45be-8ee8-ec269124b640,58bebc15-4337-410f-9483-068bbd2c46ec,6bca500e-63a4-4ecd-a72d-9e8ae804ccd0,9a6f3b0f-8ed5-4b4d-995a-e57780824116,d3994f72-cf95-456a-8ac1-35a5b9b8f47e @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[    3211ms] [LOG] Subscribed to VX exchange updates for market IDs: Set(5) @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[   99365ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  100017ms] [LOG] [Fast Refresh] done in 720ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  101293ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  101506ms] [LOG] [Fast Refresh] done in 313ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  113297ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  113970ms] [LOG] [Fast Refresh] done in 747ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  114788ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  114960ms] [LOG] [Fast Refresh] done in 274ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  119592ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  119787ms] [LOG] [Fast Refresh] done in 296ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  318631ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  319246ms] [ERROR] VX exchange realtime subscription error: CLOSED @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:3318
+[  319259ms] [LOG] Setting up VX exchange realtime subscription for market IDs: 4a4437e9-0a8f-45be-8ee8-ec269124b640,58bebc15-4337-410f-9483-068bbd2c46ec,6bca500e-63a4-4ecd-a72d-9e8ae804ccd0,9a6f3b0f-8ed5-4b4d-995a-e57780824116,d3994f72-cf95-456a-8ac1-35a5b9b8f47e @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  319291ms] [LOG] [Fast Refresh] done in 704ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  319321ms] [LOG] Subscribed to VX exchange updates for market IDs: Set(5) @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  319695ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_markets?select=id:0
+[  319696ms] [LOG] Fetched markets for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  319786ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_markets?select=id:0
+[  319787ms] [LOG] Fetched markets for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  319848ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_outcomes?select=id%2Cmarket_id:0
+[  319848ms] [LOG] Fetched outcomes for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  319915ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_outcomes?select=id%2Cmarket_id:0
+[  319916ms] [LOG] Fetched outcomes for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  319934ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_pledges?select=id%2Cmarket_id:0
+[  319935ms] [LOG] Fetched pledges for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  320003ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_pledges?select=id%2Cmarket_id:0
+[  320004ms] [LOG] Fetched pledges for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  320365ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  320521ms] [LOG] [Fast Refresh] done in 259ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  385595ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  385608ms] [ERROR] Encountered a script tag while rendering React component. Scripts inside React components are never executed when rendering on the client. Consider using template tag instead (https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template). @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:3318
+[  385624ms] [ERROR] VX exchange realtime subscription error: CLOSED @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:3318
+[  385629ms] [LOG] VX exchange realtime subscription not enabled due to missing market IDs or disabled state. @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  385633ms] [LOG] [Fast Refresh] done in 111ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  385817ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_markets?select=id:0
+[  385818ms] [LOG] Fetched markets for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  385871ms] [LOG] Not fetching achievements, recently logged in @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  385883ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_markets?select=id:0
+[  385883ms] [LOG] Fetched markets for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  385888ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_outcomes?select=id%2Cmarket_id:0
+[  385888ms] [LOG] Fetched outcomes for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  385951ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_outcomes?select=id%2Cmarket_id:0
+[  385952ms] [LOG] Fetched outcomes for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  385957ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_pledges?select=id%2Cmarket_id:0
+[  385958ms] [LOG] Fetched pledges for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  386024ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_pledges?select=id%2Cmarket_id:0
+[  386025ms] [LOG] Fetched pledges for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  386087ms] [LOG] Setting up VX exchange realtime subscription for market IDs: 4a4437e9-0a8f-45be-8ee8-ec269124b640,58bebc15-4337-410f-9483-068bbd2c46ec,6bca500e-63a4-4ecd-a72d-9e8ae804ccd0,9a6f3b0f-8ed5-4b4d-995a-e57780824116,d3994f72-cf95-456a-8ac1-35a5b9b8f47e @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  386153ms] [LOG] Subscribed to VX exchange updates for market IDs: Set(5) @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  386511ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  386762ms] [LOG] [Fast Refresh] done in 353ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  416737ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  416753ms] [ERROR] The final argument passed to %s changed size between renders. The order and size of this array must remain constant.
+
+Previous: %s
+Incoming: %s useEffect [eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InpVWXJCa0pDZmN2TDNtWU4ifQ.eyJpc3MiOiJodHRwczovL2lqendpenpmamF3bGl4b2xjdWlhLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJqdGkiOiJmNGRjZjg5NS0xMjBjLTRkZjQtOWQ5OS01OTdlZTk4ODM3MDciLCJzdWIiOiI2MmNlODEzYS0wNGI1LTRmNzYtOWM1ZC1hM2U3Zjk1NTlmMjgiLCJpYXQiOjE3Nzg0NTE1OTUsImV4cCI6MTc3ODQ1MjQ5NSwidHlwZSI6ImFjY2VzcyIsImFhbCI6ImFhbDEiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJpc0Jhbm5lZCI6ZmFsc2UsImN1c3RvbV9yb2xlcyI6WyJHVUlMRF9NQVNURVIiLCJNT0RFUkFUT1IiLCJBTFRFUiIsIkFETUlOIl0sInBlcm1pc3Npb25zIjpbImxvb3RfaGlzdG9yeS5jcmVhdGUiLCJsb290X2hpc3RvcnkuZGVsZXRlIiwibG9vdF9oaXN0b3J5LnVwZGF0ZSIsInJlc2V0LmNyZWF0ZSIsInJlc2V0LmRlbGV0ZSIsInJlc2V0LmVkaXQiLCJhcHBsaWNhdGlvbnMucmVhZCIsImFwcGxpY2F0aW9ucy51cGRhdGUiLCJtZW1iZXIuYmFuIiwibWVtYmVyLnVuYmFuIl0sInByb3ZpZGVyIjoiYm5ldF9vYXV0aCIsImlzVGVtcG9yYWwiOmZhbHNlLCJpc0FkbWluIjp0cnVlLCJpc0d1aWxkTWVtYmVyIjp0cnVlLCJlbWFpbCI6IiJ9.uO_c0ow0kLJxDQ10GPE7BDP9GJuwNVA14SSCHVZkpfw] [eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InpVWXJCa0pDZmN2TDNtWU4ifQ.eyJpc3MiOiJodHRwczovL2lqendpenpmamF3bGl4b2xjdWlhLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJqdGkiOiJmNGRjZjg5NS0xMjBjLTRkZjQtOWQ5OS01OTdlZTk4ODM3MDciLCJzdWIiOiI2MmNlODEzYS0wNGI1LTRmNzYtOWM1ZC1hM2U3Zjk1NTlmMjgiLCJpYXQiOjE3Nzg0NTE1OTUsImV4cCI6MTc3ODQ1MjQ5NSwidHlwZSI6ImFjY2VzcyIsImFhbCI6ImFhbDEiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJpc0Jhbm5lZCI6ZmFsc2UsImN1c3RvbV9yb2xlcyI6WyJHVUlMRF9NQVNURVIiLCJNT0RFUkFUT1IiLCJBTFRFUiIsIkFETUlOIl0sInBlcm1pc3Npb25zIjpbImxvb3RfaGlzdG9yeS5jcmVhdGUiLCJsb290X2hpc3RvcnkuZGVsZXRlIiwibG9vdF9oaXN0b3J5LnVwZGF0ZSIsInJlc2V0LmNyZWF0ZSIsInJlc2V0LmRlbGV0ZSIsInJlc2V0LmVkaXQiLCJhcHBsaWNhdGlvbnMucmVhZCIsImFwcGxpY2F0aW9ucy51cGRhdGUiLCJtZW1iZXIuYmFuIiwibWVtYmVyLnVuYmFuIl0sInByb3ZpZGVyIjoiYm5ldF9vYXV0aCIsImlzVGVtcG9yYWwiOmZhbHNlLCJpc0FkbWluIjp0cnVlLCJpc0d1aWxkTWVtYmVyIjp0cnVlLCJlbWFpbCI6IiJ9.uO_c0ow0kLJxDQ10GPE7BDP9GJuwNVA14SSCHVZkpfw, true] @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:3318
+[  416777ms] [ERROR] VX exchange realtime subscription error: CLOSED @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:3318
+[  416782ms] [LOG] VX exchange realtime subscription not enabled due to missing market IDs or disabled state. @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  416785ms] [LOG] VX exchange realtime subscription not enabled due to missing market IDs or disabled state. @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  416792ms] [LOG] [Fast Refresh] done in 114ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  416971ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_markets?select=id:0
+[  416972ms] [LOG] Fetched markets for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  417000ms] [LOG] Not fetching achievements, recently logged in @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  417045ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_markets?select=id:0
+[  417046ms] [LOG] Fetched markets for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  417047ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_outcomes?select=id%2Cmarket_id:0
+[  417048ms] [LOG] Fetched outcomes for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  417111ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_outcomes?select=id%2Cmarket_id:0
+[  417111ms] [LOG] Fetched outcomes for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  417114ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_pledges?select=id%2Cmarket_id:0
+[  417114ms] [LOG] Fetched pledges for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  417178ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_pledges?select=id%2Cmarket_id:0
+[  417178ms] [LOG] Fetched pledges for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  417271ms] [LOG] Setting up VX exchange realtime subscription for market IDs: 4a4437e9-0a8f-45be-8ee8-ec269124b640,58bebc15-4337-410f-9483-068bbd2c46ec,6bca500e-63a4-4ecd-a72d-9e8ae804ccd0,9a6f3b0f-8ed5-4b4d-995a-e57780824116,d3994f72-cf95-456a-8ac1-35a5b9b8f47e @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  417321ms] [LOG] Subscribed to VX exchange updates for market IDs: Set(5) @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  417644ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  417847ms] [LOG] [Fast Refresh] done in 307ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  422198ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  422402ms] [LOG] [Fast Refresh] done in 311ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  422883ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  423295ms] [LOG] [Fast Refresh] done in 527ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  437521ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  437554ms] [ERROR] VX exchange realtime subscription error: CLOSED @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:3318
+[  437560ms] [LOG] VX exchange realtime subscription not enabled due to missing market IDs or disabled state. @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  437566ms] [LOG] [Fast Refresh] done in 116ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  437649ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_markets?select=id:0
+[  437651ms] [LOG] Fetched markets for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  437663ms] [LOG] Not fetching achievements, recently logged in @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  437716ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_markets?select=id:0
+[  437717ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_outcomes?select=id%2Cmarket_id:0
+[  437718ms] [LOG] Fetched markets for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  437720ms] [LOG] Fetched outcomes for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  437788ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_outcomes?select=id%2Cmarket_id:0
+[  437789ms] [LOG] Fetched outcomes for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  437789ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_pledges?select=id%2Cmarket_id:0
+[  437791ms] [LOG] Fetched pledges for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  437853ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_pledges?select=id%2Cmarket_id:0
+[  437854ms] [LOG] Fetched pledges for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  438204ms] [LOG] Setting up VX exchange realtime subscription for market IDs: 4a4437e9-0a8f-45be-8ee8-ec269124b640,58bebc15-4337-410f-9483-068bbd2c46ec,6bca500e-63a4-4ecd-a72d-9e8ae804ccd0,9a6f3b0f-8ed5-4b4d-995a-e57780824116,d3994f72-cf95-456a-8ac1-35a5b9b8f47e @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  438253ms] [LOG] Subscribed to VX exchange updates for market IDs: Set(5) @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  438469ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  438675ms] [LOG] [Fast Refresh] done in 309ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  440233ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  440637ms] [LOG] [Fast Refresh] done in 504ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  515196ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  515221ms] [ERROR] VX exchange realtime subscription error: CLOSED @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:3318
+[  515225ms] [LOG] VX exchange realtime subscription not enabled due to missing market IDs or disabled state. @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  515228ms] [LOG] [Fast Refresh] done in 109ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  515646ms] [LOG] Not fetching achievements, recently logged in @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  515650ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_markets?select=id:0
+[  515651ms] [LOG] Fetched markets for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  515708ms] [LOG] Setting up VX exchange realtime subscription for market IDs: 4a4437e9-0a8f-45be-8ee8-ec269124b640,58bebc15-4337-410f-9483-068bbd2c46ec,6bca500e-63a4-4ecd-a72d-9e8ae804ccd0,9a6f3b0f-8ed5-4b4d-995a-e57780824116,d3994f72-cf95-456a-8ac1-35a5b9b8f47e @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  515747ms] [LOG] Subscribed to VX exchange updates for market IDs: Set(5) @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  515759ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_markets?select=id:0
+[  515760ms] [LOG] Fetched markets for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  515786ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_outcomes?select=id%2Cmarket_id:0
+[  515787ms] [LOG] Fetched outcomes for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  515857ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_outcomes?select=id%2Cmarket_id:0
+[  515858ms] [LOG] Fetched outcomes for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  515865ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_pledges?select=id%2Cmarket_id:0
+[  515865ms] [LOG] Fetched pledges for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  516231ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_pledges?select=id%2Cmarket_id:0
+[  516232ms] [LOG] Fetched pledges for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  516574ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  516760ms] [LOG] [Fast Refresh] done in 291ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  533521ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  533553ms] [ERROR] VX exchange realtime subscription error: CLOSED @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:3318
+[  533558ms] [LOG] VX exchange realtime subscription not enabled due to missing market IDs or disabled state. @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  533562ms] [LOG] VX exchange realtime subscription not enabled due to missing market IDs or disabled state. @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  533580ms] [LOG] [Fast Refresh] done in 109ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  533646ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_markets?select=id:0
+[  533646ms] [LOG] Fetched markets for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  533663ms] [LOG] Not fetching achievements, recently logged in @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  533705ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_markets?select=id:0
+[  533706ms] [LOG] Fetched markets for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  533711ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_outcomes?select=id%2Cmarket_id:0
+[  533711ms] [LOG] Fetched outcomes for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  533774ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_outcomes?select=id%2Cmarket_id:0
+[  533774ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_pledges?select=id%2Cmarket_id:0
+[  533775ms] [LOG] Fetched outcomes for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  533775ms] [LOG] Fetched pledges for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  533841ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_pledges?select=id%2Cmarket_id:0
+[  533841ms] [LOG] Fetched pledges for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  534032ms] [LOG] Setting up VX exchange realtime subscription for market IDs: 4a4437e9-0a8f-45be-8ee8-ec269124b640,58bebc15-4337-410f-9483-068bbd2c46ec,6bca500e-63a4-4ecd-a72d-9e8ae804ccd0,9a6f3b0f-8ed5-4b4d-995a-e57780824116,d3994f72-cf95-456a-8ac1-35a5b9b8f47e @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  534071ms] [LOG] Subscribed to VX exchange updates for market IDs: Set(5) @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  534417ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  534651ms] [LOG] [Fast Refresh] done in 335ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  535969ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  536157ms] [LOG] [Fast Refresh] done in 294ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  536565ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  536995ms] [LOG] [Fast Refresh] done in 532ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  584349ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  584379ms] [ERROR] VX exchange realtime subscription error: CLOSED @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:3318
+[  584383ms] [LOG] VX exchange realtime subscription not enabled due to missing market IDs or disabled state. @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  584386ms] [LOG] VX exchange realtime subscription not enabled due to missing market IDs or disabled state. @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  584401ms] [LOG] [Fast Refresh] done in 112ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  584602ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_markets?select=id:0
+[  584602ms] [LOG] Not fetching achievements, recently logged in @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  584603ms] [LOG] Fetched markets for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  584662ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_outcomes?select=id%2Cmarket_id:0
+[  584662ms] [LOG] Fetched outcomes for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  584664ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_markets?select=id:0
+[  584664ms] [LOG] Fetched markets for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  584728ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_outcomes?select=id%2Cmarket_id:0
+[  584728ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_pledges?select=id%2Cmarket_id:0
+[  584728ms] [LOG] Fetched outcomes for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  584729ms] [LOG] Fetched pledges for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  584815ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_pledges?select=id%2Cmarket_id:0
+[  584816ms] [LOG] Fetched pledges for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  584888ms] [LOG] Setting up VX exchange realtime subscription for market IDs: 4a4437e9-0a8f-45be-8ee8-ec269124b640,58bebc15-4337-410f-9483-068bbd2c46ec,6bca500e-63a4-4ecd-a72d-9e8ae804ccd0,9a6f3b0f-8ed5-4b4d-995a-e57780824116,d3994f72-cf95-456a-8ac1-35a5b9b8f47e @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  584930ms] [LOG] Subscribed to VX exchange updates for market IDs: Set(5) @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  585251ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  585407ms] [LOG] [Fast Refresh] done in 258ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  585533ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  585741ms] [LOG] [Fast Refresh] done in 309ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  586303ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  586696ms] [LOG] [Fast Refresh] done in 509ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  588032ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  588330ms] [LOG] [Fast Refresh] done in 401ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  733492ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  733523ms] [ERROR] VX exchange realtime subscription error: CLOSED @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:3318
+[  733528ms] [LOG] VX exchange realtime subscription not enabled due to missing market IDs or disabled state. @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  733531ms] [LOG] VX exchange realtime subscription not enabled due to missing market IDs or disabled state. @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  733545ms] [LOG] [Fast Refresh] done in 124ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  733792ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_markets?select=id:0
+[  733793ms] [LOG] Fetched markets for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  733811ms] [LOG] Not fetching achievements, recently logged in @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  733856ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_markets?select=id:0
+[  733857ms] [LOG] Fetched markets for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  733858ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_outcomes?select=id%2Cmarket_id:0
+[  733859ms] [LOG] Fetched outcomes for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  733920ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_outcomes?select=id%2Cmarket_id:0
+[  733920ms] [LOG] Fetched outcomes for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  733922ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_pledges?select=id%2Cmarket_id:0
+[  733923ms] [LOG] Fetched pledges for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  733981ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_pledges?select=id%2Cmarket_id:0
+[  733981ms] [LOG] Fetched pledges for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  734274ms] [LOG] Setting up VX exchange realtime subscription for market IDs: 4a4437e9-0a8f-45be-8ee8-ec269124b640,58bebc15-4337-410f-9483-068bbd2c46ec,6bca500e-63a4-4ecd-a72d-9e8ae804ccd0,9a6f3b0f-8ed5-4b4d-995a-e57780824116,d3994f72-cf95-456a-8ac1-35a5b9b8f47e @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  734320ms] [LOG] Subscribed to VX exchange updates for market IDs: Set(5) @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  734499ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  734667ms] [LOG] [Fast Refresh] done in 272ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  742038ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  742244ms] [LOG] [Fast Refresh] done in 312ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  742833ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  743265ms] [LOG] [Fast Refresh] done in 536ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  744671ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  744672ms] [LOG] [Fast Refresh] done in 102ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  761420ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  761442ms] [ERROR] VX exchange realtime subscription error: CLOSED @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:3318
+[  761446ms] [LOG] VX exchange realtime subscription not enabled due to missing market IDs or disabled state. @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  761449ms] [LOG] VX exchange realtime subscription not enabled due to missing market IDs or disabled state. @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  761529ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_markets?select=id:0
+[  761530ms] [LOG] Fetched markets for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  761552ms] [LOG] VX exchange realtime subscription not enabled due to missing market IDs or disabled state. @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  761556ms] [LOG] VX exchange realtime subscription not enabled due to missing market IDs or disabled state. @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  761560ms] [LOG] [Fast Refresh] done in 141ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  761573ms] [LOG] Not fetching achievements, recently logged in @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  761597ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_markets?select=id:0
+[  761597ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_outcomes?select=id%2Cmarket_id:0
+[  761598ms] [LOG] Fetched markets for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  761599ms] [LOG] Fetched outcomes for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  761657ms] [LOG] Not fetching achievements, recently logged in @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  761663ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_pledges?select=id%2Cmarket_id:0
+[  761664ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_outcomes?select=id%2Cmarket_id:0
+[  761665ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_markets?select=id:0
+[  761666ms] [LOG] Fetched pledges for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  761668ms] [LOG] Fetched outcomes for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  761669ms] [LOG] Fetched markets for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  761670ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  761722ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_markets?select=id:0
+[  761722ms] [LOG] Fetched markets for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  761734ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_outcomes?select=id%2Cmarket_id:0
+[  761734ms] [LOG] Fetched outcomes for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  761735ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_pledges?select=id%2Cmarket_id:0
+[  761735ms] [LOG] Fetched pledges for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  761795ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_outcomes?select=id%2Cmarket_id:0
+[  761796ms] [LOG] Fetched outcomes for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  761803ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_pledges?select=id%2Cmarket_id:0
+[  761805ms] [LOG] Fetched pledges for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  761838ms] [LOG] [Fast Refresh] done in 272ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  761862ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_pledges?select=id%2Cmarket_id:0
+[  761862ms] [LOG] Fetched pledges for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  761925ms] [LOG] Setting up VX exchange realtime subscription for market IDs: 4a4437e9-0a8f-45be-8ee8-ec269124b640,58bebc15-4337-410f-9483-068bbd2c46ec,6bca500e-63a4-4ecd-a72d-9e8ae804ccd0,9a6f3b0f-8ed5-4b4d-995a-e57780824116,d3994f72-cf95-456a-8ac1-35a5b9b8f47e @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  761968ms] [LOG] Subscribed to VX exchange updates for market IDs: Set(5) @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  762496ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  762967ms] [LOG] [Fast Refresh] done in 574ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  763624ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  764081ms] [LOG] [Fast Refresh] done in 559ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  823402ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  823423ms] [ERROR] VX exchange realtime subscription error: CLOSED @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:3318
+[  823429ms] [LOG] VX exchange realtime subscription not enabled due to missing market IDs or disabled state. @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  823431ms] [LOG] VX exchange realtime subscription not enabled due to missing market IDs or disabled state. @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  823442ms] [LOG] [Fast Refresh] done in 107ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  823580ms] [LOG] Not fetching achievements, recently logged in @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  823595ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_markets?select=id:0
+[  823597ms] [LOG] Fetched markets for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  823652ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_markets?select=id:0
+[  823653ms] [LOG] Fetched markets for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  823662ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_outcomes?select=id%2Cmarket_id:0
+[  823663ms] [LOG] Fetched outcomes for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  823722ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_outcomes?select=id%2Cmarket_id:0
+[  823722ms] [LOG] Fetched outcomes for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  823724ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_pledges?select=id%2Cmarket_id:0
+[  823725ms] [LOG] Fetched pledges for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  823785ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_pledges?select=id%2Cmarket_id:0
+[  823785ms] [LOG] Fetched pledges for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  823929ms] [LOG] Setting up VX exchange realtime subscription for market IDs: 4a4437e9-0a8f-45be-8ee8-ec269124b640,58bebc15-4337-410f-9483-068bbd2c46ec,6bca500e-63a4-4ecd-a72d-9e8ae804ccd0,9a6f3b0f-8ed5-4b4d-995a-e57780824116,d3994f72-cf95-456a-8ac1-35a5b9b8f47e @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  823987ms] [LOG] Subscribed to VX exchange updates for market IDs: Set(5) @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  824482ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  824661ms] [LOG] [Fast Refresh] done in 281ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  826729ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  826942ms] [LOG] [Fast Refresh] done in 318ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  827386ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  827840ms] [LOG] [Fast Refresh] done in 558ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  836936ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  836963ms] [ERROR] VX exchange realtime subscription error: CLOSED @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:3318
+[  836967ms] [LOG] VX exchange realtime subscription not enabled due to missing market IDs or disabled state. @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  836969ms] [LOG] VX exchange realtime subscription not enabled due to missing market IDs or disabled state. @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  836983ms] [LOG] [Fast Refresh] done in 110ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  837045ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_markets?select=id:0
+[  837046ms] [LOG] Fetched markets for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  837064ms] [LOG] Not fetching achievements, recently logged in @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  837105ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_outcomes?select=id%2Cmarket_id:0
+[  837106ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_markets?select=id:0
+[  837106ms] [LOG] Fetched outcomes for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  837108ms] [LOG] Fetched markets for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  837179ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_outcomes?select=id%2Cmarket_id:0
+[  837179ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_pledges?select=id%2Cmarket_id:0
+[  837181ms] [LOG] Fetched outcomes for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  837182ms] [LOG] Fetched pledges for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  837247ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_pledges?select=id%2Cmarket_id:0
+[  837248ms] [LOG] Fetched pledges for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  837461ms] [LOG] Setting up VX exchange realtime subscription for market IDs: 4a4437e9-0a8f-45be-8ee8-ec269124b640,58bebc15-4337-410f-9483-068bbd2c46ec,6bca500e-63a4-4ecd-a72d-9e8ae804ccd0,9a6f3b0f-8ed5-4b4d-995a-e57780824116,d3994f72-cf95-456a-8ac1-35a5b9b8f47e @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  837500ms] [LOG] Subscribed to VX exchange updates for market IDs: Set(5) @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  837828ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  837994ms] [LOG] [Fast Refresh] done in 269ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  838123ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  838329ms] [LOG] [Fast Refresh] done in 309ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  838922ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  839374ms] [LOG] [Fast Refresh] done in 557ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  911995ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[  912340ms] [LOG] [Fast Refresh] done in 460ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1068688ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1069022ms] [LOG] [Fast Refresh] done in 438ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1209446ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1209470ms] [ERROR] VX exchange realtime subscription error: CLOSED @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:3318
+[ 1209473ms] [LOG] VX exchange realtime subscription not enabled due to missing market IDs or disabled state. @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1209476ms] [LOG] VX exchange realtime subscription not enabled due to missing market IDs or disabled state. @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1209479ms] [LOG] [Fast Refresh] done in 116ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1209664ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_markets?select=id:0
+[ 1209664ms] [LOG] Fetched markets for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1209673ms] [LOG] Not fetching achievements, recently logged in @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1209734ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_outcomes?select=id%2Cmarket_id:0
+[ 1209735ms] [LOG] Fetched outcomes for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1209736ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_markets?select=id:0
+[ 1209737ms] [LOG] Fetched markets for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1209796ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_outcomes?select=id%2Cmarket_id:0
+[ 1209797ms] [LOG] Fetched outcomes for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1209804ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_pledges?select=id%2Cmarket_id:0
+[ 1209804ms] [LOG] Fetched pledges for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1209862ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_pledges?select=id%2Cmarket_id:0
+[ 1209863ms] [LOG] Fetched pledges for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1210078ms] [LOG] Setting up VX exchange realtime subscription for market IDs: 4a4437e9-0a8f-45be-8ee8-ec269124b640,58bebc15-4337-410f-9483-068bbd2c46ec,6bca500e-63a4-4ecd-a72d-9e8ae804ccd0,9a6f3b0f-8ed5-4b4d-995a-e57780824116,d3994f72-cf95-456a-8ac1-35a5b9b8f47e @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1210129ms] [LOG] Subscribed to VX exchange updates for market IDs: Set(5) @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1210324ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1210543ms] [LOG] [Fast Refresh] done in 320ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1265797ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1266433ms] [LOG] [Fast Refresh] done in 724ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1266538ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_markets?select=id:0
+[ 1266539ms] [LOG] Fetched markets for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1266600ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_outcomes?select=id%2Cmarket_id:0
+[ 1266600ms] [LOG] Fetched outcomes for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1266603ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_markets?select=id:0
+[ 1266604ms] [LOG] Fetched markets for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1266662ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_pledges?select=id%2Cmarket_id:0
+[ 1266662ms] [LOG] Fetched pledges for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1266664ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_outcomes?select=id%2Cmarket_id:0
+[ 1266664ms] [LOG] Fetched outcomes for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1266728ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_pledges?select=id%2Cmarket_id:0
+[ 1266728ms] [LOG] Fetched pledges for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1267357ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1267530ms] [LOG] [Fast Refresh] done in 274ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1277096ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1277728ms] [LOG] [Fast Refresh] done in 694ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1277796ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_markets?select=id:0
+[ 1277797ms] [LOG] Fetched markets for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1277860ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_outcomes?select=id%2Cmarket_id:0
+[ 1277860ms] [LOG] Fetched outcomes for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1277861ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_markets?select=id:0
+[ 1277862ms] [LOG] Fetched markets for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1277922ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_pledges?select=id%2Cmarket_id:0
+[ 1277922ms] [LOG] Fetched pledges for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1277923ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_outcomes?select=id%2Cmarket_id:0
+[ 1277924ms] [LOG] Fetched outcomes for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1277987ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_pledges?select=id%2Cmarket_id:0
+[ 1277988ms] [LOG] Fetched pledges for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1278490ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1278632ms] [LOG] [Fast Refresh] done in 244ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1336995ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1337537ms] [LOG] [Fast Refresh] done in 644ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1347603ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1348190ms] [LOG] [Fast Refresh] done in 688ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1364987ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1365631ms] [ERROR] VX exchange realtime subscription error: CLOSED @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:3318
+[ 1365645ms] [LOG] Setting up VX exchange realtime subscription for market IDs: 4a4437e9-0a8f-45be-8ee8-ec269124b640,58bebc15-4337-410f-9483-068bbd2c46ec,6bca500e-63a4-4ecd-a72d-9e8ae804ccd0,9a6f3b0f-8ed5-4b4d-995a-e57780824116,d3994f72-cf95-456a-8ac1-35a5b9b8f47e @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1365675ms] [LOG] [Fast Refresh] done in 721ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1365694ms] [LOG] Subscribed to VX exchange updates for market IDs: Set(5) @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1365936ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1366075ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_markets?select=id:0
+[ 1366075ms] [LOG] Fetched markets for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1366158ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_outcomes?select=id%2Cmarket_id:0
+[ 1366159ms] [LOG] Fetched outcomes for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1366242ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_markets?select=id:0
+[ 1366243ms] [LOG] Fetched markets for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1366246ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_pledges?select=id%2Cmarket_id:0
+[ 1366246ms] [LOG] Fetched pledges for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1366313ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_outcomes?select=id%2Cmarket_id:0
+[ 1366313ms] [LOG] Fetched outcomes for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1366384ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://ijzwizzfjawlixolcuia.supabase.co/rest/v1/prediction_pledges?select=id%2Cmarket_id:0
+[ 1366384ms] [LOG] Fetched pledges for VX realtime test: null @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1366422ms] [LOG] [Fast Refresh] done in 588ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1366761ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1366906ms] [LOG] [Fast Refresh] done in 246ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1898690ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1899077ms] [LOG] [Fast Refresh] done in 493ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1899684ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1900294ms] [LOG] [Fast Refresh] done in 721ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1956029ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1956652ms] [ERROR] VX exchange realtime subscription error: CLOSED @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:3318
+[ 1956666ms] [LOG] Setting up VX exchange realtime subscription for market IDs: 4a4437e9-0a8f-45be-8ee8-ec269124b640,58bebc15-4337-410f-9483-068bbd2c46ec,6bca500e-63a4-4ecd-a72d-9e8ae804ccd0,9a6f3b0f-8ed5-4b4d-995a-e57780824116,d3994f72-cf95-456a-8ac1-35a5b9b8f47e @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1956692ms] [LOG] [Fast Refresh] done in 707ms @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1956707ms] [LOG] Subscribed to VX exchange updates for market IDs: Set(5) @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1957663ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2477
+[ 1957835ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_RESET @ http://localhost:3000/vx?marketId=128404a5-a1ca-471c-8fce-bba85d4b1a24&_rsc=OGzDLz3OzOIX93iR:0
+[ 1957836ms] [ERROR] Failed to fetch RSC payload for http://localhost:3000/vx?marketId=128404a5-a1ca-471c-8fce-bba85d4b1a24. Falling back to browser navigation. TypeError: Failed to fetch
+    at createFetch (http://localhost:3000/_next/static/chunks/0z65_next_dist_client_10b_mfe._.js:8107:21)
+    at async fetchServerResponse (http://localhost:3000/_next/static/chunks/0z65_next_dist_client_10b_mfe._.js:7951:21)
+    at async fetchMissingDynamicData (http://localhost:3000/_next/static/chunks/0z65_next_dist_client_10b_mfe._.js:9364:24) @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:3318
+[ 1957838ms] [ERROR] WebSocket is already in CLOSING or CLOSED state. @ http://localhost:3000/_next/static/chunks/0z65_next_dist_01pywvi._.js:2836

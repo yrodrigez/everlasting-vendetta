@@ -158,7 +158,7 @@ export function KpisView({ participants, raidId, raidSize, composition }: {
 					)
 				})() : null}
 			</div>
-			<div className="grid grid-cols-1 gap-1 w-24">
+			<div className="grid grid-cols-1 gap-1 w-28">
 				<div className="flex items-center justify-center">
 					<FontAwesomeIcon icon={faShield} className="mr-1" />
 					<span className="w-8 flex justify-end whitespace-pre">{totalTank}{composition?.tanks ? ` / ${composition.tanks}` : ''}</span>

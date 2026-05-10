@@ -6,7 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 const SupabaseContext = createContext<SupabaseClient | null>(null);
 
 export function SupabaseProvider({ children }: { children: React.ReactNode }) {
-    const { accessToken } = useAuth();
+    const { accessToken, authReady } = useAuth();
     const tokenRef = useRef<string | null>(null);
     tokenRef.current = accessToken;
 
@@ -15,16 +15,16 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
         clientRef.current = createClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
             process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-            { accessToken: async () => tokenRef.current }
+            { accessToken: async () => tokenRef.current },
         );
     }
 
     useEffect(() => {
-        if (accessToken && clientRef.current) {
+        if (accessToken && clientRef.current && authReady) {
             clientRef.current.realtime.setAuth(accessToken);
             clientRef.current.functions.setAuth(accessToken);
         }
-    }, [accessToken]);
+    }, [accessToken, authReady]);
 
     return (
         <SupabaseContext.Provider value={clientRef.current}>

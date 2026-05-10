@@ -121,6 +121,106 @@ type UserCharactersOutput = {
   };
 }[];
 
+export type PredictionMarketStatus = 'DRAFT' | 'OPEN' | 'LOCKED' | 'RESOLVED' | 'CANCELLED';
+export type PredictionMarketType = 'YES_NO' | 'MULTIPLE_CHOICE' | 'NUMERIC_RANGE';
+export type PredictionPledgeStatus = 'ACTIVE' | 'CANCELLED' | 'WON' | 'LOST' | 'REFUNDED';
+
+export type EvxWallet = {
+  id: string;
+  userId: string;
+  balance: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type EvxLeaderboardEntry = {
+  rank: number;
+  userId: string;
+  walletId: string;
+  selectedCharacterName: string | null;
+  selectedCharacterAvatar: string | null;
+  balance: number;
+  totalPledged: number;
+  activePledged: number;
+  totalWon: number;
+  totalLost: number;
+  totalRefunded: number;
+  netProfit: number;
+  marketsWon: number;
+  marketsLost: number;
+  pledgeCount: number;
+};
+
+export type PredictionOutcomeStats = {
+  id: string;
+  marketId: string;
+  label: string;
+  sortOrder: number;
+  createdAt: string;
+  totalPledged: number;
+  pledgeCount: number;
+  impliedProbability: number;
+};
+
+export type PredictionPledgeDetails = {
+  id: string;
+  marketId: string;
+  outcomeId: string;
+  walletId: string;
+  userId: string;
+  amount: number;
+  status: PredictionPledgeStatus;
+  createdAt: string;
+  updatedAt: string;
+  marketTitle: string;
+  marketStatus: PredictionMarketStatus;
+  outcomeLabel: string;
+};
+
+export type PredictionMarketDetails = {
+  id: string;
+  resetId: string | null;
+  title: string;
+  description: string | null;
+  status: PredictionMarketStatus;
+  closesAt: string;
+  resolvedOutcomeId: string | null;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+  type: PredictionMarketType;
+  totalPool: number;
+  pledgeCount: number;
+  outcomes: PredictionOutcomeStats[];
+  pledges: PredictionPledgeDetails[];
+};
+
+export type CreatePredictionMarketInput = {
+  resetId?: string | null;
+  title: string;
+  description?: string | null;
+  closesAt: string;
+  type: PredictionMarketType;
+  outcomes?: string[];
+};
+
+export type CreatePredictionPledgeInput = {
+  outcomeId: string;
+  amount: number;
+};
+
+export type EvxPledgeResponse = {
+  id: string;
+  marketId: string;
+  outcomeId: string;
+  walletId: string;
+  amount: number;
+  status: PredictionPledgeStatus;
+  createdAt: string;
+  updatedAt: string;
+  walletBalanceAfter: number;
+};
+
 export type RaidParticipantRrsScore = {
   characterName: string;
   realmSlug: string;
@@ -156,6 +256,16 @@ export function createServerApiClient(accessToken: string | null) {
   });
 
   return serverApi;
+}
+
+function cleanObject<T extends object>(obj: T): Partial<T> {
+  const cleaned: Partial<T> = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (value !== undefined && value !== null) {
+      cleaned[key as keyof T] = value;
+    }
+  }
+  return cleaned;
 }
 
 export interface APIServicePort {
@@ -226,6 +336,19 @@ export interface APIServicePort {
   };
   discord: {
     getSelectedCharacter: (discordId: string) => Promise<{ character: { name: string, id: string, avatar: string, character_class: { name: string } } } | null>;
+  };
+  evx: {
+    getMyWallet: () => Promise<EvxWallet>;
+    getWallets: () => Promise<EvxWallet[]>;
+    getLeaderboard: () => Promise<EvxLeaderboardEntry[]>;
+    getMarkets: () => Promise<PredictionMarketDetails[]>;
+    getMarket: (marketId: string) => Promise<PredictionMarketDetails>;
+    createMarket: (input: CreatePredictionMarketInput) => Promise<PredictionMarketDetails>;
+    openMarket: (marketId: string) => Promise<PredictionMarketDetails>;
+    createPledge: (marketId: string, input: CreatePredictionPledgeInput) => Promise<EvxPledgeResponse>;
+    getMyPledges: () => Promise<PredictionPledgeDetails[]>;
+    finalizeMarket: (marketId: string, resolvedOutcomeId: string) => Promise<PredictionMarketDetails>;
+    cancelMarket: (marketId: string) => Promise<PredictionMarketDetails>;
   };
 }
 
@@ -432,6 +555,53 @@ export const createAPIService = (_api: AxiosInstance = api): APIServicePort => (
         console.error('Error fetching selected character for Discord:', error);
         throw error;
       }
+    }
+  },
+  evx: {
+    getMyWallet: async (): Promise<EvxWallet> => {
+      const { data } = await _api.post('/evx/wallets/me');
+      return data.wallet;
+    },
+    getWallets: async (): Promise<EvxWallet[]> => {
+      const { data } = await _api.get('/evx/wallets');
+      return data.wallets;
+    },
+    getLeaderboard: async (): Promise<EvxLeaderboardEntry[]> => {
+      const { data } = await _api.get('/evx/leaderboard');
+      return data.leaderboard ?? data.entries ?? [];
+    },
+    getMarkets: async (): Promise<PredictionMarketDetails[]> => {
+      const { data } = await _api.get('/evx/markets');
+      return data.markets;
+    },
+    getMarket: async (marketId: string): Promise<PredictionMarketDetails> => {
+      const { data } = await _api.get(`/evx/markets/${marketId}`);
+      return data.market;
+    },
+    createMarket: async (input: CreatePredictionMarketInput): Promise<PredictionMarketDetails> => {
+
+      const { data } = await _api.post('/evx/markets', cleanObject(input));
+      return data.market;
+    },
+    openMarket: async (marketId: string): Promise<PredictionMarketDetails> => {
+      const { data } = await _api.patch(`/evx/markets/${marketId}/open`);
+      return data.market;
+    },
+    createPledge: async (marketId: string, input: CreatePredictionPledgeInput): Promise<EvxPledgeResponse> => {
+      const { data } = await _api.post(`/evx/markets/${marketId}/pledges`, cleanObject(input));
+      return data.pledge;
+    },
+    getMyPledges: async (): Promise<PredictionPledgeDetails[]> => {
+      const { data } = await _api.get('/evx/pledges/me');
+      return data.pledges;
+    },
+    finalizeMarket: async (marketId: string, resolvedOutcomeId: string): Promise<PredictionMarketDetails> => {
+      const { data } = await _api.post(`/evx/markets/${marketId}/finalize`, { resolvedOutcomeId });
+      return data.market;
+    },
+    cancelMarket: async (marketId: string): Promise<PredictionMarketDetails> => {
+      const { data } = await _api.post(`/evx/markets/${marketId}/cancel`);
+      return data.market;
     }
   }
 });
