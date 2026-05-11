@@ -93,7 +93,7 @@ export function TradeTicket({
                     </div>
                 ) : existingBet ? (
                     <div className="mt-4 rounded-xl border border-gold bg-moss p-4 text-sm text-default font-bold flex gap-2">
-                        <Gem size={24} className="text-gold" /> <p>You have an active bet of <b className="text-gold font-bold">{formatEvx(existingBet.amount)}</b> on <b className="text-gold font-bold">{existingBet.outcomeLabel}</b>. Estimated return is <b className="text-gold font-bold">{formatEvx(projectedReturn)}</b>.</p>
+                        <Gem size={24} className="text-gold" /> <p>You have an active bet of <b className="text-gold font-bold">{formatEvx(existingBet.amount)}</b> on <b className="text-gold font-bold">{existingBet.outcomeLabel}</b>. Estimated return is <b className="text-gold font-bold">{formatEvx(estimateReturn(market, existingBet.outcomeId, existingBet.amount, true))}</b>.</p>
                     </div>
                 ) : (
                     <div className="mt-4 rounded-xl border border-wood-100 bg-wood p-4">

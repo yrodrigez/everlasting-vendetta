@@ -37,9 +37,16 @@ export function getErrorMessage(error: unknown) {
     return maybeError.response?.data?.message ?? maybeError.message ?? "The exchange rejected the request.";
 }
 
-export function estimateReturn(market: PredictionMarketDetails, outcomeId: string, amount: number) {
+export function estimateReturn(market: PredictionMarketDetails, outcomeId: string, amount: number, isExistingBet: boolean = false) {
     const outcome = market.outcomes.find((item) => item.id === outcomeId);
     if (!outcome || amount <= 0) return 0;
+
+    if (isExistingBet) {
+        const currentPledged = outcome.totalPledged;
+        const projectedPledged = currentPledged;
+        if (projectedPledged <= 0) return 0;
+        return Math.floor((amount / projectedPledged) * market.totalPool);
+    }
 
     const projectedTotalPool = market.totalPool + amount;
     const projectedWinningPool = outcome.totalPledged + amount;
