@@ -9,21 +9,23 @@ import { Rage } from "@/app/roster/[realm]/[name]/components/spell-svgs/Rage";
 import { Stamina } from "@/app/roster/[realm]/[name]/components/spell-svgs/Stamina";
 import { Strength } from "@/app/roster/[realm]/[name]/components/spell-svgs/Strength";
 
-function Power({amount, name}: { amount: number, name: string }) {
-    const text = name === 'Rage' ? 'text-red-500' : name === 'Energy' ? 'text-yellow-500' : 'text-blue-500'
-    const Icon = () => {
-        if (name === 'Rage') {
-            return <Rage className={`w-16 h-16 ${text}`}/>
-        }
-        if (name === 'Energy') {
-            return <Energy className={`w-16 h-16 ${text}`}/>
-        }
-
-        return <Mana className={`w-16 h-16 ${text}`}/>
+const PowerIcon = ({ name, text }: { name: string, text: string }) => {
+    if (name === 'Rage') {
+        return <Rage className={`w-16 h-16 ${text}`} />
     }
+    if (name === 'Energy') {
+        return <Energy className={`w-16 h-16 ${text}`} />
+    }
+
+    return <Mana className={`w-16 h-16 ${text}`} />
+}
+
+function Power({ amount, name }: { amount: number, name: string }) {
+    const text = name === 'Rage' ? 'text-red-500' : name === 'Energy' ? 'text-yellow-500' : 'text-blue-500'
+
     return (
         <div className="flex flex-row gap-2 w-40">
-            <Icon/>
+            <PowerIcon name={name} text={text} />
             <div className="flex-col flex self-end pb-1">
                 <span className={`${text} font-bold`}>{amount}</span>
                 <span className="text-white">{name}</span>
@@ -32,7 +34,7 @@ function Power({amount, name}: { amount: number, name: string }) {
     )
 }
 
-export function StatisticsView({statistics}: { statistics: any }) {
+export function StatisticsView({ statistics }: { statistics: any }) {
     const characterStatistics = {
         health: statistics?.health || 0,
         power: {
@@ -70,15 +72,15 @@ export function StatisticsView({statistics}: { statistics: any }) {
             <div
                 className="flex lg:flex-row flex-col gap-8 w-full lg:items-center justify-center">
                 <div className="flex flex-row gap-2 w-40">
-                    <Health className="text-red-500 w-16 h-16"/>
+                    <Health className="text-red-500 w-16 h-16" />
                     <div className="flex-col flex self-end pb-1">
                         <span className="text-red-500 font-bold">{characterStatistics.health}</span>
                         <span className="text-white">Health</span>
                     </div>
                 </div>
-                <Power amount={characterStatistics.power.amount} name={characterStatistics.power.name}/>
+                <Power amount={characterStatistics.power.amount} name={characterStatistics.power.name} />
                 <div className="flex flex-row gap-2 w-40">
-                    <Stamina className="text-orange-400 w-16 h-16"/>
+                    <Stamina className="text-orange-400 w-16 h-16" />
                     <div className="flex-col flex self-end pb-1">
                         <span className="text-orange-400 font-bold">{characterStatistics.stamina}</span>
                         <span className="text-white">Stamina</span>
@@ -86,7 +88,7 @@ export function StatisticsView({statistics}: { statistics: any }) {
                 </div>
 
                 <div className="flex flex-row gap-2 w-40">
-                    <FireResistance className="text-red-500 w-16 h-16"/>
+                    <FireResistance className="text-red-500 w-16 h-16" />
                     <div className="flex-col flex self-end pb-1">
                         <span className="text-red-500 font-bold">{characterStatistics.resistances.fire}</span>
                         <span className="text-white">Fire res.</span>
@@ -104,28 +106,28 @@ export function StatisticsView({statistics}: { statistics: any }) {
             </div>
             <div className="flex lg:flex-row flex-col gap-8 w-full lg:items-center justify-center">
                 <div className="flex flex-row gap-2 w-40">
-                    <Strength className="text-red-500 w-16 h-16"/>
+                    <Strength className="text-red-500 w-16 h-16" />
                     <div className="flex-col flex self-end pb-1">
                         <span className="text-red-500 font-bold">{characterStatistics.strength}</span>
                         <span className="text-white">Strength</span>
                     </div>
                 </div>
                 <div className="flex flex-row gap-2 w-40">
-                    <Agility className="text-yellow-500 w-16 h-16"/>
+                    <Agility className="text-yellow-500 w-16 h-16" />
                     <div className="flex-col flex self-end pb-1">
                         <span className="text-yellow-500 font-bold">{characterStatistics.agility}</span>
                         <span className="text-white">Agility</span>
                     </div>
                 </div>
                 <div className="flex flex-row gap-2 w-40">
-                    <Intellect className="text-purple-400 w-16 h-16"/>
+                    <Intellect className="text-purple-400 w-16 h-16" />
                     <div className="flex-col flex self-end pb-1">
                         <span className="text-purple-400 font-bold">{characterStatistics.intellect}</span>
                         <span className="text-white">Intellect</span>
                     </div>
                 </div>
                 <div className="flex flex-row gap-2 w-40">
-                    <NatureResistance className="text-success w-16 h-16"/>
+                    <NatureResistance className="text-success w-16 h-16" />
                     <div className="flex-col flex self-end pb-1">
                         <span className="text-success font-bold">{characterStatistics?.resistances?.nature}</span>
                         <span className="text-white">Nature res.</span>

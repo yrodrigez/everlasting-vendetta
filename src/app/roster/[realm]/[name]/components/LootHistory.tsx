@@ -20,16 +20,10 @@ export function LootHistory({ lootHistory }: {
 		resetId?: string
 	}>;
 }) {
-	if (!lootHistory || !Object.values(lootHistory)?.length) {
-		return <div>
-			No loot history found
-		</div>
-	}
-
-	const lootData = Object.values(lootHistory).sort((a: any, b: any) => {
+	
+	const lootData = Object.values(lootHistory ?? {}).sort((a: any, b: any) => {
 		return moment(a.date).isBefore(moment(b.date)) ? 1 : -1
 	})
-
 
 	const { user } = useAuth()
 	const supabase = useSupabase();
@@ -65,6 +59,13 @@ export function LootHistory({ lootHistory }: {
 
 		router.refresh();
 	}, [supabase, user, isDeletePermission]);
+
+	if (!lootHistory || !Object.values(lootHistory)?.length) {
+		return <div>
+			No loot history found
+		</div>
+	}
+
 
 	return (
 		<div className="flex flex-col bg-wood border border-wood-100 text-gold p-4 h-full min-h-0 px-6 rounded gap-6">

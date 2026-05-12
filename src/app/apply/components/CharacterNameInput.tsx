@@ -1,8 +1,8 @@
 'use client'
 import { useApplyFormStore } from "@/app/apply/components/store";
-import { useFetchCharacter } from '@/hooks/api/use-fetch-character';
 import { Input } from "@/components/input";
 import { Tooltip } from "@/components/tooltip";
+import { useFetchCharacter } from '@/hooks/api/use-fetch-character';
 import { useEffect, useState } from "react";
 import { useShallow } from "zustand/shallow";
 
@@ -87,7 +87,7 @@ export function CharacterNameInput({ isDisabled }: { isDisabled: boolean }) {
             </Tooltip>
             {characterAvatar &&
                 <div className="absolute top-2.5 -right-12 w-10 flex flex-col items-center">
-                    <div 
+                    <div
                         className="w-10 h-10 rounded-full border border-green-500"
                         style={{
                             backgroundImage: `url(${characterAvatar})`,

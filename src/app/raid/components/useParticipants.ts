@@ -6,7 +6,7 @@ import { useEffect, useRef } from "react";
 import { MemberRolesRepository } from "../api/member-roles.repository";
 import { ParticipantsService } from "../api/participants.service";
 
-export function useParticipants(raidId: string, initialParticipants: RaidParticipant[]) {
+export function useParticipants(raidId: string | undefined, initialParticipants: RaidParticipant[]) {
 	const supabase = useSupabase();
 	const lastRefreshAtRef = useRef(0)
 
@@ -14,6 +14,7 @@ export function useParticipants(raidId: string, initialParticipants: RaidPartici
 		queryKey: ['raid_participants', raidId],
 		queryFn: () => {
 			if (!supabase) return [] as RaidParticipant[]
+			if (!raidId) return [] as RaidParticipant[]
 			const memberRolesRepository = new MemberRolesRepository(supabase);
 			const participantsService = new ParticipantsService(supabase, memberRolesRepository);
 			return participantsService.fetchParticipantsWithRoles(raidId)
@@ -25,6 +26,7 @@ export function useParticipants(raidId: string, initialParticipants: RaidPartici
 	const router = useRouter()
 
 	useEffect(() => {
+		if (!raidId) return
 		if (!supabase) return
 		const refreshParticipants = async () => {
 			await refetch()

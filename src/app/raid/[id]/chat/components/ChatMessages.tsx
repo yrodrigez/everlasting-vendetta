@@ -179,7 +179,6 @@ const ChatMessageContent = ({
     children: string | ReactNode
     realmSlug: string
 }) => {
-    if (typeof children !== 'string') return <div className="break-all">{children}</div>;
 
     const findURLs = useCallback(
         (text: string) => {
@@ -237,6 +236,7 @@ const ChatMessageContent = ({
         [children, realmSlug]
     );
 
+    if (typeof children !== 'string') return <div className="break-all">{children}</div>;
     const processedContent = findAtMentions(findURLs(children));
 
     return <div className="overflow-auto max-w-60 scrollbar-pill whitespace-pre-wrap">{processedContent}</div>;

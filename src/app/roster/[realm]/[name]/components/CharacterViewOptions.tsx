@@ -26,7 +26,10 @@ const Controls = ({ availableOptions, onSelect }: { availableOptions: string[], 
 	useEffect(() => {
 		calculatePosition()
 		window?.addEventListener('resize', calculatePosition)
-	}, [selectedOption, ref.current, containerRef.current])
+		return () => {
+			window?.removeEventListener('resize', calculatePosition)
+		}
+	}, [selectedOption, availableOptions])
 
 
 	return (

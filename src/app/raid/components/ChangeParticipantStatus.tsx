@@ -40,7 +40,7 @@ export default function ChangeParticipantStatus({ supabase, resetId, memberId, c
         mutationFn: async (status: RaidStatusType) => {
             if (!supabase) return
 
-            sendActionEvent('raid_change_player_status', { resetId, memberId, status })
+            sendActionEvent('raid_change_player_status', { resetId, memberId, previousStatus: currentStatus, newStatus: status })
 
             const { error } = await supabase
                 .from('ev_raid_participant')

@@ -113,7 +113,7 @@ export const MoveParticipant = ({
             <Tooltip
                 className="w-48 border-wood-100 border shadow-md shadow-black/50 "
                 content={ isRaidOver ? "The raid is over. Participants cannot be moved." : isRaidStarted ? "The raid has already started. Participants cannot be moved." : "No other raid sessions available to move this participant to. They are already participating in all of them or there are no other raid sessions in the future."}
-                placement="top"
+                placement="right"
                 showArrow
             >
                 <div className="flex items-center gap-2 grow p-2 border border-wood-100 rounded-lg justify-between w-full opacity-50 cursor-not-allowed">

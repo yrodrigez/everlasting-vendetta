@@ -393,13 +393,6 @@ export default function RaidParticipants({ participants, resetId, participantSco
                                 supabase={supabase}
                                 currentDetails={registrationDetails}
                             />
-                            <BenchParticipant
-                                resetId={resetId}
-                                memberId={registration.member.character.id}
-                                currentStatus={registrationDetails?.status}
-                                supabase={supabase}
-                                currentDetails={registrationDetails}
-                            />
                             <MoveParticipant
                                 memberId={registration.member.character.id}
                                 raidId={raidId}

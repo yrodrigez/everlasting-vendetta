@@ -59,7 +59,7 @@ export function RaidResetCard({
 	const raidStart = moment(`${raidDate}T${raidTime}`);
 	const raidEnd = moment(`${raidDate}T${endTime}`);
 	const router = useRouter()
-	const participants = id ? useParticipants(id, raidRegistrations) : []
+	const participants = useParticipants(id, raidRegistrations);
 	const isRaidCurrent = moment().isBetween(raidStart, raidEnd)
 	const isToday = moment().format('YYYY-MM-DD') === raidStart.format('YYYY-MM-DD')
 	const supabase = useSupabase();

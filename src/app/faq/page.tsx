@@ -237,7 +237,7 @@ function Answer({ content }: { content: React.ReactNode[] }) {
     return (
         <div className="mt-4 space-y-3 text-sm leading-6 text-ivory/85 md:text-base">
             {content.map((paragraph, index) => {
-                const Component = typeof paragraph === 'string' ? () => <p>{paragraph}</p> : () => <>{paragraph}</>;
+                const Component = typeof paragraph === 'string' ? () => <p key={index}>{paragraph}</p> : () => paragraph;
                 return <Component key={index} />;
             })}
         </div>
