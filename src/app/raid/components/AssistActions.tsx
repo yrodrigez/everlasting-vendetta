@@ -108,12 +108,12 @@ export default function AssistActions({
                 <ConfirmAssistance
                     hasLootReservations={hasLootReservations}
                     raidId={raidId} />
-                <LateAssistance
+                {/* <LateAssistance
                     hasLootReservations={hasLootReservations}
                     raidId={raidId} />
                 <TentativeAssistance
                     hasLootReservations={hasLootReservations}
-                    raidId={raidId} />
+                    raidId={raidId} /> */}
                 <DeclineAssistance raidId={raidId} />
             </div>
         </div>
