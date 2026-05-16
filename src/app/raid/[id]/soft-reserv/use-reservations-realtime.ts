@@ -15,57 +15,28 @@ export const useReservationsRealtime = (
     const supabase = useSupabase();
     const router = useRouter()
 
-    const reservationsChannelName = `reservations:${resetId}`;
-    const resetChannelName = `reset:${resetId}`;
-    const extraReservationsChannelName = `ev_extra_reservations:reset_id=${resetId}`;
-    const raidLootChannelName = `raid_loot:id=${resetId}`;
-    const hardReserveChannelName = `item_rules:reset_id=${resetId}`;
+    const reservationsChannelName = `reservations-realtime:${resetId}`;
 
     useEffect(() => {
         if (!supabase || !resetId || !isAuthenticated) return;
 
         const reservationsChannel = safeChannel(supabase, reservationsChannelName)
-            .on(
-                'postgres_changes',
-                {
-                    event: '*',
-                    schema: 'public',
-                    table: 'raid_loot_reservation',
-                    //filter: `reset_id=eq.${resetId}`, // bug in supabase this does not work with delete events
-                }, onReservationsChange).subscribe((status, err) => {
-                    console.log('Subscription to raid_loot_reservation status:', status);
-                    if (err) {
-                        console.error('Error subscribing to raid_loot_reservation:', err);
-                    }
-                });
-
-        const resetChannel = safeChannel(supabase, resetChannelName)
-            .on(
-                'postgres_changes',
-                {
-                    event: '*',
-                    schema: 'public',
-                    table: 'raid_resets',
-                }, onResetChange).subscribe((status, err) => {
-                    console.log('Subscription to raid_resets status:', status);
-                    if (err) {
-                        console.error('Error subscribing to raid_resets:', err);
-                    }
-                });
-
-        const extraReservationsChannel = safeChannel(supabase, extraReservationsChannelName)
+            .on('postgres_changes', {
+                event: '*',
+                schema: 'public',
+                table: 'raid_loot_reservation',
+                //filter: `reset_id=eq.${resetId}`, // bug in supabase this does not work with delete events
+            }, onReservationsChange)
+            .on('postgres_changes', {
+                event: '*',
+                schema: 'public',
+                table: 'raid_resets',
+            }, onResetChange)
             .on('postgres_changes', {
                 event: '*',
                 schema: 'public',
                 table: 'ev_extra_reservations',
-            }, onExtraReserveUpdate).subscribe((status, err) => {
-                console.log('Subscription to ev_extra_reservations status:', status);
-                if (err) {
-                    console.error('Error subscribing to ev_extra_reservations:', err);
-                }
-            });
-
-        const raid_loot = safeChannel(supabase, raidLootChannelName)
+            }, onExtraReserveUpdate)
             .on('postgres_changes', {
                 event: '*',
                 schema: 'public',
@@ -73,15 +44,7 @@ export const useReservationsRealtime = (
             }, async (payload) => {
                 onRaidLootChange(payload)
                 router.refresh()
-            }).subscribe((status, err) => {
-                console.log('Subscription to raid_loot status:', status);
-                if (err) {
-                    console.error('Error subscribing to raid_loot:', err);
-                }
-            });
-
-        const hardReserveChannel = safeChannel(supabase, hardReserveChannelName)
-            .on('postgres_changes', {
+            }).on('postgres_changes', {
                 event: '*',
                 schema: 'public',
                 table: 'raid_loot_item_rules',
@@ -89,9 +52,9 @@ export const useReservationsRealtime = (
                 onHardReserveChange(data)
                 router.refresh()
             }).subscribe((status, err) => {
-                console.log('Subscription to reset_hard_reserve status:', status);
+                console.log(`Subscription to ${reservationsChannelName} status:`, status);
                 if (err) {
-                    console.error('Error subscribing to reset_hard_reserve:', err);
+                    console.error(`Error subscribing to ${reservationsChannelName}:`, err);
                 }
             });
 
@@ -99,11 +62,6 @@ export const useReservationsRealtime = (
             console.log('Unsubscribing from realtime channels for resetId:', resetId);
 
             supabase.removeChannel(reservationsChannel);
-            supabase.removeChannel(resetChannel);
-            supabase.removeChannel(extraReservationsChannel);
-            supabase.removeChannel(raid_loot);
-            supabase.removeChannel(hardReserveChannel);
-
         };
     }, [resetId, supabase, onReservationsChange, onResetChange, onExtraReserveUpdate, isAuthenticated, router]);
 };

@@ -16,10 +16,9 @@ import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import { useShallow } from "zustand/shallow";
 import { useSupabase } from "@/context/SupabaseContext";
+import { useAudio } from "./use-audio";
 
 export function displayAchievement(achievement: Achievement) {
-
-
     if (!achievement) return
     toast.custom(() => (
         <div
@@ -277,6 +276,7 @@ export default function useAchievements() {
     const supabase = useSupabase();
 
     const selectedCharacter = useCharacterStore(useShallow(state => state.selectedCharacter));
+    const audio = useAudio('/achievement-sound.mp3')
 
     const { data: achievements, error, isLoading: loadingAchievements } = useQuery({
         queryKey: ['achievements', selectedCharacter?.id],
@@ -331,7 +331,6 @@ export default function useAchievements() {
     })
 
     useEffect(() => {
-        const audio = new Audio('/sounds/AchievmentSound1.ogg')
         let isPlaying = false
         if (!achievements?.notAchieved?.length || !selectedCharacter || !supabase || loadingAchievements || error) return
         Promise.all(achievements.notAchieved.map(async achievement => {
@@ -362,7 +361,7 @@ export default function useAchievements() {
                 isPlaying = true
             })
         })
-    }, [achievements, loadingAchievements, error, supabase, selectedCharacter]);
+    }, [achievements, loadingAchievements, error, supabase, selectedCharacter, audio]);
 
     return {
         ...achievements,
