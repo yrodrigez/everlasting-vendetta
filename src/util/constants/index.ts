@@ -60,6 +60,7 @@ export const ROLE = {
     MEMBER: 'MEMBER',
     GUEST: 'GUEST',
     ALTER: 'ALTER',
+    VX_ADMIN: 'VX_ADMIN',
 }
 
 export const ROLE_ORDER = [

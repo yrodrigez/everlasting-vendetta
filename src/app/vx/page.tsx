@@ -35,12 +35,14 @@ export default async function VxPage() {
         );
     }
 
+    const isGuildMaster = (session.roles?.includes(ROLE.GUILD_MASTER) || session.roles?.includes(ROLE.VX_ADMIN)) ?? false;
+
     return (
         <>
             <PageEvent name="vx_page_view" />
             <VxExchange
                 headingClassName={cinzel.className}
-                isGuildMaster={session.roles?.includes(ROLE.GUILD_MASTER) ?? false}
+                isGuildMaster={isGuildMaster}
             />
         </>
     );
