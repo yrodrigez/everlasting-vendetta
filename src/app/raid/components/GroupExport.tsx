@@ -44,8 +44,7 @@ export default function GroupExport({ resetId, raidSize, createdById, participan
         participantScores.map((score) => [createParticipantScoreKey(score.characterName, score.realmSlug), score])
     ), [participantScores]);
 
-    const participantsComparator = useMemo(
-        () => createParticipantsComparator(participantScoreByCharacterKey, createdById),
+    const participantsComparator = useMemo(() => createParticipantsComparator(participantScoreByCharacterKey, createdById),
         [participantScoreByCharacterKey, createdById]
     );
 
@@ -63,21 +62,25 @@ export default function GroupExport({ resetId, raidSize, createdById, participan
         const mainGroups: string[][] = [];
         let currentGroup: string[] = [];
 
-        mainTanks.forEach((tank, index) => {
+        mainTanks.forEach((tank) => {
             currentGroup.push(tank.member.character.name);
-            if (currentGroup.length === MAIN_GROUP_SIZE || (index === mainTanks.length - 1 && currentGroup.length > 0)) {
+            if (currentGroup.length === MAIN_GROUP_SIZE) {
                 mainGroups.push(currentGroup);
                 currentGroup = [];
             }
         });
 
-        mainOthers.forEach((participant, index) => {
+        mainOthers.forEach((participant) => {
             currentGroup.push(participant.member.character.name);
-            if (currentGroup.length === MAIN_GROUP_SIZE || index === mainOthers.length - 1) {
+            if (currentGroup.length === MAIN_GROUP_SIZE) {
                 mainGroups.push(currentGroup);
                 currentGroup = [];
             }
         });
+
+        if (currentGroup.length > 0) {
+            mainGroups.push(currentGroup);
+        }
 
         const overflowChunks: string[][] = [];
         for (let i = 0; i < overflow.length && overflowChunks.length < OVERFLOW_GROUP_NUMBERS.length; i += MAIN_GROUP_SIZE) {
