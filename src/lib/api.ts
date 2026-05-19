@@ -240,6 +240,15 @@ export type RaidParticipantRrsScore = {
     alter: number;
     signupTiming: number;
   };
+  reliabilityAdjustment: {
+    observedReliability: number;
+    neutralReliability: number;
+    confidence: number;
+    neutralWeight: number;
+    effectiveReliability: number;
+    weeksConsidered: number;
+    fullConfidenceAfterWeeks: number;
+  };
 }
 
 export type RaidResetRrsOutput = {
