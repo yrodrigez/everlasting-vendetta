@@ -16,6 +16,7 @@ import { createAPIService, createServerApiClient } from "@/lib/api";
 import { AttendanceHeatmap } from "@/app/roster/[realm]/[name]/components/AttendanceHeatmap";
 import CharacterAchievements from "@/app/roster/[realm]/[name]/components/CharacterAchievements";
 import CharacterProfessions from "@/app/roster/[realm]/[name]/components/CharacterProfessions";
+import { CharacterLogs } from "@/app/roster/[realm]/[name]/components/CharacterLogs";
 import { fetchCharacterProfessionsSpells } from "@/app/roster/[realm]/[name]/components/professions-api";
 import { Achievement, MemberAchievement } from "@/types/Achievements";
 import { faBan, faUserXmark } from "@fortawesome/free-solid-svg-icons";
@@ -27,6 +28,7 @@ import { Metadata } from "next";
 import { revalidatePath } from "next/cache";
 import { notFound } from "next/navigation";
 import { CharacterRepository } from "@/infrastructure/roster/character.repository";
+import { WarcraftLogsGateway } from "@/lib/warcraft-logs/warcraft-logs.gateway";
 import { AltersView } from "./components/alters-view";
 
 export const dynamic = 'force-dynamic'
@@ -281,8 +283,9 @@ export default async function Page({ params }: { params: Promise<{ name: string,
 
     const supabase = await getSupabase();
     const characterRepository = new CharacterRepository(supabase);
+    const warcraftLogsGateway = new WarcraftLogsGateway(fetch);
 
-    const [equipment, talents, characterStatistics, lootHistory, { data: isCharacterBanned }, { data: isMemberPresent }, achievementData, attendance, alters] = await Promise.all([
+    const [equipment, talents, characterStatistics, lootHistory, { data: isCharacterBanned }, { data: isMemberPresent }, achievementData, attendance, alters, characterLogs] = await Promise.all([
         fetchEquipment(characterName, realmSlug),//apiService.anon.getCharacterEquipment(realmSlug, characterName),
         getCharacterTalents(characterName, realmSlug),
         fetchCharacterStatistics(characterName, realmSlug),
@@ -301,7 +304,11 @@ export default async function Page({ params }: { params: Promise<{ name: string,
             raid_date: string,
             participated: boolean,
         }[]>(),
-        characterRepository.findAlters(characterName, realmSlug)
+        characterRepository.findAlters(characterName, realmSlug),
+        warcraftLogsGateway.getCharacterLogs(realmSlug, characterName).catch((error) => {
+            console.error('Error fetching Warcraft Logs rankings:', error)
+            return null
+        })
     ])
 
     const equipmentData = equipment?.equipped_items ?? []
@@ -406,6 +413,11 @@ export default async function Page({ params }: { params: Promise<{ name: string,
                             label: 'Raid attendance',
                             name: 'raid-attendance',
                             children: <AttendanceHeatmap attendance={Array.isArray(attendance.data) ? attendance.data : []} />
+                        },
+                        {
+                            label: 'Rankings',
+                            name: 'rankings',
+                            children: <CharacterLogs logs={characterLogs} />
                         },
                         (canSeeAlters ?
                             {

@@ -21,6 +21,7 @@ type AssignedCompositionParticipant = RaidParticipant & { hasCompositionSpot: bo
 
 const COMPOSITION_ROLE_ORDER: CompositionRole[] = ['tank', 'healer', 'dps']
 
+
 const compareValues = (a: number | string, b: number | string) => {
     if (a < b) return -1
     if (a > b) return 1

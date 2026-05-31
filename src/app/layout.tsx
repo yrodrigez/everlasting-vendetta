@@ -14,6 +14,7 @@ import "./globals.css";
 import { GUILD_REALM_NAME } from "@/util/constants";
 import GoogleTagManager from "@/components/google/google-tag-manager";
 import VxHomeButton from "@/components/vx-exchange/vx-home-button";
+import { HeaderMenuButtonOnOff } from "@/components/header-button-on-off";
 
 config.autoAddCss = false;
 const inter = Inter({ subsets: ["latin"] });
@@ -68,6 +69,13 @@ export default async function RootLayout({
                                         className="flex-1 rounded-full max-w-20 hidden md:flex my-auto" />
                                     <div className="flex items-center md:w-[240px] flex-1 gap-1 md:ml-2">
                                         <HeaderMenuButton text="Roster" />
+                                        <HeaderMenuButtonOnOff 
+                                            text="Logs"
+                                            path="/logs"
+                                            hoverImg="/logs/logs-on.webp"
+                                            defaultImg="/logs/logs-off.webp"
+                                            variant="shadow"
+                                        />
                                         <VxHomeButton />
                                         <HeaderMenuButton text="Calendar" />
                                     </div>
