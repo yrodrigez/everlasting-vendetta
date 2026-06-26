@@ -13,8 +13,8 @@ export function WishlistPanel() {
         wishlistItems,
         isWishlistLoading,
         removeFromWishlist,
+        reservesByItem,
         setSelectedItemId,
-        yourReserves,
     } = useRaidItems();
     const clearFilters = useFiltersStore(state => state.clear);
 
@@ -50,7 +50,7 @@ export function WishlistPanel() {
                 <ScrollShadow orientation="horizontal" className="mt-2 flex gap-2 overflow-x-auto pb-1 scrollbar-pill">
                     {wishlistItems.map(item => {
                         const qualityColor = qualityColors[item.description.quality ?? 0] || 'common';
-                        const reservedCount = yourReserves.filter(reservation => reservation.item_id === item.id).length;
+                        const reserveCount = reservesByItem.find(reservedItem => reservedItem.item.id === item.id)?.reservations.length ?? 0;
 
                         return (
                             <div
@@ -70,12 +70,12 @@ export function WishlistPanel() {
                                         className={`h-8 w-8 min-w-8 rounded border border-${qualityColor}`}
                                     />
                                     <span className="min-w-0 flex-1 truncate text-xs font-bold text-default">{item.name}</span>
-                                    {reservedCount > 0 && (
+                                    {reserveCount > 0 && (
                                         <Chip
                                             size="sm"
-                                            classNames={{ base: 'h-5 bg-moss border border-moss-100', content: 'text-[10px] text-default font-bold' }}
+                                            classNames={{ base: 'h-5 min-w-5 bg-dark border border-gold/50', content: 'text-[10px] text-gold font-bold' }}
                                         >
-                                            SR {reservedCount}
+                                            {reserveCount}
                                         </Chip>
                                     )}
                                 </button>
