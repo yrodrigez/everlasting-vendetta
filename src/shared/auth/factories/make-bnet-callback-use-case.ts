@@ -1,4 +1,4 @@
-import { REFRESH_TOKEN_COOKIE_KEY } from '@/util/constants';
+import { EV_COOKIE_KEY_START, REFRESH_TOKEN_COOKIE_KEY } from '@/util/constants';
 import { BnetCallbackUseCase } from '@/shared/auth//application/use-cases/bnet-callback.use-case';
 import { BattleNetOAuthGateway } from '@/shared/auth/infrastructure/bnet-oauth-gateway';
 import { HttpAuthGateway } from '@/shared/auth/infrastructure/http-auth-gateway';
@@ -47,6 +47,7 @@ export function makeBnetCallbackUseCase(cookieStore: CookieStore) {
 
     const sessionStore = new NextCookiesSessionStore(cookieStore, {
         refreshTokenCookieName: REFRESH_TOKEN_COOKIE_KEY,
+        cookieNamePrefixes: [EV_COOKIE_KEY_START],
         cookieOptions: {
             httpOnly: true,
             secure: true,

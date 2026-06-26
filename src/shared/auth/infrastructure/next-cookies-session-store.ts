@@ -2,6 +2,7 @@ import type { SessionStore } from '@/shared/auth/application/ports/session-store
 
 type CookieStore = {
     get(name: string): { name: string; value: string } | undefined;
+    getAll?(): { name: string; value: string }[];
     set(
         name: string,
         value: string,
@@ -20,7 +21,7 @@ type CookieStore = {
 
 interface NextCookiesSessionStoreConfig {
     refreshTokenCookieName: string;
-    selectedCharacterCookieName?: string;
+    cookieNamePrefixes?: string[];
     cookieOptions: {
         httpOnly: boolean;
         secure: boolean;
@@ -33,9 +34,17 @@ interface NextCookiesSessionStoreConfig {
 export class NextCookiesSessionStore implements SessionStore {
     constructor(private readonly cookies: CookieStore, private readonly config: NextCookiesSessionStoreConfig) { }
     clear(): void {
-        this.expireCookie(this.config.refreshTokenCookieName);
-        if (this.config.selectedCharacterCookieName) {
-            this.expireCookie(this.config.selectedCharacterCookieName);
+        const cookieNames = new Set<string>([this.config.refreshTokenCookieName]);
+
+        const prefixes = this.config.cookieNamePrefixes ?? [];
+        for (const cookie of this.cookies.getAll?.() ?? []) {
+            if (prefixes.some(prefix => cookie.name.startsWith(prefix))) {
+                cookieNames.add(cookie.name);
+            }
+        }
+
+        for (const name of cookieNames) {
+            this.expireCookie(name);
         }
     }
 
@@ -71,11 +80,21 @@ export class NextCookiesSessionStore implements SessionStore {
     }
 
     private expireCookie(name: string) {
-        this.cookies.set(name, '', {
-            ...this.config.cookieOptions,
-            maxAge: 0,
-            expires: new Date(0),
-        });
+        const domains = new Set<string | undefined>([
+            undefined,
+            this.config.cookieOptions.domain,
+            process.env.NODE_ENV === 'production' ? '.everlastingvendetta.com' : undefined,
+            process.env.NODE_ENV === 'production' ? 'everlastingvendetta.com' : undefined,
+        ]);
+
+        for (const domain of domains) {
+            this.cookies.set(name, '', {
+                ...this.config.cookieOptions,
+                domain,
+                maxAge: 0,
+                expires: new Date(0),
+            });
+        }
     }
 
     private setCookie(name: string, value: string, maxAge: number) {

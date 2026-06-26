@@ -184,42 +184,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 
   const logout = useCallback(async () => {
-    if (!accessToken) return;
-
-    await fetch('/api/v1/auth/revoke', {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
-      }
-    });
-    // Server clears httpOnly cookies; clear non-httpOnly cookies & storage client-side
-    clearAllCookies();
-    sessionStorage?.clear();
-    localStorage?.clear();
-    setAccessToken(null);
-    setUser(null);
-    router.refresh();
+    try {
+      await fetch('/api/v1/auth/revoke', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          ...(accessToken ? { 'Authorization': `Bearer ${accessToken}` } : {}),
+          'Content-Type': 'application/json'
+        }
+      });
+    } finally {
+      // Server clears httpOnly cookies; clear non-httpOnly cookies & storage client-side
+      clearAllCookies();
+      sessionStorage?.clear();
+      localStorage?.clear();
+      setAccessToken(null);
+      setUser(null);
+      router.refresh();
+    }
   }, [accessToken, router]);
 
   const logoutAll = useCallback(async () => {
-    if (!accessToken) return;
-
-    await fetch('/api/v1/auth/revoke_all', {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`
-      }
-    });
-    // Server clears httpOnly cookies; clear non-httpOnly cookies & storage client-side
-    clearAllCookies();
-    sessionStorage?.clear();
-    localStorage?.clear();
-    setAccessToken(null);
-    setUser(null);
-    router.refresh();
+    try {
+      await fetch('/api/v1/auth/revoke_all', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          ...(accessToken ? { 'Authorization': `Bearer ${accessToken}` } : {})
+        }
+      });
+    } finally {
+      // Server clears httpOnly cookies; clear non-httpOnly cookies & storage client-side
+      clearAllCookies();
+      sessionStorage?.clear();
+      localStorage?.clear();
+      setAccessToken(null);
+      setUser(null);
+      router.refresh();
+    }
   }, [accessToken, router]);
 
   const login = useCallback((provider: 'bnet' | 'discord', redirectTo?: string) => {

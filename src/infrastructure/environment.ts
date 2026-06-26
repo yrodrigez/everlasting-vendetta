@@ -1,4 +1,4 @@
-import { COOKIE_VERSION, REFRESH_TOKEN_COOKIE_KEY, SELECTED_CHARACTER_COOKIE_KEY } from "@/util/constants";
+import { COOKIE_VERSION, REFRESH_TOKEN_COOKIE_KEY } from "@/util/constants";
 
 const ROLES = {
     GUILD_MASTER: 'GUILD_MASTER',
@@ -45,7 +45,6 @@ export const getEnvironment = () => {
         // cookies & session
         cookieVersion: COOKIE_VERSION,
         refreshTokenCookieKey: REFRESH_TOKEN_COOKIE_KEY,
-        selectedCharacterCookieKey: SELECTED_CHARACTER_COOKIE_KEY,
 
         playableRoles: {
             TANK: { value: 'tank', label: 'Tank' },
