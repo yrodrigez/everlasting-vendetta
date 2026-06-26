@@ -1,6 +1,7 @@
 'use server'
 import { createAPIService, createServerApiClient, type StoredSelectedCharacter } from '@/lib/api'
 import { makeRefreshSessionUseCase } from '@/shared/auth/factories/make-refresh-session-use-case'
+import { GUILD_REALM_NAME, GUILD_REALM_SLUG } from '@/util/constants'
 import { type SupabaseClient, createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import 'server-only'
@@ -41,14 +42,19 @@ function normalizeSelectedCharacter(character: StoredSelectedCharacter | null): 
 
     const selectedRole = character.selectedRole;
     const characterClass = character.playable_class?.name ?? character.character_class?.name;
+    const realmSlug = character.realm?.slug ?? GUILD_REALM_SLUG;
+    const realm = {
+        slug: realmSlug,
+        name: character.realm?.name ?? GUILD_REALM_NAME,
+    };
 
     return {
         id: character.id,
         name: character.name,
         level: character.level,
         avatar: character.avatar,
-        realm: character.realm,
-        realmSlug: character.realm?.slug,
+        realm,
+        realmSlug,
         guild: character.guild,
         class: characterClass,
         role: selectedRole,

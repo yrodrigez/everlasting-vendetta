@@ -36,6 +36,13 @@ type RaidQueryResult = {
     reserve_ammount: number;
 };
 
+function formatRealmName(realmSlug?: string | null) {
+    return (realmSlug ?? 'Unknown realm')
+        .split('-')
+        .map(x => x.charAt(0).toUpperCase() + x.slice(1))
+        .join(' ');
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
     const { getSupabase } = await createServerSession();
     // Fetch the raid reset data
@@ -221,7 +228,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
             body={
                 <>
                     <p>
-                        Your selected character's realm <b>{loggedInUser.selectedCharacter?.realmSlug.split('-').map(x => x.charAt(0).toUpperCase() + x.slice(1)).join(' ')}</b> does not match the raid's realm <b>{resetData.data.realm.split('-').map(x => x.charAt(0).toUpperCase() + x.slice(1)).join(' ')}</b>.
+                        Your selected character's realm <b>{formatRealmName(loggedInUser.selectedCharacter?.realmSlug)}</b> does not match the raid's realm <b>{formatRealmName(resetData.data.realm)}</b>.
                     </p>
                     <p>
                         Please switch to a character on the correct realm to access the raid reservations.
