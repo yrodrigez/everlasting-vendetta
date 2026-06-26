@@ -123,6 +123,56 @@ export class ReservationsRepository {
         return data || []
     }
 
+    public async fetchWishlistItemIds(raidId: string, characterId: number): Promise<number[]> {
+        const { data, error } = await this.supabase
+            .from('raid_loot_wishlist')
+            .select('item_id')
+            .eq('raid_id', raidId)
+            .eq('member_id', characterId)
+            .order('created_at', { ascending: true })
+            .overrideTypes<{ item_id: number }[]>()
+
+        if (error) {
+            console.error('Error fetching wishlist items:', error)
+            return []
+        }
+
+        return data?.map(item => item.item_id) ?? []
+    }
+
+    public async addWishlistItem(raidId: string, characterId: number, itemId: number): Promise<boolean> {
+        const { error } = await this.supabase
+            .from('raid_loot_wishlist')
+            .upsert({
+                raid_id: raidId,
+                member_id: characterId,
+                item_id: itemId,
+            }, { onConflict: 'raid_id,member_id,item_id', ignoreDuplicates: true })
+
+        if (error) {
+            console.error('Error adding wishlist item:', error)
+            return false
+        }
+
+        return true
+    }
+
+    public async removeWishlistItem(raidId: string, characterId: number, itemId: number): Promise<boolean> {
+        const { error } = await this.supabase
+            .from('raid_loot_wishlist')
+            .delete()
+            .eq('raid_id', raidId)
+            .eq('member_id', characterId)
+            .eq('item_id', itemId)
+
+        if (error) {
+            console.error('Error removing wishlist item:', error)
+            return false
+        }
+
+        return true
+    }
+
     public async reserveItem(raidId: string, itemId: number, characterId: number): Promise<{ isError: boolean, id?: string }> {
         const { error, data } = await this.supabase
             .from('raid_loot_reservation')

@@ -6,6 +6,7 @@ import AdminPanel from "@/app/raid/[id]/soft-reserv/AdminPanel";
 import { BannedItems } from "@/app/raid/[id]/soft-reserv/BannedItems";
 import RaidItemsList from "@/app/raid/[id]/soft-reserv/RaidItemsList";
 import YourReservations from "@/app/raid/[id]/soft-reserv/YourReservations";
+import { WishlistPanel } from "@/app/raid/[id]/soft-reserv/WishlistPanel";
 import RaidTimeInfo from "@/app/raid/components/RaidTimeInfo";
 import createServerSession from '@/util/supabase/createServerSession';
 import moment from "moment";
@@ -320,6 +321,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                         </div>
                     </div>
                 </div>
+                <WishlistPanel />
                 <RaidItemsList
                     initialReservedItems={reservations}
                     resetId={resetId}

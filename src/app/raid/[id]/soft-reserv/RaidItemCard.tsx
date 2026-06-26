@@ -8,6 +8,7 @@ import {
     faCartPlus,
     faClose,
     faGavel,
+    faHeart,
     faHistory,
     faLock,
     faPlus,
@@ -452,6 +453,8 @@ function ModalItemContent({
     isAdmin,
     resetId,
     onClose,
+    isWishlisted,
+    toggleWishlist,
 }: {
     item: RaidItem;
     qualityColor: 'poor' | 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
@@ -464,6 +467,8 @@ function ModalItemContent({
     isAdmin: boolean;
     resetId: string;
     onClose: () => void;
+    isWishlisted?: boolean;
+    toggleWishlist?: (itemId: number) => Promise<void>;
 }) {
     const { lootHistory, itemRules, isLoading: detailsLoading } = useItemDetails(item.id, resetId);
     const [activeTab, setActiveTab] = useState<'history' | 'rules'>('rules');
@@ -563,6 +568,17 @@ function ModalItemContent({
 
                     {/* Action buttons */}
                     <div className="flex items-center gap-2 justify-center">
+                        {toggleWishlist && (
+                            <Tooltip content={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}>
+                                <Button
+                                    onPress={() => toggleWishlist(item.id)}
+                                    isIconOnly
+                                    className={`${isWishlisted ? 'bg-gold text-dark border-gold-100' : 'bg-dark text-gold border-gold/50'} rounded border`}
+                                >
+                                    <FontAwesomeIcon icon={faHeart} />
+                                </Button>
+                            </Tooltip>
+                        )}
                         {reserve && !item.isHardReserved && (
                             <Tooltip content={ruleViolation ?? "Reserve this item"}>
                                 <div>
@@ -660,6 +676,8 @@ export function RaidItemCard({
     isLoading,
     resetId,
     isAdmin,
+    isWishlisted,
+    toggleWishlist,
 }: {
     item: RaidItem;
     reserve?: (itemId: number) => Promise<void>;
@@ -672,6 +690,8 @@ export function RaidItemCard({
     isLoading: boolean;
     resetId: string;
     isAdmin: boolean;
+    isWishlisted?: boolean;
+    toggleWishlist?: (itemId: number) => Promise<void>;
 }) {
     const qualityColors = ['poor', 'common', 'uncommon', 'rare', 'epic', 'legendary'];
     const qualityColor = (qualityColors[item.description.quality ?? 0] || 'common') as 'poor' | 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
@@ -748,6 +768,8 @@ export function RaidItemCard({
                             isAdmin={isAdmin}
                             resetId={resetId}
                             onClose={() => setIsClicked(0)}
+                            isWishlisted={isWishlisted}
+                            toggleWishlist={toggleWishlist}
                         />
                     )}
                 </ModalContent>

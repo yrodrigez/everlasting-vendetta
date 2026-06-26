@@ -27,7 +27,7 @@ export default function RaidItemsList({ initialReservedItems, resetId, isAdmin }
     resetId: string
     isAdmin: boolean
 }) {
-    const { items } = useRaidItems()
+    const { items, selectedItemId, setSelectedItemId, toggleWishlist, wishlistItemIds } = useRaidItems()
     const [filteredItems, setFilteredItems] = useState(items)
     const {
         name: nameFilter,
@@ -111,10 +111,9 @@ export default function RaidItemsList({ initialReservedItems, resetId, isAdmin }
         updateFilteredItems()
     }, [reservations, nameFilter, itemClassFilter, itemSubClassFilter, inventoryTypeFilter, qualityNameFilter, items])
 
-    const [isClicked, setIsClicked] = useState(0)
     useEffect(() => {
         updateFilteredItems()
-    }, [isClicked]);
+    }, [selectedItemId]);
 
     const openStore = useAudio('/sounds/AuctionWindowOpen.ogg');
     useEffect(() => {
@@ -165,9 +164,11 @@ export default function RaidItemsList({ initialReservedItems, resetId, isAdmin }
                                     return (
                                         <RaidItemCard
                                             key={item.id}
-                                            isClicked={isClicked === item.id}
-                                            setIsClicked={setIsClicked}
+                                            isClicked={selectedItemId === item.id}
+                                            setIsClicked={setSelectedItemId}
                                             item={item}
+                                            isWishlisted={wishlistItemIds.includes(item.id)}
+                                            toggleWishlist={toggleWishlist}
                                             reservedBy={reservationsByItem.find((r) => r.item.id === item.id)?.reservations}
                                             remove={toRemove && (async () => {
                                                 if (toRemove) {

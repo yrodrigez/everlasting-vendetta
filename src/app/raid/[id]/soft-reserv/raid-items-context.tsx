@@ -9,7 +9,7 @@ import { MemberRole } from '@/types/Member'
 import { useMessageBox } from '@/util/msgBox'
 import { useQuery } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
-import { createContext, ReactNode, useCallback, useContext, useMemo, useState } from 'react'
+import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { ReservationsRepository } from './reservations-repository'
 import { useReservationsRealtime } from './use-reservations-realtime'
@@ -26,11 +26,19 @@ interface RaidItemsContextType {
     setMaxReservations: (maxReservations: number) => void
     yourReserves: Reservation[]
     reservesByItem: { item: RaidItem, reservations: any[] }[]
+    wishlistItemIds: number[]
+    wishlistItems: RaidItem[]
+    isWishlistLoading: boolean
+    selectedItemId: number
+    setSelectedItemId: (itemId: number) => void
     isLoading: boolean
     isPending: boolean
     isPresent: boolean
     reserve: (itemId: number, characterId?: number) => Promise<void>
     remove: (reserveId: string) => Promise<void>
+    addToWishlist: (itemId: number) => Promise<void>
+    removeFromWishlist: (itemId: number) => Promise<void>
+    toggleWishlist: (itemId: number) => Promise<void>
     hardReserve: (itemId: number) => Promise<void>
     removeHardReserve: (itemId: number) => Promise<void>
     toggleReservationsOpen: () => Promise<void>
@@ -46,6 +54,8 @@ export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen
     const selectedCharacter = useCharacterStore(state => state.selectedCharacter);
     const [reserves, setReserves] = useState<Reservation[]>(initialReservations);
     const [maxReservations, setMaxReservations] = useState<number>(0);
+    const [wishlistItemIds, setWishlistItemIds] = useState<number[]>([]);
+    const [selectedItemId, setSelectedItemId] = useState<number>(0);
 
     const yourReserves = useMemo(() => {
         return reserves?.filter((item: any) => item.member?.id === selectedCharacter?.id) || []
@@ -102,6 +112,29 @@ export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen
         enabled: !!resetId && !!supabase,
         initialData: initialItems,
     });
+
+    const wishlistItems = useMemo(() => {
+        const ids = new Set(wishlistItemIds);
+        return items.filter(item => ids.has(item.id));
+    }, [items, wishlistItemIds]);
+
+    const { isLoading: isWishlistLoading } = useQuery({
+        queryKey: ['raid-loot-wishlist', raidId, selectedCharacter?.id],
+        queryFn: async () => {
+            if (!selectedCharacter?.id) return [];
+            const itemIds = await repository.fetchWishlistItemIds(raidId, selectedCharacter.id);
+            setWishlistItemIds(itemIds);
+            return itemIds;
+        },
+        staleTime: 30000,
+        enabled: !!raidId && !!supabase && !!selectedCharacter?.id,
+    });
+
+    useEffect(() => {
+        if (!selectedCharacter?.id) {
+            setWishlistItemIds([]);
+        }
+    }, [selectedCharacter?.id]);
 
     const router = useRouter()
 
@@ -294,6 +327,43 @@ export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen
         }
     }, [resetId, supabase, reserves, selectedCharacter, removeReserveAudio, repository]);
 
+    const addToWishlist = useCallback(async (itemId: number) => {
+        if (!selectedCharacter?.id || !supabase) return;
+        if (wishlistItemIds.includes(itemId)) return;
+
+        const previousWishlist = wishlistItemIds;
+        setWishlistItemIds(current => current.includes(itemId) ? current : [...current, itemId]);
+
+        const success = await repository.addWishlistItem(raidId, selectedCharacter.id, itemId);
+        if (!success) {
+            setWishlistItemIds(previousWishlist);
+            toast.error('Error adding item to wishlist');
+        }
+    }, [raidId, repository, selectedCharacter?.id, supabase, wishlistItemIds]);
+
+    const removeFromWishlist = useCallback(async (itemId: number) => {
+        if (!selectedCharacter?.id || !supabase) return;
+        if (!wishlistItemIds.includes(itemId)) return;
+
+        const previousWishlist = wishlistItemIds;
+        setWishlistItemIds(current => current.filter(id => id !== itemId));
+
+        const success = await repository.removeWishlistItem(raidId, selectedCharacter.id, itemId);
+        if (!success) {
+            setWishlistItemIds(previousWishlist);
+            toast.error('Error removing item from wishlist');
+        }
+    }, [raidId, repository, selectedCharacter?.id, supabase, wishlistItemIds]);
+
+    const toggleWishlist = useCallback(async (itemId: number) => {
+        if (wishlistItemIds.includes(itemId)) {
+            await removeFromWishlist(itemId);
+            return;
+        }
+
+        await addToWishlist(itemId);
+    }, [addToWishlist, removeFromWishlist, wishlistItemIds]);
+
     const toggleReservationsOpen = useCallback(async () => {
         const isOpen = await repository.toggleReservationOpen(resetId, isReservationsOpen)
         setIsReservationsOpen(isOpen)
@@ -362,11 +432,19 @@ export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen
             setMaxReservations,
             yourReserves,
             reservesByItem,
+            wishlistItemIds,
+            wishlistItems,
+            isWishlistLoading,
+            selectedItemId,
+            setSelectedItemId,
             isLoading,
             isPending,
             isPresent,
             reserve,
             remove,
+            addToWishlist,
+            removeFromWishlist,
+            toggleWishlist,
             hardReserve,
             removeHardReserve,
             toggleReservationsOpen,

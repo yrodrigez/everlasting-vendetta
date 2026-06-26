@@ -164,6 +164,38 @@ export type Database = {
           },
         ]
       }
+      caracter_appearences: {
+        Row: {
+          appeareance: Json | null
+          character_id: number | null
+          created_at: string
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          appeareance?: Json | null
+          character_id?: number | null
+          created_at?: string
+          id?: string
+          updated_at?: string | null
+        }
+        Update: {
+          appeareance?: Json | null
+          character_id?: number | null
+          created_at?: string
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "caracter_appearences_character_id_fkey"
+            columns: ["character_id"]
+            isOneToOne: false
+            referencedRelation: "ev_member"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_message_read: {
         Row: {
           created_at: string
@@ -866,18 +898,21 @@ export type Database = {
           color: string | null
           created_at: string | null
           gs: number | null
+          is_fully_gemmed: boolean | null
           md5: string
         }
         Insert: {
           color?: string | null
           created_at?: string | null
           gs?: number | null
+          is_fully_gemmed?: boolean | null
           md5: string
         }
         Update: {
           color?: string | null
           created_at?: string | null
           gs?: number | null
+          is_fully_gemmed?: boolean | null
           md5?: string
         }
         Relationships: []
@@ -975,6 +1010,7 @@ export type Database = {
       highest_gs: {
         Row: {
           character_name: string
+          character_realm: string
           created_at: string
           details: Json
           id: number
@@ -982,6 +1018,7 @@ export type Database = {
         }
         Insert: {
           character_name: string
+          character_realm?: string
           created_at?: string
           details: Json
           id?: number
@@ -989,6 +1026,7 @@ export type Database = {
         }
         Update: {
           character_name?: string
+          character_realm?: string
           created_at?: string
           details?: Json
           id?: number
@@ -1568,6 +1606,52 @@ export type Database = {
           },
         ]
       }
+      raid_loot_wishlist: {
+        Row: {
+          created_at: string
+          id: string
+          item_id: number
+          member_id: number
+          raid_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_id: number
+          member_id: number
+          raid_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_id?: number
+          member_id?: number
+          raid_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "raid_loot_wishlist_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "raid_loot_item"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "raid_loot_wishlist_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "ev_member"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "raid_loot_wishlist_raid_item_fkey"
+            columns: ["item_id", "raid_id"]
+            isOneToOne: false
+            referencedRelation: "raid_loot"
+            referencedColumns: ["item_id", "raid_id"]
+          },
+        ]
+      }
       raid_reset_channels: {
         Row: {
           channel_id: string
@@ -1611,6 +1695,7 @@ export type Database = {
           id: string
           image_url: string | null
           is_reservations_allowed: boolean | null
+          is_rrs_active: boolean | null
           max_delay_days: number | null
           min_gs: number | null
           min_lvl: number | null
@@ -1638,6 +1723,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_reservations_allowed?: boolean | null
+          is_rrs_active?: boolean | null
           max_delay_days?: number | null
           min_gs?: number | null
           min_lvl?: number | null
@@ -1665,6 +1751,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_reservations_allowed?: boolean | null
+          is_rrs_active?: boolean | null
           max_delay_days?: number | null
           min_gs?: number | null
           min_lvl?: number | null
@@ -1789,6 +1876,58 @@ export type Database = {
           type?: string
         }
         Relationships: []
+      }
+      reset_admin_actions: {
+        Row: {
+          action_type: string | null
+          admin_id: number | null
+          character_id: number | null
+          created_at: string
+          id: number
+          metadata: Json | null
+          reset_id: string
+        }
+        Insert: {
+          action_type?: string | null
+          admin_id?: number | null
+          character_id?: number | null
+          created_at?: string
+          id?: number
+          metadata?: Json | null
+          reset_id: string
+        }
+        Update: {
+          action_type?: string | null
+          admin_id?: number | null
+          character_id?: number | null
+          created_at?: string
+          id?: number
+          metadata?: Json | null
+          reset_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reset_admin_actions_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "ev_member"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reset_admin_actions_character_id_fkey"
+            columns: ["character_id"]
+            isOneToOne: false
+            referencedRelation: "ev_member"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reset_admin_actions_reset_id_fkey"
+            columns: ["reset_id"]
+            isOneToOne: false
+            referencedRelation: "raid_resets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reset_hard_reserve: {
         Row: {
@@ -2261,6 +2400,19 @@ export type Database = {
         }[]
       }
       get_character_id: { Args: never; Returns: number }
+      get_character_raid_attendance_streak: {
+        Args: { p_character_names: string[]; p_realm_slug: string }
+        Returns: {
+          character_name: string
+          latest_save_week_start: string
+          latest_week_attended_raid_types: number
+          latest_week_available_raid_types: number
+          raid_streak: number
+          realm_slug: string
+          week_streak: number
+          weeks_considered: number
+        }[]
+      }
       get_daily_active_users: {
         Args: { days_back?: number }
         Returns: {
@@ -2312,6 +2464,30 @@ export type Database = {
         }[]
       }
       get_permissions: { Args: never; Returns: string }
+      get_recent_raid_reliability_rating: {
+        Args: { p_character_name: string; p_realm_slug: string }
+        Returns: {
+          coverage_score: number
+          final_recent_reliability: number
+          opportunities_considered: number
+          weekly_presence_score: number
+          weeks_considered: number
+          weighted_weekly_score: number
+        }[]
+      }
+      get_recent_raid_reliability_ratings: {
+        Args: { p_character_names: string[]; p_realm_slug: string }
+        Returns: {
+          character_name: string
+          coverage_score: number
+          final_recent_reliability: number
+          opportunities_considered: number
+          realm_slug: string
+          weekly_presence_score: number
+          weeks_considered: number
+          weighted_weekly_score: number
+        }[]
+      }
       get_session_activity: {
         Args: { since: string }
         Returns: {
@@ -2337,6 +2513,15 @@ export type Database = {
         Returns: {
           event_count: number
           user_id: string
+        }[]
+      }
+      get_user_registration_weeks: {
+        Args: { p_user_id: string }
+        Returns: {
+          character_name: string
+          registered_at: string
+          user_id: string
+          weeks_since_registered: number
         }[]
       }
       has_permission: { Args: { verify_permission: string }; Returns: boolean }
@@ -2384,6 +2569,7 @@ export type Database = {
       reset_id_starts_with: {
         Args: { id_prefix: string }
         Returns: {
+          composition: Json | null
           created_at: string
           created_by: number | null
           days: Json
@@ -2392,6 +2578,7 @@ export type Database = {
           id: string
           image_url: string | null
           is_reservations_allowed: boolean | null
+          is_rrs_active: boolean | null
           max_delay_days: number | null
           min_gs: number | null
           min_lvl: number | null
