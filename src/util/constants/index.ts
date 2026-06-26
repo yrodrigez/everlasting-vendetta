@@ -23,10 +23,9 @@ export const LOGIN_URL = '/api/v1/oauth/bnet/auth'
 export const BNET_LOGIN_URI = "/api/v1/oauth/bnet/auth"
 export const DISCORD_LOGIN_URL = '/api/v1/oauth/discord/auth'
 export const LOGIN_URL_TEMPORAL = '/api/v1/supabase/auth/temporal'
-export const COOKIE_VERSION  = 'v97e5518e46ad'
-export const REFRESH_TOKEN_COOKIE_KEY = `__ev_refresh_${COOKIE_VERSION}__`
+export const COOKIE_VERSION  = 'v1'
+export const REFRESH_TOKEN_COOKIE_KEY = `__ev_session_id_${COOKIE_VERSION}__`
 export const SELECTED_CHARACTER_COOKIE_KEY = `__ev_selected_character_${COOKIE_VERSION}__`
-export const SESSION_INFO_COOKIE_KEY = `__ev_session_info_${COOKIE_VERSION}__`
 export const CURRENT_MAX_LEVEL = 70
 
 export const REGISTRATION_SOURCES = {

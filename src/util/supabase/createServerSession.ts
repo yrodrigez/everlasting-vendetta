@@ -1,12 +1,26 @@
 'use server'
-import { SelectedCharacterCookieDTO } from '@/components/characterStore'
+import { createAPIService, createServerApiClient, type StoredSelectedCharacter } from '@/lib/api'
+import { makeRefreshSessionUseCase } from '@/shared/auth/factories/make-refresh-session-use-case'
 import { type SupabaseClient, createClient } from '@supabase/supabase-js'
-import { cookies, headers } from 'next/headers'
+import { cookies } from 'next/headers'
 import 'server-only'
-import { decrypt } from '@/util/auth/crypto'
-import { REFRESH_TOKEN_COOKIE_KEY, SELECTED_CHARACTER_COOKIE_KEY, SESSION_INFO_COOKIE_KEY } from '@/util/constants'
-import { createAPIService, createServerApiClient } from '@/lib/api'
 
+
+type UserSelectedCharacter = {
+    id: number
+    name: string
+    level: number
+    avatar: string
+    realmSlug: string
+    role?: string
+    selectedRole?: string
+    class?: string
+    guild?: {
+        name?: string
+        id?: number
+    }
+    realm?: StoredSelectedCharacter['realm']
+}
 
 export type UserProfile = {
     id: string
@@ -16,26 +30,52 @@ export type UserProfile = {
     isTemporal: boolean
     isAdmin: boolean
     isBanned?: boolean
-    selectedCharacter?: SelectedCharacterCookieDTO | null
+    selectedCharacter?: UserSelectedCharacter | null
     isGuildMember?: boolean
 }
 
-async function getFreshAccessToken(): Promise<string | null> {
-    const cookieStore = await cookies()
-    const refreshCookie = cookieStore.get(REFRESH_TOKEN_COOKIE_KEY)
-    if (!refreshCookie) {
-        console.log('[getFreshAccessToken] No refresh cookie found')
-        return null
-    }
-    const refreshToken = refreshCookie.value
-    if (!refreshToken) {
-        console.log('[getFreshAccessToken] Refresh cookie empty')
-        return null
+function normalizeSelectedCharacter(character: StoredSelectedCharacter | null): UserSelectedCharacter | null {
+    if (!character) {
+        return null;
     }
 
-    const headersStore = await headers()
-    const accessToken = headersStore.get('x-ev-access')
-    return accessToken
+    const selectedRole = character.selectedRole;
+    const characterClass = character.playable_class?.name ?? character.character_class?.name;
+
+    return {
+        id: character.id,
+        name: character.name,
+        level: character.level,
+        avatar: character.avatar,
+        realm: character.realm,
+        realmSlug: character.realm?.slug,
+        guild: character.guild,
+        class: characterClass,
+        role: selectedRole,
+        selectedRole,
+    };
+}
+
+
+async function getFreshAccessToken(): Promise<string | null> {
+    const cookieStore = await cookies();
+    const mockedCookieStoreMethods = {
+        get: (name: string) => {
+            return cookieStore.get(name);
+        },
+        set: () => {
+        },
+        delete: () => {
+        }
+    }
+    try {
+        const refreshSessionUseCase = makeRefreshSessionUseCase({ ...mockedCookieStoreMethods });
+        const result = await refreshSessionUseCase.execute();
+        return result.accessToken ?? null;
+    } catch (error) {
+        console.error('Error refreshing session:', error);
+        return null;
+    }
 }
 
 export default async function createServerSession(): Promise<{
@@ -47,7 +87,6 @@ export default async function createServerSession(): Promise<{
     apiService: ReturnType<typeof createAPIService>
 }> {
 
-    const cookiesStore = await cookies()
     const accessToken = await getFreshAccessToken();
 
     const getSupabase = async () => {
@@ -73,9 +112,7 @@ export default async function createServerSession(): Promise<{
 
     const api = createServerApiClient(accessToken);
     const apiService = createAPIService(api);
-
-    const sessionInfoVal = cookiesStore.get(SESSION_INFO_COOKIE_KEY)?.value
-    if (!sessionInfoVal) {
+    if (!accessToken) {
         return {
             apiService,
             getSupabase,
@@ -86,15 +123,9 @@ export default async function createServerSession(): Promise<{
         }
     }
 
-    const selectedCharval = cookiesStore.get(SELECTED_CHARACTER_COOKIE_KEY)?.value
-    const selectedCharacter: SelectedCharacterCookieDTO | null = (() => {
-        if (!selectedCharval) return null
-        return JSON.parse(Buffer.from(selectedCharval, 'base64url').toString('utf8'))
-    })()
 
-    const decodedSessionInfo = Buffer.from(sessionInfoVal, 'base64url').toString('utf8');
-    const decrypted = await decrypt(JSON.parse(decodedSessionInfo));
-    const sessionInfo = JSON.parse(Buffer.from(decrypted, 'base64url').toString('utf8'));
+    const selectedCharacter = normalizeSelectedCharacter(await apiService.characters.getSelected());
+    const sessionInfo = JSON.parse(Buffer.from((accessToken?.split?.('.')[1]) ?? '', 'base64url').toString('utf8'));
     async function getSession(): Promise<UserProfile> {
         const memberId = sessionInfo.sub
         const { custom_roles: roles, permissions, isTemporal, isAdmin, isBanned, provider, isGuildMember } = sessionInfo

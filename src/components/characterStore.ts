@@ -1,7 +1,6 @@
 import { create as createStore } from 'zustand'
 import { persist } from 'zustand/middleware';
-import { SELECTED_CHARACTER_COOKIE_KEY } from '@/util/constants';
-import { deleteCookie, setCookie, toB64Url } from '@/util/auth/cookies-client';
+import { createAPIService } from '@/lib/api';
 
 export type SelectedCharacterCookieDTO = {
     id: number
@@ -17,24 +16,6 @@ export type SelectedCharacterCookieDTO = {
     avatar: string
 }
 
-export function saveSelectedCharacterToCookie(character: Character | null) {
-    if (!character) {
-        deleteCookie(SELECTED_CHARACTER_COOKIE_KEY);
-        return;
-    }
-
-    const toStore = toB64Url({
-        id: character.id,
-        name: character.name,
-        level: character.level,
-        realmSlug: character.realm.slug,
-        role: character.selectedRole,
-        guild: character.guild,
-        class: character.playable_class?.name,
-        avatar: character.avatar
-    } as SelectedCharacterCookieDTO)
-    setCookie(SELECTED_CHARACTER_COOKIE_KEY, toStore)
-}
 
 const storeKey = 'bnetProfile'
 export type Role =
@@ -87,25 +68,22 @@ const initialState = {
     isAdmin: false
 }
 
+const api = createAPIService()
+
 export const useCharacterStore = createStore<CharacterStore>()(persist((set, get) => ({
     ...initialState,
     setLastUpdated: (lastUpdated: number) => set({ lastUpdated }),
     setSelectedCharacter: (character) => {        
         set({ selectedCharacter: character })
-        if (!character) { deleteCookie(SELECTED_CHARACTER_COOKIE_KEY); return }
-        const toStore = toB64Url(character)
-        setCookie(SELECTED_CHARACTER_COOKIE_KEY, toStore)
-        saveSelectedCharacterToCookie(character)
     },
     setRole: (role: Role) => {
         const character = get().selectedCharacter
         if (!character) {
-            deleteCookie(SELECTED_CHARACTER_COOKIE_KEY);
             return
         }
-
-        set({ selectedCharacter: { ...character, selectedRole: role } })
-        saveSelectedCharacterToCookie({ ...character, selectedRole: role })
+        const newCharacter = { ...character, selectedRole: role }
+        set({ selectedCharacter: newCharacter })
+        api.characters.setSelected(character.id, newCharacter)
     },
     setCharacters: (characters) => set({ characters }),
     clear: () => set(initialState)
@@ -113,7 +91,7 @@ export const useCharacterStore = createStore<CharacterStore>()(persist((set, get
     name: storeKey,
     onRehydrateStorage: () => (state) => {
         if (state?.selectedCharacter) {
-            saveSelectedCharacterToCookie(state.selectedCharacter)
+            api.characters.setSelected(state.selectedCharacter.id, state.selectedCharacter)
         }
     }
 }))

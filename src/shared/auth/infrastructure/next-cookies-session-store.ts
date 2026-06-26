@@ -20,7 +20,6 @@ type CookieStore = {
 
 interface NextCookiesSessionStoreConfig {
     refreshTokenCookieName: string;
-    sessionInfoCookieName: string;
     selectedCharacterCookieName?: string;
     cookieOptions: {
         httpOnly: boolean;
@@ -35,19 +34,9 @@ export class NextCookiesSessionStore implements SessionStore {
     constructor(private readonly cookies: CookieStore, private readonly config: NextCookiesSessionStoreConfig) { }
     clear(): void {
         this.expireCookie(this.config.refreshTokenCookieName);
-        this.expireCookie(this.config.sessionInfoCookieName);
         if (this.config.selectedCharacterCookieName) {
             this.expireCookie(this.config.selectedCharacterCookieName);
         }
-    }
-    getSessionInfo(): string | null {
-        const cookie = this.cookies.get(this.config.sessionInfoCookieName);
-
-        if (!cookie?.value) {
-            return null;
-        }
-
-        return cookie.value;
     }
 
     getRefreshToken() {
@@ -61,11 +50,17 @@ export class NextCookiesSessionStore implements SessionStore {
     }
 
     async replaceRefreshToken(key: string, value: string, maxAge: number) {
+        if (!value) {
+            throw new Error('Refresh token value cannot be empty');
+        }
         this.cookies.delete(key);
         this.setCookie(key, value, maxAge);
     }
 
     async setRefreshToken(value: string, maxAge: number) {
+        if (!value) {
+            throw new Error('Refresh token value cannot be empty');
+        }
         const key = this.config.refreshTokenCookieName;
         this.cookies.delete(key);
         this.setCookie(key, value, maxAge);
@@ -73,12 +68,6 @@ export class NextCookiesSessionStore implements SessionStore {
 
     async clearRefreshToken(key: string) {
         this.expireCookie(key);
-    }
-
-    async saveSessionInfo(value: string, maxAge: number) {
-        const key = this.config.sessionInfoCookieName;
-        this.cookies.delete(key);
-        this.setCookie(key, value, maxAge);
     }
 
     private expireCookie(name: string) {

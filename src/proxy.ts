@@ -1,7 +1,6 @@
 
 import createServerSession, { type UserProfile } from '@/util/supabase/createServerSession';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { withRefreshToken } from '@/lib/middleware/with-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 async function isBanned(session: UserProfile | undefined) {
@@ -50,7 +49,8 @@ async function registerClick(urlId: string, supabase: SupabaseClient) {
 }
 
 
-async function proxy(req: NextRequest, res: NextResponse): Promise<NextResponse> {
+async function proxy(req: NextRequest): Promise<NextResponse> {
+    const res = NextResponse.next();
     const { getSupabase, auth } = await createServerSession();
 
     const url = req.nextUrl;
@@ -71,4 +71,4 @@ async function proxy(req: NextRequest, res: NextResponse): Promise<NextResponse>
     return res;
 }
 
-export default withRefreshToken(proxy);
+export default proxy;

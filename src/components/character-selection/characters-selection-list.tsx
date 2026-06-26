@@ -123,7 +123,7 @@ const CharacterView = ({ character }: { character: any }) => {
         }
         try {
             await Promise.all([
-                api.characters.setSelected(character.id),
+                api.characters.setSelected(character.id, character),
                 api.analytics.sendEvent({
                     event_name: 'character_selected',
                     event_type: 'character_selection',

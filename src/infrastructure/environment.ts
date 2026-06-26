@@ -1,3 +1,4 @@
+import { COOKIE_VERSION, REFRESH_TOKEN_COOKIE_KEY, SELECTED_CHARACTER_COOKIE_KEY } from "@/util/constants";
 
 const ROLES = {
     GUILD_MASTER: 'GUILD_MASTER',
@@ -12,7 +13,6 @@ const ROLES = {
     ALTER: 'ALTER',
 }
 
-const COOKIE_VERSION = 'v97e5518e46ad';
 export const getEnvironment = () => {
     return Object.freeze({
         // Public
@@ -44,9 +44,8 @@ export const getEnvironment = () => {
 
         // cookies & session
         cookieVersion: COOKIE_VERSION,
-        refreshTokenCookieKey: `__ev_refresh_${COOKIE_VERSION}__`,
-        selectedCharacterCookieKey: `__ev_selected_character_${COOKIE_VERSION}__`,
-        sessionInfoCookieKey: `__ev_session_info_${COOKIE_VERSION}__`,
+        refreshTokenCookieKey: REFRESH_TOKEN_COOKIE_KEY,
+        selectedCharacterCookieKey: SELECTED_CHARACTER_COOKIE_KEY,
 
         playableRoles: {
             TANK: { value: 'tank', label: 'Tank' },

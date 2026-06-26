@@ -14,7 +14,6 @@ export async function POST(_: NextRequest) {
 
         return NextResponse.json({
             accessToken: result.accessToken,
-            shouldRefreshProviderToken: result.shouldRefreshProviderToken,
             redirectTo: result.redirectTo ?? null,
         });
     } catch (error) {

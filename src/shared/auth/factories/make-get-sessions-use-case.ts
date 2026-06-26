@@ -1,7 +1,7 @@
 import { GetSessionsUseCase } from '@/shared/auth/application/use-cases/get-sessions.use-case';
 import { HttpAuthGateway } from '@/shared/auth/infrastructure/http-auth-gateway';
 import { NextCookiesSessionStore } from '@/shared/auth/infrastructure/next-cookies-session-store';
-import { REFRESH_TOKEN_COOKIE_KEY, SESSION_INFO_COOKIE_KEY } from '@/util/constants';
+import { REFRESH_TOKEN_COOKIE_KEY } from '@/util/constants';
 
 type CookieStore = {
     get(name: string): { name: string; value: string } | undefined;
@@ -31,7 +31,6 @@ export function makeGetSessionsUseCase(cookieStore: CookieStore) {
 
     const sessionStore = new NextCookiesSessionStore(cookieStore, {
         refreshTokenCookieName: REFRESH_TOKEN_COOKIE_KEY,
-        sessionInfoCookieName: SESSION_INFO_COOKIE_KEY,
         cookieOptions: {
             httpOnly: true,
             secure: true,

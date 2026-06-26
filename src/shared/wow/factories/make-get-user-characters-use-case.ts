@@ -1,5 +1,5 @@
 import { NextCookiesSessionStore } from '@/shared/auth/infrastructure/next-cookies-session-store';
-import { REFRESH_TOKEN_COOKIE_KEY, SESSION_INFO_COOKIE_KEY } from '@/util/constants';
+import { REFRESH_TOKEN_COOKIE_KEY } from '@/util/constants';
 import { GetUserCharactersUseCase } from '@/shared/wow/application/use-cases/get-user-characters.use-case';
 import { EvWowGateway } from '@/shared/wow/infrastructure/ev-wow-gateway';
 
@@ -31,7 +31,6 @@ export function makeGetUserCharactersUseCase(cookieStore: CookieStore) {
 
     const sessionStore = new NextCookiesSessionStore(cookieStore, {
         refreshTokenCookieName: REFRESH_TOKEN_COOKIE_KEY,
-        sessionInfoCookieName: SESSION_INFO_COOKIE_KEY,
         cookieOptions: {
             httpOnly: true,
             secure: true,

@@ -1,4 +1,4 @@
-import { REFRESH_TOKEN_COOKIE_KEY, SELECTED_CHARACTER_COOKIE_KEY, SESSION_INFO_COOKIE_KEY } from '@/util/constants';
+import { REFRESH_TOKEN_COOKIE_KEY, SELECTED_CHARACTER_COOKIE_KEY } from '@/util/constants';
 import { NextCookiesSessionStore } from '@/shared/auth/infrastructure/next-cookies-session-store';
 import { HttpAuthGateway } from '@/shared/auth/infrastructure/http-auth-gateway';
 import { RevokeSessionUseCase } from '@/shared/auth/application/use-cases/revoke-session.use-case';
@@ -32,7 +32,6 @@ export function makeRevokeSessionUseCase(cookieStore: CookieStore) {
     const sessionStore = new NextCookiesSessionStore(cookieStore, {
         selectedCharacterCookieName: SELECTED_CHARACTER_COOKIE_KEY,
         refreshTokenCookieName: REFRESH_TOKEN_COOKIE_KEY,
-        sessionInfoCookieName: SESSION_INFO_COOKIE_KEY,
         cookieOptions: {
             httpOnly: true,
             secure: true,

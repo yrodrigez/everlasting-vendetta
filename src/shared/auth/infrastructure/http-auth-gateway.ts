@@ -27,7 +27,7 @@ export class HttpAuthGateway implements AuthGateway {
         }
     }
 
-    async refresh(params: { refreshToken: string }): Promise<RefreshAuthResponse> {
+    async refresh(params: { sessionId: string }): Promise<RefreshAuthResponse> {
         console.log('[HttpAuthGateway] baseUrl: ', this.baseUrl);
         const response = await fetch(`${this.baseUrl}/auth/refresh`, {
             method: 'POST',
@@ -36,7 +36,7 @@ export class HttpAuthGateway implements AuthGateway {
             },
             credentials: 'include',
             cache: 'no-store',
-            body: JSON.stringify({ refresh_token: params.refreshToken }),
+            body: JSON.stringify({ sessionId: params.sessionId }),
         });
 
         if (!response.ok) {

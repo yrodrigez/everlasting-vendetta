@@ -1,4 +1,4 @@
-import { REFRESH_TOKEN_COOKIE_KEY, SESSION_INFO_COOKIE_KEY } from '@/util/constants';
+import { REFRESH_TOKEN_COOKIE_KEY } from '@/util/constants';
 import { NextCookiesSessionStore } from '@/shared/auth/infrastructure/next-cookies-session-store';
 import { HttpAuthGateway } from '@/shared/auth/infrastructure/http-auth-gateway';
 import { RevokeAllSessionsUseCase } from '@/shared/auth/application/use-cases/revoke-all-sessions.use-case';
@@ -31,7 +31,6 @@ export function makeRevokeAllSessionsUseCase(cookieStore: CookieStore) {
 
     const sessionStore = new NextCookiesSessionStore(cookieStore, {
         refreshTokenCookieName: REFRESH_TOKEN_COOKIE_KEY,
-        sessionInfoCookieName: SESSION_INFO_COOKIE_KEY,
         cookieOptions: {
             httpOnly: true,
             secure: true,

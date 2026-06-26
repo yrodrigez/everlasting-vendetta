@@ -1,9 +1,7 @@
-import { type NextRequest, NextResponse } from "next/server";
-import { cookies, headers } from "next/headers";
 import { getEnvironment } from "@/infrastructure/environment";
-import { SESSION_INFO_COOKIE_KEY } from '@/util/constants';
-import { decrypt } from '@/util/auth/crypto';
 import createServerSession from '@/util/supabase/createServerSession';
+import { cookies } from "next/headers";
+import { type NextRequest, NextResponse } from "next/server";
 
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 const PRODUCTION_ORIGIN = 'https://www.everlastingvendetta.com/';
@@ -131,16 +129,16 @@ export async function GET(request: NextRequest) {
         return NextResponse.redirect(requestURL.origin + '/?error=auth_failed');
     }
 
-    const { refreshToken, refreshTokenExpiry } = await authResponse.json();
+    const { sessionId, expiresAt } = await authResponse.json();
     console.log('Auth token generated successfully');
 
-    (await cookies()).set(refreshTokenCookieKey, refreshToken, {
+    (await cookies()).set(refreshTokenCookieKey, sessionId, {
         httpOnly: true,
         secure: true,
-        sameSite: 'strict',
+        sameSite: 'lax',
         path: '/',
         domain: process.env.NODE_ENV === 'production' ? '.everlastingvendetta.com' : 'localhost',
-        maxAge: refreshTokenExpiry
+        expires: new Date(expiresAt * 1000)
     });
 
     if (windowOpener) {

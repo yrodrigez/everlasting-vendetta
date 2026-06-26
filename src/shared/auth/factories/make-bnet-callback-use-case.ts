@@ -1,6 +1,4 @@
-import { encrypt } from '@/util/auth/crypto';
-import { REFRESH_TOKEN_COOKIE_KEY, SESSION_INFO_COOKIE_KEY } from '@/util/constants';
-import type { Encryptor } from '@/shared/auth/application/ports/encryptor';
+import { REFRESH_TOKEN_COOKIE_KEY } from '@/util/constants';
 import { BnetCallbackUseCase } from '@/shared/auth//application/use-cases/bnet-callback.use-case';
 import { BattleNetOAuthGateway } from '@/shared/auth/infrastructure/bnet-oauth-gateway';
 import { HttpAuthGateway } from '@/shared/auth/infrastructure/http-auth-gateway';
@@ -49,7 +47,6 @@ export function makeBnetCallbackUseCase(cookieStore: CookieStore) {
 
     const sessionStore = new NextCookiesSessionStore(cookieStore, {
         refreshTokenCookieName: REFRESH_TOKEN_COOKIE_KEY,
-        sessionInfoCookieName: SESSION_INFO_COOKIE_KEY,
         cookieOptions: {
             httpOnly: true,
             secure: true,
@@ -58,10 +55,6 @@ export function makeBnetCallbackUseCase(cookieStore: CookieStore) {
             domain,
         },
     });
-
-    const encryptor: Encryptor<{ iv: string; ciphertext: string }> = {
-        encrypt: (value) => encrypt(value),
-    };
 
     const authGateway = new HttpAuthGateway(apiUrl);
     const bnetOAuthGateway = new BattleNetOAuthGateway(clientId, clientSecret);
@@ -72,7 +65,6 @@ export function makeBnetCallbackUseCase(cookieStore: CookieStore) {
         sessionStore,
         authGateway,
         bnetOAuthGateway,
-        encryptor,
         redirectUri,
         isProduction: process.env.NODE_ENV === 'production',
         productionOrigin,

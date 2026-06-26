@@ -7,9 +7,11 @@ const api = axios.create({
 });
 
 let accessTokenGetter: (() => string | null) | null = null;
+let sessionReady: boolean = false;
 
 export function setAccessTokenGetter(getter: () => string | null) {
   accessTokenGetter = getter;
+  sessionReady = true;
 }
 
 api.interceptors.request.use((config) => {
@@ -251,6 +253,20 @@ export type RaidParticipantRrsScore = {
   };
 }
 
+export type StoredSelectedCharacter = {
+  id: number,
+  name: string,
+  realm: { slug: string, name: string },
+  level: number,
+  playable_class: { name: string },
+  character_class: { name: string },
+  guild: { id: number, name: string },
+  avatar: string,
+  last_login_timestamp: number,
+  faction: string,
+  selectedRole?: string
+}
+
 export type RaidResetRrsOutput = {
   resetId: string;
   participantScores: RaidParticipantRrsScore[];
@@ -320,7 +336,8 @@ export interface APIServicePort {
   };
   characters: {
     link: (characterName: string, realmSlug: string) => Promise<any>;
-    setSelected: (characterId: string) => Promise<any>;
+    setSelected: (characterId: number, character: Record<string, any>) => Promise<void>;
+    getSelected: () => Promise<StoredSelectedCharacter | null>;
   };
   raids: {
     getResetRrs: (resetId: string) => Promise<RaidResetRrsOutput>;
@@ -361,7 +378,10 @@ export interface APIServicePort {
   };
 }
 
-export const createAPIService = (_api: AxiosInstance = api): APIServicePort => ({
+export const createAPIService = (_api: AxiosInstance = api): APIServicePort => {
+  const shouldWaitForClientSession = _api === api;
+
+  return ({
   anon: {
     getCharacterAvatar: async (realmSlug: string, characterName: string): Promise<AvatarOutput> => {
       try {
@@ -447,7 +467,10 @@ export const createAPIService = (_api: AxiosInstance = api): APIServicePort => (
     },
   },
   auth: {
-    getMyProfile: async (): Promise<{ members: any, accounts: any }> => {
+    getMyProfile: (async (): Promise<{ members: any, accounts: any }> => {
+      if (shouldWaitForClientSession && !sessionReady) {
+        return { members: [], accounts: [] };
+      }
       try {
         const { data } = await _api.get(`/auth/my-profile`);
         return data;
@@ -455,8 +478,11 @@ export const createAPIService = (_api: AxiosInstance = api): APIServicePort => (
         console.error('Error fetching my profile:', error);
         throw error;
       }
-    },
+    }).bind(this),
     getUserCharacters: async (realmSlug: string): Promise<UserCharactersOutput> => {
+      if (shouldWaitForClientSession && !sessionReady) {
+        return [];
+      }
       try {
         const { data } = await _api.get(`/user/characters?realmSlug=${realmSlug}`);
         return data;
@@ -479,6 +505,9 @@ export const createAPIService = (_api: AxiosInstance = api): APIServicePort => (
   },
   characters: {
     link: async (characterName: string, realmSlug: string) => {
+      if (shouldWaitForClientSession && !sessionReady) {
+        throw new Error('Session not ready');
+      }
       try {
         const { data } = await _api.post(`/auth/characters/link`, { characterName, realmSlug });
         return data;
@@ -487,13 +516,28 @@ export const createAPIService = (_api: AxiosInstance = api): APIServicePort => (
         throw error;
       }
     },
-    setSelected: async (characterId: string) => {
+    setSelected: async (characterId: number, character: Record<string, any>) => {
+      if (shouldWaitForClientSession && !sessionReady) {
+        return;
+      }
       try {
-        const { data } = await _api.post(`/auth/characters/select`, { characterId });
+        const { data } = await _api.post(`/auth/characters/select`, { characterId, character });
         return data;
       } catch (error) {
         console.error('Error setting selected character:', error);
-        throw error;
+        return null; // Return null if there's an error setting the selected character
+      }
+    },
+    getSelected: async (): Promise<StoredSelectedCharacter | null> => {
+      if (shouldWaitForClientSession && !sessionReady) {
+        return null;
+      }
+      try {
+        const { data } = await _api.get(`/auth/characters/selected`);
+        return data;
+      } catch (error) {
+        console.error('Error fetching selected character:', error);
+        return null; // Return null if there's an error fetching the selected character
       }
     },
   },
@@ -515,6 +559,9 @@ export const createAPIService = (_api: AxiosInstance = api): APIServicePort => (
       raidId: string;
       request_id: string;
     }> => {
+      if (shouldWaitForClientSession && !sessionReady) {
+        throw new Error('Session not ready');
+      }
       try {
         const { data } = await _api.post(`/raids/item`, { itemId, bossName, raidId });
         return data;
@@ -541,7 +588,7 @@ export const createAPIService = (_api: AxiosInstance = api): APIServicePort => (
       metadata?: Record<string, any>;
     }) => {
       try {
-        _api.post(`/analytics/send`, {
+        await _api.post(`/analytics/send`, {
           event_name,
           event_type,
           page_url,
@@ -613,4 +660,5 @@ export const createAPIService = (_api: AxiosInstance = api): APIServicePort => (
       return data.market;
     }
   }
-});
+  });
+};

@@ -66,7 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const refreshTimerRef = useRef<NodeJS.Timeout>(null);
   const router = useRouter();
 
-  const REFRESH_THRESHOLD = 60_000; // 60 seconds before expiry
+  const REFRESH_THRESHOLD = 500;
 
   useEffect(() => {
     setAccessTokenGetter(() => accessToken);
@@ -122,7 +122,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const decoded = jwtDecode(accessToken);
     const expiresIn = decoded.exp * 1000 - Date.now();
-    const refreshAt = Math.max(0, expiresIn - REFRESH_THRESHOLD);
+    const refreshAt = Math.max(0, expiresIn + REFRESH_THRESHOLD);
     refreshTimerRef.current = setTimeout(() => {
       refreshToken()
     }, refreshAt);

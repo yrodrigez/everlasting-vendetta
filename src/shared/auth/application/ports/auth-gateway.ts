@@ -1,17 +1,16 @@
 export interface RefreshAuthResponse {
     accessToken: string;
-    refreshToken: string;
-    refreshTokenExpiry: number;
-    accessTokenExpiry: number;
-    shouldRefreshProviderToken: boolean;
+    sessionId: string;
+    expiresAt: number;
+    accessTokenExpiresAt: number;
     provider?: string | null;
 }
 
 export interface LoginAuthResponse {
-    refreshToken: string;
-    refreshTokenExpiry: number;
+    sessionId: string;
+    expiresAt: number;
     accessToken: string;
-    accessTokenExpiry: number;
+    accessTokenExpiresAt: number;
 }
 
 export interface LoginWithProviderParams {
@@ -34,7 +33,7 @@ export interface RevokeAllSessionsParams {
 }
 
 export interface AuthGateway {
-    refresh(params: { refreshToken: string }): Promise<RefreshAuthResponse>;
+    refresh(params: { sessionId: string }): Promise<RefreshAuthResponse>;
     loginWithProvider(params: LoginWithProviderParams): Promise<LoginAuthResponse>;
     listSessions(params: ListSessionsParams): Promise<unknown>;
     revokeSession(params: RevokeSessionParams): Promise<{

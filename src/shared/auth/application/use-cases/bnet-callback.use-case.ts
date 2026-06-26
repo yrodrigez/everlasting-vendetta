@@ -1,6 +1,5 @@
 import type { BnetOAuthGateway } from '../ports/bnet-oauth-gateway';
 import type { AuthGateway } from '../ports/auth-gateway';
-import type { Encryptor } from '../ports/encryptor';
 import type { SessionStore } from '../ports/session-store';
 import createServerSession from '@/util/supabase/createServerSession';
 import { getEnvironment } from '@/infrastructure/environment';
@@ -33,25 +32,21 @@ export interface BnetCallbackUseCaseDependencies {
     sessionStore: SessionStore;
     authGateway: AuthGateway;
     bnetOAuthGateway: BnetOAuthGateway;
-    encryptor: Encryptor<{ iv: string; ciphertext: string }>;
     redirectUri: string;
     isProduction: boolean;
     productionOrigin: string;
     defaultRedirectPath?: string;
     now?: () => number;
-    serializeSessionInfo?: (payload: { iv: string; ciphertext: string }) => string;
 }
 
 const DEFAULT_REDIRECT_PATH = '/';
 
 export class BnetCallbackUseCase {
     private readonly now: () => number;
-    private readonly serializeSessionInfo?: (payload: { iv: string; ciphertext: string }) => string;
     private readonly defaultRedirectPath: string;
 
     constructor(private readonly dependencies: BnetCallbackUseCaseDependencies) {
         this.now = dependencies.now ?? Date.now;
-        this.serializeSessionInfo = dependencies.serializeSessionInfo;
         this.defaultRedirectPath = dependencies.defaultRedirectPath ?? DEFAULT_REDIRECT_PATH;
     }
 
@@ -150,20 +145,11 @@ export class BnetCallbackUseCase {
                 reason: 'success',
             };
         }
-
+        console.log('Storing session id for Battle.net callback', loginResponse);
         await this.dependencies.sessionStore.setRefreshToken(
-            loginResponse.refreshToken,
-            loginResponse.refreshTokenExpiry,
+            loginResponse.sessionId,
+            loginResponse.expiresAt,
         );
-
-        const encodedSessionInfo = await this.encodeAccessTokenPayload(loginResponse.accessToken);
-
-        if (encodedSessionInfo) {
-            await this.dependencies.sessionStore.saveSessionInfo(
-                encodedSessionInfo,
-                loginResponse.accessTokenExpiry,
-            );
-        }
 
         if (windowOpener) {
             return {
@@ -216,27 +202,4 @@ export class BnetCallbackUseCase {
         const nowMs = this.now();
         return Math.floor((nowMs + expiresInSeconds * 1000) / 1000);
     }
-
-    private async encodeAccessTokenPayload(accessToken: string): Promise<string | null> {
-        if (!accessToken) {
-            return null;
-        }
-
-        const [, sessionInfo] = accessToken?.split('.');
-
-        if (!sessionInfo) {
-            return null;
-        }
-
-        const encrypted = await this.dependencies.encryptor.encrypt(sessionInfo);
-        const serialized = this.serializeSessionInfo
-            ? this.serializeSessionInfo(encrypted)
-            : toBase64(JSON.stringify(encrypted));
-
-        return serialized;
-    }
-}
-
-function toBase64(value: string): string {
-    return Buffer.from(value, 'utf-8').toString('base64');
 }

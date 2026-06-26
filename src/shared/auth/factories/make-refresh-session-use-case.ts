@@ -1,6 +1,4 @@
-import { encrypt } from '@/util/auth/crypto';
-import { REFRESH_TOKEN_COOKIE_KEY, SESSION_INFO_COOKIE_KEY } from '@/util/constants';
-import type { Encryptor } from '@/shared/auth/application/ports/encryptor';
+import { REFRESH_TOKEN_COOKIE_KEY } from '@/util/constants';
 import { RefreshSessionUseCase } from '@/shared/auth/application/use-cases/refresh-session.use-case';
 import { HttpAuthGateway } from '@/shared/auth/infrastructure/http-auth-gateway';
 import { NextCookiesSessionStore } from '@/shared/auth/infrastructure/next-cookies-session-store';
@@ -34,7 +32,6 @@ export function makeRefreshSessionUseCase(cookieStore: CookieStore) {
 
     const sessionStore = new NextCookiesSessionStore(cookieStore, {
         refreshTokenCookieName: REFRESH_TOKEN_COOKIE_KEY,
-        sessionInfoCookieName: SESSION_INFO_COOKIE_KEY,
         cookieOptions: {
             httpOnly: true,
             secure: true,
@@ -44,15 +41,10 @@ export function makeRefreshSessionUseCase(cookieStore: CookieStore) {
         },
     });
 
-    const encryptor: Encryptor<{ iv: string; ciphertext: string }> = {
-        encrypt: (value) => encrypt(value),
-    };
-
     const authGateway = new HttpAuthGateway(evApiUrl);
 
     return new RefreshSessionUseCase({
         sessionStore,
         authGateway,
-        encryptor,
     });
 }
