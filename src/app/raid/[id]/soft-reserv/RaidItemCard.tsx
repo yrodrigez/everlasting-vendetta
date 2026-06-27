@@ -16,14 +16,15 @@ import {
     faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Button, Chip, Modal, ModalContent, ScrollShadow, Tooltip } from "@heroui/react";
-import { BowArrow, Cross, Shield, ShieldAlert, Swords } from "lucide-react";
+import { Button, Chip, Modal, ModalContent, ScrollShadow } from "@heroui/react";
+import { BowArrow, Cross, Heart, HeartOff, Shield, ShieldAlert, Swords } from "lucide-react";
 import moment from "moment";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useRaidItems } from "./raid-items-context";
 import { useItemDetails } from "./useItemDetails";
+import { Tooltip } from "@/components/tooltip";
 
 const WOW_CLASSES = ['warrior', 'paladin', 'hunter', 'rogue', 'priest', 'shaman', 'mage', 'warlock', 'druid'] as const;
 const WOW_SPECS = ['tank', 'healer', 'dps', 'rdps'] as const;
@@ -567,18 +568,7 @@ function ModalItemContent({
                     </div>
 
                     {/* Action buttons */}
-                    <div className="flex items-center gap-2 justify-center">
-                        {toggleWishlist && (
-                            <Tooltip content={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}>
-                                <Button
-                                    onPress={() => toggleWishlist(item.id)}
-                                    isIconOnly
-                                    className={`${isWishlisted ? 'bg-gold text-dark border-gold-100' : 'bg-dark text-gold border-gold/50'} rounded border`}
-                                >
-                                    <FontAwesomeIcon icon={faHeart} />
-                                </Button>
-                            </Tooltip>
-                        )}
+                    <div className="flex items-center gap-2 justify-center relative">
                         {reserve && !item.isHardReserved && (
                             <Tooltip content={ruleViolation ?? "Reserve this item"}>
                                 <div>
@@ -608,6 +598,17 @@ function ModalItemContent({
                                     className="bg-red-600 text-default rounded border border-red-700"
                                 >
                                     <FontAwesomeIcon icon={faTrash} />
+                                </Button>
+                            </Tooltip>
+                        )}
+                        {toggleWishlist && (
+                            <Tooltip content={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}>
+                                <Button
+                                    onPress={() => toggleWishlist(item.id)}
+                                    isIconOnly
+                                    className={`${!isWishlisted ? 'bg-pink/30 text-default border-pink' : 'bg-pink/80 text-default border-pink'} rounded border absolute right-6 hover:scale-110 transition-transform`}
+                                >
+                                    {!isWishlisted ? <HeartOff size={16} /> : <FontAwesomeIcon icon={faHeart} />}
                                 </Button>
                             </Tooltip>
                         )}
@@ -721,7 +722,7 @@ export function RaidItemCard({
                         </Chip>
                     </div>
                 )}
-                <div className="relative flex flex-col gap-2 items-center justify-between pt-6">
+                <div className="relative flex flex-col gap-2 items-center justify-between pt-6 w-28 h-24">
                     <img
                         src={item.description.icon}
                         alt={item.name}
@@ -731,10 +732,14 @@ export function RaidItemCard({
                     />
                     <span className="text-xs font-bold text-center leading-tight">{item.name}</span>
                     {item.hasRules && !item.isHardReserved && (
-                        <span className="bg-legendary/30 text-xs text-default flex items-center gap-1 py-0.5 px-1 rounded-lg border border-legendary/50">
-                            <ShieldAlert size={14} />
-                            restricted
-                        </span>
+                        <Tooltip
+                            showArrow
+                            content="Restricted item - click to view rules"
+                        >
+                            <span className="bg-legendary text-xs text-default flex items-center gap-1 py-0.5 px-1 rounded-lg border border-legendary/50 absolute -top-2 -left-2 ">
+                                <ShieldAlert size={14} />
+                            </span>
+                        </Tooltip>
                     )}
                     {item.isHardReserved && (
                         <div className="text-[.5em] font-bold text-center text-gray-800 transition-all flex items-center gap-2 justify-center absolute -bottom-2">
@@ -743,6 +748,11 @@ export function RaidItemCard({
                                 <FontAwesomeIcon icon={faLock} />
                             </span>
                         </div>
+                    )}
+                    {toggleWishlist && isWishlisted && (
+                        <span className="absolute bottom-3 -right-2 text-default text-[.5em] font-bold flex items-center gap-1">
+                            <Heart fill="#E268A8" size={18} strokeWidth={1.5}/>
+                        </span>
                     )}
                 </div>
             </div>

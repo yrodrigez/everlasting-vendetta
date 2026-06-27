@@ -135,7 +135,7 @@ export default function RaidItemsList({ initialReservedItems, resetId, isAdmin }
 
 
     return (
-        <div className="flex flex-col gap-3 w-full overflow-auto lg:overflow-visible max-h-full flex-1 pt-2 lg:pt-0">
+        <div className="flex flex-col gap-3 w-full overflow-auto lg:overflow-visible min-h-0 flex-1 pt-2 lg:pt-0">
             <Filters />
             <ScrollShadow
                 className="flex flex-col gap-4 p-2 w-full h-full overflow-auto scrollbar-pill">

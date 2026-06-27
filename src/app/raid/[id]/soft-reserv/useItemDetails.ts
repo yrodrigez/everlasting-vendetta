@@ -47,6 +47,7 @@ export function useItemDetails(itemId: number | null, resetId: string) {
                     setRealtimeError(true);
                 } else if (status === 'SUBSCRIBED') {
                     setRealtimeError(false);
+                    refetchRef.current?.();
                 }
             });
 

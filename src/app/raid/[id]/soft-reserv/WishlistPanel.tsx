@@ -24,7 +24,7 @@ export function WishlistPanel() {
     }
 
     return (
-        <div className="w-full shrink-0 rounded-md border border-gold/30 bg-dark/80 p-2 shadow-lg shadow-black/20">
+        <div className="w-full shrink-0 rounded-md border border-gold/30 bg-wood-900/80 p-2 shadow-lg shadow-black/20">
             <div className="flex items-center justify-between gap-2 px-1">
                 <div className="flex items-center gap-2">
                     <FontAwesomeIcon icon={faHeart} className="text-gold text-sm" />
@@ -55,7 +55,7 @@ export function WishlistPanel() {
                         return (
                             <div
                                 key={item.id}
-                                className={`flex min-w-56 max-w-64 items-center gap-2 rounded-md border border-${qualityColor}/70 bg-black/30 p-2`}
+                                className={`flex min-w-56 max-w-64 items-center gap-2 rounded-md border border-wood-100 bg-wood p-2`}
                             >
                                 <button
                                     type="button"
