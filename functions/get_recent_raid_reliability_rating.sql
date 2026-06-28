@@ -60,6 +60,7 @@ valid_resets AS (
               END
           )
     ) >= r.size * 0.5
+      AND COALESCE(rs.is_rrs_active, true)
       AND COALESCE(rs.status, '') <> 'cancelled'
       AND (
             rs.end_date::timestamp

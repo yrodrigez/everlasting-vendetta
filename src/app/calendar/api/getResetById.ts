@@ -22,6 +22,7 @@ export default async function getResetById(id: string, supabase: SupabaseClient)
             name: string;
             realm: string;
             created_by: number | null;
+            is_rrs_active: boolean | null;
             composition: RaidCompositionInput | null;
         }>();
 

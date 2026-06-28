@@ -18,6 +18,7 @@ export function ResetCRUDStoreManager({reset, children}: { reset: any, children:
         setOnTimeBonusExtraEnabled,
         setOnTimeBonusExtraAmmount,
         setOnTimeBonusCutoffHours,
+        setIsRrsActive,
         setCreatedById,
         setComposition,
     } = useCreateRaidStore(useShallow(state => ({
@@ -33,6 +34,7 @@ export function ResetCRUDStoreManager({reset, children}: { reset: any, children:
         setOnTimeBonusExtraEnabled: state.setOnTimeBonusExtraEnabled,
         setOnTimeBonusExtraAmmount: state.setOnTimeBonusExtraAmmount,
         setOnTimeBonusCutoffHours: state.setOnTimeBonusCutoffHours,
+        setIsRrsActive: state.setIsRrsActive,
         setCreatedById: state.setCreatedById,
         setComposition: state.setComposition,
     })))
@@ -50,6 +52,7 @@ export function ResetCRUDStoreManager({reset, children}: { reset: any, children:
         setOnTimeBonusExtraEnabled(reset.on_time_bonus_enabled ?? false)
         setOnTimeBonusExtraAmmount(reset.on_time_bonus_extra_reservations ?? 0)
         setOnTimeBonusCutoffHours(reset.on_time_bonus_cutoff_hours ?? 0)
+        setIsRrsActive(reset.is_rrs_active ?? true)
         setCreatedById(reset.created_by ?? undefined)
         setComposition(normalizeComposition(reset.composition, reset.raid?.size ?? 10))
     }, []);

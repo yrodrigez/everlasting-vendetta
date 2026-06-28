@@ -6,6 +6,7 @@ import { CompositionManager } from "@/app/calendar/new/Components/CompositionMan
 import { DaysSelection } from "@/app/calendar/new/Components/DaysSelection";
 import { RaidCard } from "@/app/calendar/new/Components/RaidCard";
 import RaidsSelector from "@/app/calendar/new/Components/RaidsSelector";
+import { RrsToggle } from "@/app/calendar/new/Components/RrsToggle";
 import StartDate from "@/app/calendar/new/Components/StartDate";
 import TimeManager from "@/app/calendar/new/Components/TimeManager";
 import NotLoggedInView from "@/components/NotLoggedInView";
@@ -51,6 +52,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                             <TimeManager />
                         </div>
                         <DaysSelection />
+                        <RrsToggle />
                         <SoftReservesManager />
                         <CompositionManager />
                     </div>

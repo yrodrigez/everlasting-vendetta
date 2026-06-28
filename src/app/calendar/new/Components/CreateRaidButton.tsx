@@ -11,7 +11,7 @@ import { useCharacterStore } from "@/components/characterStore";
 import { useSupabase } from "@/context/SupabaseContext";
 
 export function CreateRaidButton() {
-    const { raid, endTime, startTime, startDate, endDate, days, allowSoftReserves, softReservesAmmount, onTimeBonusExtraEnabled, onTimeBonusExtraAmmount, onTimeBonusCutoffHours, createdById, composition } = useCreateRaidStore(useShallow(state => ({
+    const { raid, endTime, startTime, startDate, endDate, days, allowSoftReserves, softReservesAmmount, onTimeBonusExtraEnabled, onTimeBonusExtraAmmount, onTimeBonusCutoffHours, isRrsActive, createdById, composition } = useCreateRaidStore(useShallow(state => ({
         raid: state.raid,
         endTime: state.endTime,
         startTime: state.startTime,
@@ -24,6 +24,7 @@ export function CreateRaidButton() {
         onTimeBonusExtraEnabled: state.onTimeBonusExtraEnabled,
         onTimeBonusExtraAmmount: state.onTimeBonusExtraAmmount,
         onTimeBonusCutoffHours: state.onTimeBonusCutoffHours,
+        isRrsActive: state.isRrsActive,
         createdById: state.createdById,
         composition: state.composition,
     })))
@@ -58,6 +59,7 @@ export function CreateRaidButton() {
             on_time_bonus_enabled: onTimeBonusExtraEnabled,
             on_time_bonus_extra_reservations: onTimeBonusExtraAmmount,
             on_time_bonus_cutoff_hours: onTimeBonusCutoffHours,
+            is_rrs_active: isRrsActive,
             name: raid.name,
             composition: {
                 ...composition,
@@ -77,7 +79,7 @@ export function CreateRaidButton() {
 
         router.push('/raid/' + data?.[0].id)
 
-    }, [raid, endTime, startTime, startDate, endDate, days, selectedCharacter, realm, supabase, router, allowSoftReserves, softReservesAmmount, onTimeBonusExtraEnabled, onTimeBonusExtraAmmount, onTimeBonusCutoffHours, createdById, composition])
+    }, [raid, endTime, startTime, startDate, endDate, days, selectedCharacter, realm, supabase, router, allowSoftReserves, softReservesAmmount, onTimeBonusExtraEnabled, onTimeBonusExtraAmmount, onTimeBonusCutoffHours, isRrsActive, createdById, composition])
 
     const isCompositionValid = !!raid && !!composition && getCompositionCount(composition) === raid.size
 

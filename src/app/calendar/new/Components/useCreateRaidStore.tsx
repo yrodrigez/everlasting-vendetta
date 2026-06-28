@@ -50,6 +50,8 @@ interface RaidStore {
     setOnTimeBonusExtraAmmount: (ammount: number) => void
     onTimeBonusCutoffHours: number,
     setOnTimeBonusCutoffHours: (hours: number) => void
+    isRrsActive: boolean,
+    setIsRrsActive: (active: boolean) => void
     createdById?: number,
     setCreatedById: (id?: number) => void
     composition?: RaidCompositionInput,
@@ -61,14 +63,14 @@ const initialState = {
     startDate: new Date(),
     endDate: undefined,
     startTime: '20:30',
-    endTime: '23:59',
+    endTime: '23:30',
     days: undefined,
     loading: false,
     realm: 'spineshatter',
     setRealm: () => { },
     allowSoftReserves: true,
     setAllowSoftReserves: () => { },
-    softReservesAmmount: 0,
+    softReservesAmmount: 2,
     setSoftReservesAmmount: () => { },
     onTimeBonusExtraEnabled: false,
     setOnTimeBonusExtraEnabled: () => { },
@@ -76,6 +78,8 @@ const initialState = {
     setOnTimeBonusExtraAmmount: () => { },
     onTimeBonusCutoffHours: 24,
     setOnTimeBonusCutoffHours: () => { },
+    isRrsActive: true,
+    setIsRrsActive: () => { },
     createdById: undefined,
     setCreatedById: () => { },
     composition: undefined,
@@ -96,6 +100,7 @@ export default createStore<RaidStore>(((set) => ({
     setOnTimeBonusExtraEnabled: (onTimeBonusExtraEnabled) => set({ onTimeBonusExtraEnabled }),
     setOnTimeBonusExtraAmmount: (onTimeBonusExtraAmmount) => set({ onTimeBonusExtraAmmount }),
     setOnTimeBonusCutoffHours: (onTimeBonusCutoffHours) => set({ onTimeBonusCutoffHours }),
+    setIsRrsActive: (isRrsActive) => set({ isRrsActive }),
     setCreatedById: (createdById) => set({ createdById }),
     setComposition: (composition) => set({ composition: composition ? { ...composition, raid_lead: 1 } : undefined }),
 })));
