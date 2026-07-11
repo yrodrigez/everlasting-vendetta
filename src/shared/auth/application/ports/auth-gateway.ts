@@ -2,6 +2,7 @@ export interface RefreshAuthResponse {
     accessToken: string;
     sessionId: string;
     expiresAt: number;
+    refreshTokenExpiresAt: number;
     accessTokenExpiresAt: number;
     provider?: string | null;
 }

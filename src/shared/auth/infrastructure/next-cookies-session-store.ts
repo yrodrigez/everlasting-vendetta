@@ -99,6 +99,9 @@ export class NextCookiesSessionStore implements SessionStore {
 
     private setCookie(name: string, value: string, maxAge: number) {
         const normalizedMaxAge = Number.isFinite(maxAge) ? Math.max(0, Math.trunc(maxAge)) : undefined;
+        if (!normalizedMaxAge) {
+            console.warn(`Set cookie "${name}" with invalid maxAge: ${maxAge}.`);
+        }
         this.cookies.set(name, value, {
             ...this.config.cookieOptions,
             //maxAge: normalizedMaxAge,

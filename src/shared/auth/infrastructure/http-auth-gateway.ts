@@ -28,7 +28,6 @@ export class HttpAuthGateway implements AuthGateway {
     }
 
     async refresh(params: { sessionId: string }): Promise<RefreshAuthResponse> {
-        console.log('[HttpAuthGateway] baseUrl: ', this.baseUrl);
         const response = await fetch(`${this.baseUrl}/auth/refresh`, {
             method: 'POST',
             headers: {

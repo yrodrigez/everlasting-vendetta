@@ -43,11 +43,10 @@ export class RefreshSessionUseCase {
             await this.dependencies.sessionStore.clear();
             throw new RefreshSessionError('Refresh failed', 401, { cause: error });
         }
-
         await this.dependencies.sessionStore.replaceRefreshToken(
             refreshTokenEntry.key,
             refreshResponse.sessionId,
-            refreshResponse.expiresAt,
+            refreshResponse.refreshTokenExpiresAt,
         );
 
         const redirectTo = this.resolveRedirect(refreshResponse);

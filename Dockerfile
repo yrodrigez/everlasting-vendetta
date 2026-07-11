@@ -2,7 +2,7 @@ FROM node:24-bookworm-slim AS builder
 
 WORKDIR /app
 
-RUN corepack enable && corepack prepare pnpm@10.18.3 --activate
+RUN corepack enable && corepack prepare pnpm@11.11.0 --activate
 
 COPY package.json pnpm-lock.yaml ./
 COPY pnpm-workspace.yaml ./
