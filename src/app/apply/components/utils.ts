@@ -15,37 +15,44 @@ export type ApplyFormValues = {
 export function validateCharactersName(name: string) {
     // Check if the name meets the required length
     if (name.length < 2 || name.length > 12) {
-        return false;
+        return { valid: false, error: 'Character name must be between 2 and 12 characters long.' };
     }
 
     // Check if the name starts with a letter and contains only letters
     if (!/^[A-Za-z]+$/.test(name)) {
-        return false;
+        return { valid: false, error: 'Character name must contain only letters.' };
     }
 
-    // Verify that it doesn't have more than 4 consecutive consonants or 3 consecutive vowels
-    return !/[^aeiouAEIOU]{5,}|[aeiouAEIOU]{4,}/.test(name);
+    // Verify that it doesn't have more than 6 consecutive consonants or 5 consecutive vowels
+    if (!/[^aeiouAEIOU]{7,}|[aeiouAEIOU]{6,}/.test(name)) {
+        return { valid: false, error: 'Character name must not have more than 6 consecutive consonants or 5 consecutive vowels.' };
+    }
+
+    return { valid: true, error: null };
 }
 
 export function validateStore(store: ApplyFormValues) {
     const role = store.characterRole.toLowerCase()
     const characterClass = store.characterClass.toLowerCase()
     if (role === 'healer' && !healingClasses.includes(characterClass)) {
-        return {error: 'Invalid class for healer role'}
+        return { error: 'Invalid class for healer role' }
     }
     if (role === 'tank' && !tankClasses.includes(characterClass)) {
-        return {error: 'Invalid class for tank role'}
+        return { error: 'Invalid class for tank role' }
     }
-    if( role === 'rdps' && !rdpsClasses.includes(characterClass) ) {
-        return {error: 'Invalid class for rdps role'}
+    if (role === 'rdps' && !rdpsClasses.includes(characterClass)) {
+        return { error: 'Invalid class for rdps role' }
     }
     if (role === 'dps' && !dpsClasses.includes(characterClass)) {
-        return {error: 'Invalid class for dps role'}
+        return { error: 'Invalid class for dps role' }
     }
-    if (!validateCharactersName(store.name)) {
-        return {error: 'Invalid character name'}
+
+    const validation = validateCharactersName(store.name)
+    if (!validation.valid) {
+        return { error: validation.error }
     }
-    return {error: null}
+    // Removed redundant validation as it's already done above
+    return { error: null }
 }
 
 export async function onForm(state: ApplyFormValues) {
@@ -66,10 +73,11 @@ export async function onForm(state: ApplyFormValues) {
 
     if (!response.ok) {
         const data = await response.json()
-        return {error: data.error}
+        console.error('Error submitting application:', data)
+        return { error: data.error }
     }
 
-    return {error: null}
+    return { error: null }
 }
 
 export function getClassIcon(classname: string) {
