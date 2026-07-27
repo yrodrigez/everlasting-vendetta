@@ -23,11 +23,6 @@ export function validateCharactersName(name: string) {
         return { valid: false, error: 'Character name must contain only letters.' };
     }
 
-    // Verify that it doesn't have more than 6 consecutive consonants or 5 consecutive vowels
-    if (!/[^aeiouAEIOU]{7,}|[aeiouAEIOU]{6,}/.test(name)) {
-        return { valid: false, error: 'Character name must not have more than 6 consecutive consonants or 5 consecutive vowels.' };
-    }
-
     return { valid: true, error: null };
 }
 
