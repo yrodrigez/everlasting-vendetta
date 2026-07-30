@@ -185,11 +185,13 @@ export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen
     const maxReservationsAudio = useAudio('/sounds/HumanMale_err_itemmaxcount01.ogg');
 
     const { user } = useAuth();
+    const [isReserving, setIsReserving] = useState(false);
     const reserve = useCallback(async (itemId: number, characterId = selectedCharacter?.id) => {
-        if (!characterId || !supabase || !user) return
-
+        if (!characterId || !supabase || !user || isReserving) return
+        setIsReserving(true);
         if (raidStatus === 'locked' && !isPresent) {
             toast.error('Raid is locked. You must be a participant to reserve items.')
+            setIsReserving(false);
             return
         }
 
@@ -205,13 +207,22 @@ export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen
             if (error) {
                 console.error('Error registering on raid', error);
                 toast.error('Error reserving item: ' + error.message);
+                setIsReserving(false);
                 return;
             }
+        }
+
+        if (yourReserves.length >= maxReservations && characterId === selectedCharacter?.id) {
+            toast.error(`You have reached the maximum number of reservations (${maxReservations}) for this reset.`);
+            maxReservationsAudio?.play().then().catch(console.error);
+            setIsReserving(false);
+            return;
         }
 
         const item = items.find(({ id }) => id === itemId)
         if (!item) {
             console.error(`Item with id ${itemId} not found`)
+            setIsReserving(false);
             return
         }
 
@@ -242,7 +253,9 @@ export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen
         const previousReserves = reserves;
 
         // Optimistic update: Add reservation immediately
-        setReserves([...reserves, optimisticReservation]);
+        if (characterId === selectedCharacter?.id) {
+            setReserves([...reserves, optimisticReservation]);
+        }
         reserveAudio?.play().then().catch(console.error);
 
         try {
@@ -257,15 +270,14 @@ export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen
             }
 
             // Success
-            setReserves(currentReserves => currentReserves.map(reservation => {
-                if (reservation.id === optimisticReservation.id) {
-                    return { ...reservation, id: id || reservation.id };
-                }
-                return reservation;
-            }));
-
-
-
+            if (characterId === selectedCharacter?.id) {
+                setReserves(currentReserves => currentReserves.map(reservation => {
+                    if (reservation.id === optimisticReservation.id) {
+                        return { ...reservation, id: id || reservation.id };
+                    }
+                    return reservation;
+                }));
+            }
 
             // Realtime will handle final synchronization with real data from DB
         } catch (error) {
@@ -273,8 +285,10 @@ export const RaidItemsProvider = ({ resetId, children, initialItems = [], isOpen
             console.error('Error reserving item, rolling back:', error);
             setReserves(previousReserves);
             toast.error('Error reserving item');
+        } finally {
+            setIsReserving(false);
         }
-    }, [resetId, supabase, items, isPresent, selectedCharacter, reserves, repository, reserveAudio, maxReservationsAudio, raidStatus]);
+    }, [resetId, supabase, items, isPresent, selectedCharacter, reserves, repository, reserveAudio, maxReservationsAudio, raidStatus, isReserving, user]);
 
     const remove = useCallback(async (reservationId: string) => {
         if (!selectedCharacter?.id || !supabase) return
